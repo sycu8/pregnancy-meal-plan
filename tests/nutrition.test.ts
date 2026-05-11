@@ -105,4 +105,14 @@ describe("rule-based meal planner", () => {
     expect(plan.shoppingBatches[2].days).toEqual([5, 6, 7]);
     expect(plan.shoppingBatches[0].shoppingList.proteins.length + plan.shoppingBatches[0].shoppingList.vegetables.length).toBeGreaterThan(0);
   });
+
+  it("estimates meal and shopping batch costs from a grocery price guide", () => {
+    const plan = ruleBasedMealPlanner(baseProfile);
+    const firstDay = plan.days[0];
+
+    expect(firstDay.breakfast.estimatedCostVnd).toBeGreaterThan(0);
+    expect(firstDay.lunch.estimatedCostVnd).toBeGreaterThan(firstDay.morningSnack.estimatedCostVnd);
+    expect(plan.shoppingBatches[0].estimatedCostVnd).toBeGreaterThan(firstDay.breakfast.estimatedCostVnd);
+    expect(plan.costEstimate.sourceNames).toContain("Kingfoodmart");
+  });
 });

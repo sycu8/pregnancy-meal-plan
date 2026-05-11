@@ -47,6 +47,7 @@ export function MealPlanResult() {
     (total, item) => total + (item.estimatedCalories ?? 0),
     0
   );
+  const dayCost = dayMeals.reduce((total, item) => total + (item.estimatedCostVnd ?? 0), 0);
   const shoppingBatches = plan.shoppingBatches?.length ? plan.shoppingBatches : buildFallbackShoppingBatches(plan);
 
   return (
@@ -100,6 +101,7 @@ export function MealPlanResult() {
           </div>
           <p className="rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground">
             Ngày {activeDay.day}: {dayCalories > 0 ? `khoảng ${dayCalories} kcal` : "ước tính sẽ có khi tạo lại"}
+            {dayCost > 0 ? ` · ${formatVnd(dayCost)}` : ""}
           </p>
         </div>
 
@@ -144,10 +146,16 @@ export function MealPlanResult() {
         <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">
           Rau lá, thịt, cá, đậu hũ và trái cây mềm nên mua thành nhiều đợt nhỏ để giữ độ tươi. Đồ khô như gạo, yến mạch, hạt và gia vị có thể chuẩn bị trước.
         </p>
+        <p className="mt-2 max-w-3xl text-xs leading-5 text-muted-foreground">
+          Nguồn giá tham khảo: {plan.costEstimate?.sourceNames?.join(", ") ?? "Kingfoodmart, WinMart, GO!/BigC/Tops"}. {plan.costEstimate?.note ?? "Giá có thể thay đổi theo khu vực và khuyến mãi."}
+        </p>
         <div className="mt-5 grid gap-4 lg:grid-cols-3">
           {shoppingBatches.map((batch) => (
             <div key={batch.label} className="rounded-md border border-border p-4">
-              <h3 className="font-semibold">{batch.label}</h3>
+              <div className="flex items-start justify-between gap-3">
+                <h3 className="font-semibold">{batch.label}</h3>
+                {batch.estimatedCostVnd > 0 && <span className="rounded-md bg-muted px-2 py-1 text-xs font-semibold">{formatVnd(batch.estimatedCostVnd)}</span>}
+              </div>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">{batch.freshnessNote}</p>
               <ShoppingListGroups shoppingList={batch.shoppingList} />
             </div>
@@ -184,6 +192,7 @@ function Metric({ label, value }: { label: string; value: string }) {
 
 function MealBlock({ title, item }: { title: string; item: MealItem }) {
   const hasEstimate = item.portionGram > 0 && item.estimatedCalories > 0;
+  const hasCost = item.estimatedCostVnd > 0;
 
   return (
     <div className="rounded-md border border-border p-4">
@@ -192,6 +201,7 @@ function MealBlock({ title, item }: { title: string; item: MealItem }) {
       {hasEstimate && (
         <p className="mt-2 rounded-md bg-muted px-3 py-2 text-xs font-medium text-foreground">
           Ước tính: {item.portionGram} g · {item.estimatedCalories} kcal
+          {hasCost ? ` · ${formatVnd(item.estimatedCostVnd)}` : ""}
         </p>
       )}
       <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.reason}</p>
@@ -243,8 +253,18 @@ function buildFallbackShoppingBatches(plan: MealPlan): MealPlan["shoppingBatches
       days: [1, 2],
       shoppingList: plan.shoppingList,
       freshnessNote: "Thực đơn cũ chưa có lịch đi chợ theo đợt. Hãy tạo lại để có danh sách chính xác hơn."
+      ,
+      estimatedCostVnd: 0
     }
   ];
+}
+
+function formatVnd(value: number) {
+  return new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
+    maximumFractionDigits: 0
+  }).format(value);
 }
 
 function ListPanel({ title, items }: { title: string; items: string[] }) {

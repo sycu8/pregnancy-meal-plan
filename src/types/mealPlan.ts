@@ -15,6 +15,7 @@ export type MealPlan = {
   days: MealPlanDay[];
   shoppingList: ShoppingList;
   shoppingBatches: ShoppingBatch[];
+  costEstimate: CostEstimate;
   safetyWarnings: string[];
   specialNotes: string[];
   urgentWarnings?: string[];
@@ -37,6 +38,7 @@ export type MealItem = {
   nutrients: string[];
   portionGram: number;
   estimatedCalories: number;
+  estimatedCostVnd: number;
   alternatives?: string[];
   caution?: string;
 };
@@ -55,4 +57,11 @@ export type ShoppingBatch = {
   days: number[];
   shoppingList: ShoppingList;
   freshnessNote: string;
+  estimatedCostVnd: number;
+};
+
+export type CostEstimate = {
+  sourceNames: string[];
+  updatedAt: string;
+  note: string;
 };

@@ -8,6 +8,7 @@ import {
   getGeneralPregnancyFoodWarnings,
   MEDICAL_DISCLAIMER
 } from "./safetyRules";
+import { estimateShoppingListCostVnd, groceryPriceGuideUpdatedAt, groceryPriceNote, groceryPriceSources } from "./priceGuide";
 import { getWeightGainStatus } from "./weightGain";
 
 type PoolName = "breakfast" | "main" | "snack";
@@ -55,6 +56,11 @@ export function ruleBasedMealPlanner(profile: PregnancyProfile): MealPlan {
     days,
     shoppingList: buildShoppingList(days.flatMap((day) => [day.breakfast, day.morningSnack, day.lunch, day.afternoonSnack, day.dinner])),
     shoppingBatches: buildShoppingBatches(days),
+    costEstimate: {
+      sourceNames: [...groceryPriceSources],
+      updatedAt: groceryPriceGuideUpdatedAt,
+      note: groceryPriceNote
+    },
     safetyWarnings: [...getGeneralPregnancyFoodWarnings(), ...getConditionSpecificWarnings(profile)],
     specialNotes: getConditionSpecificWarnings(profile),
     urgentWarnings: detectUrgentWarnings(profile)
@@ -72,7 +78,8 @@ function buildShoppingBatches(days: MealPlan["days"]): MealPlan["shoppingBatches
     const selectedDays = days.filter((day) => range.days.includes(day.day));
     return {
       ...range,
-      shoppingList: mergeShoppingLists(selectedDays.map((day) => day.dailyShoppingList))
+      shoppingList: mergeShoppingLists(selectedDays.map((day) => day.dailyShoppingList)),
+      estimatedCostVnd: estimateShoppingListCostVnd(mergeShoppingLists(selectedDays.map((day) => day.dailyShoppingList)))
     };
   });
 }
@@ -171,6 +178,7 @@ function toMealItem(meal: MealRecord, pool: PoolName, profile: PregnancyProfile)
     nutrients: meal.nutrients,
     portionGram: meal.portionGram,
     estimatedCalories: meal.estimatedCalories,
+    estimatedCostVnd: meal.estimatedCostVnd,
     alternatives,
     caution: meal.caution
   };

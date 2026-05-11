@@ -1,4 +1,5 @@
 import type { MealItem } from "@/types/mealPlan";
+import { estimateIngredientCostVnd, roundToNearest500 } from "./priceGuide";
 
 export type MealTag =
   | "morning_sickness"
@@ -107,12 +108,14 @@ function meal(
   caution = safeCooked
 ): MealRecord {
   const estimates = estimateMealPortion(name, tags);
+  const estimatedCostVnd = estimateMealCost(ingredients, estimates.portionGram);
   const record: MealRecord = {
     name,
     reason,
     nutrients,
     portionGram: estimates.portionGram,
     estimatedCalories: estimates.estimatedCalories,
+    estimatedCostVnd,
     alternatives: [],
     caution,
     tags,
@@ -125,6 +128,13 @@ function meal(
   }
 
   return record;
+}
+
+function estimateMealCost(ingredients: string[], portionGram: number) {
+  if (ingredients.length === 0) return 0;
+  const ingredientPortion = Math.max(45, Math.round(portionGram / ingredients.length));
+  const total = ingredients.reduce((sum, ingredient) => sum + estimateIngredientCostVnd(ingredient, ingredientPortion), 0);
+  return roundToNearest500(total);
 }
 
 function estimateMealPortion(name: string, tags: MealTag[]) {
