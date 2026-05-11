@@ -1,0 +1,181 @@
+import type { MealItem, MealPlan, ShoppingList } from "@/types/mealPlan";
+import type { CuisinePreference, HealthCondition, NutritionGoal, PregnancyProfile } from "@/types/pregnancy";
+import { calculateBmi, getBmiCategory } from "./bmi";
+import { breakfastMeals, mainMeals, type MealRecord, type MealTag, snackMeals } from "./mealDatabase";
+import {
+  detectUrgentWarnings,
+  getConditionSpecificWarnings,
+  getGeneralPregnancyFoodWarnings,
+  MEDICAL_DISCLAIMER
+} from "./safetyRules";
+import { getWeightGainStatus } from "./weightGain";
+
+type PoolName = "breakfast" | "main" | "snack";
+
+export function ruleBasedMealPlanner(profile: PregnancyProfile): MealPlan {
+  const bmi = calculateBmi(profile.prePregnancyWeightKg, profile.heightCm);
+  const bmiCategory = getBmiCategory(bmi);
+  const weightGainKg = Number((profile.currentWeightKg - profile.prePregnancyWeightKg).toFixed(1));
+  const weightGainStatus = getWeightGainStatus({ currentGainKg: weightGainKg, pregnancyWeek: profile.pregnancyWeek, bmiCategory });
+  const used = new Set<string>();
+
+  const days = Array.from({ length: 7 }, (_, index) => {
+    const breakfast = chooseMeal("breakfast", profile, used, index);
+    const morningSnack = chooseMeal("snack", profile, used, index + 1);
+    const lunch = chooseMeal("main", profile, used, index * 2);
+    const afternoonSnack = chooseMeal("snack", profile, used, index + 8);
+    const dinner = chooseMeal("main", profile, used, index * 2 + 1);
+
+    return {
+      day: index + 1,
+      breakfast: toMealItem(breakfast, "breakfast", profile),
+      morningSnack: toMealItem(morningSnack, "snack", profile),
+      lunch: toMealItem(lunch, "main", profile),
+      afternoonSnack: toMealItem(afternoonSnack, "snack", profile),
+      dinner: toMealItem(dinner, "main", profile),
+      hydrationNote: "Uống nước đều trong ngày; thêm trái cây tươi nguyên miếng nếu không có chống chỉ định."
+    };
+  });
+
+  return {
+    id: createPlanId(),
+    createdAt: new Date().toISOString(),
+    profileSnapshot: profile,
+    summary: {
+      bmi,
+      bmiCategory,
+      weightGainKg: Number.isFinite(weightGainKg) ? weightGainKg : null,
+      weightGainStatus,
+      message: buildSummaryMessage(weightGainStatus),
+      disclaimer: MEDICAL_DISCLAIMER
+    },
+    days,
+    shoppingList: buildShoppingList(days.flatMap((day) => [day.breakfast, day.morningSnack, day.lunch, day.afternoonSnack, day.dinner])),
+    safetyWarnings: [...getGeneralPregnancyFoodWarnings(), ...getConditionSpecificWarnings(profile)],
+    specialNotes: getConditionSpecificWarnings(profile),
+    urgentWarnings: detectUrgentWarnings(profile)
+  };
+}
+
+function chooseMeal(pool: PoolName, profile: PregnancyProfile, used: Set<string>, offset: number): MealRecord {
+  const source = pool === "breakfast" ? breakfastMeals : pool === "snack" ? snackMeals : mainMeals;
+  const filtered = source
+    .filter((meal) => isAllowedByPreferences(meal, profile))
+    .sort((a, b) => scoreMeal(b, profile) - scoreMeal(a, profile));
+
+  const candidates = filtered.length > 0 ? filtered : source;
+  const firstUnused = candidates.find((meal) => !used.has(meal.name));
+  const selected = firstUnused ?? candidates[offset % candidates.length];
+  used.add(selected.name);
+  return selected;
+}
+
+function scoreMeal(meal: MealRecord, profile: PregnancyProfile): number {
+  const conditions = profile.healthConditions.filter((condition) => condition !== "none");
+  let score = 0;
+
+  for (const condition of conditions) {
+    const tag = conditionToTag(condition);
+    if (tag && meal.tags.includes(tag)) score += 3;
+  }
+  for (const goal of profile.goals) {
+    if (goalToTags(goal).some((tag) => meal.tags.includes(tag))) score += 2;
+  }
+  const budgetTag = `budget_${profile.budget}` as MealTag;
+  if (meal.tags.includes(budgetTag)) score += 2;
+  if (profile.cookingTime === "under_15" && meal.tags.includes("quick")) score += 2;
+  if (profile.cookingTime === "meal_prep" && meal.tags.includes("meal_prep")) score += 2;
+  if (profile.cuisinePreferences.includes("vegetarian") && meal.tags.includes("vegetarian")) score += 5;
+
+  return score;
+}
+
+function isAllowedByPreferences(meal: MealRecord, profile: PregnancyProfile): boolean {
+  const text = JSON.stringify([meal.name, meal.ingredients, meal.nutrients]).toLowerCase();
+  const preferences = new Set<CuisinePreference>(profile.cuisinePreferences);
+  const blockedTerms = splitFreeText(`${profile.allergies ?? ""},${profile.dislikedFoods ?? ""}`);
+
+  if (preferences.has("vegetarian") && !meal.tags.includes("vegetarian")) return false;
+  if (preferences.has("no_fish") && !meal.tags.includes("no_fish_safe")) return false;
+  if (preferences.has("no_beef") && !meal.tags.includes("no_beef_safe")) return false;
+  if (preferences.has("no_seafood") && !meal.tags.includes("no_seafood_safe")) return false;
+  if (blockedTerms.some((term) => term.length >= 2 && text.includes(term))) return false;
+
+  return true;
+}
+
+function conditionToTag(condition: HealthCondition): MealTag | null {
+  if (condition === "morning_sickness" || condition === "constipation" || condition === "anemia" || condition === "gestational_diabetes") {
+    return condition;
+  }
+  if (condition === "fast_weight_gain" || condition === "large_fetus") return "gestational_diabetes";
+  if (condition === "slow_weight_gain" || condition === "small_fetus") return "budget_high";
+  return null;
+}
+
+function goalToTags(goal: NutritionGoal): MealTag[] {
+  const tags: Record<NutritionGoal, MealTag[]> = {
+    balanced: ["budget_medium"],
+    weight_control: ["gestational_diabetes"],
+    healthy_weight_gain: ["budget_high"],
+    reduce_nausea: ["morning_sickness"],
+    blood_sugar_control: ["gestational_diabetes"],
+    relieve_constipation: ["constipation"],
+    increase_iron_calcium_protein: ["anemia"]
+  };
+
+  return tags[goal];
+}
+
+function toMealItem(meal: MealRecord, pool: PoolName, profile: PregnancyProfile): MealItem {
+  const source = pool === "breakfast" ? breakfastMeals : pool === "snack" ? snackMeals : mainMeals;
+  const alternatives = source
+    .filter((candidate) => candidate.name !== meal.name && isAllowedByPreferences(candidate, profile))
+    .slice(0, 2)
+    .map((candidate) => candidate.name);
+
+  return {
+    name: meal.name,
+    reason: meal.reason,
+    nutrients: meal.nutrients,
+    alternatives,
+    caution: meal.caution
+  };
+}
+
+function buildShoppingList(items: MealItem[]): ShoppingList {
+  const allMeals = [...breakfastMeals, ...mainMeals, ...snackMeals];
+  const shoppingList: ShoppingList = { proteins: [], vegetables: [], fruits: [], dairy: [], grains: [], others: [] };
+
+  for (const item of items) {
+    const meal = allMeals.find((candidate) => candidate.name === item.name);
+    if (!meal) continue;
+    for (const key of Object.keys(shoppingList) as (keyof ShoppingList)[]) {
+      shoppingList[key].push(...(meal.ingredients[key] ?? []));
+    }
+  }
+
+  return Object.fromEntries(
+    Object.entries(shoppingList).map(([key, values]) => [key, Array.from(new Set(values)).sort()])
+  ) as ShoppingList;
+}
+
+function splitFreeText(value: string): string[] {
+  return value
+    .toLowerCase()
+    .split(/[,;\n]/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function createPlanId() {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) return crypto.randomUUID();
+  return `plan-${Date.now()}`;
+}
+
+function buildSummaryMessage(status: MealPlan["summary"]["weightGainStatus"]) {
+  if (status === "low") return "Mức tăng cân đang thấp hơn khoảng tham khảo. Mình sẽ ưu tiên bữa giàu đạm, năng lượng lành mạnh và dễ ăn.";
+  if (status === "high") return "Mức tăng cân đang cao hơn khoảng tham khảo. Mình sẽ ưu tiên rau, đạm nạc và tinh bột chậm, vẫn giữ bữa ăn đủ chất.";
+  if (status === "normal") return "Các chỉ số đang nằm trong khoảng tham khảo. Mình sẽ gợi ý thực đơn cân bằng, dễ nấu và phù hợp tuần thai.";
+  return "Mình chưa có đủ dữ liệu để đánh giá tăng cân. Thực đơn vẫn được tạo theo thông tin bạn đã nhập.";
+}

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Bầu Ăn Gì?">
+  <rect width="64" height="64" rx="18" fill="#bd5f42"/>
+  <path d="M32 50s-18-10.8-22-24.1C7.7 18 12.4 12 19.3 12c4.1 0 7.6 2.2 9.7 5.5C31.1 14.2 34.6 12 38.7 12 45.6 12 50.3 18 48 25.9 44 39.2 32 50 32 50Z" fill="#fffaf5"/>
+  <path d="M13 31h8l4-8 7 18 5-11h14" fill="none" stroke="#287a69" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
