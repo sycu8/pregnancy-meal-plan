@@ -47,6 +47,7 @@ export function MealPlanResult() {
     (total, item) => total + (item.estimatedCalories ?? 0),
     0
   );
+  const shoppingBatches = plan.shoppingBatches?.length ? plan.shoppingBatches : buildFallbackShoppingBatches(plan);
 
   return (
     <div className="space-y-6">
@@ -137,6 +138,23 @@ export function MealPlanResult() {
         <DailyShoppingList shoppingList={activeDay.dailyShoppingList ?? plan.shoppingList} />
       </section>
 
+      <section className="rounded-lg border border-border bg-white p-5">
+        <p className="text-sm font-medium text-accent">Lịch đi chợ tươi ngon</p>
+        <h2 className="mt-1 text-xl font-semibold">Ưu tiên mua theo 2-3 ngày/lần</h2>
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">
+          Rau lá, thịt, cá, đậu hũ và trái cây mềm nên mua thành nhiều đợt nhỏ để giữ độ tươi. Đồ khô như gạo, yến mạch, hạt và gia vị có thể chuẩn bị trước.
+        </p>
+        <div className="mt-5 grid gap-4 lg:grid-cols-3">
+          {shoppingBatches.map((batch) => (
+            <div key={batch.label} className="rounded-md border border-border p-4">
+              <h3 className="font-semibold">{batch.label}</h3>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">{batch.freshnessNote}</p>
+              <ShoppingListGroups shoppingList={batch.shoppingList} />
+            </div>
+          ))}
+        </div>
+      </section>
+
       <NutrientGuidancePanel />
 
       <section className="grid gap-5 md:grid-cols-2">
@@ -187,28 +205,46 @@ function MealBlock({ title, item }: { title: string; item: MealItem }) {
 function DailyShoppingList({ shoppingList }: { shoppingList: MealPlan["shoppingList"] }) {
   return (
     <section className="mt-5 rounded-md bg-muted p-4">
-      <h3 className="font-semibold">Danh sách đi chợ cho ngày này</h3>
-      <div className="mt-4 grid gap-4 md:grid-cols-2">
-        {Object.entries(groupLabels).map(([key, label]) => {
-          const items = shoppingList[key as keyof typeof groupLabels];
-          return (
-            <div key={key}>
-              <h4 className="text-sm font-medium">{label}</h4>
-              {items.length > 0 ? (
-                <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
-                  {items.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="mt-2 text-sm text-muted-foreground">Không có món trong nhóm này.</p>
-              )}
-            </div>
-          );
-        })}
-      </div>
+      <h3 className="font-semibold">Danh sách nguyên liệu riêng cho ngày này</h3>
+      <p className="mt-2 text-sm leading-6 text-muted-foreground">Dùng để kiểm tra nhanh khi nấu ngày đang chọn. Phần bên dưới gom lại thành lịch đi chợ 2-3 ngày/lần.</p>
+      <ShoppingListGroups shoppingList={shoppingList} />
     </section>
   );
+}
+
+function ShoppingListGroups({ shoppingList }: { shoppingList: MealPlan["shoppingList"] }) {
+  return (
+    <div className="mt-4 grid gap-4 md:grid-cols-2">
+      {Object.entries(groupLabels).map(([key, label]) => {
+        const items = shoppingList[key as keyof typeof groupLabels];
+        return (
+          <div key={key}>
+            <h4 className="text-sm font-medium">{label}</h4>
+            {items.length > 0 ? (
+              <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
+                {items.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-2 text-sm text-muted-foreground">Không có món trong nhóm này.</p>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function buildFallbackShoppingBatches(plan: MealPlan): MealPlan["shoppingBatches"] {
+  return [
+    {
+      label: "Ngày 1-2",
+      days: [1, 2],
+      shoppingList: plan.shoppingList,
+      freshnessNote: "Thực đơn cũ chưa có lịch đi chợ theo đợt. Hãy tạo lại để có danh sách chính xác hơn."
+    }
+  ];
 }
 
 function ListPanel({ title, items }: { title: string; items: string[] }) {

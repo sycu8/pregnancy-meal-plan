@@ -54,9 +54,37 @@ export function ruleBasedMealPlanner(profile: PregnancyProfile): MealPlan {
     },
     days,
     shoppingList: buildShoppingList(days.flatMap((day) => [day.breakfast, day.morningSnack, day.lunch, day.afternoonSnack, day.dinner])),
+    shoppingBatches: buildShoppingBatches(days),
     safetyWarnings: [...getGeneralPregnancyFoodWarnings(), ...getConditionSpecificWarnings(profile)],
     specialNotes: getConditionSpecificWarnings(profile),
     urgentWarnings: detectUrgentWarnings(profile)
+  };
+}
+
+function buildShoppingBatches(days: MealPlan["days"]): MealPlan["shoppingBatches"] {
+  const ranges = [
+    { label: "Ngày 1-2", days: [1, 2], freshnessNote: "Ưu tiên mua rau lá, trái cây mềm, thịt/cá dùng trong 1-2 ngày đầu." },
+    { label: "Ngày 3-4", days: [3, 4], freshnessNote: "Mua bổ sung đồ tươi giữa tuần; kiểm tra hạn dùng sữa chua, sữa tiệt trùng và đậu hũ." },
+    { label: "Ngày 5-7", days: [5, 6, 7], freshnessNote: "Mua đợt cuối cho 3 ngày; thịt/cá nên chia phần nhỏ, bảo quản lạnh đúng cách nếu chưa nấu ngay." }
+  ];
+
+  return ranges.map((range) => {
+    const selectedDays = days.filter((day) => range.days.includes(day.day));
+    return {
+      ...range,
+      shoppingList: mergeShoppingLists(selectedDays.map((day) => day.dailyShoppingList))
+    };
+  });
+}
+
+function mergeShoppingLists(lists: MealPlan["shoppingList"][]): MealPlan["shoppingList"] {
+  return {
+    proteins: uniqueSorted(lists.flatMap((list) => list.proteins)),
+    vegetables: uniqueSorted(lists.flatMap((list) => list.vegetables)),
+    fruits: uniqueSorted(lists.flatMap((list) => list.fruits)),
+    dairy: uniqueSorted(lists.flatMap((list) => list.dairy)),
+    grains: uniqueSorted(lists.flatMap((list) => list.grains)),
+    others: uniqueSorted(lists.flatMap((list) => list.others))
   };
 }
 
@@ -161,8 +189,12 @@ function buildShoppingList(items: MealItem[]): ShoppingList {
   }
 
   return Object.fromEntries(
-    Object.entries(shoppingList).map(([key, values]) => [key, Array.from(new Set(values)).sort()])
+    Object.entries(shoppingList).map(([key, values]) => [key, uniqueSorted(values)])
   ) as ShoppingList;
+}
+
+function uniqueSorted(values: string[]) {
+  return Array.from(new Set(values)).sort();
 }
 
 function splitFreeText(value: string): string[] {

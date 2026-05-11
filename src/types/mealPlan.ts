@@ -14,6 +14,7 @@ export type MealPlan = {
   };
   days: MealPlanDay[];
   shoppingList: ShoppingList;
+  shoppingBatches: ShoppingBatch[];
   safetyWarnings: string[];
   specialNotes: string[];
   urgentWarnings?: string[];
@@ -47,4 +48,11 @@ export type ShoppingList = {
   dairy: string[];
   grains: string[];
   others: string[];
+};
+
+export type ShoppingBatch = {
+  label: string;
+  days: number[];
+  shoppingList: ShoppingList;
+  freshnessNote: string;
 };

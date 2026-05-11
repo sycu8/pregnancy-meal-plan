@@ -95,4 +95,14 @@ describe("rule-based meal planner", () => {
     expect(firstDay.lunch.portionGram).toBeGreaterThan(firstDay.morningSnack.portionGram);
     expect(firstDay.dailyShoppingList.proteins.length + firstDay.dailyShoppingList.vegetables.length).toBeGreaterThan(0);
   });
+
+  it("groups shopping into fresh 2-3 day batches", () => {
+    const plan = ruleBasedMealPlanner(baseProfile);
+
+    expect(plan.shoppingBatches).toHaveLength(3);
+    expect(plan.shoppingBatches.map((batch) => batch.label)).toEqual(["Ngày 1-2", "Ngày 3-4", "Ngày 5-7"]);
+    expect(plan.shoppingBatches[0].days).toEqual([1, 2]);
+    expect(plan.shoppingBatches[2].days).toEqual([5, 6, 7]);
+    expect(plan.shoppingBatches[0].shoppingList.proteins.length + plan.shoppingBatches[0].shoppingList.vegetables.length).toBeGreaterThan(0);
+  });
 });
