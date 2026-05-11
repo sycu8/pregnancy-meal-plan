@@ -13,6 +13,10 @@ import { weightGainStatusLabels } from "@/lib/nutrition/weightGain";
 import { getCurrentMealPlan, saveMealPlan } from "@/lib/storage/localStorage";
 import type { MealItem, MealPlan } from "@/types/mealPlan";
 
+/** Thực đơn dinh dưỡng là khẩu phần 1 người; khi quy đổi đi chợ cho trẻ, mỗi trẻ ~ phần nhỏ hơn người lớn. */
+const CHILD_PORTION_FACTOR = 0.55;
+const ADULTS_IN_COUPLE = 2;
+
 const groupLabels = {
   proteins: "Thịt / cá / trứng / đậu",
   vegetables: "Rau củ",
@@ -26,6 +30,7 @@ export function MealPlanResult() {
   const [plan, setPlan] = useState<MealPlan | null>(null);
   const [saved, setSaved] = useState(false);
   const [activeDayIndex, setActiveDayIndex] = useState(0);
+  const [childrenEatingCount, setChildrenEatingCount] = useState(0);
 
   useEffect(() => {
     setPlan(getCurrentMealPlan());
@@ -49,6 +54,13 @@ export function MealPlanResult() {
   );
   const dayCost = dayMeals.reduce((total, item) => total + (item.estimatedCostVnd ?? 0), 0);
   const shoppingBatches = plan.shoppingBatches?.length ? plan.shoppingBatches : buildFallbackShoppingBatches(plan);
+  const weeklyShopOnePerson = shoppingBatches.reduce((total, batch) => total + (batch.estimatedCostVnd ?? 0), 0);
+  const weeklyShopCouple = Math.round(weeklyShopOnePerson * ADULTS_IN_COUPLE);
+  const weeklyShopChildren = Math.round(weeklyShopOnePerson * CHILD_PORTION_FACTOR * childrenEatingCount);
+  const weeklyHouseholdTotal = weeklyShopCouple + weeklyShopChildren;
+  const dayCostCouple = Math.round(dayCost * ADULTS_IN_COUPLE);
+  const dayCostChildren = Math.round(dayCost * CHILD_PORTION_FACTOR * childrenEatingCount);
+  const dayHouseholdTotal = dayCostCouple + dayCostChildren;
 
   return (
     <div className="space-y-6">
@@ -101,7 +113,7 @@ export function MealPlanResult() {
           </div>
           <p className="rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground">
             Ngày {activeDay.day}: {dayCalories > 0 ? `khoảng ${dayCalories} kcal` : "ước tính sẽ có khi tạo lại"}
-            {dayCost > 0 ? ` · ${formatVnd(dayCost)}` : ""}
+            {dayCost > 0 ? ` · Chi phí món (1 người): ${formatVnd(dayCost)}` : ""}
           </p>
         </div>
 
@@ -154,13 +166,31 @@ export function MealPlanResult() {
             <div key={batch.label} className="rounded-md border border-border p-4">
               <div className="flex items-start justify-between gap-3">
                 <h3 className="font-semibold">{batch.label}</h3>
-                {batch.estimatedCostVnd > 0 && <span className="rounded-md bg-muted px-2 py-1 text-xs font-semibold">{formatVnd(batch.estimatedCostVnd)}</span>}
+                {batch.estimatedCostVnd > 0 && (
+                  <span className="rounded-md bg-muted px-2 py-1 text-xs font-semibold" title="Ước tính cho 1 người (mẹ)">
+                    {formatVnd(batch.estimatedCostVnd)}
+                  </span>
+                )}
               </div>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">{batch.freshnessNote}</p>
               <ShoppingListGroups shoppingList={batch.shoppingList} />
             </div>
           ))}
         </div>
+
+        <HouseholdCostSection
+          weeklyShopOnePerson={weeklyShopOnePerson}
+          weeklyShopCouple={weeklyShopCouple}
+          weeklyShopChildren={weeklyShopChildren}
+          weeklyHouseholdTotal={weeklyHouseholdTotal}
+          dayCost={dayCost}
+          dayCostCouple={dayCostCouple}
+          dayCostChildren={dayCostChildren}
+          dayHouseholdTotal={dayHouseholdTotal}
+          activeDayNumber={activeDay.day}
+          childrenEatingCount={childrenEatingCount}
+          onChildrenCountChange={setChildrenEatingCount}
+        />
       </section>
 
       <NutrientGuidancePanel />
@@ -265,6 +295,122 @@ function formatVnd(value: number) {
     currency: "VND",
     maximumFractionDigits: 0
   }).format(value);
+}
+
+function HouseholdCostSection({
+  weeklyShopOnePerson,
+  weeklyShopCouple,
+  weeklyShopChildren,
+  weeklyHouseholdTotal,
+  dayCost,
+  dayCostCouple,
+  dayCostChildren,
+  dayHouseholdTotal,
+  activeDayNumber,
+  childrenEatingCount,
+  onChildrenCountChange
+}: {
+  weeklyShopOnePerson: number;
+  weeklyShopCouple: number;
+  weeklyShopChildren: number;
+  weeklyHouseholdTotal: number;
+  dayCost: number;
+  dayCostCouple: number;
+  dayCostChildren: number;
+  dayHouseholdTotal: number;
+  activeDayNumber: number;
+  childrenEatingCount: number;
+  onChildrenCountChange: (n: number) => void;
+}) {
+  return (
+    <div className="mt-8 rounded-lg border border-dashed border-border bg-muted/40 p-5">
+      <h3 className="text-lg font-semibold">Ước tính chi phí theo số người ăn</h3>
+      <p className="mt-2 text-sm leading-6 text-muted-foreground">
+        Khẩu phần dinh dưỡng trong thực đơn là cho <strong className="font-medium text-foreground">một người (mẹ)</strong>. Các mức chi phí dưới đây giúp quy đổi khi nấu chung:{" "}
+        <strong className="font-medium text-foreground">hai vợ chồng</strong> tính ×2 so với một người; phần <strong className="font-medium text-foreground">trẻ em</strong> tách riêng theo số con bạn nhập (mỗi trẻ ~{Math.round(CHILD_PORTION_FACTOR * 100)}% khẩu phần đi chợ ước lượng so với một người lớn).
+      </p>
+
+      <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end">
+        <label className="block text-sm font-medium">
+          Số trẻ ăn cùng (cùng món gia đình)
+          <input
+            type="number"
+            min={0}
+            max={12}
+            value={childrenEatingCount}
+            onChange={(e) => {
+              const v = Number(e.target.value);
+              onChildrenCountChange(Number.isFinite(v) ? Math.min(12, Math.max(0, Math.floor(v))) : 0);
+            }}
+            className="mt-2 w-full max-w-[12rem] rounded-md border border-border bg-white px-3 py-2 text-sm outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 sm:w-auto"
+          />
+        </label>
+      </div>
+
+      <div className="mt-5 grid gap-3 sm:grid-cols-2">
+        <CostBreakdownCard
+          title="Đi chợ cả tuần (cộng các đợt)"
+          rows={[
+            { label: "1 người (mẹ)", value: weeklyShopOnePerson },
+            { label: "Hai vợ chồng (×2)", value: weeklyShopCouple },
+            ...(childrenEatingCount > 0
+              ? [{ label: `Trẻ em (×${childrenEatingCount}, hệ số ${CHILD_PORTION_FACTOR})`, value: weeklyShopChildren }]
+              : [{ label: "Trẻ em (nhập số con ở trên)", value: 0, muted: true }]),
+            {
+              label: childrenEatingCount > 0 ? "Tổng (hai người lớn + trẻ)" : "Tổng (hai người lớn)",
+              value: weeklyHouseholdTotal,
+              emphasize: true
+            }
+          ]}
+        />
+        <CostBreakdownCard
+          title={`Ngày ${activeDayNumber} — chi phí món ước tính`}
+          rows={[
+            { label: "1 người (mẹ)", value: dayCost },
+            { label: "Hai vợ chồng (×2)", value: dayCostCouple },
+            ...(childrenEatingCount > 0
+              ? [{ label: `Trẻ em (×${childrenEatingCount})`, value: dayCostChildren }]
+              : [{ label: "Trẻ em", value: 0, muted: true }]),
+            {
+              label: childrenEatingCount > 0 ? "Tổng ngày (hai người lớn + trẻ)" : "Tổng ngày (hai người lớn)",
+              value: dayHouseholdTotal,
+              emphasize: true
+            }
+          ]}
+        />
+      </div>
+      <p className="mt-3 text-xs leading-5 text-muted-foreground">
+        Đây chỉ là tham khảo; thực tế còn tùy món thừa, khuyến mãi và món thêm ngoài thực đơn.
+      </p>
+    </div>
+  );
+}
+
+function CostBreakdownCard({
+  title,
+  rows
+}: {
+  title: string;
+  rows: { label: string; value: number; emphasize?: boolean; muted?: boolean }[];
+}) {
+  return (
+    <div className="rounded-md border border-border bg-white p-4">
+      <h4 className="text-sm font-semibold text-foreground">{title}</h4>
+      <ul className="mt-3 space-y-2 text-sm">
+        {rows.map((row) => (
+          <li
+            key={row.label}
+            className={`flex justify-between gap-3 border-b border-border/60 pb-2 last:border-0 last:pb-0 ${row.emphasize ? "font-semibold text-foreground" : ""} ${row.muted ? "text-muted-foreground" : "text-muted-foreground"}`}
+          >
+            <span className={row.emphasize ? "text-foreground" : ""}>{row.label}</span>
+            <span className={`shrink-0 tabular-nums ${row.emphasize ? "text-accent" : "text-foreground"}`}>
+              {row.muted && row.value === 0 ? "—" : formatVnd(row.value)}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 }
 
 function ListPanel({ title, items }: { title: string; items: string[] }) {
