@@ -85,4 +85,14 @@ describe("rule-based meal planner", () => {
     expect(selectedProteins).not.toContain("tôm");
     expect(/(^|\s)cá(\s|$)/.test(selectedProteins)).toBe(false);
   });
+
+  it("adds portion and calorie estimates plus daily shopping lists", () => {
+    const plan = ruleBasedMealPlanner(baseProfile);
+    const firstDay = plan.days[0];
+
+    expect(firstDay.breakfast.portionGram).toBeGreaterThan(0);
+    expect(firstDay.breakfast.estimatedCalories).toBeGreaterThan(0);
+    expect(firstDay.lunch.portionGram).toBeGreaterThan(firstDay.morningSnack.portionGram);
+    expect(firstDay.dailyShoppingList.proteins.length + firstDay.dailyShoppingList.vegetables.length).toBeGreaterThan(0);
+  });
 });

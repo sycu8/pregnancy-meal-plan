@@ -106,10 +106,13 @@ function meal(
   reason: string,
   caution = safeCooked
 ): MealRecord {
+  const estimates = estimateMealPortion(name, tags);
   const record: MealRecord = {
     name,
     reason,
     nutrients,
+    portionGram: estimates.portionGram,
+    estimatedCalories: estimates.estimatedCalories,
     alternatives: [],
     caution,
     tags,
@@ -122,6 +125,33 @@ function meal(
   }
 
   return record;
+}
+
+function estimateMealPortion(name: string, tags: MealTag[]) {
+  const text = name.toLowerCase();
+  const isSnack = /chuối|cam|ổi|khoai lang|sữa chua|hạt|sữa tươi|thanh long|táo|bắp|chè|trứng luộc|đậu nành|rau câu/.test(text);
+  const isBreakfast = /cháo|bún|phở|miến|bánh mì|xôi|cơm nắm|súp|nui|bánh cuốn|yến mạch/.test(text);
+  const isEnergyDense = /hạt|bơ|xôi|bò hầm|cá hồi|sinh tố|phô mai/.test(text);
+  const isBloodSugarFriendly = tags.includes("gestational_diabetes");
+
+  if (isSnack) {
+    return {
+      portionGram: isEnergyDense ? 120 : 160,
+      estimatedCalories: isEnergyDense ? 220 : isBloodSugarFriendly ? 130 : 160
+    };
+  }
+
+  if (isBreakfast) {
+    return {
+      portionGram: 300,
+      estimatedCalories: isEnergyDense ? 430 : isBloodSugarFriendly ? 330 : 380
+    };
+  }
+
+  return {
+    portionGram: 420,
+    estimatedCalories: isEnergyDense ? 560 : isBloodSugarFriendly ? 440 : 500
+  };
 }
 
 function ingredientGroup(item: string): keyof MealRecord["ingredients"] {

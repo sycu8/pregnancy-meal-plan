@@ -25,6 +25,7 @@ const groupLabels = {
 export function MealPlanResult() {
   const [plan, setPlan] = useState<MealPlan | null>(null);
   const [saved, setSaved] = useState(false);
+  const [activeDayIndex, setActiveDayIndex] = useState(0);
 
   useEffect(() => {
     setPlan(getCurrentMealPlan());
@@ -39,6 +40,13 @@ export function MealPlanResult() {
     saveMealPlan(plan);
     setSaved(true);
   }
+
+  const activeDay = plan.days[activeDayIndex] ?? plan.days[0];
+  const dayMeals = [activeDay.breakfast, activeDay.morningSnack, activeDay.lunch, activeDay.afternoonSnack, activeDay.dinner];
+  const dayCalories = dayMeals.reduce(
+    (total, item) => total + (item.estimatedCalories ?? 0),
+    0
+  );
 
   return (
     <div className="space-y-6">
@@ -83,40 +91,50 @@ export function MealPlanResult() {
         </section>
       )}
 
-      <section className="space-y-4">
-        <h2 className="text-xl font-semibold">Thực đơn 7 ngày</h2>
-        {plan.days.map((day) => (
-          <article key={day.day} className="rounded-lg border border-border bg-white p-5">
-            <h3 className="text-lg font-semibold">Ngày {day.day}</h3>
-            <div className="mt-4 grid gap-3 md:grid-cols-2">
-              <MealBlock title="Bữa sáng" item={day.breakfast} />
-              <MealBlock title="Bữa phụ sáng" item={day.morningSnack} />
-              <MealBlock title="Bữa trưa" item={day.lunch} />
-              <MealBlock title="Bữa phụ chiều" item={day.afternoonSnack} />
-              <MealBlock title="Bữa tối" item={day.dinner} />
-              <div className="rounded-md bg-muted p-4 text-sm text-muted-foreground">
-                <p className="font-medium text-foreground">Nước uống / trái cây</p>
-                <p className="mt-1 leading-6">{day.hydrationNote}</p>
-              </div>
-            </div>
-          </article>
-        ))}
-      </section>
-
       <section className="rounded-lg border border-border bg-white p-5">
-        <h2 className="text-xl font-semibold">Danh sách đi chợ</h2>
-        <div className="mt-4 grid gap-4 md:grid-cols-2">
-          {Object.entries(groupLabels).map(([key, label]) => (
-            <div key={key}>
-              <h3 className="font-medium">{label}</h3>
-              <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
-                {plan.shoppingList[key as keyof typeof groupLabels].map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            </div>
+        <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="text-sm font-medium text-accent">Thực đơn 7 ngày</p>
+            <h2 className="mt-1 text-xl font-semibold">Xem theo từng ngày</h2>
+          </div>
+          <p className="rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground">
+            Ngày {activeDay.day}: {dayCalories > 0 ? `khoảng ${dayCalories} kcal` : "ước tính sẽ có khi tạo lại"}
+          </p>
+        </div>
+
+        <div className="mt-5 grid grid-cols-4 gap-2 sm:grid-cols-7" role="tablist" aria-label="Chọn ngày thực đơn">
+          {plan.days.map((day, index) => (
+            <button
+              key={day.day}
+              type="button"
+              role="tab"
+              aria-selected={activeDayIndex === index}
+              onClick={() => setActiveDayIndex(index)}
+              className={`min-h-11 rounded-md border px-2 text-sm font-semibold transition ${
+                activeDayIndex === index ? "border-accent bg-accent text-accent-foreground" : "border-border bg-white hover:bg-muted"
+              }`}
+            >
+              Ngày {day.day}
+            </button>
           ))}
         </div>
+
+        <article className="mt-5">
+          <div className="grid gap-3 md:grid-cols-2">
+            <MealBlock title="Bữa sáng" item={activeDay.breakfast} />
+            <MealBlock title="Bữa phụ sáng" item={activeDay.morningSnack} />
+            <MealBlock title="Bữa trưa" item={activeDay.lunch} />
+            <MealBlock title="Bữa phụ chiều" item={activeDay.afternoonSnack} />
+            <MealBlock title="Bữa tối" item={activeDay.dinner} />
+            <div className="rounded-md bg-muted p-4 text-sm text-muted-foreground">
+              <p className="font-medium text-foreground">Nước uống / trái cây</p>
+              <p className="mt-1 leading-6">{activeDay.hydrationNote}</p>
+              <p className="mt-3 text-xs">Ước tính khẩu phần và calorie chỉ để tham khảo, có thể thay đổi theo cách nấu và lượng ăn thực tế.</p>
+            </div>
+          </div>
+        </article>
+
+        <DailyShoppingList shoppingList={activeDay.dailyShoppingList ?? plan.shoppingList} />
       </section>
 
       <NutrientGuidancePanel />
@@ -147,15 +165,49 @@ function Metric({ label, value }: { label: string; value: string }) {
 }
 
 function MealBlock({ title, item }: { title: string; item: MealItem }) {
+  const hasEstimate = item.portionGram > 0 && item.estimatedCalories > 0;
+
   return (
     <div className="rounded-md border border-border p-4">
       <p className="text-xs font-medium uppercase text-accent">{title}</p>
       <h4 className="mt-1 font-semibold">{item.name}</h4>
+      {hasEstimate && (
+        <p className="mt-2 rounded-md bg-muted px-3 py-2 text-xs font-medium text-foreground">
+          Ước tính: {item.portionGram} g · {item.estimatedCalories} kcal
+        </p>
+      )}
       <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.reason}</p>
       <p className="mt-2 text-xs text-muted-foreground">Nhóm chính: {item.nutrients.join(", ")}</p>
       {item.alternatives && item.alternatives.length > 0 && <p className="mt-2 text-xs text-muted-foreground">Thay thế: {item.alternatives.join(" / ")}</p>}
       {item.caution && <p className="mt-2 text-xs text-warning">Lưu ý: {item.caution}</p>}
     </div>
+  );
+}
+
+function DailyShoppingList({ shoppingList }: { shoppingList: MealPlan["shoppingList"] }) {
+  return (
+    <section className="mt-5 rounded-md bg-muted p-4">
+      <h3 className="font-semibold">Danh sách đi chợ cho ngày này</h3>
+      <div className="mt-4 grid gap-4 md:grid-cols-2">
+        {Object.entries(groupLabels).map(([key, label]) => {
+          const items = shoppingList[key as keyof typeof groupLabels];
+          return (
+            <div key={key}>
+              <h4 className="text-sm font-medium">{label}</h4>
+              {items.length > 0 ? (
+                <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
+                  {items.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="mt-2 text-sm text-muted-foreground">Không có món trong nhóm này.</p>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </section>
   );
 }
 

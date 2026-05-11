@@ -27,12 +27,15 @@ export type MealPlanDay = {
   afternoonSnack: MealItem;
   dinner: MealItem;
   hydrationNote?: string;
+  dailyShoppingList: ShoppingList;
 };
 
 export type MealItem = {
   name: string;
   reason: string;
   nutrients: string[];
+  portionGram: number;
+  estimatedCalories: number;
   alternatives?: string[];
   caution?: string;
 };

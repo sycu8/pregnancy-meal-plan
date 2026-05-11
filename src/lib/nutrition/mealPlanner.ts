@@ -26,6 +26,8 @@ export function ruleBasedMealPlanner(profile: PregnancyProfile): MealPlan {
     const afternoonSnack = chooseMeal("snack", profile, used, index + 8);
     const dinner = chooseMeal("main", profile, used, index * 2 + 1);
 
+    const dayItems = [breakfast, morningSnack, lunch, afternoonSnack, dinner];
+
     return {
       day: index + 1,
       breakfast: toMealItem(breakfast, "breakfast", profile),
@@ -33,7 +35,8 @@ export function ruleBasedMealPlanner(profile: PregnancyProfile): MealPlan {
       lunch: toMealItem(lunch, "main", profile),
       afternoonSnack: toMealItem(afternoonSnack, "snack", profile),
       dinner: toMealItem(dinner, "main", profile),
-      hydrationNote: "Uống nước đều trong ngày; thêm trái cây tươi nguyên miếng nếu không có chống chỉ định."
+      hydrationNote: "Uống nước đều trong ngày; thêm trái cây tươi nguyên miếng nếu không có chống chỉ định.",
+      dailyShoppingList: buildShoppingList(dayItems.map((meal) => toMealItem(meal, "main", profile)))
     };
   });
 
@@ -138,6 +141,8 @@ function toMealItem(meal: MealRecord, pool: PoolName, profile: PregnancyProfile)
     name: meal.name,
     reason: meal.reason,
     nutrients: meal.nutrients,
+    portionGram: meal.portionGram,
+    estimatedCalories: meal.estimatedCalories,
     alternatives,
     caution: meal.caution
   };
