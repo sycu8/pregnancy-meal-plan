@@ -120,6 +120,10 @@ Thực đơn được tạo tự động dựa trên thông tin bạn cung cấp
 - CDC: Safer Food Choices for Pregnant Women, hướng dẫn an toàn thực phẩm cho phụ nữ mang thai.
 - NHS: Foods to avoid in pregnancy, thực phẩm cần tránh hoặc cần nấu chín kỹ.
 - WHO: Daily iron and folic acid supplementation in pregnant women, khuyến nghị sắt và acid folic ở cấp sức khỏe cộng đồng.
+- Vinmec: bài chuyên môn sản phụ khoa, dinh dưỡng thai kỳ tại Việt Nam.
+- Tâm Anh Hospital: tư vấn thai kỳ nguy cơ cao và chăm sóc sản phụ.
+- Medlatec: tin y khoa, xét nghiệm và sức khỏe mẹ bầu.
+- Long Châu: bài viết mẹ và bé, dinh dưỡng thai kỳ.
 
 ## Roadmap Cloudflare
 
@@ -143,3 +147,27 @@ AI_GATEWAY_URL=
 ```
 
 Nếu thiếu env hoặc AI lỗi, abstraction trong `src/lib/cloudflare/aiClient.ts` fallback về rule-based planner.
+
+## Blog: tự crawl mỗi 24 giờ
+
+Website tự bổ sung bài `/blog/` (VI) và `/en/blog/` (EN) qua GitHub Actions:
+
+- **Lịch:** mỗi ngày lúc **09:15 (UTC+7)** — file `.github/workflows/auto-crawl-blog.yml`
+- **Nguồn:** WHO, CDC, Vinmec, Tâm Anh, Medlatec, Long Châu (cấu hình trong `src/lib/blog/ingestion/sources.ts`)
+- **Luồng:** crawl metadata → tổng hợp bài mới → sync manifest → deploy Cloudflare (nếu có bài mới)
+
+Chạy thủ công trên máy dev:
+
+```bash
+npm run publish:blog:auto
+```
+
+### Bật tự động trên GitHub
+
+1. Push repo lên GitHub (workflow phải có trên `main`).
+2. Vào **Settings → Secrets and variables → Actions**, thêm:
+   - `CLOUDFLARE_API_TOKEN`
+   - `CLOUDFLARE_ACCOUNT_ID`
+3. Vào **Actions → Auto crawl blog (every 24h) → Run workflow** để thử ngay.
+
+Mỗi lượt publish tối đa **10 bài** (đổi bằng biến `BLOG_AUTO_PUBLISH_MAX` trong workflow).

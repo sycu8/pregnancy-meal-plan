@@ -1,0 +1,35 @@
+{
+  "readingTimeMinutes": 5,
+  "status": "published",
+  "author": "Đội ngũ Bầu Ăn Gì?",
+  "title": "Omega-3 và DHA: cá an toàn cho mẹ bầu",
+  "slug": "omega-3-dha-cho-me-bau",
+  "excerpt": "DHA hỗ trợ phát triển não và mắt thai nhi. Cách chọn cá ít thủy ngân, khẩu phần phù hợp — CDC, FDA, NHS.",
+  "category": "dinh-duong-ba-bau",
+  "tags": [
+    "omega-3",
+    "ca",
+    "dha"
+  ],
+  "trimester": "3-thang-giua",
+  "reviewer": "Tham chiếu CDC, NHS",
+  "publishedAt": "2026-05-30T10:00:00+07:00",
+  "updatedAt": "2026-05-31T08:00:00+07:00",
+  "metaTitle": "Omega-3 & DHA khi mang thai | Blog Bầu Ăn Gì?",
+  "metaDescription": "Ăn cá an toàn khi mang thai, DHA và omega-3 — hướng dẫn CDC, NHS.",
+  "sourceReferences": [
+    {
+      "title": "CDC — Fish Advice for Pregnant Women",
+      "url": "https://www.cdc.gov/pregnancy/during/fish-advice.html",
+      "publisher": "CDC",
+      "accessedAt": "2026-05-31"
+    },
+    {
+      "title": "NHS — Fish and shellfish in pregnancy",
+      "url": "https://www.nhs.uk/pregnancy/keeping-well/foods-to-avoid/#fish",
+      "publisher": "NHS",
+      "accessedAt": "2026-05-31"
+    }
+  ],
+  "content": "## Omega-3 và DHA\n\nDHA là một loại omega-3 quan trọng cho phát triển não và thị giác thai nhi. Cá nấu chín là nguồn phổ biến.\n\n## Cá nên chọn\n\n- Cá hồi, cá trích, cá mòi, cá thu nhỏ (theo khuyến cáo địa phương).\n- **Hạn chế** cá thủy ngân cao: cá mập, cá kiếm, cá tilefish, cá thu nguyên con lớn.\n\n## Khẩu phần tham khảo\n\nKhoảng **2–3 bữa cá nấu chín mỗi tuần**, mỗi bữa lượng vừa (theo hướng dẫn y tế tại Việt Nam hoặc quốc tế). Nếu ăn chay hoặc không ăn cá, hỏi bác sĩ về nguồn DHA thay thế.\n\n## Lưu ý\n\n- Không ăn cá sống, sushi, cá hun khói chưa nấu chín.\n- Bổ sung dầu cá chỉ khi được tư vấn."
+}

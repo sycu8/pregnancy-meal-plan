@@ -1,4 +1,5 @@
 import type { CuisinePreference, HealthCondition, NutritionGoal } from "@/types/pregnancy";
+import type { Locale } from "@/lib/i18n";
 
 export const healthConditionLabels: Record<HealthCondition, string> = {
   morning_sickness: "Nghén",
@@ -53,3 +54,68 @@ export const activityLabels = {
   light: "Nhẹ",
   medium: "Trung bình"
 } as const;
+
+export const englishHealthConditionLabels: Record<HealthCondition, string> = {
+  morning_sickness: "Morning sickness",
+  constipation: "Constipation",
+  anemia: "Anemia / low iron",
+  gestational_diabetes: "Gestational diabetes",
+  hypertension: "High blood pressure",
+  edema: "Swelling",
+  reflux: "Acid reflux",
+  fast_weight_gain: "Fast weight gain",
+  slow_weight_gain: "Slow weight gain",
+  small_fetus: "Baby measuring smaller",
+  large_fetus: "Baby measuring larger",
+  none: "No special concern"
+};
+
+export const englishCuisinePreferenceLabels: Record<CuisinePreference, string> = {
+  vietnamese_rice: "Vietnamese rice meals",
+  northern: "Northern Vietnamese dishes",
+  central: "Central Vietnamese dishes",
+  southern: "Southern Vietnamese dishes",
+  vegetarian: "Vegetarian",
+  no_fish: "No fish",
+  no_beef: "No beef",
+  no_seafood: "No seafood"
+};
+
+export const englishNutritionGoalLabels: Record<NutritionGoal, string> = {
+  balanced: "Balanced nutrition",
+  weight_control: "Control weight gain",
+  healthy_weight_gain: "Healthy weight gain",
+  reduce_nausea: "Reduce nausea",
+  blood_sugar_control: "Blood sugar control",
+  relieve_constipation: "Relieve constipation",
+  increase_iron_calcium_protein: "Increase iron / calcium / protein"
+};
+
+export const englishBudgetLabels = {
+  low: "Budget-friendly",
+  medium: "Moderate",
+  high: "Higher budget"
+} as const;
+
+export const englishCookingTimeLabels = {
+  under_15: "Under 15 minutes",
+  around_30: "Around 30 minutes",
+  meal_prep: "Weekend meal prep"
+} as const;
+
+export const englishActivityLabels = {
+  low: "Low activity",
+  light: "Light",
+  medium: "Moderate"
+} as const;
+
+export function getNutritionLabels(locale: Locale) {
+  return {
+    healthConditionLabels: locale === "vi" ? healthConditionLabels : englishHealthConditionLabels,
+    cuisinePreferenceLabels: locale === "vi" ? cuisinePreferenceLabels : englishCuisinePreferenceLabels,
+    nutritionGoalLabels: locale === "vi" ? nutritionGoalLabels : englishNutritionGoalLabels,
+    budgetLabels: locale === "vi" ? budgetLabels : englishBudgetLabels,
+    cookingTimeLabels: locale === "vi" ? cookingTimeLabels : englishCookingTimeLabels,
+    activityLabels: locale === "vi" ? activityLabels : englishActivityLabels
+  };
+}

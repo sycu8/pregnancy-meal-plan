@@ -1,0 +1,35 @@
+{
+  "readingTimeMinutes": 5,
+  "status": "published",
+  "author": "Đội ngũ Bầu Ăn Gì?",
+  "title": "Thực đơn mẫu cho trẻ 6–12 tháng",
+  "slug": "thuc-don-mau-tre-6-12-thang",
+  "excerpt": "Gợi ý bữa chính và bữa phụ khi trẻ ăn dặm, kết hợp sữa mẹ. Không thay thế tư vấn nhi khoa — WHO, NHS.",
+  "category": "cham-con-0-24-thang",
+  "tags": [
+    "6-12-thang",
+    "an-dam",
+    "thuc-don"
+  ],
+  "babyAgeRange": "6-12-thang",
+  "reviewer": "Tham chiếu WHO, NHS",
+  "publishedAt": "2026-05-26T08:00:00+07:00",
+  "updatedAt": "2026-05-31T08:00:00+07:00",
+  "metaTitle": "Thực đơn trẻ 6–12 tháng | Blog Bầu Ăn Gì?",
+  "metaDescription": "Thực đơn mẫu ăn dặm 6–12 tháng kèm sữa mẹ — WHO, NHS.",
+  "sourceReferences": [
+    {
+      "title": "WHO — Infant and young child feeding",
+      "url": "https://www.who.int/health-topics/infant-and-young-child-feeding",
+      "publisher": "WHO",
+      "accessedAt": "2026-05-31"
+    },
+    {
+      "title": "NHS — Your baby's first solid foods",
+      "url": "https://www.nhs.uk/conditions/baby/weaning-and-feeding/babys-first-solid-foods/",
+      "publisher": "NHS",
+      "accessedAt": "2026-05-31"
+    }
+  ],
+  "content": "## Nguyên tắc\n\nTiếp tục **bú mẹ** (hoặc sữa thay thế phù hợp). Mỗi ngày thêm 1–2 loại thực phẩm mới theo độ tuổi.\n\n## Một ngày mẫu (8 tháng)\n\n- **Sáng:** bú mẹ + cháo yến mạch nghiền, lòng đỏ trứng.\n- **Trưa:** bú + cơm nghiền, cá hấp, bí đỏ.\n- **Chiều:** bú + chuối nghiền.\n- **Tối:** bú + cháo thịt bò bằm, rau luộc nghiền.\n\n## Lưu ý\n\n- Không thêm muối, đường.\n- Quan sát dị ứng 3–5 ngày/loại mới.\n- Uống nước nhỏ từng ngụm khi ăn dặm (theo hướng dẫn y tế)."
+}

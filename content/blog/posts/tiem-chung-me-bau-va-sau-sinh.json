@@ -1,0 +1,33 @@
+{
+  "readingTimeMinutes": 5,
+  "status": "published",
+  "author": "Đội ngũ Bầu Ăn Gì?",
+  "title": "Tiêm chủng trước và sau sinh: tổng quan cho mẹ",
+  "slug": "tiem-chung-me-bau-va-sau-sinh",
+  "excerpt": "Uốn ván bà bầu, cúm mùa, COVID-19 (theo khuyến cáo địa phương). Không thay lịch tiêm Việt Nam — CDC, WHO.",
+  "category": "truoc-sinh",
+  "tags": [
+    "tiem-chung",
+    "phong-benh"
+  ],
+  "reviewer": "Tham chiếu CDC, WHO",
+  "publishedAt": "2026-05-23T10:00:00+07:00",
+  "updatedAt": "2026-05-31T08:00:00+07:00",
+  "metaTitle": "Tiêm chủng mẹ bầu | Blog Bầu Ăn Gì?",
+  "metaDescription": "Vaccine khi mang thai và sau sinh — tham khảo CDC, WHO, Bộ Y tế VN.",
+  "sourceReferences": [
+    {
+      "title": "CDC — Vaccines During Pregnancy",
+      "url": "https://www.cdc.gov/vaccines/pregnancy/",
+      "publisher": "CDC",
+      "accessedAt": "2026-05-31"
+    },
+    {
+      "title": "WHO — Immunization",
+      "url": "https://www.who.int/health-topics/immunization",
+      "publisher": "WHO",
+      "accessedAt": "2026-05-31"
+    }
+  ],
+  "content": "## Vì sao quan trọng?\n\nMẹ được bảo vệ; kháng thể có thể truyền cho con sơ sinh (tùy loại vaccine).\n\n## Thường được khuyến nghị (quốc tế)\n\n- **Uốn ván** (theo chương trình quốc gia).\n- **Cúm mùa** khi đang mang thai.\n- Vaccine khác theo **hướng dẫn Bộ Y tế Việt Nam** và bác sĩ.\n\n## Lưu ý\n\n- Một số vaccine **sống** không dùng khi mang thai — hỏi bác sĩ.\n- Ghi sổ tiêm, mang theo khám thai.\n\n## Sau sinh\n\nTiêm những mũi hoãn lại khi an toàn; tiêm cho con theo lịch nhi khoa."
+}

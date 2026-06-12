@@ -1,0 +1,35 @@
+{
+  "readingTimeMinutes": 5,
+  "status": "published",
+  "author": "Đội ngũ Bầu Ăn Gì?",
+  "title": "Thực đơn giảm nghén: món dễ ăn cho tam cá nguyệt 1",
+  "slug": "thuc-don-giam-nghen-tam-ca-nguyet-1",
+  "excerpt": "Gợi ý món mềm, ít mùi, chia bữa nhỏ khi nghén. Không thay thế điều trị nghén nặng — NHS, ACOG.",
+  "category": "thuc-don-ba-bau",
+  "tags": [
+    "nghen",
+    "thuc-don",
+    "3-thang-dau"
+  ],
+  "trimester": "3-thang-dau",
+  "reviewer": "Tham chiếu NHS, ACOG",
+  "publishedAt": "2026-05-23T08:00:00+07:00",
+  "updatedAt": "2026-05-31T08:00:00+07:00",
+  "metaTitle": "Thực đơn giảm nghén | Blog Bầu Ăn Gì?",
+  "metaDescription": "Thực đơn mềm, dễ ăn khi nghén tam cá nguyệt 1 — NHS.",
+  "sourceReferences": [
+    {
+      "title": "NHS — Vomiting and morning sickness",
+      "url": "https://www.nhs.uk/pregnancy/related-conditions/common-symptoms/vomiting-and-morning-sickness/",
+      "publisher": "NHS",
+      "accessedAt": "2026-05-31"
+    },
+    {
+      "title": "ACOG — Morning Sickness FAQ",
+      "url": "https://www.acog.org/womens-health/faqs/morning-sickness-nausea-and-vomiting-of-pregnancy",
+      "publisher": "ACOG",
+      "accessedAt": "2026-05-31"
+    }
+  ],
+  "content": "## Nguyên tắc\n\n- Bữa cực nhỏ, 2–3 giờ/lần.\n- Ưu tiên **lạnh/ấm**, ít mùi mỡ.\n- Giữ bánh quy cạnh giường trước khi đứng dậy.\n\n## Gợi ý một ngày\n\n- Sáng sớm: bánh quy giòn + nước.\n- Bữa 1: cháo gạo trắng, trứng luộc.\n- Bữa 2: sữa chua tiệt trùng.\n- Bữa 3: bún thịt nạc luộc, rau chần.\n- Bữa 4: chuối.\n- Tối: cơm mềm, cá hấp gừng nhẹ, canh bí.\n\n## Tránh\n\nMón cay nồng, chiên nhiều dầu nếu làm nôn. Nghén nặng — đi viện, không cố ăn."
+}

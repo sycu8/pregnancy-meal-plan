@@ -1,0 +1,39 @@
+{
+  "readingTimeMinutes": 5,
+  "status": "published",
+  "author": "Đội ngũ Bầu Ăn Gì?",
+  "title": "Cho con bú khó khăn: gợi ý ban đầu và khi nào gặp chuyên gia",
+  "slug": "cho-con-bu-kho-khan",
+  "excerpt": "Đau núm, ít sữa, bé không bám ti — gợi ý sơ bộ và khi cần tư vấn cho con bú. UNICEF, WHO, NHS.",
+  "category": "sau-sinh",
+  "tags": [
+    "cho-con-bu",
+    "sau-sinh"
+  ],
+  "reviewer": "Tham chiếu UNICEF, WHO, NHS",
+  "publishedAt": "2026-05-26T09:00:00+07:00",
+  "updatedAt": "2026-05-31T08:00:00+07:00",
+  "metaTitle": "Cho con bú khó khăn | Blog Bầu Ăn Gì?",
+  "metaDescription": "Xử trí ban đầu khi cho con bú khó: tư thế, nhịp bú, khi cần chuyên gia — UNICEF, WHO.",
+  "sourceReferences": [
+    {
+      "title": "UNICEF — Breastfeeding challenges",
+      "url": "https://www.unicef.org/breastfeeding",
+      "publisher": "UNICEF",
+      "accessedAt": "2026-05-31"
+    },
+    {
+      "title": "WHO — Breastfeeding",
+      "url": "https://www.who.int/health-topics/breastfeeding",
+      "publisher": "WHO",
+      "accessedAt": "2026-05-31"
+    },
+    {
+      "title": "NHS — Sore or cracked nipples",
+      "url": "https://www.nhs.uk/conditions/baby/breastfeeding-and-bottle-feeding/breastfeeding-problems/sore-cracked-nipples/",
+      "publisher": "NHS",
+      "accessedAt": "2026-05-31"
+    }
+  ],
+  "content": "## Tư thế và bám vú\n\n- Mẹ ngồi thoải mái, lưng có đệm.\n- Miệng bé mở rộng, bao gồm cả quầng vú.\n- Đổi tư thế (cradle, football…) nếu đau một bên.\n\n## Đau núm\n\n- Kiểm tra bám vú; dùng sữa mẹ thoa núm sau bú.\n- Không rửa xà phòng mạnh; để núm khô thoáng.\n\n## Lo “thiếu sữa”\n\nTheo dõi tã ướt, cân nặng bé, cữ bú — bác sĩ/tư vấn cho con bú đánh giá chính xác.\n\n## Cần gặp chuyên gia khi\n\nNúm nứt chảy máu, sốt, ứ sữa/sưng cứng, bé không tăng cân, bé li bì."
+}

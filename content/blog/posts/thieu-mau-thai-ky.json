@@ -1,0 +1,33 @@
+{
+  "readingTimeMinutes": 5,
+  "status": "published",
+  "author": "Đội ngũ Bầu Ăn Gì?",
+  "title": "Thiếu máu thai kỳ: dấu hiệu và dinh dưỡng hỗ trợ",
+  "slug": "thieu-mau-thai-ky",
+  "excerpt": "Thiếu máu/thiếu sắt ảnh hưởng sức khỏe mẹ và thai nhi. Dấu hiệu, xét nghiệm và ăn uống — WHO, ACOG.",
+  "category": "dinh-duong-ba-bau",
+  "tags": [
+    "thieu-mau",
+    "sat"
+  ],
+  "reviewer": "Tham chiếu WHO, ACOG",
+  "publishedAt": "2026-05-29T10:00:00+07:00",
+  "updatedAt": "2026-05-31T08:00:00+07:00",
+  "metaTitle": "Thiếu máu thai kỳ | Blog Bầu Ăn Gì?",
+  "metaDescription": "Thiếu máu khi mang thai: dấu hiệu, sắt, vitamin C — WHO, ACOG.",
+  "sourceReferences": [
+    {
+      "title": "WHO — Daily iron and folic acid supplementation",
+      "url": "https://www.who.int/tools/elena/interventions/daily-iron-pregnancy",
+      "publisher": "WHO",
+      "accessedAt": "2026-05-31"
+    },
+    {
+      "title": "ACOG — Anemia in Pregnancy",
+      "url": "https://www.acog.org/clinical/clinical-guidance/practice-bulletin/articles/2021/06/anemia-in-pregnancy",
+      "publisher": "ACOG",
+      "accessedAt": "2026-05-31"
+    }
+  ],
+  "content": "## Dấu hiệu thường gặp\n\nMệt bất thường, da xanh nhạt, hồi hộp, chóng mặt khi đứng nhanh, thở gấp khi leo cầu thang.\n\n## Chẩn đoán\n\nXét nghiệm máu định kỳ trong khám thai. Chỉ bác sĩ kết luận mức thiếu máu và liều sắt/tiêm bổ sung nếu cần.\n\n## Dinh dưỡng hỗ trợ\n\n- Thịt bò, gan nấu chín (vừa phải), trứng, cá, đậu.\n- Vitamin C cùng bữa: cam, ổi, ớt chuông.\n- Tránh trà đặc ngay sau bữa giàu sắt.\n\n## Lưu ý\n\nKhông tự uống sắt liều cao; táo bón do sắt — báo bác sĩ điều chỉnh."
+}

@@ -1,0 +1,37 @@
+{
+  "title": "Chăm sóc trẻ sơ sinh 0–3 tháng: dinh dưỡng và giấc ngủ cơ bản",
+  "slug": "cham-soc-tre-so-sinh-0-3-thang",
+  "excerpt": "Hướng dẫn cơ bản về bú mẹ/sữa công thức, giấc ngủ an toàn và theo dõi tăng trưởng cho trẻ 0–3 tháng — tham khảo AAP/WHO qua CDC, Mayo Clinic.",
+  "content": "## Dinh dưỡng 0–3 tháng\n\nWHO khuyến nghị sữa mẹ là nguồn dinh dưỡng tối ưu 6 tháng đầu. Nếu không bú mẹ được, sữa công thức pha đúng hướng dẫn là lựa chọn thay thế; không pha loãng hoặc tự chuyển loại sữa không hỏi bác sĩ.\n\n**Dấu hiệu bé bú đủ (tham khảo):** 6–8 lần bú/24h (sữa mẹ), tã ướt đủ, tăng cân theo đường cong khám nhi, bé tỉnh táo giữa các cữ bú.\n\n## Giấc ngủ an toàn\n\nCDC (theo khuyến cáo AAP) nhấn mạnh:\n\n- **Đặt nằm ngửa** trên nền cứng, phẳng.\n- **Không** gối, chăn mềm, thú nhồi trong nôi.\n- Cùng phòng với bố mẹ, **không** chung giường nếu có yếu tố nguy cơ (thuốc, hút thuốc, sofa, v.v.).\n- Tránh quá nóng; không dùng thiết bị “chống SIDS” chưa được chứng minh.\n\n## Vệ sinh và tiêm chủng\n\n- Rửa tay trước khi bế; hạn chế tiếp xúc đông người sơ sinh.\n- Tiêm chủng theo lịch quốc gia hoặc hướng dẫn của bác sĩ nhi.\n\n## Theo dõi cần khám gấp\n\nSốt ≥38°C (trẻ <3 tháng cần đánh giá sớm), bú kém, li bì, co giật, vàng da tăng, thở khò khè — đến cơ sở y tế.\n\n## Hỗ trợ mẹ\n\nMẹ sau sinh cần nghỉ, ăn uống đủ và nhờ hỗ trợ việc nhà; stress và thiếu ngủ ảnh hưởng sữa mẹ và sức khỏe tinh thần — đừng ngại hỏi chuyên gia.",
+  "category": "cham-con-0-24-thang",
+  "tags": ["so-sinh", "giac-ngu", "sua-me"],
+  "babyAgeRange": "0-6-thang",
+  "author": "Đội ngũ Bầu Ăn Gì?",
+  "reviewer": "Tham chiếu CDC, Mayo Clinic, WHO",
+  "sourceReferences": [
+    {
+      "title": "CDC — Safe Sleep for Babies",
+      "url": "https://www.cdc.gov/sids/about/index.html",
+      "publisher": "CDC",
+      "accessedAt": "2026-05-31"
+    },
+    {
+      "title": "Mayo Clinic — Infant development: Birth to 3 months",
+      "url": "https://www.mayoclinic.org/healthy-lifestyle/infant-and-toddler-health/in-depth/infant-development/art-20048012",
+      "publisher": "Mayo Clinic",
+      "accessedAt": "2026-05-31"
+    },
+    {
+      "title": "WHO — Breastfeeding",
+      "url": "https://www.who.int/health-topics/breastfeeding",
+      "publisher": "WHO",
+      "accessedAt": "2026-05-31"
+    }
+  ],
+  "publishedAt": "2026-05-27T08:00:00+07:00",
+  "updatedAt": "2026-05-31T08:00:00+07:00",
+  "readingTimeMinutes": 4,
+  "metaTitle": "Chăm trẻ sơ sinh 0–3 tháng | Blog Bầu Ăn Gì?",
+  "metaDescription": "Bú mẹ, giấc ngủ an toàn và dấu hiệu cần khám cho trẻ 0–3 tháng — CDC, Mayo Clinic, WHO.",
+  "status": "published"
+}

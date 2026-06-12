@@ -6,6 +6,9 @@ const config: Config = {
   content: ["./src/**/*.{ts,tsx}"],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["var(--font-be-vietnam-pro)", "system-ui", "Segoe UI", "Arial", "sans-serif"]
+      },
       colors: {
         background: "#fffaf5",
         foreground: "#34231d",

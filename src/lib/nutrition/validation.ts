@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { Locale } from "@/lib/i18n";
 
 export const pregnancyProfileSchema = z.object({
   pregnancyWeek: z.number().int().min(1, "Tuần thai phải từ 1 đến 40.").max(40, "Tuần thai phải từ 1 đến 40."),
@@ -55,4 +56,23 @@ export const pregnancyProfileSchema = z.object({
 export function validationErrorToVietnamese(error: unknown) {
   if (error instanceof z.ZodError) return error.errors.map((item) => item.message).join(" ");
   return "Dữ liệu chưa hợp lệ. Vui lòng kiểm tra lại thông tin đã nhập.";
+}
+
+export function validationErrorToLocale(error: unknown, locale: Locale) {
+  if (locale === "vi") return validationErrorToVietnamese(error);
+
+  if (error instanceof z.ZodError) {
+    return error.errors
+      .map((item) => {
+        const field = item.path.join(".");
+        if (field === "pregnancyWeek") return "Pregnancy week must be between 1 and 40.";
+        if (field === "heightCm") return "Height must be between 120 and 220 cm.";
+        if (field === "prePregnancyWeightKg") return "Pre-pregnancy weight must be between 30 and 200 kg.";
+        if (field === "currentWeightKg") return "Current weight must be between 30 and 220 kg.";
+        return "Some information is invalid. Please review the form.";
+      })
+      .join(" ");
+  }
+
+  return "Some information is invalid. Please review the form.";
 }

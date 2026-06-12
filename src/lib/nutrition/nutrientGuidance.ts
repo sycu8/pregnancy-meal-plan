@@ -63,5 +63,25 @@ export const referenceSources: ReferenceSource[] = [
     name: "WHO",
     description: "Daily iron and folic acid supplementation in pregnant women: khuyến nghị sắt và acid folic ở cấp sức khỏe cộng đồng.",
     href: "https://www.who.int/publications/i/item/9789241501996"
+  },
+  {
+    name: "Vinmec",
+    description: "Hệ thống y tế Vinmec: bài chuyên môn sản phụ khoa, dinh dưỡng thai kỳ, chăm sóc mẹ và bé — tham khảo định hướng lâm sàng tại Việt Nam.",
+    href: "https://www.vinmec.com/vie/chuyen-khoa/san-phu-khoa/"
+  },
+  {
+    name: "Tâm Anh",
+    description: "Bệnh viện Đa khoa Tâm Anh: tin tức và tư vấn sản phụ khoa, thai kỳ nguy cơ cao, chăm sóc trước – trong – sau sinh.",
+    href: "https://tamanhhospital.vn/chu-de/san-phu-khoa/"
+  },
+  {
+    name: "Medlatec",
+    description: "Medlatec: tin tức y khoa, xét nghiệm và tư vấn sức khỏe mẹ bầu, sơ sinh, dinh dưỡng thai kỳ tại Việt Nam.",
+    href: "https://medlatec.vn/tin-tuc"
+  },
+  {
+    name: "Long Châu",
+    description: "Nhà thuốc FPT Long Châu: bài viết sức khỏe mẹ và bé, dinh dưỡng, vitamin và chăm sóc thai kỳ.",
+    href: "https://nhathuoclongchau.com.vn/bai-viet/me-va-be/mang-thai"
   }
 ];

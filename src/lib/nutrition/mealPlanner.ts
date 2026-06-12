@@ -1,9 +1,11 @@
 import type { MealItem, MealPlan, ShoppingList } from "@/types/mealPlan";
 import type { CuisinePreference, HealthCondition, NutritionGoal, PregnancyProfile } from "@/types/pregnancy";
+import type { Locale } from "@/lib/i18n";
 import { calculateBmi, getBmiCategory } from "./bmi";
 import { breakfastMeals, mainMeals, type MealRecord, type MealTag, snackMeals } from "./mealDatabase";
 import {
   detectUrgentWarnings,
+  ENGLISH_MEDICAL_DISCLAIMER,
   getConditionSpecificWarnings,
   getGeneralPregnancyFoodWarnings,
   MEDICAL_DISCLAIMER
@@ -13,7 +15,7 @@ import { getWeightGainStatus } from "./weightGain";
 
 type PoolName = "breakfast" | "main" | "snack";
 
-export function ruleBasedMealPlanner(profile: PregnancyProfile): MealPlan {
+export function ruleBasedMealPlanner(profile: PregnancyProfile, locale: Locale = "vi"): MealPlan {
   const bmi = calculateBmi(profile.prePregnancyWeightKg, profile.heightCm);
   const bmiCategory = getBmiCategory(bmi);
   const weightGainKg = Number((profile.currentWeightKg - profile.prePregnancyWeightKg).toFixed(1));
@@ -36,7 +38,10 @@ export function ruleBasedMealPlanner(profile: PregnancyProfile): MealPlan {
       lunch: toMealItem(lunch, "main", profile),
       afternoonSnack: toMealItem(afternoonSnack, "snack", profile),
       dinner: toMealItem(dinner, "main", profile),
-      hydrationNote: "Uống nước đều trong ngày; thêm trái cây tươi nguyên miếng nếu không có chống chỉ định.",
+      hydrationNote:
+        locale === "vi"
+          ? "Uống nước đều trong ngày; thêm trái cây tươi nguyên miếng nếu không có chống chỉ định."
+          : "Drink water steadily through the day; add whole fresh fruit if you have no contraindication.",
       dailyShoppingList: buildShoppingList(dayItems.map((meal) => toMealItem(meal, "main", profile)))
     };
   });
@@ -50,29 +55,36 @@ export function ruleBasedMealPlanner(profile: PregnancyProfile): MealPlan {
       bmiCategory,
       weightGainKg: Number.isFinite(weightGainKg) ? weightGainKg : null,
       weightGainStatus,
-      message: buildSummaryMessage(weightGainStatus),
-      disclaimer: MEDICAL_DISCLAIMER
+      message: buildSummaryMessage(weightGainStatus, locale),
+      disclaimer: locale === "vi" ? MEDICAL_DISCLAIMER : ENGLISH_MEDICAL_DISCLAIMER
     },
     days,
     shoppingList: buildShoppingList(days.flatMap((day) => [day.breakfast, day.morningSnack, day.lunch, day.afternoonSnack, day.dinner])),
-    shoppingBatches: buildShoppingBatches(days),
+    shoppingBatches: buildShoppingBatches(days, locale),
     costEstimate: {
       sourceNames: [...groceryPriceSources],
       updatedAt: groceryPriceGuideUpdatedAt,
       note: groceryPriceNote
     },
-    safetyWarnings: [...getGeneralPregnancyFoodWarnings(), ...getConditionSpecificWarnings(profile)],
-    specialNotes: getConditionSpecificWarnings(profile),
-    urgentWarnings: detectUrgentWarnings(profile)
+    safetyWarnings: [...getGeneralPregnancyFoodWarnings(locale), ...getConditionSpecificWarnings(profile, locale)],
+    specialNotes: getConditionSpecificWarnings(profile, locale),
+    urgentWarnings: detectUrgentWarnings(profile, locale)
   };
 }
 
-function buildShoppingBatches(days: MealPlan["days"]): MealPlan["shoppingBatches"] {
-  const ranges = [
-    { label: "Ngày 1-2", days: [1, 2], freshnessNote: "Ưu tiên mua rau lá, trái cây mềm, thịt/cá dùng trong 1-2 ngày đầu." },
-    { label: "Ngày 3-4", days: [3, 4], freshnessNote: "Mua bổ sung đồ tươi giữa tuần; kiểm tra hạn dùng sữa chua, sữa tiệt trùng và đậu hũ." },
-    { label: "Ngày 5-7", days: [5, 6, 7], freshnessNote: "Mua đợt cuối cho 3 ngày; thịt/cá nên chia phần nhỏ, bảo quản lạnh đúng cách nếu chưa nấu ngay." }
-  ];
+function buildShoppingBatches(days: MealPlan["days"], locale: Locale): MealPlan["shoppingBatches"] {
+  const ranges =
+    locale === "vi"
+      ? [
+          { label: "Ngày 1-2", days: [1, 2], freshnessNote: "Ưu tiên mua rau lá, trái cây mềm, thịt/cá dùng trong 1-2 ngày đầu." },
+          { label: "Ngày 3-4", days: [3, 4], freshnessNote: "Mua bổ sung đồ tươi giữa tuần; kiểm tra hạn dùng sữa chua, sữa tiệt trùng và đậu hũ." },
+          { label: "Ngày 5-7", days: [5, 6, 7], freshnessNote: "Mua đợt cuối cho 3 ngày; thịt/cá nên chia phần nhỏ, bảo quản lạnh đúng cách nếu chưa nấu ngay." }
+        ]
+      : [
+          { label: "Days 1-2", days: [1, 2], freshnessNote: "Prioritize leafy greens, soft fruit and meat or fish for the first 1-2 days." },
+          { label: "Days 3-4", days: [3, 4], freshnessNote: "Refresh midweek groceries and check dates on yogurt, pasteurized milk and tofu." },
+          { label: "Days 5-7", days: [5, 6, 7], freshnessNote: "Buy the final 3-day batch; portion meat or fish and refrigerate properly if not cooking right away." }
+        ];
 
   return ranges.map((range) => {
     const selectedDays = days.filter((day) => range.days.includes(day.day));
@@ -218,7 +230,14 @@ function createPlanId() {
   return `plan-${Date.now()}`;
 }
 
-function buildSummaryMessage(status: MealPlan["summary"]["weightGainStatus"]) {
+function buildSummaryMessage(status: MealPlan["summary"]["weightGainStatus"], locale: Locale) {
+  if (locale === "en") {
+    if (status === "low") return "Weight gain is below the reference range. The plan will prioritize protein-rich, nutrient-dense and easy-to-eat meals.";
+    if (status === "high") return "Weight gain is above the reference range. The plan will prioritize vegetables, lean protein and slow-digesting carbohydrates while keeping meals balanced.";
+    if (status === "normal") return "Your indicators are within the reference range. The plan suggests balanced, practical meals for this pregnancy week.";
+    return "There is not enough data to assess weight gain. The meal plan is still generated from the information you entered.";
+  }
+
   if (status === "low") return "Mức tăng cân đang thấp hơn khoảng tham khảo. Mình sẽ ưu tiên bữa giàu đạm, năng lượng lành mạnh và dễ ăn.";
   if (status === "high") return "Mức tăng cân đang cao hơn khoảng tham khảo. Mình sẽ ưu tiên rau, đạm nạc và tinh bột chậm, vẫn giữ bữa ăn đủ chất.";
   if (status === "normal") return "Các chỉ số đang nằm trong khoảng tham khảo. Mình sẽ gợi ý thực đơn cân bằng, dễ nấu và phù hợp tuần thai.";

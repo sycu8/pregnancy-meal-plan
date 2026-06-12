@@ -1,0 +1,33 @@
+{
+  "readingTimeMinutes": 5,
+  "status": "published",
+  "author": "Đội ngũ Bầu Ăn Gì?",
+  "title": "Hồi phục sau sinh mổ: dinh dưỡng và vận động nhẹ",
+  "slug": "hoi-phuc-sau-sinh-mo",
+  "excerpt": "Sau mổ lấy thai cần protein, chất xơ, nước và nghỉ ngơi. Gợi ý bữa ăn và khi tái khám — ACOG, NHS.",
+  "category": "sau-sinh",
+  "tags": [
+    "sau-sinh",
+    "mo-lay-thai"
+  ],
+  "reviewer": "Tham chiếu ACOG, NHS",
+  "publishedAt": "2026-05-27T09:00:00+07:00",
+  "updatedAt": "2026-05-31T08:00:00+07:00",
+  "metaTitle": "Hồi phục sau sinh mổ | Blog Bầu Ăn Gì?",
+  "metaDescription": "Ăn uống và chăm sóc sau mổ lấy thai — ACOG, NHS.",
+  "sourceReferences": [
+    {
+      "title": "NHS — Recovering from a caesarean",
+      "url": "https://www.nhs.uk/conditions/caesarean-section/recovery/",
+      "publisher": "NHS",
+      "accessedAt": "2026-05-31"
+    },
+    {
+      "title": "ACOG — Cesarean Birth",
+      "url": "https://www.acog.org/womens-health/faqs/cesarean-birth",
+      "publisher": "ACOG",
+      "accessedAt": "2026-05-31"
+    }
+  ],
+  "content": "## Ngày đầu tại bệnh viện\n\nTheo chỉ định nhịn ăn/uống và thuốc của bác sĩ. Khi được phép: súp loãng, cháo, nước lọc.\n\n## Tuần đầu ở nhà\n\n- **Protein:** trứng, cá, thịt nạc, đậu — hỗ trợ lành vết mổ.\n- **Chất xơ + nước:** giảm táo bón do thuốc giảm đau.\n- Bữa nhỏ, dễ tiêu.\n\n## Vận động\n\nĐi lại nhẹ trong nhà theo hướng dẫn; tránh nâng vật nặng. Không tự gỡ băng hay chạy bộ sớm.\n\n## Báo bác sĩ nếu\n\nSốt, vết mổ đỏ/sưng/chảy dịch, đau bụng tăng, thở khó."
+}

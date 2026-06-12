@@ -11,13 +11,16 @@ import { NutrientGuidancePanel } from "@/components/result/NutrientGuidancePanel
 import { bmiCategoryLabels } from "@/lib/nutrition/bmi";
 import { weightGainStatusLabels } from "@/lib/nutrition/weightGain";
 import { getCurrentMealPlan, saveMealPlan } from "@/lib/storage/localStorage";
+import { localizedPath, type Locale } from "@/lib/i18n";
 import type { MealItem, MealPlan } from "@/types/mealPlan";
 
 /** Thực đơn dinh dưỡng là khẩu phần 1 người; khi quy đổi đi chợ cho trẻ, mỗi trẻ ~ phần nhỏ hơn người lớn. */
 const CHILD_PORTION_FACTOR = 0.55;
 const ADULTS_IN_COUPLE = 2;
 
-const groupLabels = {
+type ShoppingGroupKey = keyof MealPlan["shoppingList"];
+
+const groupLabels: Record<ShoppingGroupKey, string> = {
   proteins: "Thịt / cá / trứng / đậu",
   vegetables: "Rau củ",
   fruits: "Trái cây",
@@ -26,7 +29,133 @@ const groupLabels = {
   others: "Gia vị / khác"
 } as const;
 
-export function MealPlanResult() {
+const englishGroupLabels: Record<ShoppingGroupKey, string> = {
+  proteins: "Meat / fish / eggs / beans",
+  vegetables: "Vegetables",
+  fruits: "Fruits",
+  dairy: "Pasteurized milk / yogurt / cheese",
+  grains: "Grains / starches",
+  others: "Seasonings / other"
+};
+
+const englishBmiCategoryLabels: typeof bmiCategoryLabels = {
+  underweight: "Underweight",
+  normal: "Normal",
+  overweight: "Overweight",
+  obese: "Obese",
+  unknown: "Not enough data"
+};
+
+const englishWeightGainStatusLabels: typeof weightGainStatusLabels = {
+  low: "Below reference range",
+  normal: "Within reference range",
+  high: "Above reference range",
+  unknown: "Not enough data"
+};
+
+const copy = {
+  vi: {
+    emptyTitle: "Chưa có thực đơn",
+    emptyDescription:
+      "Bạn hãy tạo thực đơn mới. Kết quả sẽ được lưu trên trình duyệt và có thể mở lại trong lịch sử.",
+    overview: "Tổng quan tham khảo",
+    titlePrefix: "Thực đơn tuần thai",
+    saved: "Đã lưu",
+    save: "Lưu thực đơn",
+    print: "In thực đơn",
+    regenerate: "Tạo lại",
+    bmi: "BMI trước mang thai",
+    bmiGroup: "Nhóm BMI",
+    gained: "Đã tăng",
+    status: "Đánh giá",
+    noData: "Chưa đủ dữ liệu",
+    medicalAttention: "Cần lưu ý y tế",
+    sevenDay: "Thực đơn 7 ngày",
+    byDay: "Xem theo từng ngày",
+    day: "Ngày",
+    aboutCalories: "khoảng",
+    calories: "kcal",
+    estimatedLater: "ước tính sẽ có khi tạo lại",
+    onePersonMealCost: "Chi phí món (1 người)",
+    tabLabel: "Chọn ngày thực đơn",
+    meals: ["Bữa sáng", "Bữa phụ sáng", "Bữa trưa", "Bữa phụ chiều", "Bữa tối"],
+    hydration: "Nước uống / trái cây",
+    estimateNote:
+      "Ước tính khẩu phần và calorie chỉ để tham khảo, có thể thay đổi theo cách nấu và lượng ăn thực tế.",
+    freshShopping: "Lịch đi chợ tươi ngon",
+    shoppingTitle: "Ưu tiên mua theo 2-3 ngày/lần",
+    shoppingIntro:
+      "Rau lá, thịt, cá, đậu hũ và trái cây mềm nên mua thành nhiều đợt nhỏ để giữ độ tươi. Đồ khô như gạo, yến mạch, hạt và gia vị có thể chuẩn bị trước.",
+    sourcePrefix: "Nguồn giá tham khảo",
+    safety: "Cảnh báo an toàn",
+    specialNotes: "Ghi chú theo tình trạng đặc biệt",
+    noSpecial: "Chưa có tình trạng đặc biệt được chọn.",
+    edit: "Quay lại chỉnh thông tin",
+    mainGroup: "Nhóm chính",
+    alternative: "Thay thế",
+    caution: "Lưu ý",
+    estimate: "Ước tính",
+    dailyShoppingTitle: "Danh sách nguyên liệu riêng cho ngày này",
+    dailyShoppingText:
+      "Dùng để kiểm tra nhanh khi nấu ngày đang chọn. Phần bên dưới gom lại thành lịch đi chợ 2-3 ngày/lần.",
+    noItems: "Không có món trong nhóm này."
+  },
+  en: {
+    emptyTitle: "No meal plan yet",
+    emptyDescription:
+      "Create a new meal plan first. The result will be saved in this browser and can be reopened from history.",
+    overview: "Reference overview",
+    titlePrefix: "Meal plan for pregnancy week",
+    saved: "Saved",
+    save: "Save plan",
+    print: "Print plan",
+    regenerate: "Create again",
+    bmi: "Pre-pregnancy BMI",
+    bmiGroup: "BMI group",
+    gained: "Weight gained",
+    status: "Assessment",
+    noData: "Not enough data",
+    medicalAttention: "Medical notes to watch",
+    sevenDay: "7-day meal plan",
+    byDay: "View by day",
+    day: "Day",
+    aboutCalories: "about",
+    calories: "kcal",
+    estimatedLater: "estimate will appear after regenerating",
+    onePersonMealCost: "Meal cost (1 person)",
+    tabLabel: "Choose meal-plan day",
+    meals: ["Breakfast", "Morning snack", "Lunch", "Afternoon snack", "Dinner"],
+    hydration: "Water / fruit",
+    estimateNote:
+      "Portion and calorie estimates are references only and may vary by recipe and actual serving size.",
+    freshShopping: "Fresh grocery schedule",
+    shoppingTitle: "Shop every 2-3 days when possible",
+    shoppingIntro:
+      "Leafy greens, meat, fish, tofu and soft fruit are best bought in smaller batches to stay fresh. Dry goods such as rice, oats, nuts and seasonings can be prepared ahead.",
+    sourcePrefix: "Reference price sources",
+    safety: "Food-safety warnings",
+    specialNotes: "Notes for selected conditions",
+    noSpecial: "No special condition was selected.",
+    edit: "Edit information",
+    mainGroup: "Main nutrients",
+    alternative: "Alternatives",
+    caution: "Note",
+    estimate: "Estimate",
+    dailyShoppingTitle: "Ingredients for this day",
+    dailyShoppingText:
+      "Use this for a quick cooking check for the selected day. The section below groups ingredients into 2-3 day grocery batches.",
+    noItems: "No items in this group."
+  }
+} as const;
+
+type ResultCopy = (typeof copy)[Locale];
+type ShoppingGroupLabels = Record<ShoppingGroupKey, string>;
+
+export function MealPlanResult({ locale = "vi" }: { locale?: Locale }) {
+  const t = copy[locale];
+  const groups = locale === "vi" ? groupLabels : englishGroupLabels;
+  const bmiLabels = locale === "vi" ? bmiCategoryLabels : englishBmiCategoryLabels;
+  const weightLabels = locale === "vi" ? weightGainStatusLabels : englishWeightGainStatusLabels;
   const [plan, setPlan] = useState<MealPlan | null>(null);
   const [saved, setSaved] = useState(false);
   const [activeDayIndex, setActiveDayIndex] = useState(0);
@@ -37,7 +166,7 @@ export function MealPlanResult() {
   }, []);
 
   if (!plan) {
-    return <EmptyState title="Chưa có thực đơn" description="Bạn hãy tạo thực đơn mới. Kết quả sẽ được lưu trên trình duyệt và có thể mở lại trong lịch sử." />;
+    return <EmptyState locale={locale} title={t.emptyTitle} description={t.emptyDescription} />;
   }
 
   function handleSave() {
@@ -67,36 +196,36 @@ export function MealPlanResult() {
       <section className="rounded-lg border border-border bg-white p-5 shadow-soft">
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div>
-            <p className="text-sm text-muted-foreground">Tổng quan tham khảo</p>
-            <h1 className="mt-1 text-2xl font-semibold">Thực đơn tuần thai {plan.profileSnapshot.pregnancyWeek}</h1>
+            <p className="text-sm text-muted-foreground">{t.overview}</p>
+            <h1 className="mt-1 text-2xl font-semibold">{t.titlePrefix} {plan.profileSnapshot.pregnancyWeek}</h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">{plan.summary.message}</p>
           </div>
           <div className="no-print flex flex-wrap gap-2">
             <Button variant="secondary" onClick={handleSave}>
-              <Save className="h-4 w-4" /> {saved ? "Đã lưu" : "Lưu thực đơn"}
+              <Save className="h-4 w-4" /> {saved ? t.saved : t.save}
             </Button>
             <Button variant="secondary" onClick={() => window.print()}>
-              <Printer className="h-4 w-4" /> In thực đơn
+              <Printer className="h-4 w-4" /> {t.print}
             </Button>
             <Button asChild>
-              <Link href="/planner">
-                <RefreshCcw className="h-4 w-4" /> Tạo lại
+              <Link href={localizedPath(locale, "/planner")}>
+                <RefreshCcw className="h-4 w-4" /> {t.regenerate}
               </Link>
             </Button>
           </div>
         </div>
 
         <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <Metric label="BMI trước mang thai" value={plan.summary.bmi?.toString() ?? "Chưa đủ dữ liệu"} />
-          <Metric label="Nhóm BMI" value={bmiCategoryLabels[plan.summary.bmiCategory]} />
-          <Metric label="Đã tăng" value={plan.summary.weightGainKg === null ? "Chưa đủ dữ liệu" : `${plan.summary.weightGainKg} kg`} />
-          <Metric label="Đánh giá" value={weightGainStatusLabels[plan.summary.weightGainStatus]} />
+          <Metric label={t.bmi} value={plan.summary.bmi?.toString() ?? t.noData} />
+          <Metric label={t.bmiGroup} value={bmiLabels[plan.summary.bmiCategory]} />
+          <Metric label={t.gained} value={plan.summary.weightGainKg === null ? t.noData : `${plan.summary.weightGainKg} kg`} />
+          <Metric label={t.status} value={weightLabels[plan.summary.weightGainStatus]} />
         </div>
       </section>
 
       {plan.urgentWarnings && plan.urgentWarnings.length > 0 && (
         <section className="rounded-lg border border-red-200 bg-red-50 p-5 text-sm text-red-800">
-          <h2 className="font-semibold">Cần lưu ý y tế</h2>
+          <h2 className="font-semibold">{t.medicalAttention}</h2>
           {plan.urgentWarnings.map((warning) => (
             <p key={warning} className="mt-2">
               {warning}
@@ -108,16 +237,16 @@ export function MealPlanResult() {
       <section className="rounded-lg border border-border bg-white p-5">
         <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="text-sm font-medium text-accent">Thực đơn 7 ngày</p>
-            <h2 className="mt-1 text-xl font-semibold">Xem theo từng ngày</h2>
+            <p className="text-sm font-medium text-accent">{t.sevenDay}</p>
+            <h2 className="mt-1 text-xl font-semibold">{t.byDay}</h2>
           </div>
           <p className="rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground">
-            Ngày {activeDay.day}: {dayCalories > 0 ? `khoảng ${dayCalories} kcal` : "ước tính sẽ có khi tạo lại"}
-            {dayCost > 0 ? ` · Chi phí món (1 người): ${formatVnd(dayCost)}` : ""}
+            {t.day} {activeDay.day}: {dayCalories > 0 ? `${t.aboutCalories} ${dayCalories} ${t.calories}` : t.estimatedLater}
+            {dayCost > 0 ? ` · ${t.onePersonMealCost}: ${formatVnd(dayCost)}` : ""}
           </p>
         </div>
 
-        <div className="mt-5 grid grid-cols-4 gap-2 sm:grid-cols-7" role="tablist" aria-label="Chọn ngày thực đơn">
+        <div className="mt-5 grid grid-cols-4 gap-2 sm:grid-cols-7" role="tablist" aria-label={t.tabLabel}>
           {plan.days.map((day, index) => (
             <button
               key={day.day}
@@ -129,37 +258,37 @@ export function MealPlanResult() {
                 activeDayIndex === index ? "border-accent bg-accent text-accent-foreground" : "border-border bg-white hover:bg-muted"
               }`}
             >
-              Ngày {day.day}
+              {t.day} {day.day}
             </button>
           ))}
         </div>
 
         <article className="mt-5">
           <div className="grid gap-3 md:grid-cols-2">
-            <MealBlock title="Bữa sáng" item={activeDay.breakfast} />
-            <MealBlock title="Bữa phụ sáng" item={activeDay.morningSnack} />
-            <MealBlock title="Bữa trưa" item={activeDay.lunch} />
-            <MealBlock title="Bữa phụ chiều" item={activeDay.afternoonSnack} />
-            <MealBlock title="Bữa tối" item={activeDay.dinner} />
+            <MealBlock copy={t} title={t.meals[0]} item={activeDay.breakfast} />
+            <MealBlock copy={t} title={t.meals[1]} item={activeDay.morningSnack} />
+            <MealBlock copy={t} title={t.meals[2]} item={activeDay.lunch} />
+            <MealBlock copy={t} title={t.meals[3]} item={activeDay.afternoonSnack} />
+            <MealBlock copy={t} title={t.meals[4]} item={activeDay.dinner} />
             <div className="rounded-md bg-muted p-4 text-sm text-muted-foreground">
-              <p className="font-medium text-foreground">Nước uống / trái cây</p>
+              <p className="font-medium text-foreground">{t.hydration}</p>
               <p className="mt-1 leading-6">{activeDay.hydrationNote}</p>
-              <p className="mt-3 text-xs">Ước tính khẩu phần và calorie chỉ để tham khảo, có thể thay đổi theo cách nấu và lượng ăn thực tế.</p>
+              <p className="mt-3 text-xs">{t.estimateNote}</p>
             </div>
           </div>
         </article>
 
-        <DailyShoppingList shoppingList={activeDay.dailyShoppingList ?? plan.shoppingList} />
+        <DailyShoppingList copy={t} groups={groups} shoppingList={activeDay.dailyShoppingList ?? plan.shoppingList} />
       </section>
 
       <section className="rounded-lg border border-border bg-white p-5">
-        <p className="text-sm font-medium text-accent">Lịch đi chợ tươi ngon</p>
-        <h2 className="mt-1 text-xl font-semibold">Ưu tiên mua theo 2-3 ngày/lần</h2>
+        <p className="text-sm font-medium text-accent">{t.freshShopping}</p>
+        <h2 className="mt-1 text-xl font-semibold">{t.shoppingTitle}</h2>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">
-          Rau lá, thịt, cá, đậu hũ và trái cây mềm nên mua thành nhiều đợt nhỏ để giữ độ tươi. Đồ khô như gạo, yến mạch, hạt và gia vị có thể chuẩn bị trước.
+          {t.shoppingIntro}
         </p>
         <p className="mt-2 max-w-3xl text-xs leading-5 text-muted-foreground">
-          Nguồn giá tham khảo: {plan.costEstimate?.sourceNames?.join(", ") ?? "Kingfoodmart, WinMart, GO!/BigC/Tops"}. {plan.costEstimate?.note ?? "Giá có thể thay đổi theo khu vực và khuyến mãi."}
+          {t.sourcePrefix}: {plan.costEstimate?.sourceNames?.join(", ") ?? "Kingfoodmart, WinMart, GO!/BigC/Tops"}. {plan.costEstimate?.note ?? "Giá có thể thay đổi theo khu vực và khuyến mãi."}
         </p>
         <div className="mt-5 grid gap-4 lg:grid-cols-3">
           {shoppingBatches.map((batch) => (
@@ -173,7 +302,7 @@ export function MealPlanResult() {
                 )}
               </div>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">{batch.freshnessNote}</p>
-              <ShoppingListGroups shoppingList={batch.shoppingList} />
+              <ShoppingListGroups copy={t} groups={groups} shoppingList={batch.shoppingList} />
             </div>
           ))}
         </div>
@@ -190,21 +319,22 @@ export function MealPlanResult() {
           activeDayNumber={activeDay.day}
           childrenEatingCount={childrenEatingCount}
           onChildrenCountChange={setChildrenEatingCount}
+          locale={locale}
         />
       </section>
 
-      <NutrientGuidancePanel />
+      <NutrientGuidancePanel locale={locale} />
 
       <section className="grid gap-5 md:grid-cols-2">
-        <ListPanel title="Cảnh báo an toàn" items={plan.safetyWarnings} />
-        <ListPanel title="Ghi chú theo tình trạng đặc biệt" items={plan.specialNotes.length ? plan.specialNotes : ["Chưa có tình trạng đặc biệt được chọn."]} />
+        <ListPanel title={t.safety} items={plan.safetyWarnings} />
+        <ListPanel title={t.specialNotes} items={plan.specialNotes.length ? plan.specialNotes : [t.noSpecial]} />
       </section>
 
-      <TrustedSources />
-      <Disclaimer />
+      <TrustedSources locale={locale} />
+      <Disclaimer locale={locale} />
       <div className="no-print">
         <Button asChild variant="secondary">
-          <Link href="/planner">Quay lại chỉnh thông tin</Link>
+          <Link href={localizedPath(locale, "/planner")}>{t.edit}</Link>
         </Button>
       </div>
     </div>
@@ -220,7 +350,7 @@ function Metric({ label, value }: { label: string; value: string }) {
   );
 }
 
-function MealBlock({ title, item }: { title: string; item: MealItem }) {
+function MealBlock({ copy, title, item }: { copy: ResultCopy; title: string; item: MealItem }) {
   const hasEstimate = item.portionGram > 0 && item.estimatedCalories > 0;
   const hasCost = item.estimatedCostVnd > 0;
 
@@ -230,33 +360,33 @@ function MealBlock({ title, item }: { title: string; item: MealItem }) {
       <h4 className="mt-1 font-semibold">{item.name}</h4>
       {hasEstimate && (
         <p className="mt-2 rounded-md bg-muted px-3 py-2 text-xs font-medium text-foreground">
-          Ước tính: {item.portionGram} g · {item.estimatedCalories} kcal
+          {copy.estimate}: {item.portionGram} g · {item.estimatedCalories} kcal
           {hasCost ? ` · ${formatVnd(item.estimatedCostVnd)}` : ""}
         </p>
       )}
       <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.reason}</p>
-      <p className="mt-2 text-xs text-muted-foreground">Nhóm chính: {item.nutrients.join(", ")}</p>
-      {item.alternatives && item.alternatives.length > 0 && <p className="mt-2 text-xs text-muted-foreground">Thay thế: {item.alternatives.join(" / ")}</p>}
-      {item.caution && <p className="mt-2 text-xs text-warning">Lưu ý: {item.caution}</p>}
+      <p className="mt-2 text-xs text-muted-foreground">{copy.mainGroup}: {item.nutrients.join(", ")}</p>
+      {item.alternatives && item.alternatives.length > 0 && <p className="mt-2 text-xs text-muted-foreground">{copy.alternative}: {item.alternatives.join(" / ")}</p>}
+      {item.caution && <p className="mt-2 text-xs text-warning">{copy.caution}: {item.caution}</p>}
     </div>
   );
 }
 
-function DailyShoppingList({ shoppingList }: { shoppingList: MealPlan["shoppingList"] }) {
+function DailyShoppingList({ copy, groups, shoppingList }: { copy: ResultCopy; groups: ShoppingGroupLabels; shoppingList: MealPlan["shoppingList"] }) {
   return (
     <section className="mt-5 rounded-md bg-muted p-4">
-      <h3 className="font-semibold">Danh sách nguyên liệu riêng cho ngày này</h3>
-      <p className="mt-2 text-sm leading-6 text-muted-foreground">Dùng để kiểm tra nhanh khi nấu ngày đang chọn. Phần bên dưới gom lại thành lịch đi chợ 2-3 ngày/lần.</p>
-      <ShoppingListGroups shoppingList={shoppingList} />
+      <h3 className="font-semibold">{copy.dailyShoppingTitle}</h3>
+      <p className="mt-2 text-sm leading-6 text-muted-foreground">{copy.dailyShoppingText}</p>
+      <ShoppingListGroups copy={copy} groups={groups} shoppingList={shoppingList} />
     </section>
   );
 }
 
-function ShoppingListGroups({ shoppingList }: { shoppingList: MealPlan["shoppingList"] }) {
+function ShoppingListGroups({ copy, groups, shoppingList }: { copy: ResultCopy; groups: ShoppingGroupLabels; shoppingList: MealPlan["shoppingList"] }) {
   return (
     <div className="mt-4 grid gap-4 md:grid-cols-2">
-      {Object.entries(groupLabels).map(([key, label]) => {
-        const items = shoppingList[key as keyof typeof groupLabels];
+      {Object.entries(groups).map(([key, label]) => {
+        const items = shoppingList[key as keyof ShoppingGroupLabels];
         return (
           <div key={key}>
             <h4 className="text-sm font-medium">{label}</h4>
@@ -267,7 +397,7 @@ function ShoppingListGroups({ shoppingList }: { shoppingList: MealPlan["shopping
                 ))}
               </ul>
             ) : (
-              <p className="mt-2 text-sm text-muted-foreground">Không có món trong nhóm này.</p>
+              <p className="mt-2 text-sm text-muted-foreground">{copy.noItems}</p>
             )}
           </div>
         );
@@ -308,7 +438,8 @@ function HouseholdCostSection({
   dayHouseholdTotal,
   activeDayNumber,
   childrenEatingCount,
-  onChildrenCountChange
+  onChildrenCountChange,
+  locale
 }: {
   weeklyShopOnePerson: number;
   weeklyShopCouple: number;
@@ -321,18 +452,63 @@ function HouseholdCostSection({
   activeDayNumber: number;
   childrenEatingCount: number;
   onChildrenCountChange: (n: number) => void;
+  locale: Locale;
 }) {
+  const household = {
+    vi: {
+      title: "Ước tính chi phí theo số người ăn",
+      introStart: "Khẩu phần dinh dưỡng trong thực đơn là cho",
+      mother: "một người (mẹ)",
+      introMiddle: "Các mức chi phí dưới đây giúp quy đổi khi nấu chung:",
+      couple: "Hai vợ chồng",
+      introEnd: `tính ×2 so với một người; phần trẻ em tách riêng theo số con bạn nhập (mỗi trẻ ~${Math.round(CHILD_PORTION_FACTOR * 100)}% khẩu phần đi chợ ước lượng so với một người lớn).`,
+      childrenLabel: "Số trẻ ăn cùng (cùng món gia đình)",
+      weekTitle: "Đi chợ cả tuần (cộng các đợt)",
+      dayTitle: `Ngày ${activeDayNumber} - chi phí món ước tính`,
+      one: "1 người (mẹ)",
+      coupleRow: "Hai vợ chồng (×2)",
+      childrenPlaceholder: "Trẻ em (nhập số con ở trên)",
+      children: "Trẻ em",
+      totalWithChildren: "Tổng (hai người lớn + trẻ)",
+      totalCouple: "Tổng (hai người lớn)",
+      totalDayWithChildren: "Tổng ngày (hai người lớn + trẻ)",
+      totalDayCouple: "Tổng ngày (hai người lớn)",
+      note: "Đây chỉ là tham khảo; thực tế còn tùy món thừa, khuyến mãi và món thêm ngoài thực đơn."
+    },
+    en: {
+      title: "Estimated cost by number of eaters",
+      introStart: "The nutrition portion in this meal plan is for",
+      mother: "one person (the mother)",
+      introMiddle: "Use the estimates below when cooking for the household:",
+      couple: "two adults",
+      introEnd: `is calculated at x2; children's portions are estimated separately from the number you enter (each child is about ${Math.round(CHILD_PORTION_FACTOR * 100)}% of one adult grocery portion).`,
+      childrenLabel: "Children eating the same family meals",
+      weekTitle: "Full-week groceries (all batches)",
+      dayTitle: `Day ${activeDayNumber} - estimated meal cost`,
+      one: "1 person (mother)",
+      coupleRow: "Two adults (x2)",
+      childrenPlaceholder: "Children (enter number above)",
+      children: "Children",
+      totalWithChildren: "Total (two adults + children)",
+      totalCouple: "Total (two adults)",
+      totalDayWithChildren: "Daily total (two adults + children)",
+      totalDayCouple: "Daily total (two adults)",
+      note: "This is only a reference; real cost depends on leftovers, promotions and extra dishes outside the plan."
+    }
+  } as const;
+  const h = household[locale];
+
   return (
     <div className="mt-8 rounded-lg border border-dashed border-border bg-muted/40 p-5">
-      <h3 className="text-lg font-semibold">Ước tính chi phí theo số người ăn</h3>
+      <h3 className="text-lg font-semibold">{h.title}</h3>
       <p className="mt-2 text-sm leading-6 text-muted-foreground">
-        Khẩu phần dinh dưỡng trong thực đơn là cho <strong className="font-medium text-foreground">một người (mẹ)</strong>. Các mức chi phí dưới đây giúp quy đổi khi nấu chung:{" "}
-        <strong className="font-medium text-foreground">hai vợ chồng</strong> tính ×2 so với một người; phần <strong className="font-medium text-foreground">trẻ em</strong> tách riêng theo số con bạn nhập (mỗi trẻ ~{Math.round(CHILD_PORTION_FACTOR * 100)}% khẩu phần đi chợ ước lượng so với một người lớn).
+        {h.introStart} <strong className="font-medium text-foreground">{h.mother}</strong>. {h.introMiddle}{" "}
+        <strong className="font-medium text-foreground">{h.couple}</strong> {h.introEnd}
       </p>
 
       <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end">
         <label className="block text-sm font-medium">
-          Số trẻ ăn cùng (cùng món gia đình)
+          {h.childrenLabel}
           <input
             type="number"
             min={0}
@@ -349,39 +525,37 @@ function HouseholdCostSection({
 
       <div className="mt-5 grid gap-3 sm:grid-cols-2">
         <CostBreakdownCard
-          title="Đi chợ cả tuần (cộng các đợt)"
+          title={h.weekTitle}
           rows={[
-            { label: "1 người (mẹ)", value: weeklyShopOnePerson },
-            { label: "Hai vợ chồng (×2)", value: weeklyShopCouple },
+            { label: h.one, value: weeklyShopOnePerson },
+            { label: h.coupleRow, value: weeklyShopCouple },
             ...(childrenEatingCount > 0
-              ? [{ label: `Trẻ em (×${childrenEatingCount}, hệ số ${CHILD_PORTION_FACTOR})`, value: weeklyShopChildren }]
-              : [{ label: "Trẻ em (nhập số con ở trên)", value: 0, muted: true }]),
+              ? [{ label: `${h.children} (x${childrenEatingCount}, ${CHILD_PORTION_FACTOR})`, value: weeklyShopChildren }]
+              : [{ label: h.childrenPlaceholder, value: 0, muted: true }]),
             {
-              label: childrenEatingCount > 0 ? "Tổng (hai người lớn + trẻ)" : "Tổng (hai người lớn)",
+              label: childrenEatingCount > 0 ? h.totalWithChildren : h.totalCouple,
               value: weeklyHouseholdTotal,
               emphasize: true
             }
           ]}
         />
         <CostBreakdownCard
-          title={`Ngày ${activeDayNumber} — chi phí món ước tính`}
+          title={h.dayTitle}
           rows={[
-            { label: "1 người (mẹ)", value: dayCost },
-            { label: "Hai vợ chồng (×2)", value: dayCostCouple },
+            { label: h.one, value: dayCost },
+            { label: h.coupleRow, value: dayCostCouple },
             ...(childrenEatingCount > 0
-              ? [{ label: `Trẻ em (×${childrenEatingCount})`, value: dayCostChildren }]
-              : [{ label: "Trẻ em", value: 0, muted: true }]),
+              ? [{ label: `${h.children} (x${childrenEatingCount})`, value: dayCostChildren }]
+              : [{ label: h.children, value: 0, muted: true }]),
             {
-              label: childrenEatingCount > 0 ? "Tổng ngày (hai người lớn + trẻ)" : "Tổng ngày (hai người lớn)",
+              label: childrenEatingCount > 0 ? h.totalDayWithChildren : h.totalDayCouple,
               value: dayHouseholdTotal,
               emphasize: true
             }
           ]}
         />
       </div>
-      <p className="mt-3 text-xs leading-5 text-muted-foreground">
-        Đây chỉ là tham khảo; thực tế còn tùy món thừa, khuyến mãi và món thêm ngoài thực đơn.
-      </p>
+      <p className="mt-3 text-xs leading-5 text-muted-foreground">{h.note}</p>
     </div>
   );
 }

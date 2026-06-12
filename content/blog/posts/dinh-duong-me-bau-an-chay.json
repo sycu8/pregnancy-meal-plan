@@ -1,0 +1,33 @@
+{
+  "readingTimeMinutes": 5,
+  "status": "published",
+  "author": "Đội ngũ Bầu Ăn Gì?",
+  "title": "Dinh dưỡng mẹ bầu ăn chay: cần bổ sung gì?",
+  "slug": "dinh-duong-me-bau-an-chay",
+  "excerpt": "Ăn chay khi mang thai cần đủ protein, sắt, B12, canxi, DHA. Gợi ý thực phẩm và theo dõi y tế — NHS, ACOG.",
+  "category": "thuc-don-ba-bau",
+  "tags": [
+    "an-chay",
+    "thuc-don"
+  ],
+  "reviewer": "Tham chiếu NHS, ACOG",
+  "publishedAt": "2026-05-26T10:00:00+07:00",
+  "updatedAt": "2026-05-31T08:00:00+07:00",
+  "metaTitle": "Mẹ bầu ăn chay | Blog Bầu Ăn Gì?",
+  "metaDescription": "Thực đơn chay cho mẹ bầu: B12, sắt, DHA — NHS, ACOG.",
+  "sourceReferences": [
+    {
+      "title": "NHS — Vegetarian and vegan pregnancy",
+      "url": "https://www.nhs.uk/pregnancy/keeping-well/vegetarian-or-vegan-and-pregnant/",
+      "publisher": "NHS",
+      "accessedAt": "2026-05-31"
+    },
+    {
+      "title": "ACOG — Nutrition During Pregnancy",
+      "url": "https://www.acog.org/womens-health/faqs/nutrition-during-pregnancy",
+      "publisher": "ACOG",
+      "accessedAt": "2026-05-31"
+    }
+  ],
+  "content": "## Có thể ăn chay khi mang thai?\n\nCó, nếu được lên kế hoạch dinh dưỡng và theo dõi y tế sát.\n\n## Chất dễ thiếu\n\n- **B12:** thực phẩm bổ sung hoặc viên (theo bác sĩ).\n- **Sắt:** đậu, đậu phụ, ngũ cốc bổ sung + vitamin C.\n- **Canxi:** sữa thực vật bổ sung canxi, đậu phụ, mè.\n- **DHA:** dầu tảo hoặc viên DHA vegan nếu không ăn cá.\n- **Protein:** đậu, đậu hũ, tempeh, hạt.\n\n## Mẹo bữa ăn\n\nKết hợp đậu + ngũ cốc; thêm rau xanh đậm; không chỉ ăn rau luộc đơn điệu.\n\n## Theo dõi\n\nXét nghiệm B12, sắt định kỳ theo bác sĩ."
+}

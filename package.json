@@ -11,7 +11,20 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "preview:cloudflare": "opennextjs-cloudflare build && wrangler dev",
-    "deploy:cloudflare": "opennextjs-cloudflare build && wrangler deploy"
+    "deploy:cloudflare": "opennextjs-cloudflare build && wrangler deploy",
+    "ingest:blog": "tsx scripts/ingest-blog.ts",
+    "ingest:blog:auto": "tsx scripts/ingest-blog-auto.ts",
+    "publish:blog:auto": "npm run ingest:blog:auto && tsx scripts/publish-queued-posts.ts && npm run sync:blog && npm run generate:blog:en && npm run sync:blog:en",
+    "add:blog-seeds": "node --experimental-strip-types scripts/add-blog-seeds.ts",
+    "add:hospital-blog-seeds": "node --experimental-strip-types scripts/add-hospital-blog-seeds.ts",
+    "add:pharmacy-blog-seeds": "node --experimental-strip-types scripts/add-pharmacy-blog-seeds.ts",
+    "crawl:blog:hospitals": "node scripts/discover-hospital-posts.mjs",
+    "crawl:blog:pharmacy": "node scripts/discover-pharmacy-sources.mjs",
+    "sync:blog": "node --experimental-strip-types scripts/sync-blog-manifest.ts",
+    "sync:blog:en": "node --experimental-strip-types scripts/sync-blog-en-manifest.ts",
+    "generate:blog:en": "node scripts/build-blog-en.mjs",
+    "publish:blog": "npm run add:blog-seeds && npm run add:hospital-blog-seeds && npm run add:pharmacy-blog-seeds && npm run sync:blog",
+    "publish:blog:en": "npm run generate:blog:en && npm run sync:blog:en"
   },
   "dependencies": {
     "@opennextjs/cloudflare": "^1.11.0",
@@ -38,8 +51,10 @@
     "autoprefixer": "^10.4.21",
     "eslint": "^9.39.1",
     "eslint-config-next": "^15.5.6",
+    "playwright": "^1.60.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.18",
+    "tsx": "^4.22.4",
     "typescript": "^5.9.3",
     "vitest": "^2.1.9",
     "wrangler": "^4.45.0"
