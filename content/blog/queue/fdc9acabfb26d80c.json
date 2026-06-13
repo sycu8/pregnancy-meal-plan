@@ -7,6 +7,7 @@
   "fetchedAt": "2026-06-02T09:40:40.581Z",
   "titleHash": "67ff420ad599d948",
   "urlHash": "c0db01c02a2f146b",
-  "status": "draft",
-  "note": "Metadata-only queue item. Requires editorial synthesis before publish — do not copy source text."
+  "status": "published",
+  "note": "Metadata-only queue item. Requires editorial synthesis before publish — do not copy source text.",
+  "slug": "bi-tieu-duong-thai-ky-an-banh-mi-duoc-khong-nen-an-loai-nao-73207"
 }

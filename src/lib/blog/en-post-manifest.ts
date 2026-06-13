@@ -4,6 +4,7 @@ import axitFolicVaSatKhiMangThai from "../../../content/blog/posts-en/axit-folic
 import babyLedWeaningLaGi from "../../../content/blog/posts-en/baby-led-weaning-la-gi.json";
 import baoQuanSuaMeAnToan from "../../../content/blog/posts-en/bao-quan-sua-me-an-toan.json";
 import batMiPhuNuSauSinhAnMuopDuocKhongVaNhungCongDungTuMuopChoSanPhu from "../../../content/blog/posts-en/bat-mi-phu-nu-sau-sinh-an-muop-duoc-khong-va-nhung-cong-dung-tu-muop-cho-san-phu.json";
+import biTieuDuongThaiKyAnBanhMiDuocKhongNenAnLoaiNao73207 from "../../../content/blog/posts-en/bi-tieu-duong-thai-ky-an-banh-mi-duoc-khong-nen-an-loai-nao-73207.json";
 import caffeineKhiMangThai from "../../../content/blog/posts-en/caffeine-khi-mang-thai.json";
 import canNangThaiNhiTieuChuan from "../../../content/blog/posts-en/can-nang-thai-nhi-tieu-chuan.json";
 import canxiVaVitaminDKhiMangThai from "../../../content/blog/posts-en/canxi-va-vitamin-d-khi-mang-thai.json";
@@ -27,6 +28,7 @@ import dinhDuongTamCaNguyet2 from "../../../content/blog/posts-en/dinh-duong-tam
 import dinhDuongTre1224Thang from "../../../content/blog/posts-en/dinh-duong-tre-12-24-thang.json";
 import dungNhauDongLanhSauSinh from "../../../content/blog/posts-en/dung-nhau-dong-lanh-sau-sinh.json";
 import giacNguKhiMangThai from "../../../content/blog/posts-en/giac-ngu-khi-mang-thai.json";
+import giaiDapThacMacSauSinhAnDaDayLonDuocKhong from "../../../content/blog/posts-en/giai-dap-thac-mac-sau-sinh-an-da-day-lon-duoc-khong.json";
 import hoiChungOngCoTayKhiMangThai from "../../../content/blog/posts-en/hoi-chung-ong-co-tay-khi-mang-thai.json";
 import hoiPhucSauSinhMo from "../../../content/blog/posts-en/hoi-phuc-sau-sinh-mo.json";
 import hutSuaMeDungCach from "../../../content/blog/posts-en/hut-sua-me-dung-cach.json";
@@ -41,17 +43,22 @@ import mangThaiMuaHeNong from "../../../content/blog/posts-en/mang-thai-mua-he-n
 import nghenNangAnUongVaDieuTri from "../../../content/blog/posts-en/nghen-nang-an-uong-va-dieu-tri.json";
 import nguyenNhanVaCachGiamDauXuongMuKhiMangThai73283 from "../../../content/blog/posts-en/nguyen-nhan-va-cach-giam-dau-xuong-mu-khi-mang-thai-73283.json";
 import nhungDauHieuGiupNhanBietThaiLuuVi from "../../../content/blog/posts-en/nhung-dau-hieu-giup-nhan-biet-thai-luu-vi.json";
+import nhungDieuCanBietKhiMangThaiLanDauDeCaMeVaBeCungKhoeManhVi from "../../../content/blog/posts-en/nhung-dieu-can-biet-khi-mang-thai-lan-dau-de-ca-me-va-be-cung-khoe-manh-vi.json";
 import oOngNongKhiMangThai from "../../../content/blog/posts-en/o-ong-nong-khi-mang-thai.json";
 import omega3DhaChoMeBau from "../../../content/blog/posts-en/omega-3-dha-cho-me-bau.json";
 import phoMemVaSuaChuaTietTrungKhiMangThai from "../../../content/blog/posts-en/pho-mem-va-sua-chua-tiet-trung-khi-mang-thai.json";
 import phoTaiVaDoSongAnToanMeBau from "../../../content/blog/posts-en/pho-tai-va-do-song-an-toan-me-bau.json";
 import phuChanKhiMangThai from "../../../content/blog/posts-en/phu-chan-khi-mang-thai.json";
+import phuNuSauSinhAnBunHenDuocKhongLuuYChoCacMeSauSinh73177 from "../../../content/blog/posts-en/phu-nu-sau-sinh-an-bun-hen-duoc-khong-luu-y-cho-cac-me-sau-sinh-73177.json";
+import phuNuSauSinhAnGiBoMauNhungDieuChiEmKhongNenBoQua73178 from "../../../content/blog/posts-en/phu-nu-sau-sinh-an-gi-bo-mau-nhung-dieu-chi-em-khong-nen-bo-qua-73178.json";
+import phuNuSauSinhAnHatSenDuocKhongCanLuuYGiKhiAnHatSen73159 from "../../../content/blog/posts-en/phu-nu-sau-sinh-an-hat-sen-duoc-khong-can-luu-y-gi-khi-an-hat-sen-73159.json";
 import picaKhiMangThai from "../../../content/blog/posts-en/pica-khi-mang-thai.json";
 import proteinVaCholineKhiMangThai from "../../../content/blog/posts-en/protein-va-choline-khi-mang-thai.json";
 import quaTrinhHinhThanhRauThaiVi from "../../../content/blog/posts-en/qua-trinh-hinh-thanh-rau-thai-vi.json";
 import rungTocSauSinh from "../../../content/blog/posts-en/rung-toc-sau-sinh.json";
 import ruouVaThuocLaKhiMangThai from "../../../content/blog/posts-en/ruou-va-thuoc-la-khi-mang-thai.json";
 import sangLocTruocSinhCanLamGi from "../../../content/blog/posts-en/sang-loc-truoc-sinh-can-lam-gi.json";
+import sauSinhAnKhoQuaDuocKhongNhungLoiIchSucKhoeKhoQuaMangLaiLaGi731 from "../../../content/blog/posts-en/sau-sinh-an-kho-qua-duoc-khong-nhung-loi-ich-suc-khoe-kho-qua-mang-lai-la-gi-731.json";
 import sauSinhThieuMauAnGi from "../../../content/blog/posts-en/sau-sinh-thieu-mau-an-gi.json";
 import sayThaiTuNhienRaMauTrongBaoLauVi from "../../../content/blog/posts-en/say-thai-tu-nhien-ra-mau-trong-bao-lau-vi.json";
 import sieuAmThaiNhieuCoHaiKhong from "../../../content/blog/posts-en/sieu-am-thai-nhieu-co-hai-khong.json";
@@ -98,6 +105,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   babyLedWeaningLaGi,
   baoQuanSuaMeAnToan,
   batMiPhuNuSauSinhAnMuopDuocKhongVaNhungCongDungTuMuopChoSanPhu,
+  biTieuDuongThaiKyAnBanhMiDuocKhongNenAnLoaiNao73207,
   caffeineKhiMangThai,
   canNangThaiNhiTieuChuan,
   canxiVaVitaminDKhiMangThai,
@@ -121,6 +129,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   dinhDuongTre1224Thang,
   dungNhauDongLanhSauSinh,
   giacNguKhiMangThai,
+  giaiDapThacMacSauSinhAnDaDayLonDuocKhong,
   hoiChungOngCoTayKhiMangThai,
   hoiPhucSauSinhMo,
   hutSuaMeDungCach,
@@ -135,17 +144,22 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   nghenNangAnUongVaDieuTri,
   nguyenNhanVaCachGiamDauXuongMuKhiMangThai73283,
   nhungDauHieuGiupNhanBietThaiLuuVi,
+  nhungDieuCanBietKhiMangThaiLanDauDeCaMeVaBeCungKhoeManhVi,
   oOngNongKhiMangThai,
   omega3DhaChoMeBau,
   phoMemVaSuaChuaTietTrungKhiMangThai,
   phoTaiVaDoSongAnToanMeBau,
   phuChanKhiMangThai,
+  phuNuSauSinhAnBunHenDuocKhongLuuYChoCacMeSauSinh73177,
+  phuNuSauSinhAnGiBoMauNhungDieuChiEmKhongNenBoQua73178,
+  phuNuSauSinhAnHatSenDuocKhongCanLuuYGiKhiAnHatSen73159,
   picaKhiMangThai,
   proteinVaCholineKhiMangThai,
   quaTrinhHinhThanhRauThaiVi,
   rungTocSauSinh,
   ruouVaThuocLaKhiMangThai,
   sangLocTruocSinhCanLamGi,
+  sauSinhAnKhoQuaDuocKhongNhungLoiIchSucKhoeKhoQuaMangLaiLaGi731,
   sauSinhThieuMauAnGi,
   sayThaiTuNhienRaMauTrongBaoLauVi,
   sieuAmThaiNhieuCoHaiKhong,
