@@ -17,5 +17,27 @@
       "binding": "WORKER_SELF_REFERENCE",
       "service": "bau-an-gi"
     }
+  ],
+  "ai": {
+    "binding": "AI"
+  },
+  "kv_namespaces": [
+    {
+      "binding": "FEATURE_FLAGS",
+      "id": "9c527d01f0584d38b4e2a1f11d5c4520"
+    }
+  ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "bau-an-gi",
+      "database_id": "1e809251-3824-4043-af78-16693ca6b872"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "EXPORTS",
+      "bucket_name": "bau-an-gi-exports"
+    }
   ]
 }

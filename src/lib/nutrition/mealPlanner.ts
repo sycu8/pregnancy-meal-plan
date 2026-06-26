@@ -1,4 +1,4 @@
-import type { MealItem, MealPlan, ShoppingList } from "@/types/mealPlan";
+import type { MealItem, MealPlan, MealPlanDay, ShoppingList } from "@/types/mealPlan";
 import type { CuisinePreference, HealthCondition, NutritionGoal, PregnancyProfile } from "@/types/pregnancy";
 import type { Locale } from "@/lib/i18n";
 import { calculateBmi, getBmiCategory } from "./bmi";
@@ -242,4 +242,43 @@ function buildSummaryMessage(status: MealPlan["summary"]["weightGainStatus"], lo
   if (status === "high") return "Mức tăng cân đang cao hơn khoảng tham khảo. Mình sẽ ưu tiên rau, đạm nạc và tinh bột chậm, vẫn giữ bữa ăn đủ chất.";
   if (status === "normal") return "Các chỉ số đang nằm trong khoảng tham khảo. Mình sẽ gợi ý thực đơn cân bằng, dễ nấu và phù hợp tuần thai.";
   return "Mình chưa có đủ dữ liệu để đánh giá tăng cân. Thực đơn vẫn được tạo theo thông tin bạn đã nhập.";
+}
+
+export type MealSlot = keyof Pick<MealPlanDay, "breakfast" | "morningSnack" | "lunch" | "afternoonSnack" | "dinner">;
+
+/** Swap a single meal in an existing plan while keeping other days/meals. */
+export function regenerateMealInPlan(
+  plan: MealPlan,
+  profile: PregnancyProfile,
+  dayNumber: number,
+  mealSlot: MealSlot,
+  locale: Locale = "vi"
+): MealPlan {
+  const used = new Set<string>();
+  for (const day of plan.days) {
+    for (const slot of ["breakfast", "morningSnack", "lunch", "afternoonSnack", "dinner"] as const) {
+      if (day.day === dayNumber && slot === mealSlot) continue;
+      used.add(day[slot].name);
+    }
+  }
+  used.add(plan.days.find((d) => d.day === dayNumber)?.[mealSlot].name ?? "");
+
+  const pool: PoolName =
+    mealSlot === "breakfast" ? "breakfast" : mealSlot === "morningSnack" || mealSlot === "afternoonSnack" ? "snack" : "main";
+  const replacement = chooseMeal(pool, profile, used, dayNumber);
+
+  const days = plan.days.map((day) => {
+    if (day.day !== dayNumber) return day;
+    const nextDay = { ...day, [mealSlot]: toMealItem(replacement, pool, profile) };
+    const dayMeals = [nextDay.breakfast, nextDay.morningSnack, nextDay.lunch, nextDay.afternoonSnack, nextDay.dinner];
+    return { ...nextDay, dailyShoppingList: buildShoppingList(dayMeals) };
+  });
+
+  return {
+    ...plan,
+    profileSnapshot: profile,
+    days,
+    shoppingList: buildShoppingList(days.flatMap((day) => [day.breakfast, day.morningSnack, day.lunch, day.afternoonSnack, day.dinner])),
+    shoppingBatches: buildShoppingBatches(days, locale)
+  };
 }

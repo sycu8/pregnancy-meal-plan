@@ -80,21 +80,23 @@ export const blogSources: SourceConfig[] = [
   {
     name: "NHS",
     baseUrl: "https://www.nhs.uk",
+    rssUrl: "https://www.nhs.uk/rss/news.xml",
     allowedPaths: ["/pregnancy", "/conditions/pregnancy-and-childbirth", "/baby"],
     topics: ["pregnancy", "baby", "weaning", "maternal"],
     credibility: "official",
     language: "en",
-    enabled: false,
+    enabled: true,
     crawlFrequencyHours: 48
   },
   {
     name: "ACOG",
     baseUrl: "https://www.acog.org",
-    allowedPaths: ["/clinical", "/patient-resources"],
+    rssUrl: "https://www.acog.org/rss.xml",
+    allowedPaths: ["/clinical", "/patient-resources", "/womens-health"],
     topics: ["pregnancy", "nutrition", "postpartum"],
     credibility: "medical",
     language: "en",
-    enabled: false,
+    enabled: true,
     crawlFrequencyHours: 48
   },
   {

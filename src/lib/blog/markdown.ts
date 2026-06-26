@@ -19,6 +19,7 @@ export function renderBlogMarkdown(markdown: string): string {
   function inline(text: string) {
     return escapeHtml(text)
       .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+      .replace(/!\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)/g, '<img src="$2" alt="$1" class="mt-4 rounded-lg" loading="lazy" />')
       .replace(/\[(.+?)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" rel="noopener noreferrer" target="_blank" class="text-accent underline underline-offset-2 hover:text-accent/80">$1</a>');
   }
 
@@ -29,6 +30,21 @@ export function renderBlogMarkdown(markdown: string): string {
       continue;
     }
 
+    if (trimmed.startsWith("> ")) {
+      closeLists();
+      html.push(`<blockquote class="mt-4 border-l-4 border-accent/40 bg-muted/40 px-4 py-3 text-muted-foreground">${inline(trimmed.slice(2))}</blockquote>`);
+      continue;
+    }
+    if (trimmed.startsWith("|") && trimmed.endsWith("|")) {
+      closeLists();
+      const cells = trimmed
+        .slice(1, -1)
+        .split("|")
+        .map((cell) => `<td class="border border-border px-3 py-2 text-sm">${inline(cell.trim())}</td>`)
+        .join("");
+      html.push(`<table class="mt-4 w-full border-collapse"><tr>${cells}</tr></table>`);
+      continue;
+    }
     if (trimmed.startsWith("### ")) {
       closeLists();
       html.push(`<h3 class="mt-6 text-lg font-semibold text-foreground">${inline(trimmed.slice(4))}</h3>`);

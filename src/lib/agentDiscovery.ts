@@ -59,6 +59,14 @@ export const mcpServerCard = {
       {
         name: "create_meal_plan",
         description: "Create a reference 7-day pregnancy meal plan from profile inputs."
+      },
+      {
+        name: "get_nutrient_guidance",
+        description: "Return nutrient guidance panels for pregnancy."
+      },
+      {
+        name: "search_blog",
+        description: "Search public blog posts by keyword."
       }
     ],
     resources: [

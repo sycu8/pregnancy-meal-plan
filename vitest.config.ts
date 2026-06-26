@@ -4,7 +4,8 @@ import { fileURLToPath } from "node:url";
 export default defineConfig({
   test: {
     environment: "node",
-    globals: true
+    globals: true,
+    exclude: ["**/node_modules/**", "**/tests/e2e/**"]
   },
   resolve: {
     alias: {

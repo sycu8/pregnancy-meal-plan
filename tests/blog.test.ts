@@ -96,7 +96,7 @@ describe("dedupe", () => {
   it("skips duplicate urls", () => {
     const items = dedupeFeedItems(
       [{ id: "1", sourceName: "WHO", title: "A", url: "https://x.com/1", snippet: "pregnancy", fetchedAt: "2026-01-01" }],
-      [{ id: "0", titleHash: "abc", urlHash: "def" }]
+      [{ titleHash: "abc", urlHash: "def" }]
     );
     expect(items).toHaveLength(1);
   });

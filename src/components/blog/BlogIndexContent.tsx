@@ -41,9 +41,15 @@ export function BlogIndexContent({ locale, searchParams }: { locale: BlogLocale;
             <p className="text-sm font-medium text-accent">Blog</p>
             <h1 className="mt-2 text-3xl font-semibold tracking-tight md:text-4xl">{ui.listTitle}</h1>
             <p className="mt-4 text-base leading-7 text-muted-foreground">{ui.listIntro}</p>
-            <p className="mt-4">
+            <p className="mt-4 flex flex-wrap gap-4">
               <Link href={plannerHref} className="text-sm font-medium text-accent underline underline-offset-2 hover:text-accent/80">
                 {ui.plannerCta}
+              </Link>
+              <Link href={`${base}/feed.xml`} className="text-sm font-medium text-muted-foreground underline underline-offset-2 hover:text-foreground">
+                RSS
+              </Link>
+              <Link href={`${base}/topics`} className="text-sm font-medium text-muted-foreground underline underline-offset-2 hover:text-foreground">
+                {locale === "en" ? "Topics" : "Chủ đề"}
               </Link>
             </p>
           </header>

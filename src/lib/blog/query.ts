@@ -1,4 +1,5 @@
-import type { BlogCategorySlug, BlogPost } from "@/types/blog";
+import type { BlogCategorySlug, BlogLocale, BlogPost } from "@/types/blog";
+import { getAllPosts } from "@/lib/blog/posts";
 
 export const BLOG_PAGE_SIZE = 12;
 
@@ -97,4 +98,12 @@ export function buildBlogListHref(
 function pickString(value: string | string[] | undefined): string | undefined {
   if (Array.isArray(value)) return value[0];
   return value;
+}
+
+export function searchBlogPosts(locale: BlogLocale, query: { q?: string; page?: number; pageSize?: number }) {
+  const posts = filterPosts(getAllPosts(locale), { q: query.q });
+  const page = query.page ?? 1;
+  const pageSize = query.pageSize ?? 12;
+  const { items, total, totalPages } = paginatePosts(posts, page, pageSize);
+  return { posts: items, total, totalPages, page };
 }

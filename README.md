@@ -127,6 +127,10 @@ Thực đơn được tạo tự động dựa trên thông tin bạn cung cấp
 
 ## Roadmap Cloudflare
 
+Xem chi tiết 5 phase tại [`docs/ROADMAP.md`](docs/ROADMAP.md).
+
+Tóm tắt:
+
 1. Workers AI hoặc OpenAI qua Worker
 2. Cloudflare AI Gateway để log, cache, rate limit AI calls
 3. D1 cho user profile khi có account

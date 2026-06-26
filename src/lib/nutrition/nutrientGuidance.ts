@@ -43,6 +43,10 @@ export const nutrientGuidance: NutrientGuidanceItem[] = [
   }
 ];
 
+export function getNutrientGuidance(locale: "vi" | "en" = "vi") {
+  return { items: nutrientGuidance, references: referenceSources, locale };
+}
+
 export const referenceSources: ReferenceSource[] = [
   {
     name: "ACOG",

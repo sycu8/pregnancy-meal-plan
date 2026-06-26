@@ -11,6 +11,8 @@ import { NutrientGuidancePanel } from "@/components/result/NutrientGuidancePanel
 import { bmiCategoryLabels } from "@/lib/nutrition/bmi";
 import { weightGainStatusLabels } from "@/lib/nutrition/weightGain";
 import { getCurrentMealPlan, saveMealPlan } from "@/lib/storage/localStorage";
+import { fetchMealPlan } from "@/lib/nutrition/fetchMealPlan";
+import type { MealSlot } from "@/lib/nutrition/mealPlanner";
 import { localizedPath, type Locale } from "@/lib/i18n";
 import type { MealItem, MealPlan } from "@/types/mealPlan";
 
@@ -95,6 +97,8 @@ const copy = {
     alternative: "Thay thế",
     caution: "Lưu ý",
     estimate: "Ước tính",
+    swapMeal: "Đổi món",
+    swapping: "Đang đổi...",
     dailyShoppingTitle: "Danh sách nguyên liệu riêng cho ngày này",
     dailyShoppingText:
       "Dùng để kiểm tra nhanh khi nấu ngày đang chọn. Phần bên dưới gom lại thành lịch đi chợ 2-3 ngày/lần.",
@@ -141,6 +145,8 @@ const copy = {
     alternative: "Alternatives",
     caution: "Note",
     estimate: "Estimate",
+    swapMeal: "Swap meal",
+    swapping: "Swapping...",
     dailyShoppingTitle: "Ingredients for this day",
     dailyShoppingText:
       "Use this for a quick cooking check for the selected day. The section below groups ingredients into 2-3 day grocery batches.",
@@ -160,10 +166,27 @@ export function MealPlanResult({ locale = "vi" }: { locale?: Locale }) {
   const [saved, setSaved] = useState(false);
   const [activeDayIndex, setActiveDayIndex] = useState(0);
   const [childrenEatingCount, setChildrenEatingCount] = useState(0);
+  const [swappingSlot, setSwappingSlot] = useState<MealSlot | null>(null);
 
   useEffect(() => {
     setPlan(getCurrentMealPlan());
   }, []);
+
+  async function handleSwapMeal(mealSlot: MealSlot) {
+    if (!plan) return;
+    const day = plan.days[activeDayIndex]?.day ?? 1;
+    setSwappingSlot(mealSlot);
+    try {
+      const next = await fetchMealPlan(plan.profileSnapshot, locale, {
+        regenerate: { day, mealSlot, existingPlan: plan }
+      });
+      setPlan(next);
+      saveMealPlan(next);
+      setSaved(true);
+    } finally {
+      setSwappingSlot(null);
+    }
+  }
 
   if (!plan) {
     return <EmptyState locale={locale} title={t.emptyTitle} description={t.emptyDescription} />;
@@ -265,11 +288,11 @@ export function MealPlanResult({ locale = "vi" }: { locale?: Locale }) {
 
         <article className="mt-5">
           <div className="grid gap-3 md:grid-cols-2">
-            <MealBlock copy={t} title={t.meals[0]} item={activeDay.breakfast} />
-            <MealBlock copy={t} title={t.meals[1]} item={activeDay.morningSnack} />
-            <MealBlock copy={t} title={t.meals[2]} item={activeDay.lunch} />
-            <MealBlock copy={t} title={t.meals[3]} item={activeDay.afternoonSnack} />
-            <MealBlock copy={t} title={t.meals[4]} item={activeDay.dinner} />
+            <MealBlock copy={t} title={t.meals[0]} item={activeDay.breakfast} mealSlot="breakfast" swapping={swappingSlot === "breakfast"} onSwap={handleSwapMeal} />
+            <MealBlock copy={t} title={t.meals[1]} item={activeDay.morningSnack} mealSlot="morningSnack" swapping={swappingSlot === "morningSnack"} onSwap={handleSwapMeal} />
+            <MealBlock copy={t} title={t.meals[2]} item={activeDay.lunch} mealSlot="lunch" swapping={swappingSlot === "lunch"} onSwap={handleSwapMeal} />
+            <MealBlock copy={t} title={t.meals[3]} item={activeDay.afternoonSnack} mealSlot="afternoonSnack" swapping={swappingSlot === "afternoonSnack"} onSwap={handleSwapMeal} />
+            <MealBlock copy={t} title={t.meals[4]} item={activeDay.dinner} mealSlot="dinner" swapping={swappingSlot === "dinner"} onSwap={handleSwapMeal} />
             <div className="rounded-md bg-muted p-4 text-sm text-muted-foreground">
               <p className="font-medium text-foreground">{t.hydration}</p>
               <p className="mt-1 leading-6">{activeDay.hydrationNote}</p>
@@ -350,13 +373,32 @@ function Metric({ label, value }: { label: string; value: string }) {
   );
 }
 
-function MealBlock({ copy, title, item }: { copy: ResultCopy; title: string; item: MealItem }) {
+function MealBlock({
+  copy,
+  title,
+  item,
+  mealSlot,
+  swapping,
+  onSwap
+}: {
+  copy: ResultCopy;
+  title: string;
+  item: MealItem;
+  mealSlot: MealSlot;
+  swapping: boolean;
+  onSwap: (slot: MealSlot) => void;
+}) {
   const hasEstimate = item.portionGram > 0 && item.estimatedCalories > 0;
   const hasCost = item.estimatedCostVnd > 0;
 
   return (
     <div className="rounded-md border border-border p-4">
-      <p className="text-xs font-medium uppercase text-accent">{title}</p>
+      <div className="flex items-start justify-between gap-2">
+        <p className="text-xs font-medium uppercase text-accent">{title}</p>
+        <Button type="button" variant="ghost" size="sm" className="no-print h-8 px-2 text-xs" disabled={swapping} onClick={() => onSwap(mealSlot)}>
+          {swapping ? copy.swapping : copy.swapMeal}
+        </Button>
+      </div>
       <h4 className="mt-1 font-semibold">{item.name}</h4>
       {hasEstimate && (
         <p className="mt-2 rounded-md bg-muted px-3 py-2 text-xs font-medium text-foreground">

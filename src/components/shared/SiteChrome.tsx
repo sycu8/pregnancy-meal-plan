@@ -4,12 +4,14 @@ import { footerCredit, localizedPath, siteCopy, type Locale } from "@/lib/i18n";
 import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
 import { MobileNav } from "@/components/shared/MobileNav";
 import { WebMcpRegistration } from "@/components/shared/WebMcpRegistration";
+import { CloudflareAnalytics } from "@/components/shared/CloudflareAnalytics";
 
 export function SiteChrome({ children, locale }: { children: React.ReactNode; locale: Locale }) {
   const copy = siteCopy[locale];
 
   return (
     <body className="min-h-screen font-sans antialiased">
+      <CloudflareAnalytics />
       <WebMcpRegistration />
       <nav className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">

@@ -2,6 +2,7 @@ import type { BlogLocale, BlogPost } from "@/types/blog";
 import { babyAgeLabels, getCategoryBySlug, medicalDisclaimer, trimesterLabels } from "@/lib/blog/categories";
 import { renderBlogMarkdown } from "@/lib/blog/markdown";
 import { BlogBreadcrumbs } from "@/components/blog/BlogCard";
+import { BlogPlannerCta } from "@/components/blog/BlogPlannerCta";
 import { blogBasePath, getBlogUi } from "@/lib/blog/ui";
 
 export function BlogPostArticle({ post, locale = "vi" }: { post: BlogPost; locale?: BlogLocale }) {
@@ -50,6 +51,8 @@ export function BlogPostArticle({ post, locale = "vi" }: { post: BlogPost; local
       </header>
 
       <div className="prose-blog mt-8 border-t border-border pt-8" dangerouslySetInnerHTML={{ __html: html }} />
+
+      <BlogPlannerCta category={post.category} tags={post.tags} locale={locale} />
 
       <aside className="mt-10 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950">
         <p className="font-medium">{ui.medicalNote}</p>

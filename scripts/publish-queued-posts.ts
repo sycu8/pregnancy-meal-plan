@@ -8,6 +8,7 @@ import fs from "node:fs";
 import path from "node:path";
 import type { BlogCategorySlug, BlogPost, BlogTrimester, BlogPostTranslation } from "../src/types/blog.ts";
 import { hashValue } from "../src/lib/blog/ingestion/dedupe.ts";
+import { synthesizePost } from "../src/lib/blog/synthesis/synthesizePost.ts";
 
 type QueueItem = {
   id: string;
@@ -104,7 +105,12 @@ function extractTags(title: string, snippet: string) {
 }
 
 function viContentTemplate(item: QueueItem) {
-  return `## Tóm tắt\n\nBài viết này được tổng hợp dựa trên tiêu đề và mô tả công khai từ nguồn ${item.sourceName}. Nội dung mang tính tham khảo, không thay thế tư vấn cá nhân từ bác sĩ.\n\n## Điểm chính\n\n- Hiểu đúng vấn đề và các dấu hiệu thường gặp.\n- Các yếu tố nguy cơ/hoàn cảnh hay đi kèm.\n- Điều bạn có thể làm an toàn tại nhà.\n\n## Khi nào cần đi khám sớm\n\n- Triệu chứng nặng lên nhanh hoặc kéo dài.\n- Có ra máu, đau dữ dội, sốt cao, khó thở hoặc ngất.\n- Thai máy giảm rõ rệt (đặc biệt từ khoảng 28 tuần trở đi).\n\n## Gợi ý thực hành\n\n- Ưu tiên ăn đủ chất, uống đủ nước và ngủ đủ.\n- Không tự ý dùng thuốc/bổ sung liều cao nếu chưa được chỉ định.\n- Ghi lại triệu chứng và câu hỏi để trao đổi với bác sĩ.\n\n## Nguồn tham khảo\n\nXem bài gốc ở cuối trang trong phần “Tài liệu tham khảo”.`;
+  return synthesizePost({
+    title: item.title,
+    snippet: item.snippet,
+    sourceName: item.sourceName,
+    url: item.url
+  }).content;
 }
 
 function enContentTemplate(item: QueueItem) {

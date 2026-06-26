@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import type { IngestedFeedItem, SourceConfig } from "@/types/blog";
 import { dedupeFeedItems, hashValue, topicMatches } from "./dedupe";
+import { discoverSitemapCandidates } from "./sitemap";
 import { parseRssOrAtom } from "./rss";
 import { assertUrlAllowedByRobots } from "./robots";
 import { BLOG_USER_AGENT, DEFAULT_RATE_LIMIT_MS, getEnabledSources } from "./sources";
@@ -63,7 +64,51 @@ export async function ingestBlogSources(options?: { sources?: SourceConfig[] }):
 
   for (const source of sources) {
     if (!source.rssUrl) {
-      logs.push({ at: new Date().toISOString(), level: "info", message: "No RSS URL — skip (HTML crawl not run in automated job)", source: source.name });
+      try {
+        const discovered = await discoverSitemapCandidates(source, { maxSitemaps: 2, maxCandidates: 12, maxHtmlFetch: 6 });
+        const candidates = discovered.map((item) => ({
+          id: hashValue(`${source.name}:${item.url}`),
+          sourceName: source.name,
+          title: item.title,
+          url: item.url,
+          snippet: item.snippet,
+          publishedAt: item.publishedAt,
+          fetchedAt: new Date().toISOString()
+        }));
+        const unique = dedupeFeedItems(candidates, existing);
+        for (const item of unique) {
+          const file = path.join(queueDir(), `${item.id}.json`);
+          fs.writeFileSync(
+            file,
+            JSON.stringify(
+              {
+                ...item,
+                status: "draft",
+                note: "Sitemap discovery queue item. Requires editorial synthesis before publish."
+              },
+              null,
+              2
+            ),
+            "utf8"
+          );
+          newIndex.push({ id: item.id, titleHash: item.titleHash, urlHash: item.urlHash });
+          queued++;
+        }
+        logs.push({
+          at: new Date().toISOString(),
+          level: "info",
+          message: `Sitemap ${discovered.length} candidates, ${unique.length} new queue entries`,
+          source: source.name
+        });
+      } catch (error) {
+        logs.push({
+          at: new Date().toISOString(),
+          level: "error",
+          message: error instanceof Error ? error.message : "Sitemap discovery failed",
+          source: source.name
+        });
+        skipped++;
+      }
       continue;
     }
 

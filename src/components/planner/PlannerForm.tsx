@@ -6,7 +6,7 @@ import { ArrowLeft, ArrowRight, Loader2, Save, Sparkles } from "lucide-react";
 import { Button } from "@/components/shared/Button";
 import { Disclaimer } from "@/components/shared/Disclaimer";
 import { getNutritionLabels } from "@/lib/nutrition/labels";
-import { ruleBasedMealPlanner } from "@/lib/nutrition/mealPlanner";
+import { fetchMealPlan } from "@/lib/nutrition/fetchMealPlan";
 import { pregnancyProfileSchema, validationErrorToLocale } from "@/lib/nutrition/validation";
 import { saveMealPlan, saveProfile, getProfile } from "@/lib/storage/localStorage";
 import { localizedPath, type Locale } from "@/lib/i18n";
@@ -146,7 +146,7 @@ export function PlannerForm({ mode = "planner", locale = "vi" }: { mode?: "plann
         return;
       }
 
-      const plan = ruleBasedMealPlanner(validProfile, locale);
+      const plan = await fetchMealPlan(validProfile, locale);
       saveMealPlan(plan);
       router.push(localizedPath(locale, "/result"));
     } catch (caught) {
