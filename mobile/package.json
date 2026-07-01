@@ -1,0 +1,28 @@
+{
+  "name": "bau-an-gi-mobile",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Bầu Ăn Gì? — iOS and Android apps (Capacitor)",
+  "scripts": {
+    "sync": "cap sync",
+    "copy": "cap copy",
+    "open:android": "cap open android",
+    "open:ios": "cap open ios",
+    "assets": "capacitor-assets generate --iconBackgroundColor '#bd5f42' --splashBackgroundColor '#fffaf5' --ios --android",
+    "build:android": "cd android && ./gradlew assembleRelease",
+    "build:android:bundle": "cd android && ./gradlew bundleRelease"
+  },
+  "dependencies": {
+    "@capacitor/android": "^7.4.2",
+    "@capacitor/app": "^7.0.2",
+    "@capacitor/core": "^7.4.2",
+    "@capacitor/ios": "^7.4.2",
+    "@capacitor/splash-screen": "^7.0.2",
+    "@capacitor/status-bar": "^7.0.2"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^7.4.2",
+    "typescript": "^5.9.3"
+  }
+}
