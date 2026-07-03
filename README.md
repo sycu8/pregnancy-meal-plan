@@ -152,6 +152,19 @@ AI_GATEWAY_URL=
 
 Nếu thiếu env hoặc AI lỗi, abstraction trong `src/lib/cloudflare/aiClient.ts` fallback về rule-based planner.
 
+## Mobile apps (iOS & Android)
+
+Native apps live in [`mobile/`](mobile/) (Capacitor). They wrap the production site with splash screen, status bar, and store-ready bundle ID `info.mebauangi.app`.
+
+```bash
+corepack pnpm mobile:install
+corepack pnpm mobile:sync
+corepack pnpm mobile:android   # opens Android Studio
+corepack pnpm mobile:ios       # opens Xcode (macOS)
+```
+
+Store listing copy, privacy questionnaire answers, and screenshot checklist: [`docs/STORE_SUBMISSION.md`](docs/STORE_SUBMISSION.md).
+
 ## Blog: tự crawl mỗi 24 giờ
 
 Website tự bổ sung bài `/blog/` (VI) và `/en/blog/` (EN) qua GitHub Actions:

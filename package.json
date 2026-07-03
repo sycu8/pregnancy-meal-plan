@@ -25,7 +25,11 @@
     "sync:blog:en": "node --experimental-strip-types scripts/sync-blog-en-manifest.ts",
     "generate:blog:en": "node scripts/build-blog-en.mjs",
     "publish:blog": "npm run add:blog-seeds && npm run add:hospital-blog-seeds && npm run add:pharmacy-blog-seeds && npm run sync:blog",
-    "publish:blog:en": "npm run generate:blog:en && npm run sync:blog:en"
+    "publish:blog:en": "npm run generate:blog:en && npm run sync:blog:en",
+    "mobile:install": "cd mobile && npm install",
+    "mobile:sync": "cd mobile && npm run sync",
+    "mobile:android": "cd mobile && npm run open:android",
+    "mobile:ios": "cd mobile && npm run open:ios"
   },
   "dependencies": {
     "@opennextjs/cloudflare": "^1.11.0",

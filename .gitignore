@@ -11,3 +11,15 @@ cf-deploy.account-id
 dist
 coverage
 *.tsbuildinfo
+
+# Capacitor mobile
+mobile/node_modules
+mobile/android/.gradle
+mobile/android/app/build
+mobile/android/build
+mobile/android/local.properties
+mobile/android/.idea
+mobile/ios/App/Pods
+mobile/ios/App/build
+mobile/ios/DerivedData
+mobile/*.keystore
