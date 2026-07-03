@@ -7,12 +7,15 @@ import { Button } from "@/components/shared/Button";
 import { Disclaimer } from "@/components/shared/Disclaimer";
 import { PremiumUsageHint } from "@/components/shared/PremiumUsageHint";
 import { canCreateAiPlan } from "@/lib/premium/usage";
+import { getPremiumTier } from "@/lib/premium/tier";
 import { getNutritionLabels } from "@/lib/nutrition/labels";
-import { fetchMealPlan } from "@/lib/nutrition/fetchMealPlan";
+import { fetchMealPlan, createLocalMealPlan } from "@/lib/nutrition/fetchMealPlan";
 import { pregnancyProfileSchema, validationErrorToLocale } from "@/lib/nutrition/validation";
 import { saveMealPlan, saveProfile, getProfile } from "@/lib/storage/localStorage";
 import { localizedPath, type Locale } from "@/lib/i18n";
 import type { CuisinePreference, HealthCondition, NutritionGoal, PregnancyProfile } from "@/types/pregnancy";
+
+const PLAN_NOTICE_KEY = "bau-an-gi:plan-notice";
 
 const defaultProfile: PregnancyProfile = {
   pregnancyWeek: 20,
@@ -59,7 +62,7 @@ const copy = {
     loading: "Đang tạo thực đơn...",
     saveProfile: "Lưu hồ sơ",
     submit: "Tạo thực đơn miễn phí",
-    planLimit: "Đã hết lượt tạo thực đơn AI hôm nay. Thử lại ngày mai."
+    planLimit: "Đã hết lượt tạo thực đơn AI hôm nay. Đang dùng thực đơn rule-based (miễn phí)."
   },
   en: {
     steps: ["Pregnancy", "About you", "Health", "Taste", "Budget"],
@@ -91,7 +94,7 @@ const copy = {
     loading: "Creating meal plan...",
     saveProfile: "Save profile",
     submit: "Create a free plan",
-    planLimit: "Daily AI meal-plan limit reached. Try again tomorrow."
+    planLimit: "Daily AI limit reached. Using the free rule-based meal plan instead."
   }
 } as const;
 
@@ -150,12 +153,16 @@ export function PlannerForm({ mode = "planner", locale = "vi" }: { mode?: "plann
         return;
       }
 
-      if (!canCreateAiPlan()) {
-        setError(t.planLimit);
-        return;
+      let plan;
+      if (!canCreateAiPlan(getPremiumTier())) {
+        plan = createLocalMealPlan(validProfile, locale);
+        if (typeof window !== "undefined") {
+          window.sessionStorage.setItem(PLAN_NOTICE_KEY, t.planLimit);
+        }
+      } else {
+        plan = await fetchMealPlan(validProfile, locale);
       }
 
-      const plan = await fetchMealPlan(validProfile, locale);
       saveMealPlan(plan);
       router.push(localizedPath(locale, "/result"));
     } catch (caught) {

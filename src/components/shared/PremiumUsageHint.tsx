@@ -17,7 +17,16 @@ const copy = {
   }
 } as const;
 
-export function PremiumUsageHint({ locale, mode = "ai" }: { locale: Locale; mode?: "ai" | "swap" }) {
+export function PremiumUsageHint({
+  locale,
+  mode = "ai",
+  refreshKey = 0
+}: {
+  locale: Locale;
+  mode?: "ai" | "swap";
+  refreshKey?: number;
+}) {
+  void refreshKey;
   const tier = getPremiumTier();
   const snapshot = getUsageSnapshot(tier);
   const t = copy[locale];

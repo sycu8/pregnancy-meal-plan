@@ -12,6 +12,7 @@ import { bmiCategoryLabels } from "@/lib/nutrition/bmi";
 import { weightGainStatusLabels } from "@/lib/nutrition/weightGain";
 import { PremiumUsageHint } from "@/components/shared/PremiumUsageHint";
 import { canSwapMeal } from "@/lib/premium/usage";
+import { getPremiumTier } from "@/lib/premium/tier";
 import { shareMealPlan } from "@/lib/share/planShare";
 import { getCurrentMealPlan, getMealPlanById, saveMealPlan, setCurrentMealPlan } from "@/lib/storage/localStorage";
 import { fetchMealPlan } from "@/lib/nutrition/fetchMealPlan";
@@ -181,10 +182,22 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
   const [saved, setSaved] = useState(false);
   const [shareState, setShareState] = useState<"idle" | "shared" | "copied">("idle");
   const [swapError, setSwapError] = useState("");
+  const [shareError, setShareError] = useState("");
+  const [usageRefresh, setUsageRefresh] = useState(0);
   const [activeDayIndex, setActiveDayIndex] = useState(0);
   const [childrenEatingCount, setChildrenEatingCount] = useState(0);
   const [swappingSlot, setSwappingSlot] = useState<MealSlot | null>(null);
   const [missingPlan, setMissingPlan] = useState(false);
+  const [planNotice, setPlanNotice] = useState("");
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const notice = window.sessionStorage.getItem("bau-an-gi:plan-notice");
+    if (notice) {
+      setPlanNotice(notice);
+      window.sessionStorage.removeItem("bau-an-gi:plan-notice");
+    }
+  }, []);
 
   useEffect(() => {
     if (planId) {
@@ -202,7 +215,7 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
 
   async function handleSwapMeal(mealSlot: MealSlot) {
     if (!plan) return;
-    if (!canSwapMeal()) {
+    if (!canSwapMeal(getPremiumTier())) {
       setSwapError(t.swapLimit);
       return;
     }
@@ -216,6 +229,7 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
       setPlan(next);
       saveMealPlan(next);
       setSaved(true);
+      setUsageRefresh((value) => value + 1);
     } catch (error) {
       setSwapError(error instanceof Error ? error.message : t.swapLimit);
     } finally {
@@ -225,12 +239,13 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
 
   async function handleShare() {
     if (!plan) return;
+    setShareError("");
     try {
       const result = await shareMealPlan(plan, locale);
       setShareState(result);
     } catch {
       setShareState("idle");
-      setSwapError(t.shareError);
+      setShareError(t.shareError);
     }
   }
 
@@ -266,6 +281,9 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
 
   return (
     <div className="space-y-6">
+      {planNotice && (
+        <p className="rounded-md bg-amber-50 px-4 py-3 text-sm text-amber-900">{planNotice}</p>
+      )}
       <section className="rounded-lg border border-border bg-white p-5 shadow-soft">
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div>
@@ -291,8 +309,9 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
           </div>
         </div>
         <div className="no-print mt-3">
-          <PremiumUsageHint locale={locale} mode="swap" />
+          <PremiumUsageHint locale={locale} mode="swap" refreshKey={usageRefresh} />
           {swapError && <p className="mt-1 text-sm text-red-700">{swapError}</p>}
+          {shareError && <p className="mt-1 text-sm text-red-700">{shareError}</p>}
         </div>
 
         <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

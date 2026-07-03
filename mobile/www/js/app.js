@@ -55,7 +55,7 @@
           target.searchParams.set("utm_source", resolveAttributionSource());
           target.searchParams.set("utm_medium", "deeplink");
           window.location.replace(target.toString());
-        } catch (_error) {
+        } catch {
           navigateToApp();
         }
       });

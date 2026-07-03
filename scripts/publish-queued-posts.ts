@@ -60,7 +60,7 @@ function slugFromUrl(url: string) {
 }
 
 function ensureUniqueSlug(base: string) {
-  let slug = base || "bai-viet";
+  const slug = base || "bai-viet";
   if (!fs.existsSync(path.join(postsDir, `${slug}.json`))) return slug;
   const suffix = hashValue(`${slug}:${Date.now()}`).slice(0, 6);
   return `${slug}-${suffix}`;

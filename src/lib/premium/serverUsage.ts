@@ -1,21 +1,24 @@
 import { getPremiumLimits, type PremiumTier } from "@/lib/premium/limits";
+import { getUsageDateKey, isValidUsageDateKey } from "@/lib/premium/dateKey";
 import { getBindings } from "@/lib/cloudflare/bindings";
 
 export type UsageBucket = "ai-plan" | "meal-swap";
 
 const memoryUsage = new Map<string, number>();
 
-function usageDateKey() {
-  return new Date().toISOString().slice(0, 10);
+function usageDateKey(request: Request) {
+  const header = request.headers.get("x-usage-date");
+  return isValidUsageDateKey(header) ? header! : getUsageDateKey();
+}
+
+function resolveClientKey(request: Request) {
+  const raw = request.headers.get("cf-connecting-ip") ?? request.headers.get("x-forwarded-for") ?? "anonymous";
+  return raw.split(",")[0]?.trim() || "anonymous";
 }
 
 function resolveTier(request: Request): PremiumTier {
   const header = request.headers.get("x-premium-tier");
   return header === "premium" ? "premium" : "free";
-}
-
-function resolveClientKey(request: Request) {
-  return request.headers.get("cf-connecting-ip") ?? request.headers.get("x-forwarded-for") ?? "anonymous";
 }
 
 function limitForBucket(tier: PremiumTier, bucket: UsageBucket) {
@@ -50,7 +53,7 @@ export async function checkAndIncrementUsage(
     return { ok: true, used: 0, limit: Number.MAX_SAFE_INTEGER };
   }
 
-  const key = `usage:${bucket}:${usageDateKey()}:${resolveClientKey(request)}`;
+  const key = `usage:${bucket}:${usageDateKey(request)}:${resolveClientKey(request)}`;
   const used = await readCount(key);
   if (used >= limit) {
     return { ok: false, used, limit };

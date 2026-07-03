@@ -1,4 +1,5 @@
 import { getPremiumLimits, type PremiumTier } from "@/lib/premium/limits";
+import { getUsageDateKey } from "@/lib/premium/dateKey";
 
 const USAGE_KEY = "bau-an-gi:daily-usage";
 
@@ -9,7 +10,7 @@ type DailyUsage = {
 };
 
 function todayKey() {
-  return new Date().toISOString().slice(0, 10);
+  return getUsageDateKey();
 }
 
 function readUsage(): DailyUsage {
