@@ -19,6 +19,9 @@ const navItems: { key: NavKey; path: string }[] = [
   { key: "planner", path: "/planner" },
   { key: "history", path: "/history" },
   { key: "profile", path: "/profile" },
+  { key: "account", path: "/account" },
+  { key: "premium", path: "/premium" },
+  { key: "support", path: "/support" },
   { key: "blog", path: "/blog" }
 ];
 

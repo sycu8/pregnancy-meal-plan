@@ -49,3 +49,35 @@ export async function listCloudMealPlans(userId: string, limit = 50): Promise<Me
 
   return (results ?? []).map((row: { data_json: string }) => JSON.parse(row.data_json) as MealPlan);
 }
+
+export async function listCloudFavorites(userId: string): Promise<string[]> {
+  const { DB } = await getBindings();
+  if (!DB) return [];
+
+  const { results } = await DB.prepare(`SELECT meal_slug FROM favorites WHERE user_id = ? ORDER BY meal_slug`)
+    .bind(userId)
+    .all<{ meal_slug: string }>();
+
+  return (results ?? []).map((row) => row.meal_slug);
+}
+
+export async function addCloudFavorite(userId: string, mealSlug: string) {
+  const { DB } = await getBindings();
+  if (!DB) throw new Error("D1 not configured");
+
+  await DB.prepare(`INSERT OR IGNORE INTO favorites (user_id, meal_slug) VALUES (?, ?)`).bind(userId, mealSlug).run();
+}
+
+export async function removeCloudFavorite(userId: string, mealSlug: string) {
+  const { DB } = await getBindings();
+  if (!DB) throw new Error("D1 not configured");
+
+  await DB.prepare(`DELETE FROM favorites WHERE user_id = ? AND meal_slug = ?`).bind(userId, mealSlug).run();
+}
+
+export async function setUserPremium(userId: string, premium: boolean) {
+  const { DB } = await getBindings();
+  if (!DB) throw new Error("D1 not configured");
+  await DB.prepare(`UPDATE users SET premium = ? WHERE id = ?`).bind(premium ? 1 : 0, userId).run();
+}
+

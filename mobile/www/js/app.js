@@ -64,8 +64,22 @@
     return Promise.all(tasks);
   }
 
+  function cacheShellPreferences() {
+    if (!window.Capacitor || !window.Capacitor.Plugins || !window.Capacitor.Plugins.Preferences) {
+      return Promise.resolve();
+    }
+
+    return Promise.all([
+      window.Capacitor.Plugins.Preferences.set({ key: "app_origin", value: APP_ORIGIN }),
+      window.Capacitor.Plugins.Preferences.set({ key: "last_boot_at", value: new Date().toISOString() })
+    ]).catch(function () {});
+  }
+
   function boot() {
     configureNativeChrome()
+      .then(function () {
+        return cacheShellPreferences();
+      })
       .then(function () {
         setStatus("Đang kết nối…");
         navigateToApp();

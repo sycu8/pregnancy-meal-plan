@@ -1,5 +1,6 @@
 import { getPremiumLimits, type PremiumTier } from "@/lib/premium/limits";
 import { getUsageDateKey, isValidUsageDateKey } from "@/lib/premium/dateKey";
+import { resolvePremiumTier } from "@/lib/premium/resolveTier";
 import { getBindings } from "@/lib/cloudflare/bindings";
 
 export type UsageBucket = "ai-plan" | "meal-swap";
@@ -16,9 +17,8 @@ function resolveClientKey(request: Request) {
   return raw.split(",")[0]?.trim() || "anonymous";
 }
 
-function resolveTier(request: Request): PremiumTier {
-  const header = request.headers.get("x-premium-tier");
-  return header === "premium" ? "premium" : "free";
+async function resolveTier(request: Request): Promise<PremiumTier> {
+  return resolvePremiumTier(request);
 }
 
 function limitForBucket(tier: PremiumTier, bucket: UsageBucket) {
@@ -47,7 +47,7 @@ export async function checkAndIncrementUsage(
   request: Request,
   bucket: UsageBucket
 ): Promise<{ ok: true; used: number; limit: number } | { ok: false; used: number; limit: number }> {
-  const tier = resolveTier(request);
+  const tier = await resolveTier(request);
   const limit = limitForBucket(tier, bucket);
   if (!Number.isFinite(limit)) {
     return { ok: true, used: 0, limit: Number.MAX_SAFE_INTEGER };

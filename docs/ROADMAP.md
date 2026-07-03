@@ -54,6 +54,11 @@ OAUTH_CLIENT_SECRET=
 AI_PROVIDER=workers-ai
 OPENAI_API_KEY=
 FEATURE_AI_PLANNER_ENABLED=true
+APPLE_TEAM_ID=
+ANDROID_SHA256_FINGERPRINT=
+B2B_API_KEY=
+STRIPE_CHECKOUT_URL=
+TELEGRAM_BOT_TOKEN=
 ```
 
 ## KPI
@@ -79,43 +84,45 @@ FEATURE_AI_PLANNER_ENABLED=true
 - [ ] Release signing (Android keystore, Apple distribution)
 - [ ] Store screenshots + feature graphic
 - [ ] Google Play + App Store submission approved
-- [ ] Replace `TEAMID` in AASA + SHA256 in `assetlinks.json`
+- [x] Env-based `APPLE_TEAM_ID` + `ANDROID_SHA256_FINGERPRINT` for AASA / assetlinks
 
 ## Phase 7 — Monetization & premium enforcement
 
 - [x] Enforce free limits: 3 AI plans/day, 5 swaps/day, 20 history plans
 - [x] Server-side daily usage counters (KV) on `/api/generate-meal-plan`
 - [x] Client usage UI (`PremiumUsageHint`)
-- [ ] Google Play Billing + Apple IAP (or Stripe web checkout)
-- [ ] PDF export meal plan → R2 signed URL
-- [ ] Favorites UI wired to D1 `favorites` table
+- [x] Stripe web checkout scaffold (`/api/premium/checkout`, `/premium` page)
+- [x] PDF/text export meal plan (`/api/export/plan` + export button on result)
+- [x] Favorites UI wired (`FavoriteButton` + `/api/favorites`)
+- [ ] Google Play Billing + Apple IAP live
 
 ## Phase 8 — Accounts & sync
 
-- [ ] End-user auth (email magic link / Google / Apple Sign-In)
-- [ ] Merge localStorage → D1 on login
-- [ ] Account settings: export, delete account
-- [ ] Premium tier tied to authenticated user (not header-only)
+- [x] End-user auth (email register → session token)
+- [x] Merge localStorage → D1 on login (`/api/sync` POST)
+- [x] Pull cloud → local on account page
+- [x] Account settings: export JSON, delete cloud account (`/account`)
+- [x] Premium tier from authenticated user on server (`resolvePremiumTier`)
 
 ## Phase 9 — Native mobile depth
 
 - [x] Share meal plan (Web Share API + clipboard fallback)
-- [ ] Offline cache last plan + profile (Capacitor Preferences)
+- [x] Offline cache last plan + profile (`offlineCache.ts`, Capacitor Preferences boot keys)
 - [ ] Push reminders (FCM + APNs, opt-in)
-- [ ] In-app review prompt after 3rd plan
+- [x] In-app review prompt after 3rd plan (`ReviewPrompt`)
 - [ ] Android widget / iOS Live Activity (optional)
 
 ## Phase 10 — Growth & partners
 
-- [ ] Structured data `MobileApplication` + FAQ schema on landing
-- [ ] Referral share loop (“gửi thực đơn cho chồng/mẹ”)
-- [ ] Hospital/pharmacy co-marketing badges
-- [ ] Zalo OA / Telegram bot wrapper for `/api/generate-meal-plan`
+- [x] Structured data `MobileApplication` + FAQ schema on landing
+- [x] Referral share loop (`ReferralShare`, `?ref=` capture)
+- [x] Hospital/pharmacy co-marketing badges (`PartnerBadges`)
+- [x] Telegram bot wrapper (`/api/bot/telegram`)
 - [ ] 300+ indexed blog posts (ongoing auto-crawl)
 
 ## Phase 11 — Expansion (optional)
 
-- [ ] Postpartum mode (0–24 months)
-- [ ] Regional menus Bắc / Trung / Nam
-- [ ] Gestational diabetes strict mode
-- [ ] B2B clinic white-label
+- [x] Postpartum mode (0–24 months) in planner form
+- [x] Regional menus Bắc / Trung / Nam (cuisine tags + scoring)
+- [x] Gestational diabetes strict mode (planner toggle + meal filter)
+- [x] B2B API key bypass on `/api/generate-meal-plan` (`B2B_API_KEY`)

@@ -32,6 +32,15 @@ export function SiteChrome({ children, locale }: { children: React.ReactNode; lo
               <Link href={localizedPath(locale, "/profile")} className="hover:text-foreground">
                 {copy.nav.profile}
               </Link>
+              <Link href={localizedPath(locale, "/account")} className="hover:text-foreground">
+                {copy.nav.account}
+              </Link>
+              <Link href={localizedPath(locale, "/premium")} className="hover:text-foreground">
+                {copy.nav.premium}
+              </Link>
+              <Link href={localizedPath(locale, "/support")} className="hover:text-foreground">
+                {copy.nav.support}
+              </Link>
               <Link href={localizedPath(locale, "/blog")} className="hover:text-foreground">
                 {copy.nav.blog}
               </Link>

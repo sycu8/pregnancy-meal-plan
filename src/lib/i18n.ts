@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { faqContent } from "@/lib/faq";
 
 export type Locale = "vi" | "en";
 export type PageKey = "home" | "planner" | "history" | "profile" | "result";
@@ -34,6 +35,9 @@ export const siteCopy = {
       planner: "Tạo thực đơn",
       history: "Lịch sử",
       profile: "Hồ sơ",
+      account: "Tài khoản",
+      premium: "Premium",
+      support: "Hỗ trợ",
       blog: "Blog"
     }
   },
@@ -44,6 +48,9 @@ export const siteCopy = {
       planner: "Create plan",
       history: "History",
       profile: "Profile",
+      account: "Account",
+      premium: "Premium",
+      support: "Support",
       blog: "Blog"
     }
   }
@@ -217,24 +224,54 @@ export function createPageMetadata(locale: Locale, page: PageKey): Metadata {
 export function structuredData(locale: Locale) {
   const seo = pageSeo[locale].home;
   const homeUrl = localizedPath(locale, "/");
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://mebauangi.info";
 
   return {
     "@context": "https://schema.org",
-    "@type": "WebApplication",
-    name: locale === "vi" ? "Bầu Ăn Gì?" : "Bầu Ăn Gì? Pregnancy Meal Planner",
-    url: homeUrl,
-    applicationCategory: "HealthApplication",
-    operatingSystem: "Web",
-    inLanguage: locale === "vi" ? "vi-VN" : "en-US",
-    description: seo.description,
-    offers: {
-      "@type": "Offer",
-      price: "0",
-      priceCurrency: "VND"
-    },
-    audience: {
-      "@type": "PeopleAudience",
-      suggestedGender: "female"
-    }
+    "@graph": [
+      {
+        "@type": "WebApplication",
+        name: locale === "vi" ? "Bầu Ăn Gì?" : "Bầu Ăn Gì? Pregnancy Meal Planner",
+        url: `${siteUrl}${homeUrl}`,
+        applicationCategory: "HealthApplication",
+        operatingSystem: "Web",
+        inLanguage: locale === "vi" ? "vi-VN" : "en-US",
+        description: seo.description,
+        offers: {
+          "@type": "Offer",
+          price: "0",
+          priceCurrency: "VND"
+        },
+        audience: {
+          "@type": "PeopleAudience",
+          suggestedGender: "female"
+        }
+      },
+      {
+        "@type": "MobileApplication",
+        name: "Bầu Ăn Gì?",
+        url: `${siteUrl}${homeUrl}`,
+        applicationCategory: "HealthApplication",
+        operatingSystem: "iOS, Android",
+        inLanguage: locale === "vi" ? "vi-VN" : "en-US",
+        description: seo.description,
+        offers: {
+          "@type": "Offer",
+          price: "0",
+          priceCurrency: "VND"
+        }
+      },
+      {
+        "@type": "FAQPage",
+        mainEntity: faqContent[locale].map((item) => ({
+          "@type": "Question",
+          name: item.question,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: item.answer
+          }
+        }))
+      }
+    ]
   };
 }

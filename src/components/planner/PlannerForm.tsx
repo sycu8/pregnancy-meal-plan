@@ -12,12 +12,15 @@ import { getNutritionLabels } from "@/lib/nutrition/labels";
 import { fetchMealPlan, createLocalMealPlan } from "@/lib/nutrition/fetchMealPlan";
 import { pregnancyProfileSchema, validationErrorToLocale } from "@/lib/nutrition/validation";
 import { saveMealPlan, saveProfile, getProfile } from "@/lib/storage/localStorage";
+import { cacheOfflineSnapshot, incrementPlanCount } from "@/lib/storage/offlineCache";
 import { localizedPath, type Locale } from "@/lib/i18n";
 import type { CuisinePreference, HealthCondition, NutritionGoal, PregnancyProfile } from "@/types/pregnancy";
 
 const PLAN_NOTICE_KEY = "bau-an-gi:plan-notice";
 
 const defaultProfile: PregnancyProfile = {
+  lifeStage: "pregnancy",
+  strictGestationalDiabetes: false,
   pregnancyWeek: 20,
   pregnancyType: "singleton",
   heightCm: 160,
@@ -62,7 +65,12 @@ const copy = {
     loading: "Đang tạo thực đơn...",
     saveProfile: "Lưu hồ sơ",
     submit: "Tạo thực đơn miễn phí",
-    planLimit: "Đã hết lượt tạo thực đơn AI hôm nay. Đang dùng thực đơn rule-based (miễn phí)."
+    planLimit: "Đã hết lượt tạo thực đơn AI hôm nay. Đang dùng thực đơn rule-based (miễn phí).",
+    lifeStage: "Giai đoạn",
+    pregnancyStage: "Đang mang thai",
+    postpartumStage: "Sau sinh (0–24 tháng)",
+    babyAgeMonths: "Tuổi bé (tháng)",
+    strictGd: "Chế độ tiểu đường thai kỳ nghiêm ngặt (chỉ món low-GI)"
   },
   en: {
     steps: ["Pregnancy", "About you", "Health", "Taste", "Budget"],
@@ -94,7 +102,12 @@ const copy = {
     loading: "Creating meal plan...",
     saveProfile: "Save profile",
     submit: "Create a free plan",
-    planLimit: "Daily AI limit reached. Using the free rule-based meal plan instead."
+    planLimit: "Daily AI limit reached. Using the free rule-based meal plan instead.",
+    lifeStage: "Life stage",
+    pregnancyStage: "Pregnancy",
+    postpartumStage: "Postpartum (0–24 months)",
+    babyAgeMonths: "Baby age (months)",
+    strictGd: "Strict gestational diabetes mode (low-GI meals only)"
   }
 } as const;
 
@@ -164,6 +177,8 @@ export function PlannerForm({ mode = "planner", locale = "vi" }: { mode?: "plann
       }
 
       saveMealPlan(plan);
+      cacheOfflineSnapshot(validProfile, plan);
+      incrementPlanCount();
       router.push(localizedPath(locale, "/result"));
     } catch (caught) {
       setError(validationErrorToLocale(caught, locale));
@@ -189,17 +204,39 @@ export function PlannerForm({ mode = "planner", locale = "vi" }: { mode?: "plann
       <div className="rounded-lg border border-border bg-white p-5 shadow-soft md:p-7">
         {step === 0 && (
           <Step title={t.pregnancyInfo}>
-            <NumberField label={t.pregnancyWeek} value={profile.pregnancyWeek} min={1} max={40} onChange={(event) => updateNumber("pregnancyWeek", event)} />
             <SelectField
-              label={t.pregnancyType}
-              value={profile.pregnancyType}
-              onChange={(value) => update("pregnancyType", value as PregnancyProfile["pregnancyType"])}
+              label={t.lifeStage}
+              value={profile.lifeStage ?? "pregnancy"}
+              onChange={(value) => update("lifeStage", value as PregnancyProfile["lifeStage"])}
               options={[
-                ["singleton", t.singleton],
-                ["twins", t.twins]
+                ["pregnancy", t.pregnancyStage],
+                ["postpartum", t.postpartumStage]
               ]}
             />
-            <NumberField label={t.fetalWeight} value={profile.fetalWeightGram ?? ""} onChange={(event) => updateNumber("fetalWeightGram", event)} />
+            {profile.lifeStage === "postpartum" && (
+              <NumberField
+                label={t.babyAgeMonths}
+                value={profile.babyAgeMonths ?? ""}
+                min={0}
+                max={24}
+                onChange={(event) => updateNumber("babyAgeMonths", event)}
+              />
+            )}
+            {(profile.lifeStage ?? "pregnancy") === "pregnancy" && (
+              <>
+                <NumberField label={t.pregnancyWeek} value={profile.pregnancyWeek} min={1} max={40} onChange={(event) => updateNumber("pregnancyWeek", event)} />
+                <SelectField
+                  label={t.pregnancyType}
+                  value={profile.pregnancyType}
+                  onChange={(value) => update("pregnancyType", value as PregnancyProfile["pregnancyType"])}
+                  options={[
+                    ["singleton", t.singleton],
+                    ["twins", t.twins]
+                  ]}
+                />
+                <NumberField label={t.fetalWeight} value={profile.fetalWeightGram ?? ""} onChange={(event) => updateNumber("fetalWeightGram", event)} />
+              </>
+            )}
             <TextArea label={t.doctorNote} value={profile.doctorNote ?? ""} onChange={(event) => update("doctorNote", event.target.value)} />
           </Step>
         )}
@@ -221,6 +258,17 @@ export function PlannerForm({ mode = "planner", locale = "vi" }: { mode?: "plann
               selected={profile.healthConditions}
               onToggle={(value) => toggleArrayValue("healthConditions", value as HealthCondition)}
             />
+            {profile.healthConditions.includes("gestational_diabetes") && (
+              <label className="flex items-start gap-3 rounded-md border border-border p-3 text-sm">
+                <input
+                  type="checkbox"
+                  checked={Boolean(profile.strictGestationalDiabetes)}
+                  onChange={(event) => update("strictGestationalDiabetes", event.target.checked)}
+                  className="mt-1"
+                />
+                <span>{t.strictGd}</span>
+              </label>
+            )}
           </Step>
         )}
 

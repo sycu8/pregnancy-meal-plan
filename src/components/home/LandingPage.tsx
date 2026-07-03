@@ -3,6 +3,9 @@ import { CheckCircle2, ClipboardList, Soup, UserRoundX } from "lucide-react";
 import { Button } from "@/components/shared/Button";
 import { Disclaimer } from "@/components/shared/Disclaimer";
 import { TrustedSources } from "@/components/shared/TrustedSources";
+import { PartnerBadges } from "@/components/shared/PartnerBadges";
+import { ReferralCapture } from "@/components/home/ReferralCapture";
+import { ReferralShare } from "@/components/home/ReferralShare";
 import { landingContent, localizedPath, type Locale } from "@/lib/i18n";
 
 const icons = [CheckCircle2, UserRoundX, Soup, ClipboardList] as const;
@@ -12,6 +15,7 @@ export function LandingPage({ locale }: { locale: Locale }) {
 
   return (
     <main>
+      <ReferralCapture />
       <section className="mx-auto grid min-h-[calc(100vh-64px)] max-w-6xl items-center gap-10 px-4 py-12 md:grid-cols-[1.05fr_0.95fr]">
         <div>
           <h1 className="text-5xl font-bold tracking-normal text-foreground sm:text-6xl">{copy.headline}</h1>
@@ -51,7 +55,9 @@ export function LandingPage({ locale }: { locale: Locale }) {
           <Disclaimer locale={locale} privacy className="mt-4" />
         </div>
       </section>
-      <section className="mx-auto max-w-6xl px-4 pb-12">
+      <section className="mx-auto max-w-6xl space-y-6 px-4 pb-12">
+        <ReferralShare locale={locale} />
+        <PartnerBadges locale={locale} />
         <TrustedSources locale={locale} />
       </section>
     </main>

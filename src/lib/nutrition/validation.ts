@@ -2,6 +2,9 @@ import { z } from "zod";
 import type { Locale } from "@/lib/i18n";
 
 export const pregnancyProfileSchema = z.object({
+  lifeStage: z.enum(["pregnancy", "postpartum"]).optional().default("pregnancy"),
+  babyAgeMonths: z.number().int().min(0).max(24).optional(),
+  strictGestationalDiabetes: z.boolean().optional().default(false),
   pregnancyWeek: z.number().int().min(1, "Tuần thai phải từ 1 đến 40.").max(40, "Tuần thai phải từ 1 đến 40."),
   pregnancyType: z.enum(["singleton", "twins"]),
   fetalWeightGram: z.number().positive().optional(),

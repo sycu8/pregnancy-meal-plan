@@ -14,7 +14,11 @@ export type MealTag =
   | "no_beef_safe"
   | "no_seafood_safe"
   | "quick"
-  | "meal_prep";
+  | "meal_prep"
+  | "northern"
+  | "central"
+  | "southern"
+  | "low_glycemic";
 
 export type MealRecord = MealItem & {
   tags: MealTag[];
@@ -172,4 +176,12 @@ function ingredientGroup(item: string): keyof MealRecord["ingredients"] {
   if (/(sữa|sữa chua|phô mai)/.test(text)) return "dairy";
   if (/(gạo|cơm|bún|miến|nui|yến mạch|bánh mì|khoai|bắp|bột gạo|gạo nếp|bánh đa)/.test(text)) return "grains";
   return "others";
+}
+
+for (const pool of [breakfastMeals, mainMeals, snackMeals]) {
+  for (const meal of pool) {
+    if (meal.tags.includes("gestational_diabetes") && !meal.tags.includes("low_glycemic")) {
+      meal.tags.push("low_glycemic");
+    }
+  }
 }

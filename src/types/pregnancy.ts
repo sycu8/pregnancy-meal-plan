@@ -1,3 +1,5 @@
+export type LifeStage = "pregnancy" | "postpartum";
+
 export type HealthCondition =
   | "morning_sickness"
   | "constipation"
@@ -32,6 +34,9 @@ export type NutritionGoal =
   | "increase_iron_calcium_protein";
 
 export type PregnancyProfile = {
+  lifeStage?: LifeStage;
+  babyAgeMonths?: number;
+  strictGestationalDiabetes?: boolean;
   pregnancyWeek: number;
   pregnancyType: "singleton" | "twins";
   fetalWeightGram?: number;

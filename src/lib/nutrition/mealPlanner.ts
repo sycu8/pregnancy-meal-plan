@@ -55,7 +55,7 @@ export function ruleBasedMealPlanner(profile: PregnancyProfile, locale: Locale =
       bmiCategory,
       weightGainKg: Number.isFinite(weightGainKg) ? weightGainKg : null,
       weightGainStatus,
-      message: buildSummaryMessage(weightGainStatus, locale),
+      message: buildSummaryMessage(weightGainStatus, locale, profile),
       disclaimer: locale === "vi" ? MEDICAL_DISCLAIMER : ENGLISH_MEDICAL_DISCLAIMER
     },
     days,
@@ -137,6 +137,10 @@ function scoreMeal(meal: MealRecord, profile: PregnancyProfile): number {
   if (profile.cookingTime === "meal_prep" && meal.tags.includes("meal_prep")) score += 2;
   if (profile.cuisinePreferences.includes("vegetarian") && meal.tags.includes("vegetarian")) score += 5;
 
+  for (const tag of inferRegionTags(meal)) {
+    if (profile.cuisinePreferences.includes(tag as CuisinePreference)) score += 3;
+  }
+
   return score;
 }
 
@@ -144,6 +148,11 @@ function isAllowedByPreferences(meal: MealRecord, profile: PregnancyProfile): bo
   const text = JSON.stringify([meal.name, meal.ingredients, meal.nutrients]).toLowerCase();
   const preferences = new Set<CuisinePreference>(profile.cuisinePreferences);
   const blockedTerms = splitFreeText(`${profile.allergies ?? ""},${profile.dislikedFoods ?? ""}`);
+  const regionTags = inferRegionTags(meal);
+
+  if (profile.strictGestationalDiabetes && !meal.tags.includes("gestational_diabetes") && !meal.tags.includes("low_glycemic")) {
+    return false;
+  }
 
   if (preferences.has("vegetarian") && !meal.tags.includes("vegetarian")) return false;
   if (preferences.has("no_fish") && !meal.tags.includes("no_fish_safe")) return false;
@@ -151,7 +160,31 @@ function isAllowedByPreferences(meal: MealRecord, profile: PregnancyProfile): bo
   if (preferences.has("no_seafood") && !meal.tags.includes("no_seafood_safe")) return false;
   if (blockedTerms.some((term) => term.length >= 2 && text.includes(term))) return false;
 
+  const wantsNorthern = preferences.has("northern");
+  const wantsCentral = preferences.has("central");
+  const wantsSouthern = preferences.has("southern");
+  const hasRegionPref = wantsNorthern || wantsCentral || wantsSouthern;
+  if (hasRegionPref) {
+    const matches =
+      (wantsNorthern && regionTags.includes("northern")) ||
+      (wantsCentral && regionTags.includes("central")) ||
+      (wantsSouthern && regionTags.includes("southern"));
+    if (!matches && (regionTags.includes("northern") || regionTags.includes("central") || regionTags.includes("southern"))) {
+      return false;
+    }
+  }
+
   return true;
+}
+
+function inferRegionTags(meal: MealRecord): MealTag[] {
+  const tags = new Set(meal.tags);
+  const name = meal.name.toLowerCase();
+  if (/phở|bún chả|chả cá|bánh cuốn|xôi/.test(name)) tags.add("northern");
+  if (/bún bò|mì quảng|bánh bèo|nem lụi/.test(name)) tags.add("central");
+  if (/cơm tấm|hủ tiếu|bánh mì|canh chua|cá kho/.test(name)) tags.add("southern");
+  if (tags.size === meal.tags.length) tags.add("southern");
+  return Array.from(tags) as MealTag[];
 }
 
 function conditionToTag(condition: HealthCondition): MealTag | null {
@@ -230,7 +263,14 @@ function createPlanId() {
   return `plan-${Date.now()}`;
 }
 
-function buildSummaryMessage(status: MealPlan["summary"]["weightGainStatus"], locale: Locale) {
+function buildSummaryMessage(status: MealPlan["summary"]["weightGainStatus"], locale: Locale, profile?: PregnancyProfile) {
+  if (profile?.lifeStage === "postpartum") {
+    const months = profile.babyAgeMonths ?? 0;
+    return locale === "en"
+      ? `Postpartum mode (${months} months): family-friendly Vietnamese meals with gentle nutrition reminders.`
+      : `Chế độ sau sinh (${months} tháng): gợi ý món Việt phù hợp gia đình, ưu tiên dinh dưỡng nhẹ nhàng.`;
+  }
+
   if (locale === "en") {
     if (status === "low") return "Weight gain is below the reference range. The plan will prioritize protein-rich, nutrient-dense and easy-to-eat meals.";
     if (status === "high") return "Weight gain is above the reference range. The plan will prioritize vegetables, lean protein and slow-digesting carbohydrates while keeping meals balanced.";

@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Printer, RefreshCcw, Save, Share2 } from "lucide-react";
+import { Printer, RefreshCcw, Save, Share2, Download } from "lucide-react";
 import { Button } from "@/components/shared/Button";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { Disclaimer } from "@/components/shared/Disclaimer";
 import { TrustedSources } from "@/components/shared/TrustedSources";
 import { NutrientGuidancePanel } from "@/components/result/NutrientGuidancePanel";
+import { FavoriteButton } from "@/components/result/FavoriteButton";
+import { ReviewPrompt } from "@/components/shared/ReviewPrompt";
 import { bmiCategoryLabels } from "@/lib/nutrition/bmi";
 import { weightGainStatusLabels } from "@/lib/nutrition/weightGain";
 import { PremiumUsageHint } from "@/components/shared/PremiumUsageHint";
@@ -15,6 +17,9 @@ import { canSwapMeal } from "@/lib/premium/usage";
 import { getPremiumTier } from "@/lib/premium/tier";
 import { shareMealPlan } from "@/lib/share/planShare";
 import { getCurrentMealPlan, getMealPlanById, saveMealPlan, setCurrentMealPlan } from "@/lib/storage/localStorage";
+import { cacheOfflineSnapshot, shouldShowReviewPrompt } from "@/lib/storage/offlineCache";
+import { authHeaders } from "@/lib/storage/authSession";
+import { buildPlanExportText } from "@/lib/export/planExport";
 import { fetchMealPlan } from "@/lib/nutrition/fetchMealPlan";
 import type { MealSlot } from "@/lib/nutrition/mealPlanner";
 import { localizedPath, type Locale } from "@/lib/i18n";
@@ -107,6 +112,9 @@ const copy = {
     shared: "Đã chia sẻ",
     copied: "Đã sao chép nội dung",
     shareError: "Không thể chia sẻ trên thiết bị này",
+    export: "Xuất file",
+    exported: "Đã xuất",
+    exportError: "Không thể xuất thực đơn",
     swapLimit: "Đã hết lượt đổi món hôm nay",
     planNotFound: "Không tìm thấy thực đơn trên thiết bị này. Hãy tạo thực đơn mới.",
     dailyShoppingTitle: "Danh sách nguyên liệu riêng cho ngày này",
@@ -161,6 +169,9 @@ const copy = {
     shared: "Shared",
     copied: "Copied to clipboard",
     shareError: "Sharing is not supported on this device",
+    export: "Export",
+    exported: "Exported",
+    exportError: "Could not export meal plan",
     swapLimit: "Daily meal-swap limit reached",
     planNotFound: "This meal plan was not found on this device. Create a new plan.",
     dailyShoppingTitle: "Ingredients for this day",
@@ -183,6 +194,9 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
   const [shareState, setShareState] = useState<"idle" | "shared" | "copied">("idle");
   const [swapError, setSwapError] = useState("");
   const [shareError, setShareError] = useState("");
+  const [exportError, setExportError] = useState("");
+  const [exported, setExported] = useState(false);
+  const [showReview, setShowReview] = useState(false);
   const [usageRefresh, setUsageRefresh] = useState(0);
   const [activeDayIndex, setActiveDayIndex] = useState(0);
   const [childrenEatingCount, setChildrenEatingCount] = useState(0);
@@ -197,6 +211,16 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
       setPlanNotice(notice);
       window.sessionStorage.removeItem("bau-an-gi:plan-notice");
     }
+  }, []);
+
+  useEffect(() => {
+    if (plan) {
+      cacheOfflineSnapshot(plan.profileSnapshot, plan);
+    }
+  }, [plan]);
+
+  useEffect(() => {
+    setShowReview(shouldShowReviewPrompt());
   }, []);
 
   useEffect(() => {
@@ -249,6 +273,43 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
     }
   }
 
+  async function handleExport() {
+    if (!plan) return;
+    setExportError("");
+    try {
+      const response = await fetch("/api/export/plan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...authHeaders() },
+        body: JSON.stringify({ planId: plan.id, locale, plan })
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        setExportError(data.error ?? t.exportError);
+        return;
+      }
+
+      const content = data.content ?? buildPlanExportText(plan, locale);
+      const blob = new Blob([content], { type: data.format === "html" ? "text/html;charset=utf-8" : "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = `bau-an-gi-plan-${plan.id}.${data.format === "html" ? "html" : "txt"}`;
+      anchor.click();
+      URL.revokeObjectURL(url);
+      setExported(true);
+    } catch {
+      const fallback = buildPlanExportText(plan, locale);
+      const blob = new Blob([fallback], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = `bau-an-gi-plan-${plan.id}.txt`;
+      anchor.click();
+      URL.revokeObjectURL(url);
+      setExported(true);
+    }
+  }
+
   if (missingPlan) {
     return <EmptyState locale={locale} title={t.emptyTitle} description={t.planNotFound} />;
   }
@@ -298,6 +359,9 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
             <Button variant="secondary" onClick={handleShare}>
               <Share2 className="h-4 w-4" /> {shareState === "shared" ? t.shared : shareState === "copied" ? t.copied : t.share}
             </Button>
+            <Button variant="secondary" onClick={handleExport}>
+              <Download className="h-4 w-4" /> {exported ? t.exported : t.export}
+            </Button>
             <Button variant="secondary" onClick={() => window.print()}>
               <Printer className="h-4 w-4" /> {t.print}
             </Button>
@@ -312,6 +376,7 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
           <PremiumUsageHint locale={locale} mode="swap" refreshKey={usageRefresh} />
           {swapError && <p className="mt-1 text-sm text-red-700">{swapError}</p>}
           {shareError && <p className="mt-1 text-sm text-red-700">{shareError}</p>}
+          {exportError && <p className="mt-1 text-sm text-red-700">{exportError}</p>}
         </div>
 
         <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -430,6 +495,11 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
       </section>
 
       <TrustedSources locale={locale} />
+      {showReview && (
+        <div className="no-print">
+          <ReviewPrompt locale={locale} />
+        </div>
+      )}
       <Disclaimer locale={locale} />
       <div className="no-print">
         <Button asChild variant="secondary">
@@ -471,9 +541,12 @@ function MealBlock({
     <div className="rounded-md border border-border p-4">
       <div className="flex items-start justify-between gap-2">
         <p className="text-xs font-medium uppercase text-accent">{title}</p>
-        <Button type="button" variant="ghost" size="sm" className="no-print h-8 px-2 text-xs" disabled={swapping} onClick={() => onSwap(mealSlot)}>
-          {swapping ? copy.swapping : copy.swapMeal}
-        </Button>
+        <div className="no-print flex items-center gap-1">
+          <FavoriteButton mealName={item.name} />
+          <Button type="button" variant="ghost" size="sm" className="h-8 px-2 text-xs" disabled={swapping} onClick={() => onSwap(mealSlot)}>
+            {swapping ? copy.swapping : copy.swapMeal}
+          </Button>
+        </div>
       </div>
       <h4 className="mt-1 font-semibold">{item.name}</h4>
       {hasEstimate && (

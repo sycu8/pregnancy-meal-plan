@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { checkRateLimit } from "@/lib/cloudflare/rateLimit";
+import { validateB2BApiKey } from "@/lib/b2b/apiKey";
 import { createAIClient } from "@/lib/cloudflare/aiClient";
 import { verifyTurnstileToken } from "@/lib/cloudflare/turnstile";
 import { checkAndIncrementUsage, usageLimitMessage } from "@/lib/premium/serverUsage";
@@ -34,9 +35,13 @@ export async function POST(request: Request) {
   let locale: Locale = "vi";
 
   try {
-    const limited = await checkRateLimit(request, "generate-meal-plan", 20, 60);
-    if (!limited.ok) {
-      return NextResponse.json({ error: "Too many requests. Please try again later." }, { status: 429 });
+    const isB2B = validateB2BApiKey(request);
+
+    if (!isB2B) {
+      const limited = await checkRateLimit(request, "generate-meal-plan", 20, 60);
+      if (!limited.ok) {
+        return NextResponse.json({ error: "Too many requests. Please try again later." }, { status: 429 });
+      }
     }
 
     const body = await request.json();
@@ -49,12 +54,16 @@ export async function POST(request: Request) {
     }
 
     if (parsed.regenerate) {
-      const swapUsage = await checkAndIncrementUsage(request, "meal-swap");
-      if (!swapUsage.ok) {
-        return NextResponse.json(
-          { error: usageLimitMessage("meal-swap", locale), usage: { mealSwapsUsed: swapUsage.used, mealSwapsLimit: swapUsage.limit } },
-          { status: 429 }
-        );
+      let swapUsage: { used: number; limit: number } | null = null;
+      if (!isB2B) {
+        const usage = await checkAndIncrementUsage(request, "meal-swap");
+        if (!usage.ok) {
+          return NextResponse.json(
+            { error: usageLimitMessage("meal-swap", locale), usage: { mealSwapsUsed: usage.used, mealSwapsLimit: usage.limit } },
+            { status: 429 }
+          );
+        }
+        swapUsage = { used: usage.used, limit: usage.limit };
       }
 
       const plan = regenerateMealInPlan(
@@ -66,23 +75,28 @@ export async function POST(request: Request) {
       );
       return NextResponse.json({
         plan,
-        usage: { mealSwapsUsed: swapUsage.used, mealSwapsLimit: swapUsage.limit }
+        usage: swapUsage ? { mealSwapsUsed: swapUsage.used, mealSwapsLimit: swapUsage.limit } : undefined
       });
     }
 
-    const aiUsage = await checkAndIncrementUsage(request, "ai-plan");
-    if (!aiUsage.ok) {
-      return NextResponse.json(
-        { error: usageLimitMessage("ai-plan", locale), usage: { aiPlansUsed: aiUsage.used, aiPlansLimit: aiUsage.limit } },
-        { status: 429 }
-      );
+    if (!isB2B) {
+      const aiUsage = await checkAndIncrementUsage(request, "ai-plan");
+      if (!aiUsage.ok) {
+        return NextResponse.json(
+          { error: usageLimitMessage("ai-plan", locale), usage: { aiPlansUsed: aiUsage.used, aiPlansLimit: aiUsage.limit } },
+          { status: 429 }
+        );
+      }
+
+      const plan = await createAIClient().generateMealPlan(parsed.profile, locale);
+      return NextResponse.json({
+        plan,
+        usage: { aiPlansUsed: aiUsage.used, aiPlansLimit: aiUsage.limit }
+      });
     }
 
     const plan = await createAIClient().generateMealPlan(parsed.profile, locale);
-    return NextResponse.json({
-      plan,
-      usage: { aiPlansUsed: aiUsage.used, aiPlansLimit: aiUsage.limit }
-    });
+    return NextResponse.json({ plan });
   } catch (error) {
     const message = locale === "en" ? validationErrorToLocale(error, "en") : validationErrorToVietnamese(error);
     return NextResponse.json({ error: message }, { status: 400 });
