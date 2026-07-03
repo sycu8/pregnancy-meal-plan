@@ -34,7 +34,10 @@ export async function saveCloudMealPlan(userId: string, plan: MealPlan): Promise
   const { DB } = await getBindings();
   if (!DB) throw new Error("D1 not configured");
 
-  await DB.prepare(`INSERT INTO meal_plans (id, user_id, data_json, created_at) VALUES (?, ?, ?, ?)`)
+  await DB.prepare(
+    `INSERT INTO meal_plans (id, user_id, data_json, created_at) VALUES (?, ?, ?, ?)
+     ON CONFLICT(id) DO UPDATE SET data_json = excluded.data_json, created_at = excluded.created_at`
+  )
     .bind(plan.id, userId, JSON.stringify(plan), plan.createdAt)
     .run();
 }

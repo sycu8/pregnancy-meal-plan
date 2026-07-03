@@ -6,7 +6,7 @@ import { Trash2 } from "lucide-react";
 import { Button } from "@/components/shared/Button";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { getNutritionLabels } from "@/lib/nutrition/labels";
-import { deleteMealPlan, getMealPlanHistory, setCurrentMealPlan } from "@/lib/storage/localStorage";
+import { deleteMealPlan, getMealPlanHistory } from "@/lib/storage/localStorage";
 import { localizedPath, type Locale } from "@/lib/i18n";
 import type { MealPlan } from "@/types/mealPlan";
 
@@ -68,7 +68,7 @@ export function HistoryList({ locale = "vi" }: { locale?: Locale }) {
           </div>
           <div className="flex flex-wrap gap-2">
             <Button asChild variant="secondary">
-              <Link href={localizedPath(locale, "/result")} onClick={() => setCurrentMealPlan(plan)}>
+              <Link href={`${localizedPath(locale, "/result")}?plan=${encodeURIComponent(plan.id)}`}>
                 {t.open}
               </Link>
             </Button>

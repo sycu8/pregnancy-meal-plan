@@ -8,6 +8,7 @@ import { saveAuthSession, authHeaders } from "@/lib/storage/authSession";
 import { setPremiumTier } from "@/lib/premium/tier";
 
 const SYNC_KEY = "bau-an-gi-sync-opt-in";
+const SYNC_DISMISS_KEY = "bau-an-gi-sync-dismissed";
 
 export function isSyncOptedIn() {
   if (typeof window === "undefined") return false;
@@ -23,7 +24,10 @@ export function exportLocalData() {
 }
 
 export function SyncOptInBanner({ locale = "vi" }: { locale?: Locale }) {
-  const [visible, setVisible] = useState(() => typeof window !== "undefined" && !localStorage.getItem(SYNC_KEY));
+  const [visible, setVisible] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return !localStorage.getItem(SYNC_KEY) && !localStorage.getItem(SYNC_DISMISS_KEY);
+  });
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -39,7 +43,8 @@ export function SyncOptInBanner({ locale = "vi" }: { locale?: Locale }) {
           dismiss: "Not now",
           emailPlaceholder: "email@example.com",
           success: "Sync enabled. Your data was uploaded.",
-          error: "Could not enable sync. Try again from Account."
+          error: "Could not enable sync. Try again from Account.",
+          invalidEmail: "Enter a valid email address."
         }
       : {
           title: "Đồng bộ đa thiết bị (tùy chọn)",
@@ -48,28 +53,29 @@ export function SyncOptInBanner({ locale = "vi" }: { locale?: Locale }) {
           dismiss: "Để sau",
           emailPlaceholder: "email@example.com",
           success: "Đã bật đồng bộ và tải dữ liệu lên cloud.",
-          error: "Không thể bật đồng bộ. Hãy thử lại tại trang Tài khoản."
+          error: "Không thể bật đồng bộ. Hãy thử lại tại trang Tài khoản.",
+          invalidEmail: "Nhập email hợp lệ."
         };
 
   async function enableSync() {
     setLoading(true);
     setMessage("");
-    localStorage.setItem(SYNC_KEY, "true");
 
-    const profile = getProfile();
-    if (profile) saveProfile(profile);
-
-    if (!email.trim()) {
-      setMessage(locale === "en" ? "Enter email to sync." : "Nhập email để đồng bộ.");
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+      setMessage(copy.invalidEmail);
       setLoading(false);
       return;
     }
+
+    const profile = getProfile();
+    if (profile) saveProfile(profile);
 
     try {
       const registerResponse = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.trim(), locale })
+        body: JSON.stringify({ email: trimmedEmail, locale })
       });
       const registerData = await registerResponse.json();
       if (!registerResponse.ok) {
@@ -87,12 +93,24 @@ export function SyncOptInBanner({ locale = "vi" }: { locale?: Locale }) {
         body: JSON.stringify({ profile: profile ?? undefined, plans: getMealPlanHistory() })
       });
 
-      setMessage(syncResponse.ok ? copy.success : copy.error);
+      if (!syncResponse.ok) {
+        setMessage(copy.error);
+        setLoading(false);
+        return;
+      }
+
+      localStorage.setItem(SYNC_KEY, "true");
+      setMessage(copy.success);
     } catch {
       setMessage(copy.error);
     } finally {
       setLoading(false);
     }
+  }
+
+  function dismissBanner() {
+    localStorage.setItem(SYNC_DISMISS_KEY, "true");
+    setVisible(false);
   }
 
   return (
@@ -110,7 +128,7 @@ export function SyncOptInBanner({ locale = "vi" }: { locale?: Locale }) {
         <Button size="sm" variant="secondary" disabled={loading} onClick={enableSync}>
           {copy.enable}
         </Button>
-        <Button size="sm" variant="ghost" onClick={() => setVisible(false)}>
+        <Button size="sm" variant="ghost" onClick={dismissBanner}>
           {copy.dismiss}
         </Button>
       </div>

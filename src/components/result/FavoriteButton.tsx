@@ -12,13 +12,14 @@ export function FavoriteButton({ mealName }: { mealName: string }) {
 
   async function toggle() {
     const next = toggleFavoriteMeal(slug);
-    setActive(next.includes(slug));
+    const isActive = next.includes(slug);
+    setActive(isActive);
 
     try {
       await fetch("/api/favorites", {
         method: "POST",
         headers: { "Content-Type": "application/json", ...authHeaders() },
-        body: JSON.stringify({ mealSlug: slug, action: active ? "remove" : "add" })
+        body: JSON.stringify({ mealSlug: slug, action: isActive ? "add" : "remove" })
       });
     } catch {
       // local favorite still works offline

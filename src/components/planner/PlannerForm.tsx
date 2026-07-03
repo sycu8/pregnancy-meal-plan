@@ -9,7 +9,7 @@ import { PremiumUsageHint } from "@/components/shared/PremiumUsageHint";
 import { canCreateAiPlan } from "@/lib/premium/usage";
 import { getPremiumTier } from "@/lib/premium/tier";
 import { getNutritionLabels } from "@/lib/nutrition/labels";
-import { fetchMealPlan, createLocalMealPlan } from "@/lib/nutrition/fetchMealPlan";
+import { fetchMealPlan, createLocalMealPlan, PremiumLimitError } from "@/lib/nutrition/fetchMealPlan";
 import { pregnancyProfileSchema, validationErrorToLocale } from "@/lib/nutrition/validation";
 import { saveMealPlan, saveProfile, getProfile } from "@/lib/storage/localStorage";
 import { cacheOfflineSnapshot, incrementPlanCount } from "@/lib/storage/offlineCache";
@@ -148,6 +148,11 @@ export function PlannerForm({ mode = "planner", locale = "vi" }: { mode?: "plann
     if (key === "healthConditions") {
       next = value === "none" && !current.includes(value) ? (["none"] as T[]) : next.filter((item) => item !== "none");
       if (next.length === 0) next = ["none"] as T[];
+      if (!next.includes("gestational_diabetes" as T)) {
+        setProfile((current) => ({ ...current, [key]: next as never, strictGestationalDiabetes: false }));
+        setSaved(false);
+        return;
+      }
     }
     update(key, next as never);
   }
@@ -167,13 +172,24 @@ export function PlannerForm({ mode = "planner", locale = "vi" }: { mode?: "plann
       }
 
       let plan;
-      if (!canCreateAiPlan(getPremiumTier())) {
-        plan = createLocalMealPlan(validProfile, locale);
-        if (typeof window !== "undefined") {
-          window.sessionStorage.setItem(PLAN_NOTICE_KEY, t.planLimit);
+      try {
+        if (!canCreateAiPlan(getPremiumTier())) {
+          plan = createLocalMealPlan(validProfile, locale);
+          if (typeof window !== "undefined") {
+            window.sessionStorage.setItem(PLAN_NOTICE_KEY, t.planLimit);
+          }
+        } else {
+          plan = await fetchMealPlan(validProfile, locale);
         }
-      } else {
-        plan = await fetchMealPlan(validProfile, locale);
+      } catch (caught) {
+        if (caught instanceof PremiumLimitError) {
+          plan = createLocalMealPlan(validProfile, locale);
+          if (typeof window !== "undefined") {
+            window.sessionStorage.setItem(PLAN_NOTICE_KEY, t.planLimit);
+          }
+        } else {
+          throw caught;
+        }
       }
 
       saveMealPlan(plan);

@@ -20,8 +20,8 @@ import { getCurrentMealPlan, getMealPlanById, saveMealPlan, setCurrentMealPlan }
 import { cacheOfflineSnapshot, shouldShowReviewPrompt } from "@/lib/storage/offlineCache";
 import { authHeaders } from "@/lib/storage/authSession";
 import { buildPlanExportText } from "@/lib/export/planExport";
-import { fetchMealPlan } from "@/lib/nutrition/fetchMealPlan";
-import type { MealSlot } from "@/lib/nutrition/mealPlanner";
+import { fetchMealPlan, PremiumLimitError } from "@/lib/nutrition/fetchMealPlan";
+import { regenerateMealInPlan, type MealSlot } from "@/lib/nutrition/mealPlanner";
 import { localizedPath, type Locale } from "@/lib/i18n";
 import type { MealItem, MealPlan } from "@/types/mealPlan";
 
@@ -71,6 +71,7 @@ const copy = {
       "Bạn hãy tạo thực đơn mới. Kết quả sẽ được lưu trên trình duyệt và có thể mở lại trong lịch sử.",
     overview: "Tổng quan tham khảo",
     titlePrefix: "Thực đơn tuần thai",
+    titlePostpartum: "Thực đơn sau sinh",
     saved: "Đã lưu",
     save: "Lưu thực đơn",
     print: "In thực đơn",
@@ -117,6 +118,7 @@ const copy = {
     exportError: "Không thể xuất thực đơn",
     swapLimit: "Đã hết lượt đổi món hôm nay",
     planNotFound: "Không tìm thấy thực đơn trên thiết bị này. Hãy tạo thực đơn mới.",
+    loadingPlan: "Đang tải thực đơn...",
     dailyShoppingTitle: "Danh sách nguyên liệu riêng cho ngày này",
     dailyShoppingText:
       "Dùng để kiểm tra nhanh khi nấu ngày đang chọn. Phần bên dưới gom lại thành lịch đi chợ 2-3 ngày/lần.",
@@ -128,6 +130,7 @@ const copy = {
       "Create a new meal plan first. The result will be saved in this browser and can be reopened from history.",
     overview: "Reference overview",
     titlePrefix: "Meal plan for pregnancy week",
+    titlePostpartum: "Postpartum meal plan",
     saved: "Saved",
     save: "Save plan",
     print: "Print plan",
@@ -174,6 +177,7 @@ const copy = {
     exportError: "Could not export meal plan",
     swapLimit: "Daily meal-swap limit reached",
     planNotFound: "This meal plan was not found on this device. Create a new plan.",
+    loadingPlan: "Loading meal plan...",
     dailyShoppingTitle: "Ingredients for this day",
     dailyShoppingText:
       "Use this for a quick cooking check for the selected day. The section below groups ingredients into 2-3 day grocery batches.",
@@ -202,6 +206,7 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
   const [childrenEatingCount, setChildrenEatingCount] = useState(0);
   const [swappingSlot, setSwappingSlot] = useState<MealSlot | null>(null);
   const [missingPlan, setMissingPlan] = useState(false);
+  const [loadingRemotePlan, setLoadingRemotePlan] = useState(Boolean(planId));
   const [planNotice, setPlanNotice] = useState("");
 
   useEffect(() => {
@@ -224,17 +229,46 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
   }, []);
 
   useEffect(() => {
-    if (planId) {
-      const stored = getMealPlanById(planId);
-      if (stored) {
-        setCurrentMealPlan(stored);
-        setPlan(stored);
-        return;
-      }
-      setMissingPlan(true);
+    if (!planId) {
+      setPlan(getCurrentMealPlan());
+      setLoadingRemotePlan(false);
       return;
     }
-    setPlan(getCurrentMealPlan());
+
+    const stored = getMealPlanById(planId);
+    if (stored) {
+      setCurrentMealPlan(stored);
+      setPlan(stored);
+      setLoadingRemotePlan(false);
+      return;
+    }
+
+    let cancelled = false;
+    setLoadingRemotePlan(true);
+
+    fetch(`/api/shared-plans?id=${encodeURIComponent(planId)}`)
+      .then((response) => (response.ok ? response.json() : null))
+      .then((data) => {
+        if (cancelled) return;
+        if (data?.plan) {
+          saveMealPlan(data.plan);
+          setCurrentMealPlan(data.plan);
+          setPlan(data.plan);
+          setMissingPlan(false);
+          return;
+        }
+        setMissingPlan(true);
+      })
+      .catch(() => {
+        if (!cancelled) setMissingPlan(true);
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingRemotePlan(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [planId]);
 
   async function handleSwapMeal(mealSlot: MealSlot) {
@@ -255,7 +289,18 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
       setSaved(true);
       setUsageRefresh((value) => value + 1);
     } catch (error) {
-      setSwapError(error instanceof Error ? error.message : t.swapLimit);
+      if (error instanceof PremiumLimitError) {
+        setSwapError(error.message);
+      } else {
+        try {
+          const next = regenerateMealInPlan(plan, plan.profileSnapshot, day, mealSlot, locale);
+          setPlan(next);
+          saveMealPlan(next);
+          setSaved(true);
+        } catch {
+          setSwapError(error instanceof Error ? error.message : t.swapLimit);
+        }
+      }
     } finally {
       setSwappingSlot(null);
     }
@@ -310,6 +355,10 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
     }
   }
 
+  if (loadingRemotePlan) {
+    return <EmptyState locale={locale} title={t.emptyTitle} description={t.loadingPlan} />;
+  }
+
   if (missingPlan) {
     return <EmptyState locale={locale} title={t.emptyTitle} description={t.planNotFound} />;
   }
@@ -349,7 +398,11 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div>
             <p className="text-sm text-muted-foreground">{t.overview}</p>
-            <h1 className="mt-1 text-2xl font-semibold">{t.titlePrefix} {plan.profileSnapshot.pregnancyWeek}</h1>
+            <h1 className="mt-1 text-2xl font-semibold">
+              {plan.profileSnapshot.lifeStage === "postpartum"
+                ? `${t.titlePostpartum}${plan.profileSnapshot.babyAgeMonths != null ? ` (${plan.profileSnapshot.babyAgeMonths} ${locale === "vi" ? "tháng" : "mo"})` : ""}`
+                : `${t.titlePrefix} ${plan.profileSnapshot.pregnancyWeek}`}
+            </h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">{plan.summary.message}</p>
           </div>
           <div className="no-print flex flex-wrap gap-2">

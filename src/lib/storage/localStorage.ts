@@ -66,6 +66,32 @@ export function clearHistory() {
   window.localStorage.removeItem(CURRENT_PLAN_KEY);
 }
 
+export function mergeMealPlanHistory(incoming: MealPlan[]) {
+  if (!canUseLocalStorage() || incoming.length === 0) return;
+
+  const combined = [...getMealPlanHistory(), ...incoming];
+  const byId = new Map<string, MealPlan>();
+
+  for (const plan of combined) {
+    const existing = byId.get(plan.id);
+    if (!existing || new Date(plan.createdAt).getTime() > new Date(existing.createdAt).getTime()) {
+      byId.set(plan.id, plan);
+    }
+  }
+
+  const merged = [...byId.values()].sort(
+    (left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()
+  );
+  const maxHistory = getPremiumLimits(getPremiumTier()).historyPlans;
+  const cap = Number.isFinite(maxHistory) ? maxHistory : Number.MAX_SAFE_INTEGER;
+  window.localStorage.setItem(HISTORY_KEY, JSON.stringify(merged.slice(0, cap)));
+
+  const current = getCurrentMealPlan();
+  if (!current && merged[0]) {
+    window.localStorage.setItem(CURRENT_PLAN_KEY, JSON.stringify(merged[0]));
+  }
+}
+
 function readJson<T>(key: string): T | null {
   try {
     const value = window.localStorage.getItem(key);

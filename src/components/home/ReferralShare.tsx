@@ -6,15 +6,27 @@ import { Button } from "@/components/shared/Button";
 import { buildReferralShareUrl, getReferralCode } from "@/lib/referral";
 import type { Locale } from "@/lib/i18n";
 
-function defaultReferralCode() {
+const REFERRAL_CODE_KEY = "bau-an-gi:referral-code";
+
+function resolveReferralCode() {
   if (typeof window === "undefined") return "friend";
-  const stored = getReferralCode();
+
+  const fromUrl = getReferralCode();
+  if (fromUrl) {
+    window.localStorage.setItem(REFERRAL_CODE_KEY, fromUrl);
+    return fromUrl;
+  }
+
+  const stored = window.localStorage.getItem(REFERRAL_CODE_KEY);
   if (stored) return stored;
-  return `u${Math.random().toString(36).slice(2, 8)}`;
+
+  const generated = `u${Math.random().toString(36).slice(2, 8)}`;
+  window.localStorage.setItem(REFERRAL_CODE_KEY, generated);
+  return generated;
 }
 
 export function ReferralShare({ locale }: { locale: Locale }) {
-  const [code] = useState(defaultReferralCode);
+  const [code] = useState(resolveReferralCode);
   const shareUrl = useMemo(() => buildReferralShareUrl(locale, code), [code, locale]);
   const [state, setState] = useState<"idle" | "shared" | "copied">("idle");
 

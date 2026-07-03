@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Button } from "@/components/shared/Button";
-import type { Locale } from "@/lib/i18n";
+import { localizedPath, type Locale } from "@/lib/i18n";
 
 export function PremiumPage({ locale = "vi" }: { locale?: Locale }) {
   const copy =
@@ -39,7 +39,7 @@ export function PremiumPage({ locale = "vi" }: { locale?: Locale }) {
           {copy.cta}
         </Button>
         <Button asChild variant="secondary">
-          <Link href={locale === "en" ? "/en/planner" : "/planner"}>{copy.back}</Link>
+          <Link href={localizedPath(locale, "/planner")}>{copy.back}</Link>
         </Button>
       </div>
     </section>

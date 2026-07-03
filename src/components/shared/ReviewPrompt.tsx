@@ -42,7 +42,6 @@ export function ReviewPrompt({ locale = "vi" }: { locale?: Locale }) {
           size="sm"
           variant="ghost"
           onClick={() => {
-            dismissReviewPrompt();
             setVisible(false);
           }}
         >

@@ -3,8 +3,22 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/shared/Button";
 import type { Locale } from "@/lib/i18n";
-import { saveAuthSession, getAuthUser, clearAuthSession, authHeaders, getAuthToken, type StoredAuthUser } from "@/lib/storage/authSession";
-import { getProfile, getMealPlanHistory, clearHistory, saveProfile, saveMealPlan } from "@/lib/storage/localStorage";
+import { localizedPath } from "@/lib/i18n";
+import {
+  saveAuthSession,
+  getAuthUser,
+  clearAuthSession,
+  authHeaders,
+  getAuthToken,
+  type StoredAuthUser
+} from "@/lib/storage/authSession";
+import {
+  getProfile,
+  getMealPlanHistory,
+  clearHistory,
+  saveProfile,
+  mergeMealPlanHistory
+} from "@/lib/storage/localStorage";
 import { exportLocalData } from "@/components/shared/SyncOptInBanner";
 import { setPremiumTier } from "@/lib/premium/tier";
 import type { MealPlan } from "@/types/mealPlan";
@@ -22,7 +36,8 @@ const copy = {
     clearLocal: "Xóa dữ liệu trên thiết bị",
     signedIn: "Đã đăng nhập",
     signOut: "Đăng xuất",
-    premium: "Nâng cấp Premium"
+    premium: "Nâng cấp Premium",
+    invalidEmail: "Nhập email hợp lệ."
   },
   en: {
     title: "Account & sync",
@@ -35,15 +50,16 @@ const copy = {
     clearLocal: "Clear on-device data",
     signedIn: "Signed in",
     signOut: "Sign out",
-    premium: "Upgrade to Premium"
+    premium: "Upgrade to Premium",
+    invalidEmail: "Enter a valid email address."
   }
 } as const;
 
-async function mergeCloudData(profile: PregnancyProfile | null, plans: MealPlan[]) {
-  if (profile) saveProfile(profile);
-  for (const plan of plans) {
-    saveMealPlan(plan);
-  }
+function mergeCloudData(profile: PregnancyProfile | null, plans: MealPlan[]) {
+  const localProfile = getProfile();
+  if (profile && !localProfile) saveProfile(profile);
+  else if (profile && localProfile) saveProfile({ ...profile, ...localProfile });
+  if (plans.length > 0) mergeMealPlanHistory(plans);
 }
 
 export function AccountPanel({ locale = "vi" }: { locale?: Locale }) {
@@ -58,7 +74,15 @@ export function AccountPanel({ locale = "vi" }: { locale?: Locale }) {
     if (!token) return;
 
     fetch("/api/auth/me", { headers: authHeaders() })
-      .then((response) => (response.ok ? response.json() : null))
+      .then((response) => {
+        if (response.status === 401) {
+          clearAuthSession();
+          setPremiumTier("free");
+          setUser(null);
+          return null;
+        }
+        return response.ok ? response.json() : null;
+      })
       .then((data) => {
         if (!data?.user) return;
         saveAuthSession(token, data.user);
@@ -70,10 +94,16 @@ export function AccountPanel({ locale = "vi" }: { locale?: Locale }) {
 
   async function register() {
     setMessage("");
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+      setMessage(t.invalidEmail);
+      return;
+    }
+
     const response = await fetch("/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, locale })
+      body: JSON.stringify({ email: trimmedEmail, locale })
     });
     const data = await response.json();
     if (!response.ok) {
@@ -83,12 +113,17 @@ export function AccountPanel({ locale = "vi" }: { locale?: Locale }) {
     saveAuthSession(data.token, data.user);
     setPremiumTier(data.user.premium ? "premium" : "free");
     setUser(data.user);
-    await syncNow();
     await pullFromCloud();
+    await syncNow();
     setMessage(t.signedIn);
   }
 
   async function syncNow() {
+    if (!getAuthToken()) {
+      setMessage(locale === "vi" ? "Cần đăng nhập." : "Sign in required.");
+      return;
+    }
+
     const profile = getProfile();
     const plans = getMealPlanHistory();
     const response = await fetch("/api/sync", {
@@ -100,14 +135,26 @@ export function AccountPanel({ locale = "vi" }: { locale?: Locale }) {
   }
 
   async function pullFromCloud() {
+    if (!getAuthToken()) {
+      setMessage(locale === "vi" ? "Cần đăng nhập." : "Sign in required.");
+      return;
+    }
+
     const response = await fetch("/api/sync", { headers: authHeaders() });
-    if (!response.ok) return;
+    if (!response.ok) {
+      setMessage(locale === "vi" ? "Không thể tải từ cloud." : "Could not pull from cloud.");
+      return;
+    }
     const data = (await response.json()) as { profile?: PregnancyProfile | null; plans?: MealPlan[] };
-    await mergeCloudData(data.profile ?? null, data.plans ?? []);
+    mergeCloudData(data.profile ?? null, data.plans ?? []);
     setMessage(locale === "vi" ? "Đã tải dữ liệu từ cloud." : "Pulled data from cloud.");
   }
 
   async function deleteCloud() {
+    if (!window.confirm(locale === "vi" ? "Xóa tài khoản cloud vĩnh viễn?" : "Permanently delete your cloud account?")) {
+      return;
+    }
+
     const response = await fetch("/api/sync", { method: "DELETE", headers: authHeaders() });
     if (response.ok) {
       clearAuthSession();
@@ -158,12 +205,13 @@ export function AccountPanel({ locale = "vi" }: { locale?: Locale }) {
             anchor.download = "bau-an-gi-export.json";
             anchor.click();
             URL.revokeObjectURL(url);
+            setMessage(locale === "vi" ? "Đã xuất JSON." : "JSON exported.");
           }}
         >
           {t.export}
         </Button>
         <Button type="button" variant="secondary" asChild>
-          <a href={locale === "en" ? "/en/premium" : "/premium"}>{t.premium}</a>
+          <a href={localizedPath(locale, "/premium")}>{t.premium}</a>
         </Button>
         {user && (
           <>
@@ -177,6 +225,7 @@ export function AccountPanel({ locale = "vi" }: { locale?: Locale }) {
                 clearAuthSession();
                 setPremiumTier("free");
                 setUser(null);
+                setMessage(locale === "vi" ? "Đã đăng xuất." : "Signed out.");
               }}
             >
               {t.signOut}
@@ -187,6 +236,9 @@ export function AccountPanel({ locale = "vi" }: { locale?: Locale }) {
           type="button"
           variant="ghost"
           onClick={() => {
+            if (!window.confirm(locale === "vi" ? "Xóa lịch sử trên thiết bị này?" : "Clear history on this device?")) {
+              return;
+            }
             clearHistory();
             setMessage(locale === "vi" ? "Đã xóa lịch sử local." : "Local history cleared.");
           }}

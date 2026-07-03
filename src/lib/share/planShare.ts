@@ -39,6 +39,16 @@ export function buildPlanShareText(plan: MealPlan, locale: Locale) {
 }
 
 export async function shareMealPlan(plan: MealPlan, locale: Locale) {
+  try {
+    await fetch("/api/shared-plans", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(plan)
+    });
+  } catch {
+    // Share still works on the same device via localStorage.
+  }
+
   const text = buildPlanShareText(plan, locale);
   const url = buildPlanShareUrl(plan.id, locale);
 
