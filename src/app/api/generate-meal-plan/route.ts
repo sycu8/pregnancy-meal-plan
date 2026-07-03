@@ -3,6 +3,7 @@ import { z } from "zod";
 import { checkRateLimit } from "@/lib/cloudflare/rateLimit";
 import { createAIClient } from "@/lib/cloudflare/aiClient";
 import { verifyTurnstileToken } from "@/lib/cloudflare/turnstile";
+import { checkAndIncrementUsage, usageLimitMessage } from "@/lib/premium/serverUsage";
 import type { Locale } from "@/lib/i18n";
 import { regenerateMealInPlan } from "@/lib/nutrition/mealPlanner";
 import { pregnancyProfileSchema, validationErrorToLocale, validationErrorToVietnamese } from "@/lib/nutrition/validation";
@@ -48,6 +49,14 @@ export async function POST(request: Request) {
     }
 
     if (parsed.regenerate) {
+      const swapUsage = await checkAndIncrementUsage(request, "meal-swap");
+      if (!swapUsage.ok) {
+        return NextResponse.json(
+          { error: usageLimitMessage("meal-swap", locale), usage: { mealSwapsUsed: swapUsage.used, mealSwapsLimit: swapUsage.limit } },
+          { status: 429 }
+        );
+      }
+
       const plan = regenerateMealInPlan(
         parsed.regenerate.existingPlan,
         parsed.profile,
@@ -55,11 +64,25 @@ export async function POST(request: Request) {
         parsed.regenerate.mealSlot,
         locale
       );
-      return NextResponse.json({ plan });
+      return NextResponse.json({
+        plan,
+        usage: { mealSwapsUsed: swapUsage.used, mealSwapsLimit: swapUsage.limit }
+      });
+    }
+
+    const aiUsage = await checkAndIncrementUsage(request, "ai-plan");
+    if (!aiUsage.ok) {
+      return NextResponse.json(
+        { error: usageLimitMessage("ai-plan", locale), usage: { aiPlansUsed: aiUsage.used, aiPlansLimit: aiUsage.limit } },
+        { status: 429 }
+      );
     }
 
     const plan = await createAIClient().generateMealPlan(parsed.profile, locale);
-    return NextResponse.json({ plan });
+    return NextResponse.json({
+      plan,
+      usage: { aiPlansUsed: aiUsage.used, aiPlansLimit: aiUsage.limit }
+    });
   } catch (error) {
     const message = locale === "en" ? validationErrorToLocale(error, "en") : validationErrorToVietnamese(error);
     return NextResponse.json({ error: message }, { status: 400 });

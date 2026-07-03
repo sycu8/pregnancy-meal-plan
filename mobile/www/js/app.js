@@ -1,5 +1,5 @@
 (function () {
-  var APP_URL = "https://mebauangi.info";
+  var APP_ORIGIN = "https://mebauangi.info";
   var RETRY_MS = 4000;
 
   function setStatus(message) {
@@ -7,8 +7,25 @@
     if (node) node.textContent = message;
   }
 
+  function resolveAttributionSource() {
+    if (!window.Capacitor || !window.Capacitor.isNativePlatform()) return "mobile-web";
+
+    var platform = window.Capacitor.getPlatform ? window.Capacitor.getPlatform() : "native";
+    if (platform === "ios") return "ios-app";
+    if (platform === "android") return "android-app";
+    return "native-app";
+  }
+
+  function buildAppUrl() {
+    var url = new URL(APP_ORIGIN);
+    url.searchParams.set("utm_source", resolveAttributionSource());
+    url.searchParams.set("utm_medium", "app");
+    url.searchParams.set("utm_campaign", "capacitor-shell");
+    return url.toString();
+  }
+
   function navigateToApp() {
-    window.location.replace(APP_URL);
+    window.location.replace(buildAppUrl());
   }
 
   function configureNativeChrome() {
@@ -27,6 +44,19 @@
       window.Capacitor.Plugins.App.addListener("backButton", function () {
         if (window.history.length > 1) {
           window.history.back();
+        }
+      });
+
+      window.Capacitor.Plugins.App.addListener("appUrlOpen", function (event) {
+        if (!event || !event.url) return;
+        try {
+          var incoming = new URL(event.url);
+          var target = new URL(incoming.pathname + incoming.search, APP_ORIGIN);
+          target.searchParams.set("utm_source", resolveAttributionSource());
+          target.searchParams.set("utm_medium", "deeplink");
+          window.location.replace(target.toString());
+        } catch {
+          navigateToApp();
         }
       });
     }

@@ -65,3 +65,57 @@ FEATURE_AI_PLANNER_ENABLED=true
 | 3 | Opt-in sync preference stored |
 | 4 | 300+ indexed posts |
 | 5 | MCP tools live, 99.9% uptime target |
+
+---
+
+## Phase 6 — Mobile launch & distribution (Tháng 1–2 tiếp theo)
+
+- [x] Capacitor iOS + Android project (`mobile/`, bundle `info.mebauangi.app`)
+- [x] Store submission kit `docs/STORE_SUBMISSION.md`
+- [x] Mobile UTM attribution (`utm_source=ios-app|android-app`)
+- [x] Deep link routes `/result?plan=` + `apple-app-site-association` + Android App Links manifest
+- [x] Support / FAQ pages `/support`, `/en/support`
+- [x] GitHub Actions debug Android build
+- [ ] Release signing (Android keystore, Apple distribution)
+- [ ] Store screenshots + feature graphic
+- [ ] Google Play + App Store submission approved
+- [ ] Replace `TEAMID` in AASA + SHA256 in `assetlinks.json`
+
+## Phase 7 — Monetization & premium enforcement
+
+- [x] Enforce free limits: 3 AI plans/day, 5 swaps/day, 20 history plans
+- [x] Server-side daily usage counters (KV) on `/api/generate-meal-plan`
+- [x] Client usage UI (`PremiumUsageHint`)
+- [ ] Google Play Billing + Apple IAP (or Stripe web checkout)
+- [ ] PDF export meal plan → R2 signed URL
+- [ ] Favorites UI wired to D1 `favorites` table
+
+## Phase 8 — Accounts & sync
+
+- [ ] End-user auth (email magic link / Google / Apple Sign-In)
+- [ ] Merge localStorage → D1 on login
+- [ ] Account settings: export, delete account
+- [ ] Premium tier tied to authenticated user (not header-only)
+
+## Phase 9 — Native mobile depth
+
+- [x] Share meal plan (Web Share API + clipboard fallback)
+- [ ] Offline cache last plan + profile (Capacitor Preferences)
+- [ ] Push reminders (FCM + APNs, opt-in)
+- [ ] In-app review prompt after 3rd plan
+- [ ] Android widget / iOS Live Activity (optional)
+
+## Phase 10 — Growth & partners
+
+- [ ] Structured data `MobileApplication` + FAQ schema on landing
+- [ ] Referral share loop (“gửi thực đơn cho chồng/mẹ”)
+- [ ] Hospital/pharmacy co-marketing badges
+- [ ] Zalo OA / Telegram bot wrapper for `/api/generate-meal-plan`
+- [ ] 300+ indexed blog posts (ongoing auto-crawl)
+
+## Phase 11 — Expansion (optional)
+
+- [ ] Postpartum mode (0–24 months)
+- [ ] Regional menus Bắc / Trung / Nam
+- [ ] Gestational diabetes strict mode
+- [ ] B2B clinic white-label

@@ -5,12 +5,17 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight, Loader2, Save, Sparkles } from "lucide-react";
 import { Button } from "@/components/shared/Button";
 import { Disclaimer } from "@/components/shared/Disclaimer";
+import { PremiumUsageHint } from "@/components/shared/PremiumUsageHint";
+import { canCreateAiPlan } from "@/lib/premium/usage";
+import { getPremiumTier } from "@/lib/premium/tier";
 import { getNutritionLabels } from "@/lib/nutrition/labels";
-import { fetchMealPlan } from "@/lib/nutrition/fetchMealPlan";
+import { fetchMealPlan, createLocalMealPlan } from "@/lib/nutrition/fetchMealPlan";
 import { pregnancyProfileSchema, validationErrorToLocale } from "@/lib/nutrition/validation";
 import { saveMealPlan, saveProfile, getProfile } from "@/lib/storage/localStorage";
 import { localizedPath, type Locale } from "@/lib/i18n";
 import type { CuisinePreference, HealthCondition, NutritionGoal, PregnancyProfile } from "@/types/pregnancy";
+
+const PLAN_NOTICE_KEY = "bau-an-gi:plan-notice";
 
 const defaultProfile: PregnancyProfile = {
   pregnancyWeek: 20,
@@ -56,7 +61,8 @@ const copy = {
     next: "Tiếp tục",
     loading: "Đang tạo thực đơn...",
     saveProfile: "Lưu hồ sơ",
-    submit: "Tạo thực đơn miễn phí"
+    submit: "Tạo thực đơn miễn phí",
+    planLimit: "Đã hết lượt tạo thực đơn AI hôm nay. Đang dùng thực đơn rule-based (miễn phí)."
   },
   en: {
     steps: ["Pregnancy", "About you", "Health", "Taste", "Budget"],
@@ -87,7 +93,8 @@ const copy = {
     next: "Continue",
     loading: "Creating meal plan...",
     saveProfile: "Save profile",
-    submit: "Create a free plan"
+    submit: "Create a free plan",
+    planLimit: "Daily AI limit reached. Using the free rule-based meal plan instead."
   }
 } as const;
 
@@ -146,7 +153,16 @@ export function PlannerForm({ mode = "planner", locale = "vi" }: { mode?: "plann
         return;
       }
 
-      const plan = await fetchMealPlan(validProfile, locale);
+      let plan;
+      if (!canCreateAiPlan(getPremiumTier())) {
+        plan = createLocalMealPlan(validProfile, locale);
+        if (typeof window !== "undefined") {
+          window.sessionStorage.setItem(PLAN_NOTICE_KEY, t.planLimit);
+        }
+      } else {
+        plan = await fetchMealPlan(validProfile, locale);
+      }
+
       saveMealPlan(plan);
       router.push(localizedPath(locale, "/result"));
     } catch (caught) {
@@ -233,6 +249,7 @@ export function PlannerForm({ mode = "planner", locale = "vi" }: { mode?: "plann
 
         {error && <p className="mt-4 rounded-md bg-red-50 p-3 text-sm text-red-700">{error}</p>}
         {saved && <p className="mt-4 rounded-md bg-emerald-50 p-3 text-sm text-emerald-800">{t.saved}</p>}
+        {!isProfileMode && step === t.steps.length - 1 && <PremiumUsageHint locale={locale} mode="ai" />}
 
         <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:justify-between">
           <Button type="button" variant="secondary" disabled={step === 0 || isLoading} onClick={() => setStep((current) => Math.max(0, current - 1))}>

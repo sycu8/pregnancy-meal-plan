@@ -10,8 +10,8 @@ Complete copy and checklist for **Google Play** and **Apple App Store**. Replace
 | Website | https://mebauangi.info |
 | Privacy policy (VI) | https://mebauangi.info/privacy |
 | Privacy policy (EN) | https://mebauangi.info/en/privacy |
-| Support email | [support@mebauangi.info] |
-| Developer / legal entity | [Lê Sỹ Cường / your company name] |
+| Support email | support@mebauangi.info |
+| Developer / legal entity | Lê Sỹ Cường |
 | Primary category | Health & Fitness |
 | Secondary category (Apple) | Food & Drink |
 | Content rating target | Everyone / PEGI 3 / 4+ (parental guidance for health topics) |
@@ -74,7 +74,7 @@ Phiên bản miễn phí lưu hồ sơ và thực đơn trên thiết bị của
 MIỄN PHÍ GIAI ĐOẠN ĐẦU
 Ứng dụng miễn phí trong giai đoạn phát hành đầu. Một số tính năng nâng cao có thể được bổ sung sau này.
 
-Liên hệ hỗ trợ: [support@mebauangi.info]
+Liên hệ hỗ trợ: support@mebauangi.info
 ```
 
 ### 2.2 English
@@ -111,7 +111,7 @@ The free tier stores your profile and meal plans on your device. We do not sell 
 FREE DURING EARLY RELEASE
 The app is free during the initial release. Premium features may be added later.
 
-Support: [support@mebauangi.info]
+Support: support@mebauangi.info
 ```
 
 ---
@@ -178,7 +178,7 @@ How to test:
 The app provides educational meal suggestions only and displays a medical disclaimer. It is not a medical device and does not provide diagnosis or treatment.
 
 Privacy policy: https://mebauangi.info/en/privacy
-Support: [support@mebauangi.info]
+Support: support@mebauangi.info
 ```
 
 ### App Privacy (Nutrition Label) — recommended answers
@@ -241,7 +241,7 @@ App uses standard HTTPS only → **No** custom encryption beyond OS APIs (`ITSAp
 
 ### Store listing contact details
 
-- Email: [support@mebauangi.info]  
+- Email: support@mebauangi.info  
 - Phone: [optional]  
 - Website: https://mebauangi.info
 
@@ -315,7 +315,7 @@ Use this wording in both stores and review notes:
 
 ### Both platforms
 
-- [ ] Replace `[support@mebauangi.info]` and legal entity placeholders  
+- [ ] Replace `support@mebauangi.info` and legal entity placeholders  
 - [ ] Sign release build (Android keystore, Apple distribution cert)  
 - [ ] Test on physical devices (planner → result → history → profile)  
 - [ ] Verify offline shell shows, then loads site over HTTPS  
