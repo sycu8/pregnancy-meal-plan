@@ -1,3 +1,5 @@
+import { getPremiumLimits } from "@/lib/premium/limits";
+import { getPremiumTier } from "@/lib/premium/tier";
 import type { MealPlan } from "@/types/mealPlan";
 import type { PregnancyProfile } from "@/types/pregnancy";
 
@@ -21,9 +23,18 @@ export function getProfile(): PregnancyProfile | null {
 
 export function saveMealPlan(plan: MealPlan) {
   if (!canUseLocalStorage()) return;
+  const maxHistory = getPremiumLimits(getPremiumTier()).historyPlans;
+  const cap = Number.isFinite(maxHistory) ? maxHistory : Number.MAX_SAFE_INTEGER;
   const history = getMealPlanHistory().filter((item) => item.id !== plan.id);
-  window.localStorage.setItem(HISTORY_KEY, JSON.stringify([plan, ...history].slice(0, 20)));
+  window.localStorage.setItem(HISTORY_KEY, JSON.stringify([plan, ...history].slice(0, cap)));
   window.localStorage.setItem(CURRENT_PLAN_KEY, JSON.stringify(plan));
+}
+
+export function getMealPlanById(id: string): MealPlan | null {
+  if (!canUseLocalStorage()) return null;
+  const current = getCurrentMealPlan();
+  if (current?.id === id) return current;
+  return getMealPlanHistory().find((item) => item.id === id) ?? null;
 }
 
 export function getMealPlanHistory(): MealPlan[] {

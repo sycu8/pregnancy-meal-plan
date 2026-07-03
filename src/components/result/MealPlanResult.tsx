@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Printer, RefreshCcw, Save } from "lucide-react";
+import { Printer, RefreshCcw, Save, Share2 } from "lucide-react";
 import { Button } from "@/components/shared/Button";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { Disclaimer } from "@/components/shared/Disclaimer";
@@ -10,7 +10,10 @@ import { TrustedSources } from "@/components/shared/TrustedSources";
 import { NutrientGuidancePanel } from "@/components/result/NutrientGuidancePanel";
 import { bmiCategoryLabels } from "@/lib/nutrition/bmi";
 import { weightGainStatusLabels } from "@/lib/nutrition/weightGain";
-import { getCurrentMealPlan, saveMealPlan } from "@/lib/storage/localStorage";
+import { PremiumUsageHint } from "@/components/shared/PremiumUsageHint";
+import { canSwapMeal } from "@/lib/premium/usage";
+import { shareMealPlan } from "@/lib/share/planShare";
+import { getCurrentMealPlan, getMealPlanById, saveMealPlan, setCurrentMealPlan } from "@/lib/storage/localStorage";
 import { fetchMealPlan } from "@/lib/nutrition/fetchMealPlan";
 import type { MealSlot } from "@/lib/nutrition/mealPlanner";
 import { localizedPath, type Locale } from "@/lib/i18n";
@@ -99,6 +102,12 @@ const copy = {
     estimate: "Ước tính",
     swapMeal: "Đổi món",
     swapping: "Đang đổi...",
+    share: "Chia sẻ",
+    shared: "Đã chia sẻ",
+    copied: "Đã sao chép nội dung",
+    shareError: "Không thể chia sẻ trên thiết bị này",
+    swapLimit: "Đã hết lượt đổi món hôm nay",
+    planNotFound: "Không tìm thấy thực đơn trên thiết bị này. Hãy tạo thực đơn mới.",
     dailyShoppingTitle: "Danh sách nguyên liệu riêng cho ngày này",
     dailyShoppingText:
       "Dùng để kiểm tra nhanh khi nấu ngày đang chọn. Phần bên dưới gom lại thành lịch đi chợ 2-3 ngày/lần.",
@@ -147,6 +156,12 @@ const copy = {
     estimate: "Estimate",
     swapMeal: "Swap meal",
     swapping: "Swapping...",
+    share: "Share",
+    shared: "Shared",
+    copied: "Copied to clipboard",
+    shareError: "Sharing is not supported on this device",
+    swapLimit: "Daily meal-swap limit reached",
+    planNotFound: "This meal plan was not found on this device. Create a new plan.",
     dailyShoppingTitle: "Ingredients for this day",
     dailyShoppingText:
       "Use this for a quick cooking check for the selected day. The section below groups ingredients into 2-3 day grocery batches.",
@@ -157,23 +172,41 @@ const copy = {
 type ResultCopy = (typeof copy)[Locale];
 type ShoppingGroupLabels = Record<ShoppingGroupKey, string>;
 
-export function MealPlanResult({ locale = "vi" }: { locale?: Locale }) {
+export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; planId?: string }) {
   const t = copy[locale];
   const groups = locale === "vi" ? groupLabels : englishGroupLabels;
   const bmiLabels = locale === "vi" ? bmiCategoryLabels : englishBmiCategoryLabels;
   const weightLabels = locale === "vi" ? weightGainStatusLabels : englishWeightGainStatusLabels;
   const [plan, setPlan] = useState<MealPlan | null>(null);
   const [saved, setSaved] = useState(false);
+  const [shareState, setShareState] = useState<"idle" | "shared" | "copied">("idle");
+  const [swapError, setSwapError] = useState("");
   const [activeDayIndex, setActiveDayIndex] = useState(0);
   const [childrenEatingCount, setChildrenEatingCount] = useState(0);
   const [swappingSlot, setSwappingSlot] = useState<MealSlot | null>(null);
+  const [missingPlan, setMissingPlan] = useState(false);
 
   useEffect(() => {
+    if (planId) {
+      const stored = getMealPlanById(planId);
+      if (stored) {
+        setCurrentMealPlan(stored);
+        setPlan(stored);
+        return;
+      }
+      setMissingPlan(true);
+      return;
+    }
     setPlan(getCurrentMealPlan());
-  }, []);
+  }, [planId]);
 
   async function handleSwapMeal(mealSlot: MealSlot) {
     if (!plan) return;
+    if (!canSwapMeal()) {
+      setSwapError(t.swapLimit);
+      return;
+    }
+    setSwapError("");
     const day = plan.days[activeDayIndex]?.day ?? 1;
     setSwappingSlot(mealSlot);
     try {
@@ -183,9 +216,26 @@ export function MealPlanResult({ locale = "vi" }: { locale?: Locale }) {
       setPlan(next);
       saveMealPlan(next);
       setSaved(true);
+    } catch (error) {
+      setSwapError(error instanceof Error ? error.message : t.swapLimit);
     } finally {
       setSwappingSlot(null);
     }
+  }
+
+  async function handleShare() {
+    if (!plan) return;
+    try {
+      const result = await shareMealPlan(plan, locale);
+      setShareState(result);
+    } catch {
+      setShareState("idle");
+      setSwapError(t.shareError);
+    }
+  }
+
+  if (missingPlan) {
+    return <EmptyState locale={locale} title={t.emptyTitle} description={t.planNotFound} />;
   }
 
   if (!plan) {
@@ -227,6 +277,9 @@ export function MealPlanResult({ locale = "vi" }: { locale?: Locale }) {
             <Button variant="secondary" onClick={handleSave}>
               <Save className="h-4 w-4" /> {saved ? t.saved : t.save}
             </Button>
+            <Button variant="secondary" onClick={handleShare}>
+              <Share2 className="h-4 w-4" /> {shareState === "shared" ? t.shared : shareState === "copied" ? t.copied : t.share}
+            </Button>
             <Button variant="secondary" onClick={() => window.print()}>
               <Printer className="h-4 w-4" /> {t.print}
             </Button>
@@ -236,6 +289,10 @@ export function MealPlanResult({ locale = "vi" }: { locale?: Locale }) {
               </Link>
             </Button>
           </div>
+        </div>
+        <div className="no-print mt-3">
+          <PremiumUsageHint locale={locale} mode="swap" />
+          {swapError && <p className="mt-1 text-sm text-red-700">{swapError}</p>}
         </div>
 
         <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
