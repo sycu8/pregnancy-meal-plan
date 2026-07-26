@@ -45,12 +45,14 @@ File draft mặc định: `tmp/marketing-drafts.md`
 ### Env
 ```bash
 X_ACCESS_TOKEN=...          # OAuth 2.0 *User Context* access token of @PregMealTips
+X_CLIENT_SECRET=...         # App "OAuth 2.0 Client Secret" / Consumer Secret (not enough alone)
 # optional alias
 TWITTER_ACCESS_TOKEN=...
 ```
 
-> App-only Bearer token (thường ngắn, từ “Bearer Token” trong portal) **không** đăng được tweet.  
-> Cần OAuth 2.0 Authorization Code (PKCE) / user token với scope `tweet.write`.
+> `X_CLIENT_SECRET` alone **cannot** post. It is only used to mint a user access token.  
+> App-only Bearer token cũng **không** đăng được tweet.  
+> Cần OAuth 2.0 Authorization Code (PKCE) user token với scope `tweet.write`, rồi ghi vào `X_ACCESS_TOKEN`.
 
 ### Đăng thật
 ```bash
