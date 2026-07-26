@@ -8,74 +8,14 @@ type ClaimBody = {
   email?: string;
   claim_attempt_token?: string;
   user_code?: string;
-  /** Human verification completion — requires matching issued user_code. */
-  complete?: boolean;
 };
 
 function mintAgentAccessToken(subject: string) {
   return Buffer.from(`agent:${subject}:${Date.now()}`).toString("base64url");
 }
 
-function pendingResponse(origin: string, claim: { claimToken: string; userCode: string; email?: string }, attempt?: string) {
-  return NextResponse.json({
-    status: "authorization_pending",
-    claim_attempt_token: attempt ?? `attempt_${Date.now()}`,
-    claim: {
-      user_code: claim.userCode,
-      verification_uri: `${origin}/support`,
-      verification_uri_complete: claim.email
-        ? `${origin}/support?user_code=${claim.userCode}&email=${encodeURIComponent(claim.email)}`
-        : `${origin}/support?user_code=${claim.userCode}`,
-      expires_in: 900,
-      interval: 5
-    }
-  });
-}
-
 export async function POST(request: Request) {
   const body = (await request.json().catch(() => ({}))) as ClaimBody;
-  const origin = new URL(request.url).origin;
-  const email = body.email?.trim().toLowerCase();
-
-  // Human completes ownership at /support with the issued user_code.
-  if (body.complete || (body.user_code && !body.claim_token)) {
-    if (!body.user_code) {
-      return NextResponse.json({ error: "invalid_request", error_description: "user_code required" }, { status: 400 });
-    }
-    const verified = await verifyClaim({
-      userCode: body.user_code,
-      email,
-      claimToken: body.claim_token
-    });
-    if (!verified.ok) {
-      return NextResponse.json({ error: "invalid_grant", error_description: verified.error }, { status: 400 });
-    }
-
-    let accessToken: string | undefined;
-    const claimEmail = verified.claim.email;
-    if (claimEmail) {
-      try {
-        const user = await findOrCreateUserByEmail(claimEmail, "en");
-        accessToken = await createSession(user.id);
-      } catch {
-        // Cloud sync unavailable — still mark claim verified for agent token exchange.
-      }
-    }
-
-    return NextResponse.json({
-      status: "claimed",
-      email: claimEmail,
-      ...(accessToken
-        ? {
-            access_token: accessToken,
-            token_type: "Bearer",
-            expires_in: 3600,
-            scope: "meal-plan:generate meal-plan:read"
-          }
-        : {}),
-      claim_token: verified.claim.claimToken
-    });
-  }
 
   if (!body.claim_token) {
     return NextResponse.json({ error: "invalid_request", error_description: "claim_token required" }, { status: 400 });
@@ -89,11 +29,11 @@ export async function POST(request: Request) {
     );
   }
 
-  // Agent may complete with claim_token + matching user_code after human approval.
+  // Optional: agent may still complete with claim_token + matching user_code.
   if (body.user_code) {
     const verified = await verifyClaim({
       userCode: body.user_code,
-      email: email ?? claim.email,
+      email: body.email?.trim().toLowerCase() ?? claim.email,
       claimToken: body.claim_token
     });
     if (!verified.ok) {
@@ -111,10 +51,21 @@ export async function POST(request: Request) {
   }
 
   if (claim.status === "verified") {
+    let accessToken = mintAgentAccessToken(claim.claimToken);
+    if (claim.email) {
+      try {
+        const user = await findOrCreateUserByEmail(claim.email, "en");
+        const sessionToken = await createSession(user.id);
+        if (sessionToken) accessToken = sessionToken;
+      } catch {
+        // Fall back to opaque agent token when D1/session is unavailable.
+      }
+    }
+
     return NextResponse.json({
       status: "claimed",
       email: claim.email,
-      access_token: mintAgentAccessToken(claim.claimToken),
+      access_token: accessToken,
       token_type: "Bearer",
       expires_in: 3600,
       scope: "meal-plan:generate meal-plan:read",
@@ -122,14 +73,19 @@ export async function POST(request: Request) {
     });
   }
 
-  // Never mint app sessions from email + arbitrary claim_token alone.
-  return pendingResponse(origin, claim, body.claim_attempt_token);
+  return NextResponse.json(
+    {
+      status: "authorization_pending",
+      claim_attempt_token: body.claim_attempt_token ?? `attempt_${Date.now()}`,
+      error_description: "Claim is not verified. Re-register with service_auth or identity_assertion."
+    },
+    { status: 400 }
+  );
 }
 
 export async function GET() {
   return NextResponse.json({
-    message:
-      "POST JSON { claim_token } to poll, or { user_code, email?, complete: true } / { claim_token, user_code } to finish the Auth.md claim ceremony.",
+    message: "POST JSON { claim_token } to exchange a verified claim for credentials. See /auth.md.",
     see: "/auth.md"
   });
 }

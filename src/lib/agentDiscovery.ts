@@ -165,7 +165,7 @@ export function authMd(origin = siteOrigin) {
 
   return `# auth.md
 
-You are an agent. Pregnancy Meal Planner supports **agentic registration**: discover → register → (claim if needed) → exchange for an access_token → call API → handle revocation.
+You are an agent. Pregnancy Meal Planner supports **agentic registration**: discover → register → exchange for an access_token → call API → handle revocation.
 
 Audience: agents acting for expecting parents who want prenatal meal plans, shopping lists, and nutrition guidance.
 
@@ -201,8 +201,8 @@ Read \`agent_auth\` in full:
 ## Step 2 — Pick a method
 
 1. You can mint an audience-bound ID-JAG → \`identity_assertion\`
-2. You only have the user's email → \`service_auth\` (claim ceremony)
-3. You have neither → \`anonymous\` (optional later claim)
+2. You only have the user's email → \`service_auth\`
+3. You have neither → \`anonymous\`
 
 ## Step 3 — Register
 
@@ -236,7 +236,7 @@ Content-Type: application/json
 }
 \`\`\`
 
-## Step 4 — Claim (when required)
+## Step 4 — Claim exchange (when register returned \`claim_token\`)
 
 \`\`\`http
 POST ${claim}
@@ -245,7 +245,7 @@ Content-Type: application/json
 { "claim_token": "<from register>" }
 \`\`\`
 
-Surface \`user_code\` + \`verification_uri\` to the human. The human must confirm the issued \`user_code\` at \`/support\` (or POST \`{ complete: true, user_code, email }\` to the claim endpoint). Then poll with the same \`claim_token\` (or use grant \`urn:workos:agent-auth:grant-type:claim\` at the token endpoint) — credentials are issued only after verification.
+\`service_auth\` registrations are verified at register time (no human claim UI). Exchange the \`claim_token\` here — or use grant \`urn:workos:agent-auth:grant-type:claim\` at the token endpoint — to receive credentials.
 
 ## Step 5 — Exchange for an access_token
 
