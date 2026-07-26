@@ -2,6 +2,10 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  experimental: {
+    // Enables app/global-not-found.tsx for multi-root-layout (en + vi) apps.
+    globalNotFound: true
+  },
   async redirects() {
     return [
       {

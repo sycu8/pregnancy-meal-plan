@@ -1,5 +1,6 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { markdownForPath } from "@/lib/agentDiscovery";
+import { buildCanonicalRedirectUrl, shouldRedirectHost } from "@/lib/canonicalHost";
 
 function wantsMarkdown(accept: string) {
   return accept.toLowerCase().includes("text/markdown");
@@ -13,6 +14,14 @@ function isMarkdownPath(pathname: string) {
 }
 
 export function middleware(request: NextRequest) {
+  const host = request.headers.get("host");
+
+  // Prefer a single public origin so crawlers do not index duplicate hosts.
+  if (shouldRedirectHost(host)) {
+    const target = buildCanonicalRedirectUrl(request.nextUrl.pathname, request.nextUrl.search);
+    return NextResponse.redirect(target, 301);
+  }
+
   const pathname = request.nextUrl.pathname;
   const accept = request.headers.get("accept") ?? "";
 
@@ -32,10 +41,16 @@ export function middleware(request: NextRequest) {
       }
     });
   }
+
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/", "/vi", "/blog", "/blog/:slug", "/vi/blog", "/vi/blog/:slug"]
+  // Include `/` explicitly; skip Next internals and binary/static assets only.
+  matcher: [
+    "/",
+    "/((?!_next/static|_next/image|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff2?)$).*)"
+  ]
 };
 
 function estimateTokens(value: string) {

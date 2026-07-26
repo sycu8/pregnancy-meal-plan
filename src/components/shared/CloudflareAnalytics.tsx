@@ -11,8 +11,11 @@ export function CloudflareAnalytics() {
     <Script
       defer
       src="https://static.cloudflareinsights.com/beacon.min.js"
-      data-cf-beacon={`{"token": "${beaconToken}"}`}
-      strategy="afterInteractive"
+      data-cf-beacon={`{"token":"${beaconToken}"}`}
+      strategy="lazyOnload"
+      onError={() => {
+        // Analytics must never surface as a page-breaking script error.
+      }}
     />
   );
 }

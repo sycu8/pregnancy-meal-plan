@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Share2 } from "lucide-react";
 import { Button } from "@/components/shared/Button";
 import { buildReferralShareUrl, getReferralCode } from "@/lib/referral";
@@ -9,8 +9,6 @@ import type { Locale } from "@/lib/i18n";
 const REFERRAL_CODE_KEY = "bau-an-gi:referral-code";
 
 function resolveReferralCode() {
-  if (typeof window === "undefined") return "friend";
-
   const fromUrl = getReferralCode();
   if (fromUrl) {
     window.localStorage.setItem(REFERRAL_CODE_KEY, fromUrl);
@@ -26,9 +24,18 @@ function resolveReferralCode() {
 }
 
 export function ReferralShare({ locale }: { locale: Locale }) {
-  const [code] = useState(resolveReferralCode);
+  // Stable SSR + first paint value; resolve the real code after mount to avoid hydration mismatch.
+  const [code, setCode] = useState("friend");
   const shareUrl = useMemo(() => buildReferralShareUrl(locale, code), [code, locale]);
   const [state, setState] = useState<"idle" | "shared" | "copied">("idle");
+
+  useEffect(() => {
+    try {
+      setCode(resolveReferralCode());
+    } catch {
+      // localStorage can throw in private mode; keep the fallback code.
+    }
+  }, []);
 
   const copy =
     locale === "en"
@@ -51,7 +58,7 @@ export function ReferralShare({ locale }: { locale: Locale }) {
     if (typeof navigator !== "undefined" && navigator.share) {
       try {
         await navigator.share({
-          title: locale === "en" ? "Pregnancy Meal Planner" : "Pregnancy Meal Planner",
+          title: "Pregnancy Meal Planner",
           text: copy.body,
           url: shareUrl
         });

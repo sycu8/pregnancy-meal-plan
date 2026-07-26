@@ -20,63 +20,68 @@ type WebMcpTool = {
 
 export function WebMcpRegistration() {
   useEffect(() => {
-    const modelContext = navigator.modelContext;
-    if (!modelContext) return;
+    try {
+      const modelContext = navigator.modelContext;
+      if (!modelContext) return;
 
-    const controller = new AbortController();
-    const tools: WebMcpTool[] = [
-      {
-        name: "navigate_to_meal_planner",
-        description: "Navigate to the pregnancy meal planner form in Vietnamese or English.",
-        inputSchema: {
-          type: "object",
-          properties: {
-            locale: {
-              type: "string",
-              enum: ["vi", "en"],
-              description: "Preferred interface language."
-            }
+      const controller = new AbortController();
+      const tools: WebMcpTool[] = [
+        {
+          name: "navigate_to_meal_planner",
+          description: "Navigate to the pregnancy meal planner form in Vietnamese or English.",
+          inputSchema: {
+            type: "object",
+            properties: {
+              locale: {
+                type: "string",
+                enum: ["vi", "en"],
+                description: "Preferred interface language."
+              }
+            },
+            required: ["locale"]
           },
-          required: ["locale"]
+          async execute(input) {
+            const locale = input.locale === "en" ? "en" : "vi";
+            window.location.href = locale === "vi" ? "/vi/planner" : "/planner";
+            return { ok: true, path: locale === "vi" ? "/vi/planner" : "/planner" };
+          }
         },
-        async execute(input) {
-          const locale = input.locale === "en" ? "en" : "vi";
-          window.location.href = locale === "vi" ? "/vi/planner" : "/planner";
-          return { ok: true, path: locale === "vi" ? "/vi/planner" : "/planner" };
+        {
+          name: "get_agent_discovery_links",
+          description: "Return machine-readable discovery resources for this website.",
+          inputSchema: {
+            type: "object",
+            properties: {}
+          },
+          async execute() {
+            return {
+              ok: true,
+              links: {
+                robots: "/robots.txt",
+                sitemap: "/sitemap.xml",
+                apiCatalog: "/.well-known/api-catalog",
+                openApi: "/openapi.json",
+                agentSkills: "/.well-known/agent-skills/index.json",
+                mcpServerCard: "/.well-known/mcp/server-card.json"
+              }
+            };
+          }
         }
-      },
-      {
-        name: "get_agent_discovery_links",
-        description: "Return machine-readable discovery resources for this website.",
-        inputSchema: {
-          type: "object",
-          properties: {}
-        },
-        async execute() {
-          return {
-            ok: true,
-            links: {
-              robots: "/robots.txt",
-              sitemap: "/sitemap.xml",
-              apiCatalog: "/.well-known/api-catalog",
-              openApi: "/openapi.json",
-              agentSkills: "/.well-known/agent-skills/index.json",
-              mcpServerCard: "/.well-known/mcp/server-card.json"
-            }
-          };
-        }
-      }
-    ];
+      ];
 
-    if (modelContext.provideContext) {
-      modelContext.provideContext({ tools }, { signal: controller.signal });
-    } else if (modelContext.registerTool) {
-      for (const tool of tools) {
-        modelContext.registerTool(tool, { signal: controller.signal });
+      if (modelContext.provideContext) {
+        modelContext.provideContext({ tools }, { signal: controller.signal });
+      } else if (modelContext.registerTool) {
+        for (const tool of tools) {
+          modelContext.registerTool(tool, { signal: controller.signal });
+        }
       }
+
+      return () => controller.abort();
+    } catch {
+      // Optional WebMCP APIs must never break the page for normal browsers.
+      return undefined;
     }
-
-    return () => controller.abort();
   }, []);
 
   return null;

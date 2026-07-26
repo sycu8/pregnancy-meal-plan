@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/shared/Button";
 import type { Locale } from "@/lib/i18n";
 import { getProfile, getMealPlanHistory, saveProfile } from "@/lib/storage/localStorage";
@@ -24,13 +24,18 @@ export function exportLocalData() {
 }
 
 export function SyncOptInBanner({ locale = "vi" }: { locale?: Locale }) {
-  const [visible, setVisible] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return !localStorage.getItem(SYNC_KEY) && !localStorage.getItem(SYNC_DISMISS_KEY);
-  });
+  const [visible, setVisible] = useState(false);
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    try {
+      setVisible(!localStorage.getItem(SYNC_KEY) && !localStorage.getItem(SYNC_DISMISS_KEY));
+    } catch {
+      setVisible(false);
+    }
+  }, []);
 
   if (!visible) return null;
 
