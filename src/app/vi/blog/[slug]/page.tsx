@@ -8,7 +8,7 @@ type PageProps = {
 };
 
 export async function generateStaticParams() {
-  return getAllBlogRouteSlugs().map((slug) => ({ slug }));
+  return getAllBlogRouteSlugs("vi").map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {

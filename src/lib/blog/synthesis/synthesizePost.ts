@@ -1,4 +1,5 @@
 import { gatewayChatCompletion, isBlogAiEnabled, type AiGatewayConfig } from "@/lib/cloudflare/aiGateway";
+import { looksVietnamese, looksVietnameseTitle } from "@/lib/blog/localize";
 import type { BlogCategorySlug } from "@/types/blog";
 
 export type SynthesisInput = {
@@ -6,6 +7,9 @@ export type SynthesisInput = {
   snippet: string;
   sourceName: string;
   url: string;
+  /** Optional Vietnamese title hint when the queue title is English */
+  titleVi?: string;
+  snippetVi?: string;
 };
 
 export type SynthesisFaq = {
@@ -13,7 +17,17 @@ export type SynthesisFaq = {
   answer: string;
 };
 
+export type SynthesisLocaleBlock = {
+  title: string;
+  excerpt: string;
+  content: string;
+  metaTitle: string;
+  metaDescription: string;
+  faqs: SynthesisFaq[];
+};
+
 export type SynthesisOutput = {
+  /** Vietnamese (canonical post file) */
   title: string;
   excerpt: string;
   content: string;
@@ -23,13 +37,8 @@ export type SynthesisOutput = {
   metaDescription?: string;
   imagePrompt?: string;
   faqs?: SynthesisFaq[];
-  en?: {
-    title: string;
-    excerpt: string;
-    content: string;
-    metaTitle: string;
-    metaDescription: string;
-  };
+  /** English overlay — required for publish */
+  en: SynthesisLocaleBlock;
   usedAi: boolean;
 };
 
@@ -41,18 +50,23 @@ const CATEGORY_SLUGS: BlogCategorySlug[] = [
   "cham-con-0-24-thang"
 ];
 
+/** Always-bilingual template used when AI is off or incomplete. */
 export function synthesizePost(input: SynthesisInput): SynthesisOutput {
   const category = guessCategory(input.title, input.snippet);
   const tags = guessTags(input.title, input.snippet);
+  const topicEn = looksVietnamese(input.title) ? stripForEnglishTitle(input.title) : input.title.trim();
+  const topicVi = input.titleVi?.trim() || (looksVietnamese(input.title) ? input.title.trim() : `${input.title.trim()} (tham khảo)`);
+  const snippetEn = input.snippet.trim().slice(0, 220) || `Educational overview of ${topicEn} for pregnancy and early parenthood.`;
+  const snippetVi =
+    input.snippetVi?.trim().slice(0, 220) ||
+    (looksVietnamese(input.snippet)
+      ? input.snippet.trim().slice(0, 220)
+      : `Tổng hợp tham khảo về ${topicVi} cho mẹ bầu và gia đình, dựa trên chủ đề từ ${input.sourceName}.`);
 
-  const excerpt =
-    input.snippet.trim().slice(0, 220) ||
-    `Tổng hợp tham khảo về ${input.title.toLowerCase()} cho mẹ bầu và gia đình, dựa trên chủ đề từ ${input.sourceName}.`;
-
-  const content = [
+  const contentVi = [
     `## Tóm tắt`,
     ``,
-    excerpt,
+    snippetVi,
     ``,
     `## Gợi ý thực hành`,
     ``,
@@ -67,19 +81,72 @@ export function synthesizePost(input: SynthesisInput): SynthesisOutput {
     `> Nội dung được tổng hợp tham khảo từ tiêu đề/chủ đề nguồn [${input.sourceName}](${input.url}), không sao chép nguyên văn bài gốc.`
   ].join("\n");
 
+  const contentEn = [
+    `## Summary`,
+    ``,
+    snippetEn,
+    ``,
+    `## Practical tips`,
+    ``,
+    `- Prefer thoroughly cooked foods, wash produce well, and store leftovers safely.`,
+    `- Eat smaller meals if nausea makes large portions hard; stay hydrated through the day.`,
+    `- Track how you feel and ask your obstetrician or midwife before major diet or supplement changes.`,
+    ``,
+    `## Seek care urgently if`,
+    ``,
+    `Heavy bleeding, high fever, severe abdominal pain, reduced fetal movement, or symptoms that worsen quickly need prompt medical care.`,
+    ``,
+    `> Educational overview inspired by the topic from [${input.sourceName}](${input.url}). Not a copy of the source article.`
+  ].join("\n");
+
+  const faqsVi: SynthesisFaq[] = [
+    {
+      question: `${topicVi} — mẹ bầu cần lưu ý gì?`,
+      answer: snippetVi
+    },
+    {
+      question: "Nội dung này có thay thế bác sĩ không?",
+      answer: "Không. Đây chỉ là thông tin giáo dục tham khảo. Hãy hỏi bác sĩ hoặc chuyên gia dinh dưỡng trước khi thay đổi chế độ ăn."
+    },
+    {
+      question: "Khi nào nên đi khám?",
+      answer: "Khi có chảy máu, sốt cao, đau dữ dội, giảm cử động thai hoặc triệu chứng bất thường kéo dài."
+    }
+  ];
+
+  const faqsEn: SynthesisFaq[] = [
+    {
+      question: `What should I know about ${topicEn}?`,
+      answer: snippetEn
+    },
+    {
+      question: "Does this replace medical advice?",
+      answer: "No. This is educational information only. Ask your obstetrician or dietitian before changing your diet."
+    },
+    {
+      question: "When should I seek care?",
+      answer: "Seek care for heavy bleeding, high fever, severe pain, reduced fetal movement, or symptoms that worsen quickly."
+    }
+  ];
+
   return {
-    title: input.title.trim(),
-    excerpt,
-    content,
+    title: topicVi,
+    excerpt: snippetVi,
+    content: contentVi,
     category,
     tags,
-    imagePrompt: buildImagePrompt(input.title, category),
-    faqs: [
-      {
-        question: `${input.title.trim()} — mẹ bầu cần lưu ý gì?`,
-        answer: excerpt
-      }
-    ],
+    metaTitle: `${topicVi} | Pregnancy Meal Planner`.slice(0, 70),
+    metaDescription: snippetVi.slice(0, 160),
+    imagePrompt: buildImagePrompt(topicEn, category),
+    faqs: faqsVi,
+    en: {
+      title: topicEn,
+      excerpt: snippetEn,
+      content: contentEn,
+      metaTitle: `${topicEn} | Pregnancy Meal Planner`.slice(0, 70),
+      metaDescription: snippetEn.slice(0, 160),
+      faqs: faqsEn
+    },
     usedAi: false
   };
 }
@@ -91,37 +158,42 @@ export async function synthesizePostWithAi(
   const fallback = synthesizePost(input);
   if (!isBlogAiEnabled() && !options.config) return fallback;
 
-  const system = `You are a maternal–child health editor for Pregnancy Meal Planner (mebauangi.info), targeting an international English-first audience.
-Write clear, practical, educational content optimized for SEO/GEO on prenatal nutrition, pregnancy meal plans, postpartum recovery, and baby feeding.
+  const system = `You are a bilingual maternal–child health editor for Pregnancy Meal Planner (mebauangi.info).
+Write EVERY post in BOTH English and Vietnamese. The website shows English on /blog and Vietnamese on /vi/blog.
 HARD RULES:
 - Do NOT copy source articles verbatim; use only the title + short snippet as inspiration.
 - Do not diagnose or prescribe; remind readers to consult a clinician when needed.
 - Prioritize actionable guidance: meal ideas, nutrient groups, food safety, red-flag symptoms.
+- Vietnamese fields must be natural Vietnamese. English fields must be natural English (no Vietnamese diacritics in English titles).
 - Return EXACTLY one JSON object (no markdown fences), schema:
 {
-  "title": string (Vietnamese title for the VI post file),
+  "title": string (Vietnamese title),
   "excerpt": string (<=220 chars, Vietnamese),
   "content": string (Vietnamese markdown with ## headings; 500-900 words),
   "category": one of ${CATEGORY_SLUGS.join("|")},
-  "tags": string[] (3-6 kebab-case, English preferred),
+  "tags": string[] (3-6 kebab-case),
   "metaTitle": string (<=60 chars, Vietnamese),
   "metaDescription": string (<=155 chars, Vietnamese),
-  "imagePrompt": string (English, photorealistic, no text overlays, pregnancy/baby nutrition safe),
-  "faqs": [{"question": string, "answer": string}] (3 items; English preferred for GEO),
+  "imagePrompt": string (English, photorealistic, no text overlays),
+  "faqs": [{"question": string, "answer": string}] (3 Vietnamese FAQ items),
   "en": {
-    "title": string (PRIMARY English SEO title),
-    "excerpt": string (<=220 chars),
-    "content": string (PRIMARY English markdown, 700-1200 words, richest section),
-    "metaTitle": string (<=60 chars, include "Pregnancy Meal Planner" when natural),
-    "metaDescription": string (<=155 chars)
+    "title": string (English SEO title),
+    "excerpt": string (<=220 chars, English),
+    "content": string (English markdown, 700-1200 words),
+    "metaTitle": string (<=60 chars, English),
+    "metaDescription": string (<=155 chars, English),
+    "faqs": [{"question": string, "answer": string}] (3 English FAQ items)
   }
 }
-English in "en" is the primary quality target for international ranking. Vietnamese fields remain for /vi readers.`;
+Both languages are required. Do not leave "en" empty.`;
 
   const user = `Topic: ${input.title}
+Vietnamese title hint: ${input.titleVi || "(derive natural Vietnamese title)"}
 Short description: ${input.snippet || "(none)"}
+Vietnamese snippet hint: ${input.snippetVi || "(derive natural Vietnamese excerpt)"}
 Inspiration source (do not copy): ${input.sourceName} — ${input.url}
-Priority SEO keywords: pregnancy meal planner, prenatal nutrition, gestational diabetes meals, postpartum diet, baby weaning.`;
+SEO keywords EN: pregnancy meal planner, prenatal nutrition, gestational diabetes meals, postpartum diet, baby weaning
+SEO keywords VI: thực đơn mẹ bầu, dinh dưỡng thai kỳ, tiểu đường thai kỳ, sau sinh, ăn dặm`;
 
   try {
     const raw = await gatewayChatCompletion(
@@ -129,16 +201,16 @@ Priority SEO keywords: pregnancy meal planner, prenatal nutrition, gestational d
         { role: "system", content: system },
         { role: "user", content: user }
       ],
-      { config: options.config, temperature: 0.4, maxTokens: 4500 }
+      { config: options.config, temperature: 0.4, maxTokens: 5500 }
     );
     if (!raw) {
-      console.warn("[synthesize] empty AI response — using template fallback");
+      console.warn("[synthesize] empty AI response — using bilingual template fallback");
       return fallback;
     }
 
     const parsed = parseJsonObject(raw);
     if (!parsed) {
-      console.warn(`[synthesize] JSON parse failed — using template. raw head: ${raw.slice(0, 220)}`);
+      console.warn(`[synthesize] JSON parse failed — using bilingual template. raw head: ${raw.slice(0, 220)}`);
       return fallback;
     }
 
@@ -147,40 +219,46 @@ Priority SEO keywords: pregnancy meal planner, prenatal nutrition, gestational d
       ? parsed.tags.map((t) => String(t).toLowerCase().replace(/\s+/g, "-")).filter(Boolean).slice(0, 6)
       : fallback.tags;
 
-    const title = String(parsed.title || input.title).trim();
+    const title = String(parsed.title || fallback.title).trim();
     const excerpt = String(parsed.excerpt || fallback.excerpt).trim().slice(0, 220);
     const content = String(parsed.content || "").trim();
     if (content.length < 400) {
-      console.warn(`[synthesize] content too short (${content.length}) — using template fallback`);
+      console.warn(`[synthesize] VI content too short (${content.length}) — using bilingual template fallback`);
       return fallback;
     }
 
     const faqs = normalizeFaqs(parsed.faqs) ?? fallback.faqs;
-    const en = normalizeEn(parsed.en);
+    const en = normalizeEn(parsed.en) ?? fallback.en;
+    if (!normalizeEn(parsed.en)) {
+      console.warn("[synthesize] EN block missing/weak — filled from bilingual template EN");
+    }
 
     return {
       title,
       excerpt,
-      content: ensureSourceNote(content, input),
+      content: ensureSourceNoteVi(content, input),
       category,
       tags: tags.length ? tags : fallback.tags,
       metaTitle: String(parsed.metaTitle || `${title} | Pregnancy Meal Planner`).slice(0, 70),
       metaDescription: String(parsed.metaDescription || excerpt).slice(0, 160),
-      imagePrompt: String(parsed.imagePrompt || buildImagePrompt(title, category)).slice(0, 500),
+      imagePrompt: String(parsed.imagePrompt || buildImagePrompt(en.title, category)).slice(0, 500),
       faqs,
-      en,
+      en: {
+        ...en,
+        content: ensureSourceNoteEn(en.content, input)
+      },
       usedAi: true
     };
   } catch (error) {
-    console.warn("[synthesize] AI failed, using template:", error);
+    console.warn("[synthesize] AI failed, using bilingual template:", error);
     return fallback;
   }
 }
 
 export function buildImagePrompt(title: string, category: BlogCategorySlug): string {
   const sceneByCategory: Record<BlogCategorySlug, string> = {
-    "dinh-duong-ba-bau": "balanced Vietnamese pregnancy meal with vegetables, eggs, and soup on a wooden table",
-    "thuc-don-ba-bau": "top-down weekly meal prep of healthy Vietnamese dishes for an expectant mother",
+    "dinh-duong-ba-bau": "balanced pregnancy meal with vegetables, eggs, and soup on a wooden table",
+    "thuc-don-ba-bau": "top-down weekly meal prep of healthy dishes for an expectant mother",
     "truoc-sinh": "calm prenatal care atmosphere with healthy snacks and a pregnancy notebook",
     "sau-sinh": "warm postpartum recovery scene with nutritious soup and soft natural light",
     "cham-con-0-24-thang": "gentle baby weaning bowls with soft vegetables, natural daylight, no faces"
@@ -194,9 +272,22 @@ export function buildImagePrompt(title: string, category: BlogCategorySlug): str
   ].join(" ");
 }
 
-function ensureSourceNote(content: string, input: SynthesisInput) {
+function stripForEnglishTitle(title: string) {
+  return title
+    .normalize("NFD")
+    .replace(/\p{M}/gu, "")
+    .replace(/đ/gi, "d")
+    .trim();
+}
+
+function ensureSourceNoteVi(content: string, input: SynthesisInput) {
   if (content.includes(input.url)) return content;
   return `${content.trim()}\n\n> Nội dung tổng hợp tham khảo chủ đề từ [${input.sourceName}](${input.url}), không sao chép nguyên văn.\n`;
+}
+
+function ensureSourceNoteEn(content: string, input: SynthesisInput) {
+  if (content.includes(input.url)) return content;
+  return `${content.trim()}\n\n> Educational overview inspired by [${input.sourceName}](${input.url}). Not a verbatim copy.\n`;
 }
 
 function parseJsonObject(raw: string): Record<string, unknown> | null {
@@ -233,39 +324,65 @@ function normalizeFaqs(value: unknown): SynthesisFaq[] | undefined {
   return faqs.length ? faqs : undefined;
 }
 
-function normalizeEn(value: unknown): SynthesisOutput["en"] | undefined {
+function normalizeEn(value: unknown): SynthesisLocaleBlock | undefined {
   if (!value || typeof value !== "object") return undefined;
   const row = value as Record<string, unknown>;
   const title = String(row.title ?? "").trim();
   const excerpt = String(row.excerpt ?? "").trim();
   const content = String(row.content ?? "").trim();
   if (!title || !content || content.length < 200) return undefined;
+  if (looksVietnameseTitle(title)) return undefined;
+  const faqs = normalizeFaqs(row.faqs) ?? [
+    {
+      question: `What should I know about ${title}?`,
+      answer: excerpt || content.slice(0, 180)
+    }
+  ];
   return {
     title,
     excerpt: excerpt.slice(0, 220),
     content,
     metaTitle: String(row.metaTitle || `${title} | Pregnancy Meal Planner`).slice(0, 70),
-    metaDescription: String(row.metaDescription || excerpt).slice(0, 160)
+    metaDescription: String(row.metaDescription || excerpt).slice(0, 160),
+    faqs
   };
 }
 
 function guessCategory(title: string, snippet: string): BlogCategorySlug {
   const text = `${title} ${snippet}`.toLowerCase();
-  if (/(sau sinh|hậu sản|postpartum|cho con bú)/i.test(text)) return "sau-sinh";
-  if (/(trẻ|sơ sinh|ăn dặm|baby|infant)/i.test(text)) return "cham-con-0-24-thang";
-  if (/(thực đơn|menu|đường huyết|tiểu đường)/i.test(text)) return "thuc-don-ba-bau";
-  if (/(vitamin|folate|sắt|canxi|dinh dưỡng|omega)/i.test(text)) return "dinh-duong-ba-bau";
+  if (/(sau sinh|hậu sản|postpartum|cho con bú|breastfeed)/i.test(text)) return "sau-sinh";
+  if (/(trẻ|sơ sinh|ăn dặm|baby|infant|weaning|toddler)/i.test(text)) return "cham-con-0-24-thang";
+  if (/(thực đơn|menu|meal plan|đường huyết|tiểu đường|gestational diabetes)/i.test(text)) return "thuc-don-ba-bau";
+  if (/(vitamin|folate|sắt|iron|canxi|calcium|dinh dưỡng|nutrition|omega)/i.test(text)) return "dinh-duong-ba-bau";
   return "truoc-sinh";
 }
 
 function guessTags(title: string, snippet: string): string[] {
   const text = `${title} ${snippet}`.toLowerCase();
   const tags = new Set<string>();
-  if (/nghén|nghen|nausea/i.test(text)) tags.add("nghen");
-  if (/tiểu đường|tieu duong|gdm/i.test(text)) tags.add("tieu-duong");
-  if (/thiếu máu|thieu mau|anemia/i.test(text)) tags.add("thieu-mau");
-  if (/táo bón|tao bon|constipation/i.test(text)) tags.add("tao-bon");
-  if (/thực đơn|thuc don|menu/i.test(text)) tags.add("thuc-don");
-  if (tags.size === 0) tags.add("me-bau");
-  return [...tags].slice(0, 5);
+  if (/nghén|nghen|nausea/i.test(text)) {
+    tags.add("nausea");
+    tags.add("nghen");
+  }
+  if (/tiểu đường|tieu duong|gdm|gestational diabetes/i.test(text)) {
+    tags.add("gestational-diabetes");
+    tags.add("tieu-duong");
+  }
+  if (/thiếu máu|thieu mau|anemia|iron/i.test(text)) {
+    tags.add("iron");
+    tags.add("thieu-mau");
+  }
+  if (/táo bón|tao bon|constipation/i.test(text)) {
+    tags.add("constipation");
+    tags.add("tao-bon");
+  }
+  if (/thực đơn|thuc don|meal plan|menu/i.test(text)) {
+    tags.add("meal-plan");
+    tags.add("thuc-don");
+  }
+  if (tags.size === 0) {
+    tags.add("pregnancy");
+    tags.add("me-bau");
+  }
+  return [...tags].slice(0, 6);
 }

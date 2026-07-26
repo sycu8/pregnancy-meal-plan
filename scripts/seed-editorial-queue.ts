@@ -15,6 +15,8 @@ type QueuedItem = {
   title: string;
   url: string;
   snippet: string;
+  titleVi?: string;
+  snippetVi?: string;
   publishedAt?: string;
   fetchedAt: string;
   status: "draft" | "published";
@@ -38,15 +40,26 @@ function existingSlugs() {
 }
 
 function isTemplateOnlyPost(slug: string) {
-  const file = path.join(postsDir, `${slug}.json`);
-  if (!fs.existsSync(file)) return false;
+  const viFile = path.join(postsDir, `${slug}.json`);
+  const enFile = path.join(process.cwd(), "content/blog/posts-en", `${slug}.json`);
   try {
-    const post = JSON.parse(fs.readFileSync(file, "utf8")) as { content?: string };
-    const content = post.content ?? "";
-    return content.includes("## Gợi ý thực hành") && content.length < 900;
+    if (fs.existsSync(viFile)) {
+      const post = JSON.parse(fs.readFileSync(viFile, "utf8")) as { content?: string };
+      const content = post.content ?? "";
+      if (content.includes("## Gợi ý thực hành") && content.length < 900) return true;
+    }
+    if (fs.existsSync(enFile)) {
+      const en = JSON.parse(fs.readFileSync(enFile, "utf8")) as { title?: string; content?: string };
+      const content = en.content ?? "";
+      if (content.includes("synthesized educational overview") && content.length < 900) return true;
+      if (/[àáạảãâăèéêìíòóôơùúưỳýđ]/i.test(en.title ?? "")) return true;
+    } else {
+      return true;
+    }
   } catch {
     return false;
   }
+  return false;
 }
 
 function existingQueueTitles() {
@@ -93,13 +106,15 @@ function main() {
       id,
       sourceName: "Pregnancy Meal Planner Editorial",
       title: topic.title,
+      titleVi: topic.titleVi,
       url: `https://mebauangi.info/blog/${topic.id}`,
       snippet: topic.snippet,
+      snippetVi: topic.snippetVi,
       fetchedAt: new Date().toISOString(),
       status: "draft",
       note: needsRewrite
-        ? "Re-queue template-only post for AI rewrite."
-        : "Editorial SEO topic seed — synthesize original content; do not copy external articles.",
+        ? "Re-queue incomplete bilingual post for AI rewrite (EN+VI required)."
+        : "Editorial bilingual SEO seed — synthesize original EN+VI content; do not copy external articles.",
       editorial: true,
       categoryHint: topic.category,
       tagsHint: topic.tags
