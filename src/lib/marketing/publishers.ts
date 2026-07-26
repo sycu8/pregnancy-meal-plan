@@ -16,9 +16,39 @@ function env(name: string) {
   return process.env[name]?.trim() || "";
 }
 
-/** X / Twitter API v2 — needs user OAuth 2.0 access token with tweet.write. */
+/** Refresh OAuth 2.0 user access token when X_REFRESH_TOKEN + X_CLIENT_ID/SECRET are set. */
+async function refreshXAccessToken(): Promise<string | null> {
+  const refreshToken = env("X_REFRESH_TOKEN");
+  const clientId = env("X_CLIENT_ID") || env("TWITTER_CLIENT_ID");
+  const clientSecret = env("X_CLIENT_SECRET") || env("TWITTER_CLIENT_SECRET");
+  if (!refreshToken || !clientId) return null;
+
+  const body = new URLSearchParams({
+    grant_type: "refresh_token",
+    refresh_token: refreshToken,
+    client_id: clientId
+  });
+
+  const headers: Record<string, string> = {
+    "Content-Type": "application/x-www-form-urlencoded"
+  };
+  if (clientSecret) {
+    headers.Authorization = `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString("base64")}`;
+  }
+
+  const response = await fetch("https://api.x.com/2/oauth2/token", {
+    method: "POST",
+    headers,
+    body
+  });
+  if (!response.ok) return null;
+  const data = (await response.json()) as { access_token?: string };
+  return data.access_token ?? null;
+}
+
+/** X / Twitter API v2 — OAuth 2.0 *user* access token with tweet.write (not app-only bearer). */
 export async function publishToX(draft: SocialDraft, options: PublishOptions = {}): Promise<PublishResult> {
-  const token = env("X_ACCESS_TOKEN") || env("TWITTER_ACCESS_TOKEN");
+  let token = env("X_ACCESS_TOKEN") || env("TWITTER_ACCESS_TOKEN");
   if (options.dryRun || !token) {
     return {
       platform: "x",
@@ -29,17 +59,29 @@ export async function publishToX(draft: SocialDraft, options: PublishOptions = {
     };
   }
 
-  const response = await fetch("https://api.x.com/2/tweets", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ text: draft.text.slice(0, 280) })
-  });
+  async function post(accessToken: string) {
+    return fetch("https://api.x.com/2/tweets", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ text: draft.text.slice(0, 280) })
+    });
+  }
+
+  let response = await post(token);
+  if (response.status === 401) {
+    const refreshed = await refreshXAccessToken();
+    if (refreshed) {
+      token = refreshed;
+      response = await post(token);
+    }
+  }
 
   if (!response.ok) {
-    return { platform: "x", ok: false, dryRun: false, error: await response.text() };
+    const error = await response.text();
+    return { platform: "x", ok: false, dryRun: false, error };
   }
 
   const data = (await response.json()) as { data?: { id?: string } };

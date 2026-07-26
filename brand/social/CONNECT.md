@@ -45,14 +45,16 @@ File draft mặc định: `tmp/marketing-drafts.md`
 ### Env
 ```bash
 X_ACCESS_TOKEN=...          # OAuth 2.0 *User Context* access token of @PregMealTips
-X_CLIENT_SECRET=...         # App "OAuth 2.0 Client Secret" / Consumer Secret (not enough alone)
+X_REFRESH_TOKEN=...         # from the same OAuth 2.0 PKCE login
+X_CLIENT_ID=...             # OAuth 2.0 Client ID (for refresh)
+X_CLIENT_SECRET=...         # OAuth 2.0 Client Secret (for refresh)
 # optional alias
 TWITTER_ACCESS_TOKEN=...
 ```
 
-> `X_CLIENT_SECRET` alone **cannot** post. It is only used to mint a user access token.  
-> App-only Bearer token cũng **không** đăng được tweet.  
-> Cần OAuth 2.0 Authorization Code (PKCE) user token với scope `tweet.write`, rồi ghi vào `X_ACCESS_TOKEN`.
+> App-only Bearer token **không** đăng được tweet.  
+> Cần OAuth 2.0 user token (`tweet.write`) + ideally `offline.access` refresh token.  
+> Nếu API trả `402 credits depleted`: nạp credit / nâng plan tại [X Developer Console](https://developer.x.com/en/portal/dashboard) — auth đúng nhưng tài khoản hết write credits.
 
 ### Đăng thật
 ```bash
