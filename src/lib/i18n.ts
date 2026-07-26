@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { faqContent } from "@/lib/faq";
 import { SUPPORT_EMAIL } from "@/lib/site";
+import { socialSameAs } from "@/lib/social/links";
 
 export type Locale = "vi" | "en";
 export type PageKey = "home" | "planner" | "history" | "profile" | "result";
@@ -42,7 +43,8 @@ export const siteCopy = {
       account: "Tài khoản",
       premium: "Premium",
       support: "Hỗ trợ",
-      blog: "Blog"
+      blog: "Blog",
+      social: "Social"
     }
   },
   en: {
@@ -55,7 +57,8 @@ export const siteCopy = {
       account: "Account",
       premium: "Premium",
       support: "Support",
-      blog: "Blog"
+      blog: "Blog",
+      social: "Social"
     }
   }
 } as const;
@@ -244,7 +247,8 @@ export function structuredData(locale: Locale) {
         "@id": `${siteUrl}/#organization`,
         name: BRAND_NAME,
         url: siteUrl,
-        email: SUPPORT_EMAIL
+        email: SUPPORT_EMAIL,
+        sameAs: socialSameAs
       },
       {
         "@type": "WebApplication",

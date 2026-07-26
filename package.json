@@ -28,6 +28,8 @@
     "generate:blog:en": "node scripts/build-blog-en.mjs",
     "publish:blog": "npm run add:blog-seeds && npm run add:hospital-blog-seeds && npm run add:pharmacy-blog-seeds && npm run sync:blog",
     "publish:blog:en": "npm run generate:blog:en && npm run sync:blog:en",
+    "marketing:drafts": "tsx scripts/marketing-drafts.ts",
+    "marketing:publish": "tsx scripts/marketing-publish.ts",
     "mobile:install": "cd mobile && npm install",
     "mobile:sync": "cd mobile && npm run sync",
     "mobile:android": "cd mobile && npm run open:android",

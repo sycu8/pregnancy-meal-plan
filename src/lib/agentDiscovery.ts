@@ -32,7 +32,15 @@ const publicPages: { page: PageKey; locale: Locale; priority: string; changefreq
   { page: "result", locale: "vi", priority: "0.4", changefreq: "monthly" }
 ];
 
-export const publicSiteUrls = publicPages.map((entry) => absoluteUrl(localizedPath(entry.locale, pagePaths[entry.page])));
+const publicStaticRoutes: { path: string; locale: Locale; priority: string; changefreq: string }[] = [
+  { path: "/social", locale: "en", priority: "0.75", changefreq: "weekly" },
+  { path: "/social", locale: "vi", priority: "0.65", changefreq: "weekly" }
+];
+
+export const publicSiteUrls = [
+  ...publicPages.map((entry) => absoluteUrl(localizedPath(entry.locale, pagePaths[entry.page]))),
+  ...publicStaticRoutes.map((entry) => absoluteUrl(localizedPath(entry.locale, entry.path)))
+];
 
 export const apiCatalog = {
   linkset: [
@@ -522,16 +530,24 @@ function safePosts(locale: Locale = "en") {
 
 export function sitemapXml() {
   const updated = new Date().toISOString().slice(0, 10);
-  const pageEntries = publicPages
-    .map(
+  const pageEntries = [
+    ...publicPages.map(
       (entry) => `  <url>
     <loc>${escapeXml(absoluteUrl(localizedPath(entry.locale, pagePaths[entry.page])))}</loc>
     <lastmod>${updated}</lastmod>
     <changefreq>${entry.changefreq}</changefreq>
     <priority>${entry.priority}</priority>
   </url>`
+    ),
+    ...publicStaticRoutes.map(
+      (entry) => `  <url>
+    <loc>${escapeXml(absoluteUrl(localizedPath(entry.locale, entry.path)))}</loc>
+    <lastmod>${updated}</lastmod>
+    <changefreq>${entry.changefreq}</changefreq>
+    <priority>${entry.priority}</priority>
+  </url>`
     )
-    .join("\n");
+  ].join("\n");
 
   const blogIndex = ["vi", "en"]
     .map(

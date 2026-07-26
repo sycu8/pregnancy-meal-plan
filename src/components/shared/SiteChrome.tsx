@@ -65,6 +65,12 @@ export function SiteChrome({ children, locale }: { children: React.ReactNode; lo
               >
                 {copy.nav.blog}
               </Link>
+              <Link
+                href={localizedPath(locale, "/social")}
+                className="inline-flex min-h-11 items-center px-2.5 hover:text-foreground"
+              >
+                {copy.nav.social}
+              </Link>
               <LanguageSwitcher locale={locale} />
             </div>
             <MobileNav locale={locale} />

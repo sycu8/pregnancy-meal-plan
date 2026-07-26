@@ -22,7 +22,8 @@ const navItems: { key: NavKey; path: string }[] = [
   { key: "account", path: "/account" },
   { key: "premium", path: "/premium" },
   { key: "support", path: "/support" },
-  { key: "blog", path: "/blog" }
+  { key: "blog", path: "/blog" },
+  { key: "social", path: "/social" }
 ];
 
 function MobileNavPanel({
