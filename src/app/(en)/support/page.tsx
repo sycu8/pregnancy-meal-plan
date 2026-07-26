@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { AgentClaimVerify } from "@/components/shared/AgentClaimVerify";
 import { faqContent } from "@/lib/faq";
 import { createRouteMetadata, faqPageStructuredData, localizedPath } from "@/lib/i18n";
 import { DEFAULT_SITE_URL, SITE_HOST, SUPPORT_EMAIL, SUPPORT_EMAIL_MAILTO } from "@/lib/site";
@@ -22,8 +21,6 @@ export default function EnSupportPage() {
       <p className="mt-4 text-muted-foreground leading-7">
         Pregnancy Meal Planner helps expecting parents plan meals by gestational week. For technical help or product feedback, contact us by email below.
       </p>
-
-      <AgentClaimVerify locale="en" />
 
       <section className="mt-8 rounded-lg border border-border bg-white p-5">
         <h2 className="text-xl font-semibold">Contact</h2>

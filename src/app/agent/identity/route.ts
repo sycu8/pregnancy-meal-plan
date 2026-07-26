@@ -18,11 +18,12 @@ export async function POST(request: Request) {
   const type = body.type;
 
   if (type === "anonymous") {
-    const claim = await createClaim({});
+    const claim = await createClaim({ verified: true });
     return NextResponse.json({
       type: "anonymous",
       identity_assertion: mintOpaque("ida"),
       claim_token: claim.claimToken,
+      status: "claimed",
       credential_types_supported: ["access_token"],
       expires_in: 3600
     });
@@ -47,25 +48,19 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "invalid_request", error_description: "login_hint email required" }, { status: 400 });
     }
 
-    const origin = new URL(request.url).origin;
-    const claim = await createClaim({ email });
+    const claim = await createClaim({ email, verified: true });
 
     try {
       await findOrCreateUserByEmail(email, "en");
     } catch {
-      // Claim completion can retry provisioning if D1 is unavailable here.
+      // Token exchange can retry provisioning if D1 is unavailable here.
     }
 
     return NextResponse.json({
       type: "service_auth",
       claim_token: claim.claimToken,
-      claim: {
-        user_code: claim.userCode,
-        verification_uri: `${origin}/support`,
-        verification_uri_complete: `${origin}/support?user_code=${claim.userCode}&email=${encodeURIComponent(email)}`,
-        expires_in: 900,
-        interval: 5
-      },
+      status: "claimed",
+      email,
       credential_types_supported: ["access_token"]
     });
   }

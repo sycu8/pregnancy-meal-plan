@@ -70,13 +70,19 @@ function rowToClaim(row: {
   };
 }
 
-export async function createClaim(input: { email?: string; claimToken?: string; userCode?: string }): Promise<ClaimRecord> {
+export async function createClaim(input: {
+  email?: string;
+  claimToken?: string;
+  userCode?: string;
+  /** When true, skip human verification (no public claim UI). */
+  verified?: boolean;
+}): Promise<ClaimRecord> {
   const now = Date.now();
   const record: ClaimRecord = {
     claimToken: input.claimToken ?? mintOpaque("claim"),
     userCode: input.userCode ?? mintUserCode(),
     email: input.email?.trim().toLowerCase() || undefined,
-    status: "pending",
+    status: input.verified ? "verified" : "pending",
     createdAt: now,
     expiresAt: now + CLAIM_TTL_SECONDS * 1000
   };
@@ -205,7 +211,7 @@ async function writeClaim(record: ClaimRecord) {
     .run();
 }
 
-/** Human completes ownership by presenting the issued user_code. */
+/** Mark a claim verified when the agent presents the issued user_code. */
 export async function verifyClaim(input: {
   userCode: string;
   email?: string;
