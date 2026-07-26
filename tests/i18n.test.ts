@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { BRAND_NAME, localizedPath, pageSeo, stripLocaleFromPath } from "@/lib/i18n";
+import {
+  BRAND_NAME,
+  faqPageStructuredData,
+  localizedPath,
+  pageSeo,
+  stripLocaleFromPath,
+  structuredData
+} from "@/lib/i18n";
 
 describe("i18n routing", () => {
   it("keeps English routes at the root and prefixes Vietnamese routes with /vi", () => {
@@ -15,11 +22,33 @@ describe("i18n routing", () => {
     expect(stripLocaleFromPath("/profile")).toBe("/profile");
   });
 
-  it("provides SEO copy for both primary languages under Pregnancy Meal Planner", () => {
+  it("keeps primary meta descriptions in the 100-130 character window", () => {
     expect(BRAND_NAME).toBe("Pregnancy Meal Planner");
     expect(pageSeo.en.home.title).toContain("Pregnancy Meal Planner");
     expect(pageSeo.vi.home.title).toContain("Pregnancy Meal Planner");
-    expect(pageSeo.vi.home.description.length).toBeGreaterThan(120);
-    expect(pageSeo.en.home.description.length).toBeGreaterThan(120);
+
+    for (const locale of ["en", "vi"] as const) {
+      for (const page of Object.keys(pageSeo[locale]) as Array<keyof (typeof pageSeo)["en"]>) {
+        const length = pageSeo[locale][page].description.length;
+        expect(length, `${locale}.${page}`).toBeGreaterThanOrEqual(100);
+        expect(length, `${locale}.${page}`).toBeLessThanOrEqual(130);
+      }
+    }
+  });
+
+  it("emits homepage structured data without FAQPage or MobileApplication", () => {
+    const data = structuredData("en");
+    const types = data["@graph"].map((node) => node["@type"]);
+    expect(types).toEqual(["WebSite", "Organization", "WebApplication"]);
+    expect(JSON.stringify(data)).not.toContain("FAQPage");
+    expect(JSON.stringify(data)).not.toContain("MobileApplication");
+    expect(JSON.stringify(data)).not.toContain("suggestedGender");
+  });
+
+  it("keeps FAQPage structured data on support pages only", () => {
+    const faq = faqPageStructuredData("en");
+    expect(faq["@type"]).toBe("FAQPage");
+    expect(faq.mainEntity.length).toBeGreaterThan(0);
+    expect(faq.url).toContain("/support");
   });
 });

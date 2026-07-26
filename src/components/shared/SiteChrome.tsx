@@ -1,10 +1,15 @@
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { UtensilsCrossed } from "lucide-react";
 import { localizedPath, siteCopy, type Locale } from "@/lib/i18n";
 import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
 import { MobileNav } from "@/components/shared/MobileNav";
-import { WebMcpRegistration } from "@/components/shared/WebMcpRegistration";
 import { CloudflareAnalytics } from "@/components/shared/CloudflareAnalytics";
+
+const WebMcpRegistration = dynamic(
+  () => import("@/components/shared/WebMcpRegistration").then((mod) => mod.WebMcpRegistration),
+  { ssr: false }
+);
 
 export function SiteChrome({ children, locale }: { children: React.ReactNode; locale: Locale }) {
   const copy = siteCopy[locale];
@@ -13,7 +18,7 @@ export function SiteChrome({ children, locale }: { children: React.ReactNode; lo
     <body className="min-h-screen font-sans antialiased">
       <CloudflareAnalytics />
       <WebMcpRegistration />
-      <nav className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur">
+      <nav className="sticky top-0 z-40 border-b border-border bg-background">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
           <Link href={localizedPath(locale, "/")} className="flex min-w-0 items-center gap-2 font-semibold text-foreground">
             <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground">
@@ -65,7 +70,7 @@ export function SiteChrome({ children, locale }: { children: React.ReactNode; lo
               >
                 {copy.nav.blog}
               </Link>
-              <LanguageSwitcher />
+              <LanguageSwitcher locale={locale} />
             </div>
             <MobileNav locale={locale} />
           </div>

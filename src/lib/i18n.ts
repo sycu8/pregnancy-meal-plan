@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { faqContent } from "@/lib/faq";
+import { SUPPORT_EMAIL } from "@/lib/site";
 
 export type Locale = "vi" | "en";
 export type PageKey = "home" | "planner" | "history" | "profile" | "result";
@@ -64,7 +65,7 @@ export const pageSeo: Record<Locale, Record<PageKey, { title: string; descriptio
     home: {
       title: "Pregnancy Meal Planner | 7-Day Prenatal Meal Plans",
       description:
-        "Pregnancy Meal Planner creates a personalized 7-day pregnancy meal plan based on gestational week, weight, budget, taste preferences and common concerns such as nausea, constipation, anemia or gestational diabetes.",
+        "Create a personalized 7-day pregnancy meal plan by week, weight, taste, budget, and common prenatal concerns.",
       keywords: [
         "pregnancy meal planner",
         "prenatal nutrition plan",
@@ -76,25 +77,25 @@ export const pageSeo: Record<Locale, Record<PageKey, { title: string; descriptio
     planner: {
       title: "Create a Free Pregnancy Meal Plan | Pregnancy Meal Planner",
       description:
-        "Enter gestational week, weight, food preferences and health notes to create a 7-day pregnancy meal plan with a shopping list and food-safety reminders.",
+        "Enter week, weight, preferences, and health notes to build a 7-day pregnancy meal plan with a shopping list.",
       keywords: ["create pregnancy meal plan", "prenatal meal planner", "pregnancy shopping list"]
     },
     history: {
       title: "Saved Pregnancy Meal Plans | Pregnancy Meal Planner",
       description:
-        "Review pregnancy meal plans saved in this browser, reopen a previous plan or remove local history without creating an account.",
+        "Review saved pregnancy meal plans in this browser, reopen a plan, or clear local history without an account.",
       keywords: ["saved pregnancy meal plans", "meal plan history", "prenatal nutrition"]
     },
     profile: {
       title: "Pregnancy Nutrition Profile | Pregnancy Meal Planner",
       description:
-        "Save pregnancy week, weight, preferences and nutrition goals locally in the browser so future meal plans can be created faster.",
+        "Save pregnancy week, weight, preferences, and goals in your browser for faster personalized meal plans.",
       keywords: ["pregnancy nutrition profile", "prenatal profile", "personalized pregnancy meals"]
     },
     result: {
       title: "7-Day Pregnancy Meal Plan Result | Pregnancy Meal Planner",
       description:
-        "View a 7-day pregnancy meal plan with meal ideas, reference portions, estimated costs, shopping batches and prenatal nutrition guidance.",
+        "See your 7-day pregnancy meal plan with meal ideas, reference portions, estimated costs, and shopping list.",
       keywords: ["pregnancy meal plan result", "7 day prenatal meal plan", "pregnancy shopping list"]
     }
   },
@@ -102,7 +103,7 @@ export const pageSeo: Record<Locale, Record<PageKey, { title: string; descriptio
     home: {
       title: "Pregnancy Meal Planner | Thực đơn thai kỳ 7 ngày",
       description:
-        "Pregnancy Meal Planner giúp tạo thực đơn 7 ngày theo tuần thai, cân nặng, khẩu vị, ngân sách và triệu chứng khi mang bầu — tham khảo theo chỉ dẫn của bác sĩ.",
+        "Tạo thực đơn thai kỳ 7 ngày theo tuần thai, cân nặng, khẩu vị, ngân sách và các triệu chứng thường gặp.",
       keywords: [
         "thực đơn mẹ bầu",
         "pregnancy meal planner",
@@ -114,25 +115,25 @@ export const pageSeo: Record<Locale, Record<PageKey, { title: string; descriptio
     planner: {
       title: "Tạo thực đơn mẹ bầu miễn phí | Pregnancy Meal Planner",
       description:
-        "Nhập tuần thai, cân nặng, khẩu vị và tình trạng sức khỏe để tạo thực đơn 7 ngày cho mẹ bầu, kèm danh sách đi chợ và lưu ý an toàn thực phẩm.",
+        "Nhập tuần thai, cân nặng, khẩu vị và tình trạng sức khỏe để tạo thực đơn 7 ngày kèm danh sách đi chợ.",
       keywords: ["tạo thực đơn mẹ bầu", "meal planner thai kỳ", "danh sách đi chợ mẹ bầu"]
     },
     history: {
       title: "Lịch sử thực đơn thai kỳ | Pregnancy Meal Planner",
       description:
-        "Xem lại các thực đơn thai kỳ đã tạo trên trình duyệt, mở lại thực đơn cũ hoặc xóa lịch sử khi cần mà không cần tài khoản.",
+        "Xem lại thực đơn thai kỳ đã lưu trên trình duyệt, mở lại kế hoạch cũ hoặc xóa lịch sử khi không cần.",
       keywords: ["lịch sử thực đơn", "thực đơn thai kỳ đã lưu", "thực đơn mẹ bầu"]
     },
     profile: {
       title: "Hồ sơ thai kỳ cá nhân | Pregnancy Meal Planner",
       description:
-        "Lưu thông tin thai kỳ, cân nặng, khẩu vị và mục tiêu dinh dưỡng trên trình duyệt để lần sau tạo thực đơn nhanh hơn.",
+        "Lưu tuần thai, cân nặng, khẩu vị và mục tiêu dinh dưỡng trên trình duyệt để tạo thực đơn nhanh hơn mỗi lần.",
       keywords: ["hồ sơ thai kỳ", "thông tin mẹ bầu", "dinh dưỡng cá nhân hóa"]
     },
     result: {
       title: "Kết quả thực đơn 7 ngày | Pregnancy Meal Planner",
       description:
-        "Xem thực đơn 7 ngày cho mẹ bầu với món ăn, khẩu phần tham khảo, chi phí ước tính, danh sách đi chợ và checklist dinh dưỡng thai kỳ.",
+        "Xem thực đơn 7 ngày với món ăn gợi ý, khẩu phần tham khảo, chi phí ước tính và danh sách đi chợ chi tiết.",
       keywords: ["kết quả thực đơn", "thực đơn 7 ngày", "danh sách đi chợ"]
     }
   }
@@ -223,53 +224,68 @@ export function structuredData(locale: Locale) {
   const seo = pageSeo[locale].home;
   const homeUrl = localizedPath(locale, "/");
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://pregnancymeal.tips";
+  const pageUrl = `${siteUrl}${homeUrl}`;
+  const language = locale === "vi" ? "vi-VN" : "en-US";
 
+  // Homepage markup only — FAQPage belongs on /support where FAQ content is visible.
   return {
     "@context": "https://schema.org",
     "@graph": [
       {
+        "@type": "WebSite",
+        "@id": `${siteUrl}/#website`,
+        name: BRAND_NAME,
+        url: siteUrl,
+        inLanguage: ["en-US", "vi-VN"],
+        publisher: { "@id": `${siteUrl}/#organization` }
+      },
+      {
+        "@type": "Organization",
+        "@id": `${siteUrl}/#organization`,
+        name: BRAND_NAME,
+        url: siteUrl,
+        email: SUPPORT_EMAIL
+      },
+      {
         "@type": "WebApplication",
+        "@id": `${pageUrl}#webapp`,
         name: BRAND_NAME,
-        url: `${siteUrl}${homeUrl}`,
+        url: pageUrl,
         applicationCategory: "HealthApplication",
-        operatingSystem: "Web",
-        inLanguage: locale === "vi" ? "vi-VN" : "en-US",
+        operatingSystem: "Any",
+        browserRequirements: "Requires JavaScript",
+        inLanguage: language,
         description: seo.description,
-        offers: {
-          "@type": "Offer",
-          price: "0",
-          priceCurrency: locale === "vi" ? "VND" : "USD"
-        },
-        audience: {
-          "@type": "PeopleAudience",
-          suggestedGender: "female"
-        }
-      },
-      {
-        "@type": "MobileApplication",
-        name: BRAND_NAME,
-        url: `${siteUrl}${homeUrl}`,
-        applicationCategory: "HealthApplication",
-        operatingSystem: "iOS, Android",
-        inLanguage: locale === "vi" ? "vi-VN" : "en-US",
-        description: seo.description,
+        isPartOf: { "@id": `${siteUrl}/#website` },
+        publisher: { "@id": `${siteUrl}/#organization` },
         offers: {
           "@type": "Offer",
           price: "0",
           priceCurrency: locale === "vi" ? "VND" : "USD"
         }
-      },
-      {
-        "@type": "FAQPage",
-        mainEntity: faqContent[locale].map((item) => ({
-          "@type": "Question",
-          name: item.question,
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: item.answer
-          }
-        }))
       }
     ]
+  };
+}
+
+/** FAQ rich-result markup for support pages that render the FAQ content. */
+export function faqPageStructuredData(locale: Locale) {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://pregnancymeal.tips";
+  const pageUrl = `${siteUrl}${localizedPath(locale, "/support")}`;
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "@id": `${pageUrl}#faq`,
+    url: pageUrl,
+    inLanguage: locale === "vi" ? "vi-VN" : "en-US",
+    mainEntity: faqContent[locale].map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: item.answer
+      }
+    }))
   };
 }

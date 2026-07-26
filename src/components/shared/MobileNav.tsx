@@ -85,7 +85,7 @@ function MobileNavPanel({
         </nav>
 
         <div className="shrink-0 border-t border-border p-4">
-          <LanguageSwitcher />
+          <LanguageSwitcher locale={locale} />
         </div>
       </div>
     </>

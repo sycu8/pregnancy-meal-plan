@@ -1,17 +1,21 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { faqContent } from "@/lib/faq";
-import { localizedPath } from "@/lib/i18n";
+import { faqPageStructuredData, localizedPath } from "@/lib/i18n";
 import { DEFAULT_SITE_URL, SITE_HOST, SUPPORT_EMAIL, SUPPORT_EMAIL_MAILTO } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Support | Pregnancy Meal Planner",
-  description: "Support contact, FAQ and app information for Pregnancy Meal Planner."
+  description: "Contact support, read FAQ answers, and learn how Pregnancy Meal Planner works."
 };
 
 export default function EnSupportPage() {
   return (
     <main className="mx-auto max-w-3xl px-4 py-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqPageStructuredData("en")) }}
+      />
       <h1 className="text-3xl font-semibold">Support</h1>
       <p className="mt-4 text-muted-foreground leading-7">
         Pregnancy Meal Planner helps expecting parents plan meals by gestational week. For technical help or product feedback, contact us by email below.
