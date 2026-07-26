@@ -16,14 +16,14 @@ const copy = {
 } as const;
 
 const englishDescriptions: Record<string, string> = {
+  WHO: "Global public-health recommendations for iron and folic acid supplementation in pregnancy.",
   ACOG: "Pregnancy nutrition guidance from the American College of Obstetricians and Gynecologists.",
   CDC: "Food-safety guidance for pregnant women from the U.S. Centers for Disease Control and Prevention.",
   NHS: "Practical guidance on foods to avoid during pregnancy from the UK National Health Service.",
-  WHO: "Global public-health recommendations for iron and folic acid supplementation in pregnancy.",
-  Vinmec: "Vinmec healthcare system: obstetrics, pregnancy nutrition, and maternal–child care articles for Vietnam.",
-  "Tâm Anh": "Tam Anh General Hospital: obstetrics news and guidance on high-risk pregnancy and perinatal care.",
-  Medlatec: "Medlatec: medical news, lab testing guidance, and maternal–newborn health articles in Vietnam.",
-  "Long Châu": "FPT Long Chau Pharmacy: mother-and-baby health articles, nutrition, and pregnancy wellness."
+  "NIH ODS": "U.S. NIH Office of Dietary Supplements fact sheets for prenatal nutrients.",
+  FDA: "U.S. FDA food-safety guidance for people at higher risk of foodborne illness, including pregnancy.",
+  "Mayo Clinic": "Pregnancy week-by-week nutrition and infant health guidance from Mayo Clinic.",
+  Vinmec: "Vinmec healthcare system: obstetrics and maternal–child care articles (Vietnam reference)."
 };
 
 export function TrustedSources({ locale = "vi" }: { locale?: Locale }) {

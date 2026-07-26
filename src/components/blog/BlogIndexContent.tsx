@@ -63,11 +63,11 @@ export function BlogIndexContent({ locale, searchParams }: { locale: BlogLocale;
           __html: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "Blog",
-            name: locale === "en" ? "Bầu Ăn Gì? Blog" : "Blog Bầu Ăn Gì?",
+            name: locale === "en" ? "Pregnancy Meal Planner Blog" : "Blog Pregnancy Meal Planner",
             url: `${siteOrigin}${base}`,
             description,
             inLanguage: locale === "en" ? "en-US" : "vi-VN",
-            publisher: { "@type": "Organization", name: "Bầu Ăn Gì?", url: siteOrigin }
+            publisher: { "@type": "Organization", name: "Pregnancy Meal Planner", url: siteOrigin }
           })
         }}
       />

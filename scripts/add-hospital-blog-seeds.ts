@@ -8,7 +8,7 @@ import type { BlogPost } from "../src/types/blog";
 
 const postsDir = path.join(process.cwd(), "content/blog/posts");
 const accessed = "2026-05-31";
-const author = "Đội ngũ Bầu Ăn Gì?";
+const author = "Đội ngũ Pregnancy Meal Planner";
 
 function ref(title: string, url: string, publisher: string) {
   return { title, url, publisher, accessedAt: accessed };
@@ -34,7 +34,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu Vinmec, ACOG, NHS",
     publishedAt: "2026-05-31T08:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Mang thai lần đầu cần biết gì? | Blog Bầu Ăn Gì?",
+    metaTitle: "Mang thai lần đầu cần biết gì? | Blog Pregnancy Meal Planner",
     metaDescription: "Chuẩn bị mang thai lần đầu: dinh dưỡng, khám thai, vận động — Vinmec, ACOG.",
     sourceReferences: [
       ref(
@@ -56,7 +56,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu Vinmec, WHO, NHS",
     publishedAt: "2026-05-31T09:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Vitamin A khi mang thai | Blog Bầu Ăn Gì?",
+    metaTitle: "Vitamin A khi mang thai | Blog Pregnancy Meal Planner",
     metaDescription: "Vitamin A trong thai kỳ: nguồn beta-caroten, tránh thừa retinol — Vinmec, WHO.",
     sourceReferences: [
       ref(
@@ -78,7 +78,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu Vinmec, WHO",
     publishedAt: "2026-05-31T10:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Lịch khám thai định kỳ | Blog Bầu Ăn Gì?",
+    metaTitle: "Lịch khám thai định kỳ | Blog Pregnancy Meal Planner",
     metaDescription: "Các mốc khám thai quan trọng trong thai kỳ — Vinmec, WHO.",
     sourceReferences: [
       ref(
@@ -101,7 +101,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu Vinmec, NHS",
     publishedAt: "2026-05-30T08:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Dấu hiệu sảy thai cần làm gì | Blog Bầu Ăn Gì?",
+    metaTitle: "Dấu hiệu sảy thai cần làm gì | Blog Pregnancy Meal Planner",
     metaDescription: "Nhận biết dấu hiệu sảy thai và khi cần cấp cứu — Vinmec, NHS.",
     sourceReferences: [
       ref(
@@ -123,7 +123,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu Vinmec, NHS",
     publishedAt: "2026-05-30T09:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Dấu hiệu thai lưu | Blog Bầu Ăn Gì?",
+    metaTitle: "Dấu hiệu thai lưu | Blog Pregnancy Meal Planner",
     metaDescription: "Nhận biết thai lưu và khi cần đến viện — Vinmec, NHS.",
     sourceReferences: [
       ref(
@@ -146,7 +146,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu Vinmec, NHS",
     publishedAt: "2026-05-30T10:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Ống cổ tay khi mang thai | Blog Bầu Ăn Gì?",
+    metaTitle: "Ống cổ tay khi mang thai | Blog Pregnancy Meal Planner",
     metaDescription: "Hội chứng ống cổ tay thai kỳ và sau sinh — Vinmec, NHS.",
     sourceReferences: [
       ref(
@@ -168,7 +168,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu Vinmec, NHS",
     publishedAt: "2026-05-29T08:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Đau lưng sau sinh | Blog Bầu Ăn Gì?",
+    metaTitle: "Đau lưng sau sinh | Blog Pregnancy Meal Planner",
     metaDescription: "Nguyên nhân và cách giảm đau lưng sau sinh — Vinmec, NHS.",
     sourceReferences: [
       ref(
@@ -194,7 +194,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu Tâm Anh Hospital, ACOG",
     publishedAt: "2026-05-29T09:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Thai kỳ có vết mổ cũ | Blog Bầu Ăn Gì?",
+    metaTitle: "Thai kỳ có vết mổ cũ | Blog Pregnancy Meal Planner",
     metaDescription: "Nguy cơ thai kỳ sau mổ cũ và cách theo dõi — Tâm Anh, ACOG.",
     sourceReferences: [
       ref(
@@ -217,7 +217,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu Tâm Anh Hospital, NHS",
     publishedAt: "2026-05-29T10:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Tiền sản giật: dấu hiệu cảnh báo | Blog Bầu Ăn Gì?",
+    metaTitle: "Tiền sản giật: dấu hiệu cảnh báo | Blog Pregnancy Meal Planner",
     metaDescription: "Nhận biết tiền sản giật nặng và khi cần cấp cứu — Tâm Anh, NHS.",
     sourceReferences: [
       ref(
@@ -239,7 +239,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu Vinmec, WHO",
     publishedAt: "2026-05-28T08:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Loãng xương sau sinh | Blog Bầu Ăn Gì?",
+    metaTitle: "Loãng xương sau sinh | Blog Pregnancy Meal Planner",
     metaDescription: "Dinh dưỡng và vận động hỗ trợ xương sau sinh — Vinmec, WHO.",
     sourceReferences: [
       ref(

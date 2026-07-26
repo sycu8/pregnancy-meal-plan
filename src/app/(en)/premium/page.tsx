@@ -2,14 +2,14 @@ import type { Metadata } from "next";
 import { PremiumPage } from "@/components/premium/PremiumPage";
 
 export const metadata: Metadata = {
-  title: "Premium | Bầu Ăn Gì?",
-  description: "Nâng cấp Premium — không giới hạn lượt và xuất PDF."
+  title: "Premium | Pregnancy Meal Planner",
+  description: "Upgrade to Premium — unlimited usage and PDF export."
 };
 
-export default function ViPremiumPage() {
+export default function EnPremiumRoutePage() {
   return (
     <main className="mx-auto max-w-3xl px-4 py-10">
-      <PremiumPage locale="vi" />
+      <PremiumPage locale="en" />
     </main>
   );
 }

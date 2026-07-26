@@ -7,7 +7,7 @@ import { localizedPath, siteCopy, stripLocaleFromPath, type Locale } from "@/lib
 
 export function LanguageSwitcher() {
   const pathname = usePathname();
-  const currentLocale: Locale = pathname.startsWith("/en") ? "en" : "vi";
+  const currentLocale: Locale = pathname === "/vi" || pathname.startsWith("/vi/") ? "vi" : "en";
   const nextLocale: Locale = currentLocale === "vi" ? "en" : "vi";
   const routePath = stripLocaleFromPath(pathname);
 

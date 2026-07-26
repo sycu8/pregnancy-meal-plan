@@ -8,103 +8,103 @@ export type EditorialTopic = {
   tags: string[];
 };
 
-/** Rotating topic bank focused on mother/baby nutrition & pregnancy meal plans (SEO/GEO). */
+/** English-first topic bank for international SEO/GEO (pregnancy nutrition & meal plans). */
 export const EDITORIAL_TOPICS: EditorialTopic[] = [
   {
-    id: "thuc-don-me-bau-tuan-1",
-    title: "Thực đơn mẹ bầu 7 ngày: gợi ý món Việt cân bằng dinh dưỡng",
+    id: "7-day-pregnancy-meal-plan",
+    title: "7-day pregnancy meal plan: balanced plates for busy weeks",
     snippet:
-      "Gợi ý thực đơn 7 ngày cho mẹ bầu với bữa chính và bữa phụ, ưu tiên sắt, folate, canxi và protein từ nguyên liệu dễ mua tại Việt Nam.",
+      "A practical 7-day pregnancy meal plan with protein, iron, folate, calcium and fiber — plus snack ideas and grocery batching tips.",
     category: "thuc-don-ba-bau",
-    tags: ["thuc-don", "me-bau", "mon-viet"]
+    tags: ["meal-plan", "pregnancy", "nutrition"]
   },
   {
-    id: "dinh-duong-tam-ca-nguyet-1-seo",
-    title: "Dinh dưỡng 3 tháng đầu: checklist axit folic, sắt và thực phẩm an toàn",
+    id: "first-trimester-nutrition-checklist",
+    title: "First trimester nutrition checklist: folate, iron and safer foods",
     snippet:
-      "Checklist dinh dưỡng tam cá nguyệt 1 giúp mẹ ưu tiên axit folic, sắt, hạn chế thực phẩm nguy cơ và biết khi nào cần hỏi bác sĩ.",
+      "What to prioritize in weeks 1–12: folic acid, iron-rich foods, hydration, and foods to cook thoroughly during early pregnancy.",
     category: "dinh-duong-ba-bau",
-    tags: ["folate", "sat", "tcn1"]
+    tags: ["first-trimester", "folate", "iron"]
   },
   {
-    id: "thuc-don-nghen-nang",
-    title: "Thực đơn khi nghén nặng: món dễ ăn, đủ nước và đủ năng lượng",
+    id: "nausea-friendly-meals",
+    title: "Nausea-friendly pregnancy meals that still cover key nutrients",
     snippet:
-      "Gợi ý thực đơn khi nghén: chia nhỏ bữa, chọn món dễ tiêu, bổ sung nước và theo dõi dấu hiệu mất nước cần khám.",
+      "Smaller meals, gentler textures, and nutrient-dense snacks when morning sickness makes eating hard.",
     category: "thuc-don-ba-bau",
-    tags: ["nghen", "thuc-don"]
+    tags: ["nausea", "meal-plan"]
   },
   {
-    id: "thuc-don-tieu-duong-thai-ky",
-    title: "Thực đơn tham khảo cho mẹ bầu theo dõi đường huyết thai kỳ",
+    id: "gestational-diabetes-meal-ideas",
+    title: "Gestational diabetes meal ideas: balanced carbs, protein and fiber",
     snippet:
-      "Nguyên tắc sắp xếp tinh bột, đạm và chất xơ trong ngày khi mẹ đang theo dõi đường huyết thai kỳ — mang tính tham khảo, cần bác sĩ chỉ định.",
+      "Educational plate-building ideas for gestational diabetes monitoring — always follow your clinician’s targets.",
     category: "thuc-don-ba-bau",
-    tags: ["tieu-duong-thai-ky", "thuc-don"]
+    tags: ["gestational-diabetes", "meal-plan"]
   },
   {
-    id: "an-dam-6-thang-thuc-don",
-    title: "Thực đơn ăn dặm 6 tháng: bắt đầu an toàn theo dấu hiệu sẵn sàng",
+    id: "foods-to-limit-in-pregnancy",
+    title: "Foods to limit or cook thoroughly during pregnancy",
     snippet:
-      "Hướng dẫn bắt đầu ăn dặm khoảng 6 tháng: dấu hiệu sẵn sàng, nhóm thực phẩm ưu tiên và lưu ý an toàn khi chế biến.",
-    category: "cham-con-0-24-thang",
-    tags: ["an-dam", "6-thang"]
-  },
-  {
-    id: "dinh-duong-me-cho-con-bu",
-    title: "Dinh dưỡng mẹ cho con bú: đạm, nước và thực phẩm hỗ trợ phục hồi",
-    snippet:
-      "Gợi ý dinh dưỡng sau sinh khi cho con bú: đủ năng lượng, đạm, nước, canxi và cách sắp xếp bữa ăn thực tế.",
-    category: "sau-sinh",
-    tags: ["cho-con-bu", "sau-sinh"]
-  },
-  {
-    id: "thuc-don-3-thang-cuoi",
-    title: "Thực đơn 3 tháng cuối thai kỳ: đủ năng lượng, giảm ợ nóng",
-    snippet:
-      "Thực đơn tam cá nguyệt 3: tăng nhẹ năng lượng, ưu tiên chất xơ, chia nhỏ bữa để giảm trào ngược và táo bón.",
-    category: "thuc-don-ba-bau",
-    tags: ["tcn3", "thuc-don"]
-  },
-  {
-    id: "thuc-pham-can-tranh-me-bau",
-    title: "Thực phẩm mẹ bầu nên hạn chế hoặc nấu chín kỹ",
-    snippet:
-      "Tổng hợp nhóm thực phẩm cần hạn chế khi mang thai theo hướng dẫn an toàn thực phẩm: sống/tái, pate, đồ chưa tiệt trùng.",
+      "Food-safety guidance inspired by CDC/NHS/FDA themes: deli meats, unpasteurized dairy, high-mercury fish, and undercooked foods.",
     category: "dinh-duong-ba-bau",
-    tags: ["an-toan-thuc-pham", "me-bau"]
+    tags: ["food-safety", "pregnancy"]
   },
   {
-    id: "bo-sung-dha-omega3",
-    title: "Omega-3 và DHA cho mẹ bầu: nguồn thực phẩm và lưu ý khi dùng",
+    id: "omega-3-dha-pregnancy",
+    title: "Omega-3 and DHA in pregnancy: food sources and supplement cautions",
     snippet:
-      "Vai trò omega-3/DHA trong thai kỳ, nguồn cá và thực phẩm thay thế, khi nào nên hỏi bác sĩ trước khi dùng viên uống.",
+      "Why DHA matters for fetal development, low-mercury fish options, and when to ask a clinician about supplements.",
     category: "dinh-duong-ba-bau",
     tags: ["omega-3", "dha"]
   },
   {
-    id: "thuc-don-thieu-mau",
-    title: "Thực đơn hỗ trợ mẹ bầu thiếu máu thiếu sắt (tham khảo)",
+    id: "iron-deficiency-pregnancy-meals",
+    title: "Iron-rich pregnancy meals (with vitamin C pairing tips)",
     snippet:
-      "Gợi ý món giàu sắt heme/non-heme kết hợp vitamin C, lưu ý trà/cà phê và khi nào cần điều trị theo chỉ định.",
+      "Heme and non-heme iron meal ideas, vitamin C pairings, and tea/coffee timing notes for iron absorption.",
     category: "thuc-don-ba-bau",
-    tags: ["thieu-mau", "sat"]
+    tags: ["iron", "anemia"]
   },
   {
-    id: "bua-phu-me-bau",
-    title: "Bữa phụ mẹ bầu: 10 ý tưởng lành mạnh dưới 15 phút",
+    id: "third-trimester-meal-plan",
+    title: "Third trimester meal plan: energy, fiber and reflux-friendly plates",
     snippet:
-      "Ý tưởng bữa phụ nhanh: sữa chua, trứng, trái cây, đậu, bánh mì nguyên cám — giúp đủ năng lượng giữa các bữa chính.",
+      "Later-pregnancy meal ideas with slightly higher energy needs, fiber for constipation, and smaller dinners for reflux.",
     category: "thuc-don-ba-bau",
-    tags: ["bua-phu", "thuc-don"]
+    tags: ["third-trimester", "meal-plan"]
   },
   {
-    id: "dinh-duong-tre-12-24",
-    title: "Dinh dưỡng trẻ 12–24 tháng: chuyển sang ăn cùng gia đình",
+    id: "postpartum-breastfeeding-nutrition",
+    title: "Postpartum and breastfeeding nutrition: recovery plates that work",
     snippet:
-      "Nguyên tắc dinh dưỡng 12–24 tháng: đa dạng nhóm chất, hạn chế đường muối, và cách chuyển dần sang khẩu phần gia đình.",
+      "Protein, fluids, calcium and practical meal prep for the early postpartum weeks while breastfeeding.",
+    category: "sau-sinh",
+    tags: ["postpartum", "breastfeeding"]
+  },
+  {
+    id: "starting-solids-6-months",
+    title: "Starting solids around 6 months: readiness signs and first foods",
+    snippet:
+      "Baby-led and spoon-fed approaches, iron-rich first foods, allergen introduction basics, and choking-safety reminders.",
     category: "cham-con-0-24-thang",
-    tags: ["12-24-thang", "dinh-duong"]
+    tags: ["weaning", "6-months"]
+  },
+  {
+    id: "pregnancy-snack-ideas",
+    title: "Healthy pregnancy snacks under 15 minutes",
+    snippet:
+      "Ten snack ideas with protein and fiber for between-meal energy — yogurt, eggs, fruit, nuts and whole grains.",
+    category: "thuc-don-ba-bau",
+    tags: ["snacks", "meal-plan"]
+  },
+  {
+    id: "toddler-12-24-month-nutrition",
+    title: "Toddler nutrition 12–24 months: joining family meals safely",
+    snippet:
+      "How to transition toward family meals, limit added sugar/salt, and keep portions age-appropriate.",
+    category: "cham-con-0-24-thang",
+    tags: ["toddler", "nutrition"]
   }
 ];
 

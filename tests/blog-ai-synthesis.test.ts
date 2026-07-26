@@ -43,7 +43,7 @@ describe("blog SEO/GEO surfaces", () => {
     content: "## Hello\n\nNội dung",
     category: "dinh-duong-ba-bau",
     tags: ["me-bau"],
-    author: "Đội ngũ Bầu Ăn Gì?",
+    author: "Pregnancy Meal Planner Team",
     sourceReferences: [{ title: "WHO", url: "https://www.who.int", publisher: "WHO" }],
     publishedAt: "2026-07-01T00:00:00.000Z",
     updatedAt: "2026-07-01T00:00:00.000Z",
@@ -65,9 +65,9 @@ describe("blog SEO/GEO surfaces", () => {
 
   it("publishes llms.txt and full digest for answer engines", () => {
     const compact = llmsTxt();
-    expect(compact).toContain("Bầu Ăn Gì?");
+    expect(compact).toContain("Pregnancy Meal Planner");
     expect(compact).toContain("/llms-full.txt");
-    expect(compact).toContain("thực đơn");
+    expect(compact).toContain("Create a free meal plan");
 
     const full = llmsFullTxt();
     expect(full).toContain("Full blog digest");
@@ -83,7 +83,7 @@ describe("blog SEO/GEO surfaces", () => {
 
   it("returns markdown for blog agent negotiation", () => {
     const markdown = markdownForPath("/blog");
-    expect(markdown).toContain("Blog Bầu Ăn Gì?");
+    expect(markdown).toContain("Pregnancy Meal Planner Blog");
     expect(markdown).toContain("Topics");
   });
 

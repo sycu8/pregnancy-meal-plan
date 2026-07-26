@@ -8,7 +8,7 @@ import type { BlogPost } from "../src/types/blog";
 
 const postsDir = path.join(process.cwd(), "content/blog/posts");
 const accessed = "2026-05-31";
-const author = "Đội ngũ Bầu Ăn Gì?";
+const author = "Đội ngũ Pregnancy Meal Planner";
 
 function ref(title: string, url: string, publisher: string) {
   return { title, url, publisher, accessedAt: accessed };
@@ -35,7 +35,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu ACOG, NHS",
     publishedAt: "2026-05-30T08:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Dinh dưỡng 3 tháng cuối thai kỳ | Blog Bầu Ăn Gì?",
+    metaTitle: "Dinh dưỡng 3 tháng cuối thai kỳ | Blog Pregnancy Meal Planner",
     metaDescription: "Ăn uống tam cá nguyệt 3: năng lượng, sắt, canxi, tránh ăn quá nhiều — ACOG, NHS.",
     sourceReferences: [
       ref("ACOG — Nutrition During Pregnancy", "https://www.acog.org/womens-health/faqs/nutrition-during-pregnancy", "ACOG"),
@@ -52,7 +52,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu WHO, NHS",
     publishedAt: "2026-05-30T09:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Canxi & vitamin D khi mang thai | Blog Bầu Ăn Gì?",
+    metaTitle: "Canxi & vitamin D khi mang thai | Blog Pregnancy Meal Planner",
     metaDescription: "Canxi, vitamin D trong thai kỳ: sữa, cá, đậu phụ và khi nào cần bổ sung — WHO, NHS.",
     sourceReferences: [
       ref("WHO — Calcium supplementation in pregnant women", "https://www.who.int/tools/elena/interventions/calcium-pregnancy", "WHO"),
@@ -70,7 +70,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu CDC, NHS",
     publishedAt: "2026-05-30T10:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Omega-3 & DHA khi mang thai | Blog Bầu Ăn Gì?",
+    metaTitle: "Omega-3 & DHA khi mang thai | Blog Pregnancy Meal Planner",
     metaDescription: "Ăn cá an toàn khi mang thai, DHA và omega-3 — hướng dẫn CDC, NHS.",
     sourceReferences: [
       ref("CDC — Fish Advice for Pregnant Women", "https://www.cdc.gov/pregnancy/during/fish-advice.html", "CDC"),
@@ -88,7 +88,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu ACOG, NHS",
     publishedAt: "2026-05-29T08:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Nghén nặng khi mang thai | Blog Bầu Ăn Gì?",
+    metaTitle: "Nghén nặng khi mang thai | Blog Pregnancy Meal Planner",
     metaDescription: "Nghén nặng vs nghén thường, ăn uống và khi cần đi viện — ACOG, NHS.",
     sourceReferences: [
       ref("NHS — Vomiting and morning sickness", "https://www.nhs.uk/pregnancy/related-conditions/common-symptoms/vomiting-and-morning-sickness/", "NHS"),
@@ -105,7 +105,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu NHS, Mayo Clinic",
     publishedAt: "2026-05-29T09:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Táo bón khi mang thai | Blog Bầu Ăn Gì?",
+    metaTitle: "Táo bón khi mang thai | Blog Pregnancy Meal Planner",
     metaDescription: "Giảm táo bón thai kỳ: chất xơ, nước, vận động nhẹ — NHS, Mayo Clinic.",
     sourceReferences: [
       ref("NHS — Constipation in pregnancy", "https://www.nhs.uk/pregnancy/related-conditions/common-symptoms/constipation/", "NHS"),
@@ -122,7 +122,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu WHO, ACOG",
     publishedAt: "2026-05-29T10:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Thiếu máu thai kỳ | Blog Bầu Ăn Gì?",
+    metaTitle: "Thiếu máu thai kỳ | Blog Pregnancy Meal Planner",
     metaDescription: "Thiếu máu khi mang thai: dấu hiệu, sắt, vitamin C — WHO, ACOG.",
     sourceReferences: [
       ref("WHO — Daily iron and folic acid supplementation", "https://www.who.int/tools/elena/interventions/daily-iron-pregnancy", "WHO"),
@@ -139,7 +139,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu NHS, ACOG",
     publishedAt: "2026-05-28T08:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Caffeine khi mang thai | Blog Bầu Ăn Gì?",
+    metaTitle: "Caffeine khi mang thai | Blog Pregnancy Meal Planner",
     metaDescription: "Uống cà phê, trà khi mang thai: giới hạn caffeine tham khảo — NHS, ACOG.",
     sourceReferences: [
       ref("NHS — Foods to avoid in pregnancy — caffeine", "https://www.nhs.uk/pregnancy/keeping-well/foods-to-avoid/", "NHS"),
@@ -156,7 +156,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu Mayo Clinic, NHS",
     publishedAt: "2026-05-28T09:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Uống nước khi mang thai | Blog Bầu Ăn Gì?",
+    metaTitle: "Uống nước khi mang thai | Blog Pregnancy Meal Planner",
     metaDescription: "Uống bao nhiêu nước khi mang thai, dấu hiệu mất nước — Mayo Clinic, NHS.",
     sourceReferences: [
       ref("Mayo Clinic — Pregnancy week by week — nutrition", "https://www.mayoclinic.org/healthy-lifestyle/pregnancy-week-by-week/in-depth/pregnancy/art-20047732", "Mayo Clinic"),
@@ -174,7 +174,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu NHS, ACOG",
     publishedAt: "2026-05-28T10:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Giấc ngủ khi mang thai | Blog Bầu Ăn Gì?",
+    metaTitle: "Giấc ngủ khi mang thai | Blog Pregnancy Meal Planner",
     metaDescription: "Ngủ ngon khi mang thai: tư thế, gối, thói quen — NHS, ACOG.",
     sourceReferences: [
       ref("NHS — Tiredness and sleep in pregnancy", "https://www.nhs.uk/pregnancy/related-conditions/common-symptoms/tiredness/", "NHS"),
@@ -191,7 +191,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu ACOG, CDC",
     publishedAt: "2026-05-27T08:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Vận động an toàn khi mang thai | Blog Bầu Ăn Gì?",
+    metaTitle: "Vận động an toàn khi mang thai | Blog Pregnancy Meal Planner",
     metaDescription: "Tập thể dục khi mang thai: đi bộ, bơi, dấu hiệu dừng — ACOG, CDC.",
     sourceReferences: [
       ref("ACOG — Exercise During Pregnancy", "https://www.acog.org/womens-health/faqs/exercise-during-pregnancy", "ACOG"),
@@ -208,7 +208,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu ACOG, NHS",
     publishedAt: "2026-05-27T09:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Hồi phục sau sinh mổ | Blog Bầu Ăn Gì?",
+    metaTitle: "Hồi phục sau sinh mổ | Blog Pregnancy Meal Planner",
     metaDescription: "Ăn uống và chăm sóc sau mổ lấy thai — ACOG, NHS.",
     sourceReferences: [
       ref("NHS — Recovering from a caesarean", "https://www.nhs.uk/conditions/caesarean-section/recovery/", "NHS"),
@@ -226,7 +226,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu WHO, UNICEF, NHS",
     publishedAt: "2026-05-27T10:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Dinh dưỡng trẻ 12–24 tháng | Blog Bầu Ăn Gì?",
+    metaTitle: "Dinh dưỡng trẻ 12–24 tháng | Blog Pregnancy Meal Planner",
     metaDescription: "Ăn uống trẻ 1–2 tuổi: bữa gia đình, sữa, an toàn nghẹn — WHO, UNICEF, NHS.",
     sourceReferences: [
       ref("WHO — Complementary feeding", "https://www.who.int/health-topics/complementary-feeding", "WHO"),
@@ -245,7 +245,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu WHO, NHS",
     publishedAt: "2026-05-26T08:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Thực đơn trẻ 6–12 tháng | Blog Bầu Ăn Gì?",
+    metaTitle: "Thực đơn trẻ 6–12 tháng | Blog Pregnancy Meal Planner",
     metaDescription: "Thực đơn mẫu ăn dặm 6–12 tháng kèm sữa mẹ — WHO, NHS.",
     sourceReferences: [
       ref("WHO — Infant and young child feeding", "https://www.who.int/health-topics/infant-and-young-child-feeding", "WHO"),
@@ -262,7 +262,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu UNICEF, WHO, NHS",
     publishedAt: "2026-05-26T09:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Cho con bú khó khăn | Blog Bầu Ăn Gì?",
+    metaTitle: "Cho con bú khó khăn | Blog Pregnancy Meal Planner",
     metaDescription: "Xử trí ban đầu khi cho con bú khó: tư thế, nhịp bú, khi cần chuyên gia — UNICEF, WHO.",
     sourceReferences: [
       ref("UNICEF — Breastfeeding challenges", "https://www.unicef.org/breastfeeding", "UNICEF"),
@@ -280,7 +280,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu NHS, ACOG",
     publishedAt: "2026-05-26T10:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Mẹ bầu ăn chay | Blog Bầu Ăn Gì?",
+    metaTitle: "Mẹ bầu ăn chay | Blog Pregnancy Meal Planner",
     metaDescription: "Thực đơn chay cho mẹ bầu: B12, sắt, DHA — NHS, ACOG.",
     sourceReferences: [
       ref("NHS — Vegetarian and vegan pregnancy", "https://www.nhs.uk/pregnancy/keeping-well/vegetarian-or-vegan-and-pregnant/", "NHS"),
@@ -298,7 +298,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu NHS, ACOG",
     publishedAt: "2026-05-25T08:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Phù chân khi mang thai | Blog Bầu Ăn Gì?",
+    metaTitle: "Phù chân khi mang thai | Blog Pregnancy Meal Planner",
     metaDescription: "Phù chân thai kỳ: khi bình thường, khi nguy hiểm — NHS, ACOG.",
     sourceReferences: [
       ref("NHS — Common symptoms in pregnancy — Swollen ankles", "https://www.nhs.uk/pregnancy/related-conditions/common-symptoms/swollen-ankles-feet-and-fingers/", "NHS"),
@@ -316,7 +316,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu ACOG",
     publishedAt: "2026-05-25T09:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Tăng huyết áp thai kỳ | Blog Bầu Ăn Gì?",
+    metaTitle: "Tăng huyết áp thai kỳ | Blog Pregnancy Meal Planner",
     metaDescription: "Ăn uống khi tăng huyết áp thai kỳ — tham khảo ACOG, không thay thuốc.",
     sourceReferences: [
       ref("ACOG — Preeclampsia and High Blood Pressure During Pregnancy", "https://www.acog.org/womens-health/faqs/preeclampsia-and-high-blood-pressure-during-pregnancy", "ACOG"),
@@ -333,7 +333,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu ACOG, CDC",
     publishedAt: "2026-05-25T10:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Sàng lọc trước sinh | Blog Bầu Ăn Gì?",
+    metaTitle: "Sàng lọc trước sinh | Blog Pregnancy Meal Planner",
     metaDescription: "Các xét nghiệm sàng lọc thai kỳ phổ biến — ACOG, CDC.",
     sourceReferences: [
       ref("ACOG — Prenatal Genetic Screening Tests", "https://www.acog.org/womens-health/faqs/prenatal-genetic-screening-tests", "ACOG"),
@@ -350,7 +350,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu WHO, UNICEF",
     publishedAt: "2026-05-24T08:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "I-ốt khi mang thai | Blog Bầu Ăn Gì?",
+    metaTitle: "I-ốt khi mang thai | Blog Pregnancy Meal Planner",
     metaDescription: "Bổ sung i-ốt thai kỳ: muối i-ốt, thực phẩm — WHO, UNICEF.",
     sourceReferences: [
       ref("WHO — Iodine supplementation in pregnant women", "https://www.who.int/tools/elena/interventions/iodine-pregnancy", "WHO"),
@@ -367,7 +367,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu NHS, ACOG",
     publishedAt: "2026-05-24T09:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Răng miệng khi mang thai | Blog Bầu Ăn Gì?",
+    metaTitle: "Răng miệng khi mang thai | Blog Pregnancy Meal Planner",
     metaDescription: "Chăm răng khi mang thai, khám nha an toàn — NHS, ACOG.",
     sourceReferences: [
       ref("NHS — Bleeding gums in pregnancy", "https://www.nhs.uk/pregnancy/related-conditions/common-symptoms/bleeding-gums/", "NHS"),
@@ -384,7 +384,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu WHO, NHS",
     publishedAt: "2026-05-24T10:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Trầm cảm sau sinh | Blog Bầu Ăn Gì?",
+    metaTitle: "Trầm cảm sau sinh | Blog Pregnancy Meal Planner",
     metaDescription: "Nhận biết trầm cảm sau sinh và khi cần giúp — WHO, NHS.",
     sourceReferences: [
       ref("WHO — Maternal mental health", "https://www.who.int/teams/maternal-newborn-child-adolescent-health-and-ageing/maternal-health", "WHO"),
@@ -402,7 +402,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu NHS, ACOG",
     publishedAt: "2026-05-23T08:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Thực đơn giảm nghén | Blog Bầu Ăn Gì?",
+    metaTitle: "Thực đơn giảm nghén | Blog Pregnancy Meal Planner",
     metaDescription: "Thực đơn mềm, dễ ăn khi nghén tam cá nguyệt 1 — NHS.",
     sourceReferences: [
       ref("NHS — Vomiting and morning sickness", "https://www.nhs.uk/pregnancy/related-conditions/common-symptoms/vomiting-and-morning-sickness/", "NHS"),
@@ -419,7 +419,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu ACOG, CDC",
     publishedAt: "2026-05-23T09:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Protein & choline thai kỳ | Blog Bầu Ăn Gì?",
+    metaTitle: "Protein & choline thai kỳ | Blog Pregnancy Meal Planner",
     metaDescription: "Protein và choline khi mang thai — nguồn thực phẩm ACOG, CDC.",
     sourceReferences: [
       ref("ACOG — Nutrition During Pregnancy", "https://www.acog.org/womens-health/faqs/nutrition-during-pregnancy", "ACOG"),
@@ -436,7 +436,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu CDC, WHO",
     publishedAt: "2026-05-23T10:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Tiêm chủng mẹ bầu | Blog Bầu Ăn Gì?",
+    metaTitle: "Tiêm chủng mẹ bầu | Blog Pregnancy Meal Planner",
     metaDescription: "Vaccine khi mang thai và sau sinh — tham khảo CDC, WHO, Bộ Y tế VN.",
     sourceReferences: [
       ref("CDC — Vaccines During Pregnancy", "https://www.cdc.gov/vaccines/pregnancy/", "CDC"),
@@ -454,7 +454,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu NHS, ACOG",
     publishedAt: "2026-05-22T08:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Ợ nóng khi mang thai | Blog Bầu Ăn Gì?",
+    metaTitle: "Ợ nóng khi mang thai | Blog Pregnancy Meal Planner",
     metaDescription: "Giảm ợ nóng, ợ chua thai kỳ bằng thực đơn và thói quen — NHS, ACOG.",
     sourceReferences: [
       ref("NHS — Indigestion and heartburn in pregnancy", "https://www.nhs.uk/pregnancy/related-conditions/common-symptoms/indigestion-and-heartburn/", "NHS"),
@@ -472,7 +472,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu NHS",
     publishedAt: "2026-05-22T09:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Chuột rút chân thai kỳ | Blog Bầu Ăn Gì?",
+    metaTitle: "Chuột rút chân thai kỳ | Blog Pregnancy Meal Planner",
     metaDescription: "Nguyên nhân và cách giảm chuột rút khi mang thai — NHS.",
     sourceReferences: [
       ref("NHS — Common health problems in pregnancy", "https://www.nhs.uk/pregnancy/related-conditions/common-symptoms/common-health-problems/", "NHS"),
@@ -489,7 +489,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu WHO, NHS",
     publishedAt: "2026-05-22T10:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Vitamin B12 thai kỳ | Blog Bầu Ăn Gì?",
+    metaTitle: "Vitamin B12 thai kỳ | Blog Pregnancy Meal Planner",
     metaDescription: "B12 khi mang thai, đặc biệt mẹ ăn chay — WHO, NHS.",
     sourceReferences: [
       ref("WHO — Vitamin B12 supplementation in pregnancy", "https://www.who.int/tools/elena/interventions/vitamin-b12-pregnancy", "WHO"),
@@ -506,7 +506,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu NHS, CDC",
     publishedAt: "2026-05-21T11:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Phô mai & sữa khi mang thai | Blog Bầu Ăn Gì?",
+    metaTitle: "Phô mai & sữa khi mang thai | Blog Pregnancy Meal Planner",
     metaDescription: "Phô mai mềm, sữa tiệt trùng an toàn thai kỳ — NHS, CDC.",
     sourceReferences: [
       ref("NHS — Foods to avoid in pregnancy", "https://www.nhs.uk/pregnancy/keeping-well/foods-to-avoid/", "NHS"),
@@ -523,7 +523,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu WHO, NHS",
     publishedAt: "2026-05-21T12:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Phở tái & đồ sống khi mang thai | Blog Bầu Ăn Gì?",
+    metaTitle: "Phở tái & đồ sống khi mang thai | Blog Pregnancy Meal Planner",
     metaDescription: "Ăn phở, gỏi, hải sản an toàn khi mang thai — WHO, NHS.",
     sourceReferences: [
       ref("WHO — Five keys to safer food", "https://www.who.int/campaigns/world-health-day/2015/five-keys-to-safer-food", "WHO"),
@@ -541,7 +541,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu ACOG, NHS",
     publishedAt: "2026-05-20T08:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Thực đơn tuần TCN 3 | Blog Bầu Ăn Gì?",
+    metaTitle: "Thực đơn tuần TCN 3 | Blog Pregnancy Meal Planner",
     metaDescription: "Thực đơn mẫu 7 ngày tam cá nguyệt 3 — ACOG, NHS.",
     sourceReferences: [
       ref("ACOG — Nutrition During Pregnancy", "https://www.acog.org/womens-health/faqs/nutrition-during-pregnancy", "ACOG"),
@@ -558,7 +558,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu ACOG, NHS",
     publishedAt: "2026-05-20T09:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Dinh dưỡng thai đôi | Blog Bầu Ăn Gì?",
+    metaTitle: "Dinh dưỡng thai đôi | Blog Pregnancy Meal Planner",
     metaDescription: "Ăn uống khi mang song thai — ACOG, NHS.",
     sourceReferences: [
       ref("ACOG — Multifetal Pregnancy", "https://www.acog.org/womens-health/faqs/multiple-pregnancy", "ACOG"),
@@ -575,7 +575,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu ACOG, NHS",
     publishedAt: "2026-05-20T10:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Ăn uống sau mổ lấy thai | Blog Bầu Ăn Gì?",
+    metaTitle: "Ăn uống sau mổ lấy thai | Blog Pregnancy Meal Planner",
     metaDescription: "Chế độ ăn sau sinh mổ giai đoạn đầu — ACOG, NHS.",
     sourceReferences: [
       ref("ACOG — Cesarean Birth", "https://www.acog.org/womens-health/faqs/cesarean-birth", "ACOG"),
@@ -592,7 +592,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu CDC, UNICEF",
     publishedAt: "2026-05-19T08:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Hút sữa mẹ đúng cách | Blog Bầu Ăn Gì?",
+    metaTitle: "Hút sữa mẹ đúng cách | Blog Pregnancy Meal Planner",
     metaDescription: "Kỹ thuật hút sữa, vệ sinh máy — CDC, UNICEF.",
     sourceReferences: [
       ref("CDC — How to Keep Your Breast Pump Kit Clean", "https://www.cdc.gov/hygiene/childcare/clean-sanitize.html", "CDC"),
@@ -609,7 +609,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu CDC",
     publishedAt: "2026-05-19T09:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Bảo quản sữa mẹ | Blog Bầu Ăn Gì?",
+    metaTitle: "Bảo quản sữa mẹ | Blog Pregnancy Meal Planner",
     metaDescription: "Cách bảo quản, rã đông sữa mẹ — CDC.",
     sourceReferences: [
       ref("CDC — Proper Storage and Preparation of Breast Milk", "https://www.cdc.gov/breastfeeding/recommendations/handling_breastmilk.htm", "CDC")
@@ -626,7 +626,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu AAP, NHS",
     publishedAt: "2026-05-19T10:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Vàng da sơ sinh | Blog Bầu Ăn Gì?",
+    metaTitle: "Vàng da sơ sinh | Blog Pregnancy Meal Planner",
     metaDescription: "Vàng da ở trẻ sơ sinh và cho con bú — AAP, NHS.",
     sourceReferences: [
       ref("AAP — Jaundice in Newborns", "https://www.healthychildren.org/English/ages-stages/baby/Pages/jaundice.aspx", "AAP"),
@@ -643,7 +643,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu WHO, NHS",
     publishedAt: "2026-05-18T08:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Thiếu máu sau sinh | Blog Bầu Ăn Gì?",
+    metaTitle: "Thiếu máu sau sinh | Blog Pregnancy Meal Planner",
     metaDescription: "Bổ sung sắt sau sinh — WHO, NHS.",
     sourceReferences: [
       ref("WHO — Iron deficiency anaemia", "https://www.who.int/news-room/fact-sheets/detail/anaemia", "WHO"),
@@ -660,7 +660,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu NHS, ACOG",
     publishedAt: "2026-05-18T09:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Kegel sau sinh | Blog Bầu Ăn Gì?",
+    metaTitle: "Kegel sau sinh | Blog Pregnancy Meal Planner",
     metaDescription: "Bài tập Kegel sau sinh — NHS, ACOG.",
     sourceReferences: [
       ref("NHS — Pelvic floor exercises", "https://www.nhs.uk/common-health-questions/womens-health/what-are-pelvic-floor-exercises/", "NHS"),
@@ -677,7 +677,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu WHO, NIH ODS",
     publishedAt: "2026-05-18T10:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Kẽm & magie thai kỳ | Blog Bầu Ăn Gì?",
+    metaTitle: "Kẽm & magie thai kỳ | Blog Pregnancy Meal Planner",
     metaDescription: "Kẽm, magie khi mang thai — nguồn thực phẩm WHO, NIH.",
     sourceReferences: [
       ref("WHO — Zinc supplementation during pregnancy", "https://www.who.int/tools/elena/interventions/zinc-pregnancy", "WHO"),
@@ -694,7 +694,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu ACOG, NHS",
     publishedAt: "2026-05-17T08:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Rụng tóc sau sinh | Blog Bầu Ăn Gì?",
+    metaTitle: "Rụng tóc sau sinh | Blog Pregnancy Meal Planner",
     metaDescription: "Rụng tóc hậu sản và dinh dưỡng — ACOG, NHS.",
     sourceReferences: [
       ref("ACOG — Postpartum Hair Loss", "https://www.acog.org/womens-health/experts-and-stories/ask-acog/why-is-my-hair-falling-out-after-pregnancy", "ACOG"),
@@ -711,7 +711,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu USDA, NHS",
     publishedAt: "2026-05-17T09:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Nhau đông lạnh sau sinh | Blog Bầu Ăn Gì?",
+    metaTitle: "Nhau đông lạnh sau sinh | Blog Pregnancy Meal Planner",
     metaDescription: "Meal prep, đông lạnh bữa ăn sau sinh — USDA, NHS.",
     sourceReferences: [
       ref("USDA — Freezing and Food Safety", "https://www.fsis.usda.gov/food-safety/safe-food-handling-and-preparation/food-safety-basics/freezing-and-food-safety", "USDA"),
@@ -729,7 +729,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu CDC, NHS",
     publishedAt: "2026-05-17T10:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Táo bón khi ăn dặm | Blog Bầu Ăn Gì?",
+    metaTitle: "Táo bón khi ăn dặm | Blog Pregnancy Meal Planner",
     metaDescription: "Trẻ táo bón lúc ăn dặm — CDC, NHS.",
     sourceReferences: [
       ref("CDC — Constipation in children", "https://www.cdc.gov/nutrition/infantandtoddlernutrition/mealtime/constipation.html", "CDC"),
@@ -747,7 +747,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu AAP, NHS",
     publishedAt: "2026-05-16T08:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Dị ứng thực phẩm trẻ nhỏ | Blog Bầu Ăn Gì?",
+    metaTitle: "Dị ứng thực phẩm trẻ nhỏ | Blog Pregnancy Meal Planner",
     metaDescription: "Giới thiệu thực phẩm dị ứng, dấu hiệu — AAP, NHS.",
     sourceReferences: [
       ref("AAP — Starting Solid Foods", "https://www.healthychildren.org/English/ages-stages/baby/feeding-nutrition/Pages/Starting-Solid-Foods.aspx", "AAP"),
@@ -765,7 +765,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu NHS, CDC",
     publishedAt: "2026-05-16T09:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Baby-led weaning | Blog Bầu Ăn Gì?",
+    metaTitle: "Baby-led weaning | Blog Pregnancy Meal Planner",
     metaDescription: "BLW là gì, an toàn thế nào — NHS, CDC.",
     sourceReferences: [
       ref("NHS — Baby-led weaning", "https://www.nhs.uk/start-for-life/baby/weaning/weaning-your-baby/the-different-approaches-to-weaning/", "NHS"),
@@ -782,7 +782,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu ACOG, NHS",
     publishedAt: "2026-05-16T10:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Pica khi mang thai | Blog Bầu Ăn Gì?",
+    metaTitle: "Pica khi mang thai | Blog Pregnancy Meal Planner",
     metaDescription: "Thèm ăn đất, bột sắn thai kỳ — ACOG, NHS.",
     sourceReferences: [
       ref("ACOG — Nutrition During Pregnancy", "https://www.acog.org/womens-health/faqs/nutrition-during-pregnancy", "ACOG"),
@@ -799,7 +799,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu ACOG, CDC",
     publishedAt: "2026-05-15T08:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Theo dõi đường huyết GDM | Blog Bầu Ăn Gì?",
+    metaTitle: "Theo dõi đường huyết GDM | Blog Pregnancy Meal Planner",
     metaDescription: "Đo và ghi đường huyết tiểu đường thai kỳ — ACOG, CDC.",
     sourceReferences: [
       ref("ACOG — Gestational Diabetes", "https://www.acog.org/womens-health/faqs/gestational-diabetes", "ACOG"),
@@ -816,7 +816,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu CDC, WHO",
     publishedAt: "2026-05-15T09:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Rượu & thuốc lá thai kỳ | Blog Bầu Ăn Gì?",
+    metaTitle: "Rượu & thuốc lá thai kỳ | Blog Pregnancy Meal Planner",
     metaDescription: "Tránh rượu, thuốc lá khi mang thai — CDC, WHO.",
     sourceReferences: [
       ref("CDC — Alcohol Use in Pregnancy", "https://www.cdc.gov/pregnancy/during/alcohol-use.html", "CDC"),
@@ -833,7 +833,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu CDC, NHS",
     publishedAt: "2026-05-15T10:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Mang thai mùa hè | Blog Bầu Ăn Gì?",
+    metaTitle: "Mang thai mùa hè | Blog Pregnancy Meal Planner",
     metaDescription: "Tips nóng mùa hè khi mang thai — CDC, NHS.",
     sourceReferences: [
       ref("CDC — Extreme Heat", "https://www.cdc.gov/disasters/extremeheat/heattips.html", "CDC"),
@@ -850,7 +850,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu CDC, NHS",
     publishedAt: "2026-05-14T08:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Vitamin trước mang thai | Blog Bầu Ăn Gì?",
+    metaTitle: "Vitamin trước mang thai | Blog Pregnancy Meal Planner",
     metaDescription: "Prenatal vitamin, folic acid trước thai kỳ — CDC, NHS.",
     sourceReferences: [
       ref("CDC — Planning for Pregnancy", "https://www.cdc.gov/pregnancy/planning.html", "CDC"),
@@ -867,7 +867,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu CDC, NHS",
     publishedAt: "2026-05-14T09:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Thực đơn mẹ cho con bú | Blog Bầu Ăn Gì?",
+    metaTitle: "Thực đơn mẹ cho con bú | Blog Pregnancy Meal Planner",
     metaDescription: "Thực đơn mẫu khi cho con bú — CDC, NHS.",
     sourceReferences: [
       ref("CDC — Maternal Diet", "https://www.cdc.gov/breastfeeding/breastfeeding-special-circumstances/diet-and-micronutrients/maternal-diet.html", "CDC"),
@@ -885,7 +885,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu ACOG, WHO",
     publishedAt: "2026-05-14T10:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Dinh dưỡng TCN 2 | Blog Bầu Ăn Gì?",
+    metaTitle: "Dinh dưỡng TCN 2 | Blog Pregnancy Meal Planner",
     metaDescription: "Ăn uống tam cá nguyệt 2 — ACOG, WHO.",
     sourceReferences: [
       ref("ACOG — Nutrition During Pregnancy", "https://www.acog.org/womens-health/faqs/nutrition-during-pregnancy", "ACOG"),
@@ -903,7 +903,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu WHO, CDC",
     publishedAt: "2026-05-13T08:00:00+07:00",
     updatedAt: "2026-05-31T08:00:00+07:00",
-    metaTitle: "Sữa công thức an toàn | Blog Bầu Ăn Gì?",
+    metaTitle: "Sữa công thức an toàn | Blog Pregnancy Meal Planner",
     metaDescription: "Pha sữa công thức đúng cách — WHO, CDC.",
     sourceReferences: [
       ref("WHO — Infant and young child feeding", "https://www.who.int/health-topics/infant-and-young-child-feeding", "WHO"),

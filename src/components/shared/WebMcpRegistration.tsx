@@ -41,8 +41,8 @@ export function WebMcpRegistration() {
         },
         async execute(input) {
           const locale = input.locale === "en" ? "en" : "vi";
-          window.location.href = locale === "en" ? "/en/planner" : "/planner";
-          return { ok: true, path: locale === "en" ? "/en/planner" : "/planner" };
+          window.location.href = locale === "vi" ? "/vi/planner" : "/planner";
+          return { ok: true, path: locale === "vi" ? "/vi/planner" : "/planner" };
         }
       },
       {

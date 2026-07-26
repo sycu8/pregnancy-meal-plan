@@ -6,9 +6,9 @@ function wantsMarkdown(accept: string) {
 }
 
 function isMarkdownPath(pathname: string) {
-  if (pathname === "/" || pathname === "/en") return true;
-  if (pathname === "/blog" || pathname === "/en/blog") return true;
-  if (/^\/blog\/[^/]+$/.test(pathname) || /^\/en\/blog\/[^/]+$/.test(pathname)) return true;
+  if (pathname === "/" || pathname === "/vi") return true;
+  if (pathname === "/blog" || pathname === "/vi/blog") return true;
+  if (/^\/blog\/[^/]+$/.test(pathname) || /^\/vi\/blog\/[^/]+$/.test(pathname)) return true;
   return false;
 }
 
@@ -35,7 +35,7 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/en", "/blog", "/blog/:slug", "/en/blog", "/en/blog/:slug"]
+  matcher: ["/", "/vi", "/blog", "/blog/:slug", "/vi/blog", "/vi/blog/:slug"]
 };
 
 function estimateTokens(value: string) {

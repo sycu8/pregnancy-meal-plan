@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Chính sách quyền riêng tư | Bầu Ăn Gì?",
-  description: "Cách Bầu Ăn Gì? lưu trữ dữ liệu trên trình duyệt và khi bạn chọn đồng bộ."
+  title: "Chính sách quyền riêng tư | Pregnancy Meal Planner",
+  description: "Cách Pregnancy Meal Planner lưu trữ dữ liệu trên trình duyệt và khi bạn chọn đồng bộ."
 };
 
 export default function PrivacyPage() {

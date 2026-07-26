@@ -36,8 +36,8 @@ const postsDir = path.join(process.cwd(), "content/blog/posts");
 const enDir = path.join(process.cwd(), "content/blog/posts-en");
 const queueDir = path.join(process.cwd(), "content/blog/queue");
 
-const authorVi = "Đội ngũ Bầu Ăn Gì?";
-const authorEn = "Bầu Ăn Gì? Team";
+const authorVi = "Đội ngũ Pregnancy Meal Planner";
+const authorEn = "Pregnancy Meal Planner Team";
 
 function readJson<T>(file: string): T {
   return JSON.parse(fs.readFileSync(file, "utf8")) as T;
@@ -168,7 +168,7 @@ async function main() {
       tags,
       trimester: guessTrimester(synthesized.title, synthesized.excerpt),
       author: authorVi,
-      reviewer: item.editorial ? "Biên tập Bầu Ăn Gì?" : `Tham chiếu ${item.sourceName}`,
+      reviewer: item.editorial ? "Biên tập Pregnancy Meal Planner" : `Tham chiếu ${item.sourceName}`,
       sourceReferences: [
         {
           title: item.title.trim() || "Bài gốc",
@@ -180,7 +180,7 @@ async function main() {
       publishedAt,
       updatedAt: nowIso(),
       readingTimeMinutes: estimateReadingTimeMinutes(content),
-      metaTitle: synthesized.metaTitle || `${synthesized.title} | Blog Bầu Ăn Gì?`,
+      metaTitle: synthesized.metaTitle || `${synthesized.title} | Pregnancy Meal Planner Blog`,
       metaDescription: synthesized.metaDescription || synthesized.excerpt.slice(0, 160),
       ...(ogImage ? { ogImage } : {}),
       ...(synthesized.faqs ? { faqs: synthesized.faqs } : {}),
@@ -196,17 +196,17 @@ async function main() {
           metaTitle: synthesized.en.metaTitle,
           metaDescription: synthesized.en.metaDescription,
           author: authorEn,
-          reviewer: item.editorial ? "Bầu Ăn Gì? Editorial" : `References ${item.sourceName}`
+          reviewer: item.editorial ? "Pregnancy Meal Planner Editorial" : `References ${item.sourceName}`
         }
       : {
           slug,
           title: viPost.title,
           excerpt: viPost.excerpt,
           content: enContentTemplate(item),
-          metaTitle: `${viPost.title} | Bầu Ăn Gì? Blog`,
+          metaTitle: `${viPost.title} | Pregnancy Meal Planner Blog`,
           metaDescription: viPost.metaDescription,
           author: authorEn,
-          reviewer: item.editorial ? "Bầu Ăn Gì? Editorial" : `References ${item.sourceName}`
+          reviewer: item.editorial ? "Pregnancy Meal Planner Editorial" : `References ${item.sourceName}`
         };
 
     const outVi = path.join(postsDir, `${slug}.json`);

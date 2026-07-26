@@ -1,10 +1,10 @@
-name: Auto crawl blog (every 24h)
+name: Auto crawl blog (every 6h)
 
 on:
   workflow_dispatch: {}
   schedule:
-    # Every 24 hours at 09:15 Vietnam time (02:15 UTC)
-    - cron: "15 2 * * *"
+    # Every 6 hours (UTC) for denser international SEO/GEO coverage
+    - cron: "15 0,6,12,18 * * *"
 
 concurrency:
   group: auto-crawl-blog
@@ -18,9 +18,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     env:
-      BLOG_AUTO_PUBLISH_MAX: "10"
-      BLOG_AUTO_QUEUE_MAX: "12"
-      BLOG_EDITORIAL_SEED_MAX: "3"
+      BLOG_AUTO_PUBLISH_MAX: "14"
+      BLOG_AUTO_QUEUE_MAX: "18"
+      BLOG_EDITORIAL_SEED_MAX: "5"
       FEATURE_BLOG_AI_ENABLED: "true"
       AI_PROVIDER: "workers-ai"
       AI_GATEWAY_ID: default
@@ -64,7 +64,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Crawl + editorial seeds + AI publish VI/EN
+      - name: Crawl + editorial seeds + AI publish EN/VI
         run: npm run publish:blog:auto
 
       - name: Run tests

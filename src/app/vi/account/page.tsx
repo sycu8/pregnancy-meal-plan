@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { AccountPanel } from "@/components/account/AccountPanel";
 
 export const metadata: Metadata = {
-  title: "Tài khoản | Bầu Ăn Gì?",
+  title: "Tài khoản | Pregnancy Meal Planner",
   description: "Đăng ký email, đồng bộ thực đơn và quản lý dữ liệu."
 };
 

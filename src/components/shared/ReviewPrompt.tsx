@@ -12,13 +12,13 @@ export function ReviewPrompt({ locale = "vi" }: { locale?: Locale }) {
   const copy =
     locale === "en"
       ? {
-          title: "Enjoying Bầu Ăn Gì?",
+          title: "Enjoying Pregnancy Meal Planner",
           body: "If the meal plans help, consider leaving a review when the app is on the store.",
           ok: "Got it",
           dismiss: "Not now"
         }
       : {
-          title: "Bạn thấy Bầu Ăn Gì? hữu ích?",
+          title: "Bạn thấy Pregnancy Meal Planner hữu ích?",
           body: "Nếu thực đơn giúp ích, hãy đánh giá ứng dụng khi có trên store nhé.",
           ok: "Đã hiểu",
           dismiss: "Để sau"

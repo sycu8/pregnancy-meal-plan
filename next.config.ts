@@ -2,6 +2,20 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  async redirects() {
+    return [
+      {
+        source: "/en",
+        destination: "/",
+        permanent: true
+      },
+      {
+        source: "/en/:path*",
+        destination: "/:path*",
+        permanent: true
+      }
+    ];
+  },
   async headers() {
     const discoveryLinks = [
       '</.well-known/api-catalog>; rel="api-catalog"; type="application/linkset+json"',
@@ -18,7 +32,7 @@ const nextConfig: NextConfig = {
         headers: [{ key: "Link", value: discoveryLinks }]
       },
       {
-        source: "/en",
+        source: "/vi",
         headers: [{ key: "Link", value: discoveryLinks }]
       },
       {
@@ -26,7 +40,7 @@ const nextConfig: NextConfig = {
         headers: [{ key: "Link", value: discoveryLinks }]
       },
       {
-        source: "/en/blog",
+        source: "/vi/blog",
         headers: [{ key: "Link", value: discoveryLinks }]
       }
     ];

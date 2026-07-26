@@ -8,7 +8,7 @@ import type { BlogPost } from "../src/types/blog";
 
 const postsDir = path.join(process.cwd(), "content/blog/posts");
 const accessed = "2026-06-01";
-const author = "Đội ngũ Bầu Ăn Gì?";
+const author = "Đội ngũ Pregnancy Meal Planner";
 
 function ref(title: string, url: string, publisher: string) {
   return { title, url, publisher, accessedAt: accessed };
@@ -34,7 +34,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu Medlatec, ACOG",
     publishedAt: "2026-06-01T08:00:00+07:00",
     updatedAt: "2026-06-01T08:00:00+07:00",
-    metaTitle: "Cân nặng thai nhi theo tuần | Blog Bầu Ăn Gì?",
+    metaTitle: "Cân nặng thai nhi theo tuần | Blog Pregnancy Meal Planner",
     metaDescription: "Tiêu chuẩn cân nặng thai nhi, siêu âm và khi cần can thiệp — Medlatec, ACOG.",
     sourceReferences: [
       ref(
@@ -57,7 +57,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu Medlatec, WHO",
     publishedAt: "2026-06-01T09:00:00+07:00",
     updatedAt: "2026-06-01T08:00:00+07:00",
-    metaTitle: "Khám thai lần đầu vào tuần mấy? | Blog Bầu Ăn Gì?",
+    metaTitle: "Khám thai lần đầu vào tuần mấy? | Blog Pregnancy Meal Planner",
     metaDescription: "Khi nào đi khám thai lần đầu và cần làm gì — Medlatec, WHO.",
     sourceReferences: [
       ref(
@@ -79,7 +79,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu Medlatec, ADA",
     publishedAt: "2026-06-01T10:00:00+07:00",
     updatedAt: "2026-06-01T08:00:00+07:00",
-    metaTitle: "Thực đơn tiểu đường thai kỳ | Blog Bầu Ăn Gì?",
+    metaTitle: "Thực đơn tiểu đường thai kỳ | Blog Pregnancy Meal Planner",
     metaDescription: "Ăn uống khi tiểu đường thai kỳ: chia bữa, chỉ số đường — Medlatec.",
     sourceReferences: [
       ref(
@@ -102,7 +102,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu Medlatec, NHS",
     publishedAt: "2026-05-31T14:00:00+07:00",
     updatedAt: "2026-06-01T08:00:00+07:00",
-    metaTitle: "Dấu hiệu tiền sản giật | Blog Bầu Ăn Gì?",
+    metaTitle: "Dấu hiệu tiền sản giật | Blog Pregnancy Meal Planner",
     metaDescription: "Nhận biết tiền sản giật sớm — Medlatec, NHS.",
     sourceReferences: [
       ref(
@@ -124,7 +124,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu Medlatec, ACOG",
     publishedAt: "2026-05-31T15:00:00+07:00",
     updatedAt: "2026-06-01T08:00:00+07:00",
-    metaTitle: "Tiền sản giật sau sinh | Blog Bầu Ăn Gì?",
+    metaTitle: "Tiền sản giật sau sinh | Blog Pregnancy Meal Planner",
     metaDescription: "Tiền sản giật sau sinh: dấu hiệu và theo dõi — Medlatec.",
     sourceReferences: [
       ref(
@@ -147,7 +147,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu Medlatec, CDC",
     publishedAt: "2026-05-31T16:00:00+07:00",
     updatedAt: "2026-06-01T08:00:00+07:00",
-    metaTitle: "Vitamin K cho trẻ sơ sinh | Blog Bầu Ăn Gì?",
+    metaTitle: "Vitamin K cho trẻ sơ sinh | Blog Pregnancy Meal Planner",
     metaDescription: "Tiêm vitamin K sơ sinh: vì sao và khi nào — Medlatec, CDC.",
     sourceReferences: [
       ref(
@@ -170,7 +170,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu Long Châu, NHS",
     publishedAt: "2026-05-30T12:00:00+07:00",
     updatedAt: "2026-06-01T08:00:00+07:00",
-    metaTitle: "Beta-hCG 2 tuần đầu | Blog Bầu Ăn Gì?",
+    metaTitle: "Beta-hCG 2 tuần đầu | Blog Pregnancy Meal Planner",
     metaDescription: "Hiểu chỉ số beta-hCG khi mang thai — Long Châu, NHS.",
     sourceReferences: [
       ref(
@@ -192,7 +192,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu Long Châu, FDA",
     publishedAt: "2026-05-30T13:00:00+07:00",
     updatedAt: "2026-06-01T08:00:00+07:00",
-    metaTitle: "Siêu âm thai nhiều có hại không? | Blog Bầu Ăn Gì?",
+    metaTitle: "Siêu âm thai nhiều có hại không? | Blog Pregnancy Meal Planner",
     metaDescription: "Siêu âm thai kỳ có an toàn không — Long Châu, FDA.",
     sourceReferences: [
       ref(
@@ -215,7 +215,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu Long Châu, NHS",
     publishedAt: "2026-05-30T14:00:00+07:00",
     updatedAt: "2026-06-01T08:00:00+07:00",
-    metaTitle: "Thai nhi đạp nhiều / hiccup | Blog Bầu Ăn Gì?",
+    metaTitle: "Thai nhi đạp nhiều / hiccup | Blog Pregnancy Meal Planner",
     metaDescription: "Thai máy và cử động thai: khi nào bình thường — Long Châu.",
     sourceReferences: [
       ref(
@@ -237,7 +237,7 @@ const seeds: BlogPost[] = [
     reviewer: "Tham chiếu Long Châu, CDC, WHO",
     publishedAt: "2026-05-30T15:00:00+07:00",
     updatedAt: "2026-06-01T08:00:00+07:00",
-    metaTitle: "Kế hoạch mang thai | Blog Bầu Ăn Gì?",
+    metaTitle: "Kế hoạch mang thai | Blog Pregnancy Meal Planner",
     metaDescription: "Chuẩn bị trước khi mang thai: vitamin, khám, lối sống — Long Châu.",
     sourceReferences: [
       ref(

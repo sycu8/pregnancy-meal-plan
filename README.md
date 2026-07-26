@@ -1,4 +1,4 @@
-# Bầu Ăn Gì?
+# Pregnancy Meal Planner
 
 AI meal planner miễn phí cho mẹ bầu Việt Nam. MVP này tạo thực đơn 7 ngày món Việt, BMI/tăng cân thai kỳ tham khảo, danh sách đi chợ và cảnh báo an toàn thực phẩm.
 

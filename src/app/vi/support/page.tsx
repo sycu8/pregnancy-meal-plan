@@ -4,8 +4,8 @@ import { faqContent } from "@/lib/faq";
 import { localizedPath } from "@/lib/i18n";
 
 export const metadata: Metadata = {
-  title: "Hỗ trợ | Bầu Ăn Gì?",
-  description: "Liên hệ hỗ trợ, câu hỏi thường gặp và thông tin về ứng dụng Bầu Ăn Gì?."
+  title: "Hỗ trợ | Pregnancy Meal Planner",
+  description: "Liên hệ hỗ trợ, câu hỏi thường gặp và thông tin về ứng dụng Pregnancy Meal Planner."
 };
 
 export default function SupportPage() {
@@ -13,7 +13,7 @@ export default function SupportPage() {
     <main className="mx-auto max-w-3xl px-4 py-10">
       <h1 className="text-3xl font-semibold">Hỗ trợ</h1>
       <p className="mt-4 text-muted-foreground leading-7">
-        Bầu Ăn Gì? giúp mẹ bầu lên thực đơn món Việt theo tuần thai. Nếu bạn cần trợ giúp kỹ thuật hoặc có góp ý sản phẩm, hãy liên hệ qua email bên dưới.
+        Pregnancy Meal Planner giúp mẹ bầu lên thực đơn món Việt theo tuần thai. Nếu bạn cần trợ giúp kỹ thuật hoặc có góp ý sản phẩm, hãy liên hệ qua email bên dưới.
       </p>
 
       <section className="mt-8 rounded-lg border border-border bg-white p-5">
