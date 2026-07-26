@@ -18,9 +18,9 @@ export function PremiumPage({ locale = "vi" }: { locale?: Locale }) {
             "Longer plan history",
             "PDF/cloud export for premium accounts"
           ],
-          cta: "Register Premium with Stripe",
+          cta: "Register for Premium",
           back: "Back to planner",
-          error: "Could not open Stripe checkout. Please try again."
+          error: "Could not open checkout. Please try again."
         }
       : {
           title: "Gói Premium",
@@ -31,9 +31,9 @@ export function PremiumPage({ locale = "vi" }: { locale?: Locale }) {
             "Lưu lịch sử thực đơn dài hơn",
             "Xuất PDF/cloud cho tài khoản Premium"
           ],
-          cta: "Đăng ký Premium qua Stripe",
+          cta: "Đăng ký gói Premium",
           back: "Quay lại tạo thực đơn",
-          error: "Không mở được trang thanh toán Stripe. Vui lòng thử lại."
+          error: "Không mở được trang thanh toán. Vui lòng thử lại."
         };
 
   async function openCheckout() {
