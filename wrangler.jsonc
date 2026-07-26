@@ -12,6 +12,9 @@
     "enabled": true,
     "head_sampling_rate": 1
   },
+  "vars": {
+    "STRIPE_CHECKOUT_URL": "https://buy.stripe.com/7sYbJ1eoCeDA0f462McZa00"
+  },
   "services": [
     {
       "binding": "WORKER_SELF_REFERENCE",

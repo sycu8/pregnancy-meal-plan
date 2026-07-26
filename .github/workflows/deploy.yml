@@ -35,4 +35,5 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          STRIPE_CHECKOUT_URL: https://buy.stripe.com/7sYbJ1eoCeDA0f462McZa00
         run: corepack pnpm deploy:cloudflare

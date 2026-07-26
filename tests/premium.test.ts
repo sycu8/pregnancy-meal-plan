@@ -3,6 +3,7 @@ import { getPremiumLimits } from "@/lib/premium/limits";
 import { getUsageDateKey, isValidUsageDateKey } from "@/lib/premium/dateKey";
 import { buildPlanShareText, buildPlanShareUrl } from "@/lib/share/planShare";
 import { PremiumLimitError } from "@/lib/nutrition/fetchMealPlan";
+import { DEFAULT_STRIPE_CHECKOUT_URL } from "@/app/api/premium/checkout/route";
 import type { MealPlan } from "@/types/mealPlan";
 
 const samplePlan = {
@@ -59,6 +60,10 @@ describe("premium limits", () => {
   it("removes caps for premium tier", () => {
     expect(getPremiumLimits("premium").aiPlansPerDay).toBe(Number.POSITIVE_INFINITY);
     expect(getPremiumLimits("premium").mealSwapsPerDay).toBe(Number.POSITIVE_INFINITY);
+  });
+
+  it("uses the configured Stripe Payment Link for checkout", () => {
+    expect(DEFAULT_STRIPE_CHECKOUT_URL).toBe("https://buy.stripe.com/7sYbJ1eoCeDA0f462McZa00");
   });
 });
 
