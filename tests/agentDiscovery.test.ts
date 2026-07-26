@@ -46,10 +46,15 @@ describe("agent discovery assets", () => {
     expect(sitemap).toContain(`${siteOrigin}/blog</loc>`);
     expect(sitemap).toContain(`${siteOrigin}/vi/blog</loc>`);
     expect(sitemap).toContain(`${siteOrigin}/blog/dinh-duong-ba-bau</loc>`);
+<<<<<<< HEAD
     expect(sitemap).not.toContain(`${siteOrigin}/history</loc>`);
     expect(sitemap).not.toContain(`${siteOrigin}/profile</loc>`);
     expect(sitemap).not.toContain(`${siteOrigin}/result</loc>`);
     expect(sitemap).not.toContain(`${siteOrigin}/account</loc>`);
+=======
+    expect(sitemap).toContain(`${siteOrigin}/social</loc>`);
+    expect(sitemap).toContain(`${siteOrigin}/vi/social</loc>`);
+>>>>>>> origin/cursor/social-page-marketing-mvp-237e
   });
 
   it("describes the meal-plan API through an API catalog and MCP server card", () => {
