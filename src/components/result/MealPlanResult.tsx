@@ -13,8 +13,10 @@ import { ReviewPrompt } from "@/components/shared/ReviewPrompt";
 import { bmiCategoryLabels } from "@/lib/nutrition/bmi";
 import { weightGainStatusLabels } from "@/lib/nutrition/weightGain";
 import { PremiumUsageHint } from "@/components/shared/PremiumUsageHint";
+import { PremiumUpsell } from "@/components/premium/PremiumUpsell";
 import { canSwapMeal } from "@/lib/premium/usage";
 import { getPremiumTier } from "@/lib/premium/tier";
+import { getPremiumLimits } from "@/lib/premium/limits";
 import { shareMealPlan } from "@/lib/share/planShare";
 import { getCurrentMealPlan, getMealPlanById, saveMealPlan, setCurrentMealPlan } from "@/lib/storage/localStorage";
 import { cacheOfflineSnapshot, shouldShowReviewPrompt } from "@/lib/storage/offlineCache";
@@ -210,12 +212,18 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
   const [missingPlan, setMissingPlan] = useState(false);
   const [loadingRemotePlan, setLoadingRemotePlan] = useState(Boolean(planId));
   const [planNotice, setPlanNotice] = useState("");
+  const [showSwapUpsell, setShowSwapUpsell] = useState(false);
+  const [showExportUpsell, setShowExportUpsell] = useState(false);
+  const [showPlanUpsell, setShowPlanUpsell] = useState(false);
+  const isFreeTier = getPremiumTier() === "free";
+  const canCloudExport = getPremiumLimits(getPremiumTier()).cloudExport;
 
   useEffect(() => {
     if (typeof window === "undefined") return;
     const notice = window.sessionStorage.getItem("bau-an-gi:plan-notice");
     if (notice) {
       setPlanNotice(notice);
+      setShowPlanUpsell(true);
       window.sessionStorage.removeItem("bau-an-gi:plan-notice");
     }
   }, []);
@@ -277,9 +285,11 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
     if (!plan) return;
     if (!canSwapMeal(getPremiumTier())) {
       setSwapError(t.swapLimit);
+      setShowSwapUpsell(true);
       return;
     }
     setSwapError("");
+    setShowSwapUpsell(false);
     const day = plan.days[activeDayIndex]?.day ?? 1;
     setSwappingSlot(mealSlot);
     try {
@@ -293,6 +303,7 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
     } catch (error) {
       if (error instanceof PremiumLimitError) {
         setSwapError(error.message);
+        setShowSwapUpsell(true);
       } else {
         try {
           const next = regenerateMealInPlan(plan, plan.profileSnapshot, day, mealSlot, locale);
@@ -301,6 +312,7 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
           setSaved(true);
         } catch {
           setSwapError(error instanceof Error ? error.message : t.swapLimit);
+          setShowSwapUpsell(true);
         }
       }
     } finally {
@@ -323,6 +335,9 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
   async function handleExport() {
     if (!plan) return;
     setExportError("");
+    if (isFreeTier || !canCloudExport) {
+      setShowExportUpsell(true);
+    }
     try {
       const response = await fetch("/api/export/plan", {
         method: "POST",
@@ -332,6 +347,7 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
       const data = await response.json();
       if (!response.ok) {
         setExportError(data.error ?? t.exportError);
+        if (isFreeTier) setShowExportUpsell(true);
         return;
       }
 
@@ -400,6 +416,7 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
       {planNotice && (
         <p className="rounded-md bg-amber-50 px-4 py-3 text-sm text-amber-900">{planNotice}</p>
       )}
+      {showPlanUpsell && isFreeTier ? <PremiumUpsell locale={locale} reason="ai-limit" /> : null}
       <section className="rounded-lg border border-border bg-white p-5 shadow-soft">
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div>
@@ -440,11 +457,13 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
             </Button>
           </div>
         </div>
-        <div className="no-print mt-3">
+        <div className="no-print mt-3 space-y-3">
           <PremiumUsageHint locale={locale} mode="swap" refreshKey={usageRefresh} />
-          {swapError && <p className="mt-1 text-sm text-red-700">{swapError}</p>}
-          {shareError && <p className="mt-1 text-sm text-red-700">{shareError}</p>}
-          {exportError && <p className="mt-1 text-sm text-red-700">{exportError}</p>}
+          {swapError && <p className="text-sm text-red-700">{swapError}</p>}
+          {shareError && <p className="text-sm text-red-700">{shareError}</p>}
+          {exportError && <p className="text-sm text-red-700">{exportError}</p>}
+          {showSwapUpsell && isFreeTier ? <PremiumUpsell locale={locale} reason="swap-limit" /> : null}
+          {showExportUpsell && isFreeTier ? <PremiumUpsell locale={locale} reason="export" /> : null}
         </div>
 
         <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

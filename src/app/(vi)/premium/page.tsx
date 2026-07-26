@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { PremiumPage } from "@/components/premium/PremiumPage";
 
 export const metadata: Metadata = {
-  title: "Premium | Bầu Ăn Gì?",
-  description: "Nâng cấp Premium — không giới hạn lượt và xuất PDF."
+  title: "Premium Lifetime | Bầu Ăn Gì?",
+  description: "Thanh toán một lần — không giới hạn thực đơn AI, đổi món, lịch sử và xuất PDF."
 };
 
 export default function ViPremiumPage() {
