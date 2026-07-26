@@ -33,7 +33,7 @@ jobs:
       NEXT_PUBLIC_SITE_URL: https://pregnancymeal.tips
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -56,7 +56,7 @@ jobs:
           fi
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
@@ -65,6 +65,7 @@ jobs:
         run: npm ci
 
       - name: Crawl + editorial seeds + AI publish EN/VI
+        # Keep going past individual source timeouts; only fail on hard script errors.
         run: npm run publish:blog:auto
 
       - name: Run tests

@@ -26,15 +26,19 @@ function urlAllowedBySource(url: string, source: SourceConfig) {
 }
 
 async function fetchText(url: string) {
-  const allowed = await assertUrlAllowedByRobots(url);
-  if (!allowed) return null;
+  try {
+    const allowed = await assertUrlAllowedByRobots(url);
+    if (!allowed) return null;
 
-  const res = await fetch(url, {
-    headers: { "User-Agent": BLOG_USER_AGENT, Accept: "text/html,application/xml,*/*" },
-    signal: AbortSignal.timeout(20000)
-  });
-  if (!res.ok) return null;
-  return await res.text();
+    const res = await fetch(url, {
+      headers: { "User-Agent": BLOG_USER_AGENT, Accept: "text/html,application/xml,*/*" },
+      signal: AbortSignal.timeout(15000)
+    });
+    if (!res.ok) return null;
+    return await res.text();
+  } catch {
+    return null;
+  }
 }
 
 function extractMeta(html: string) {

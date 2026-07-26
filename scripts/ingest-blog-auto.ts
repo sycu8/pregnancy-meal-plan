@@ -60,15 +60,22 @@ function fastUrlTopicMatch(url: string, topics: string[]) {
 }
 
 async function fetchText(url: string) {
-  const allowed = await assertUrlAllowedByRobots(url);
-  if (!allowed) return null;
+  try {
+    const allowed = await assertUrlAllowedByRobots(url);
+    if (!allowed) return null;
 
-  const res = await fetch(url, {
-    headers: { "User-Agent": BLOG_USER_AGENT, Accept: "text/html,application/xml,*/*" },
-    signal: AbortSignal.timeout(20000)
-  });
-  if (!res.ok) return null;
-  return await res.text();
+    const res = await fetch(url, {
+      headers: { "User-Agent": BLOG_USER_AGENT, Accept: "text/html,application/xml,*/*" },
+      signal: AbortSignal.timeout(15000)
+    });
+    if (!res.ok) return null;
+    return await res.text();
+  } catch (error) {
+    // Timeouts / network blips must not fail the whole auto-crawl job.
+    const name = error instanceof Error ? error.name : "Error";
+    console.warn(`[ingest-auto] fetch skipped (${name}): ${url}`);
+    return null;
+  }
 }
 
 function extractMeta(html: string) {
@@ -128,16 +135,21 @@ async function ingestNonRssSources(sources: SourceConfig[]) {
   const candidates: Omit<QueuedItem, "status" | "note">[] = [];
   for (const source of sources) {
     if (source.rssUrl) continue;
-    const discovered = await discoverFromSitemap(source, { maxSitemaps: 25, maxCandidates: 120, maxHtmlFetch: 12 });
-    for (const item of discovered) {
-      candidates.push({
-        id: hashValue(`${source.name}:${item.url}`),
-        sourceName: source.name,
-        title: item.title,
-        url: item.url,
-        snippet: item.snippet,
-        fetchedAt: new Date().toISOString()
-      });
+    try {
+      const discovered = await discoverFromSitemap(source, { maxSitemaps: 12, maxCandidates: 80, maxHtmlFetch: 8 });
+      for (const item of discovered) {
+        candidates.push({
+          id: hashValue(`${source.name}:${item.url}`),
+          sourceName: source.name,
+          title: item.title,
+          url: item.url,
+          snippet: item.snippet,
+          fetchedAt: new Date().toISOString()
+        });
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.warn(`[ingest-auto] source skipped (${source.name}): ${message}`);
     }
   }
 
