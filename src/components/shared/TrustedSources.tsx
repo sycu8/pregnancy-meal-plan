@@ -40,11 +40,11 @@ export function TrustedSources({ locale = "vi" }: { locale?: Locale }) {
             href={source.href}
             target="_blank"
             rel="noreferrer"
-            className="rounded-md border border-border p-4 transition hover:border-accent hover:bg-muted"
+            className="block min-h-11 rounded-md border border-border p-4 transition hover:border-accent hover:bg-muted"
           >
-            <span className="flex items-center gap-2 font-semibold">
+            <span className="flex items-center gap-2 text-base font-semibold">
               {source.name}
-              <ExternalLink className="h-4 w-4" aria-hidden="true" />
+              <ExternalLink className="h-4 w-4 shrink-0" aria-hidden="true" />
             </span>
             <span className="mt-2 block text-sm leading-6 text-muted-foreground">
               {locale === "vi" ? source.description : englishDescriptions[source.name] ?? source.description}
@@ -52,7 +52,7 @@ export function TrustedSources({ locale = "vi" }: { locale?: Locale }) {
           </a>
         ))}
       </div>
-      <p className="mt-4 text-xs leading-5 text-muted-foreground">{t.note}</p>
+      <p className="mt-4 text-sm leading-6 text-muted-foreground">{t.note}</p>
     </section>
   );
 }

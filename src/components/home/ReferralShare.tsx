@@ -86,7 +86,7 @@ export function ReferralShare({ locale }: { locale: Locale }) {
           <Share2 className="h-4 w-4" />
           {state === "shared" ? copy.shared : state === "copied" ? copy.copied : copy.cta}
         </Button>
-        <code className="rounded-md bg-muted px-2 py-1 text-xs text-muted-foreground">{shareUrl}</code>
+        <code className="break-all rounded-md bg-muted px-2.5 py-2 text-sm text-muted-foreground">{shareUrl}</code>
       </div>
     </section>
   );

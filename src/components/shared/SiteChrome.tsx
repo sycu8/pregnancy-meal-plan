@@ -22,26 +22,47 @@ export function SiteChrome({ children, locale }: { children: React.ReactNode; lo
             <span className="truncate text-base tracking-tight sm:text-lg">{copy.brand}</span>
           </Link>
           <div className="flex items-center gap-2 text-sm text-muted-foreground sm:gap-3">
-            <div className="hidden items-center gap-3 sm:flex">
-              <Link href={localizedPath(locale, "/planner")} className="hover:text-foreground">
+            <div className="hidden items-center gap-1 sm:flex">
+              <Link
+                href={localizedPath(locale, "/planner")}
+                className="inline-flex min-h-11 items-center px-2.5 hover:text-foreground"
+              >
                 {copy.nav.planner}
               </Link>
-              <Link href={localizedPath(locale, "/history")} className="hover:text-foreground">
+              <Link
+                href={localizedPath(locale, "/history")}
+                className="inline-flex min-h-11 items-center px-2.5 hover:text-foreground"
+              >
                 {copy.nav.history}
               </Link>
-              <Link href={localizedPath(locale, "/profile")} className="hover:text-foreground">
+              <Link
+                href={localizedPath(locale, "/profile")}
+                className="inline-flex min-h-11 items-center px-2.5 hover:text-foreground"
+              >
                 {copy.nav.profile}
               </Link>
-              <Link href={localizedPath(locale, "/account")} className="hover:text-foreground">
+              <Link
+                href={localizedPath(locale, "/account")}
+                className="inline-flex min-h-11 items-center px-2.5 hover:text-foreground"
+              >
                 {copy.nav.account}
               </Link>
-              <Link href={localizedPath(locale, "/premium")} className="hover:text-foreground">
+              <Link
+                href={localizedPath(locale, "/premium")}
+                className="inline-flex min-h-11 items-center px-2.5 hover:text-foreground"
+              >
                 {copy.nav.premium}
               </Link>
-              <Link href={localizedPath(locale, "/support")} className="hover:text-foreground">
+              <Link
+                href={localizedPath(locale, "/support")}
+                className="inline-flex min-h-11 items-center px-2.5 hover:text-foreground"
+              >
                 {copy.nav.support}
               </Link>
-              <Link href={localizedPath(locale, "/blog")} className="hover:text-foreground">
+              <Link
+                href={localizedPath(locale, "/blog")}
+                className="inline-flex min-h-11 items-center px-2.5 hover:text-foreground"
+              >
                 {copy.nav.blog}
               </Link>
               <LanguageSwitcher />

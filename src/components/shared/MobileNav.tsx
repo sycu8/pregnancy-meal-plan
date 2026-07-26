@@ -63,7 +63,7 @@ function MobileNavPanel({
           <span className="font-semibold text-foreground">{t.brand}</span>
           <button
             type="button"
-            className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md hover:bg-muted"
+            className="inline-flex min-h-12 min-w-12 items-center justify-center rounded-md hover:bg-muted"
             aria-label={m.close}
             onClick={onClose}
           >
@@ -76,7 +76,7 @@ function MobileNavPanel({
             <Link
               key={item.key}
               href={localizedPath(locale, item.path)}
-              className="rounded-md px-3 py-3 text-base font-medium text-foreground transition hover:bg-muted"
+              className="inline-flex min-h-12 items-center rounded-md px-3 py-3 text-base font-medium text-foreground transition hover:bg-muted"
               onClick={onClose}
             >
               {t.nav[item.key]}
@@ -124,7 +124,7 @@ export function MobileNav({ locale }: { locale: Locale }) {
     <div className="sm:hidden">
       <button
         type="button"
-        className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md border border-border bg-white text-foreground transition hover:bg-muted"
+        className="inline-flex min-h-12 min-w-12 items-center justify-center rounded-md border border-border bg-white text-foreground transition hover:bg-muted"
         aria-expanded={open}
         aria-controls="mobile-nav-panel"
         aria-label={open ? m.close : m.open}
@@ -133,7 +133,10 @@ export function MobileNav({ locale }: { locale: Locale }) {
         {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
       </button>
 
-      {mounted && createPortal(<MobileNavPanel locale={locale} open={open} onClose={close} />, document.body)}
+      {/* Mount the drawer only while open to keep the closed-page DOM smaller. */}
+      {mounted && open
+        ? createPortal(<MobileNavPanel locale={locale} open={open} onClose={close} />, document.body)
+        : null}
     </div>
   );
 }
