@@ -44,10 +44,13 @@ File draft mặc định: `tmp/marketing-drafts.md`
 
 ### Env
 ```bash
-X_ACCESS_TOKEN=...          # user access token
+X_ACCESS_TOKEN=...          # OAuth 2.0 *User Context* access token of @PregMealTips
 # optional alias
 TWITTER_ACCESS_TOKEN=...
 ```
+
+> App-only Bearer token (thường ngắn, từ “Bearer Token” trong portal) **không** đăng được tweet.  
+> Cần OAuth 2.0 Authorization Code (PKCE) / user token với scope `tweet.write`.
 
 ### Đăng thật
 ```bash
@@ -73,8 +76,18 @@ curl "https://graph.facebook.com/v21.0/PregnancyMealPlanner?fields=id,name&acces
 
 ### Env
 ```bash
-FACEBOOK_PAGE_ACCESS_TOKEN=...
-FACEBOOK_PAGE_ID=...          # numeric id (khuyến nghị)
+FACEBOOK_PAGE_ACCESS_TOKEN=...   # Page token (from /me/accounts), NOT user token
+FACEBOOK_PAGE_ID=1139881852552831  # Pregnancy Meal Planner (numeric). Do not use portfolio IDs like 6159…
+```
+
+### Quyền bắt buộc để đăng bài
+Trong Meta App → App Review / Graph API Explorer, token cần có:
+- `pages_read_engagement`
+- `pages_manage_posts`  ← thiếu quyền này thì Graph trả lỗi `#200`
+
+Lấy Page token đúng:
+```bash
+curl "https://graph.facebook.com/v21.0/me/accounts?fields=id,name,access_token&access_token=USER_TOKEN"
 ```
 
 ### Đăng thật
