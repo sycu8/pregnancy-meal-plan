@@ -146,7 +146,7 @@ export const landingContent = {
     intro:
       "Create a 7-day pregnancy meal plan based on gestational week, weight, taste, budget and common concerns such as nausea, constipation, anemia or gestational diabetes — with shopping lists and food-safety notes.",
     primaryCta: "Create a free plan",
-    secondaryCta: "View history",
+    secondaryCta: "Read pregnancy nutrition tips",
     highlights: ["Free to start", "No sign-in required", "Practical everyday meals", "Shopping list included"],
     cardLabel: "Gentle personalization",
     cardTitle: "From pregnancy basics to specific meals",
@@ -162,7 +162,7 @@ export const landingContent = {
     intro:
       "Tạo thực đơn 7 ngày theo tuần thai, cân nặng, khẩu vị, ngân sách và triệu chứng khi mang bầu, kèm danh sách đi chợ và lưu ý an toàn thực phẩm.",
     primaryCta: "Tạo thực đơn miễn phí",
-    secondaryCta: "Xem lịch sử",
+    secondaryCta: "Đọc kiến thức dinh dưỡng mẹ bầu",
     highlights: ["Miễn phí giai đầu", "Không cần đăng nhập", "Món dễ nấu", "Có danh sách đi chợ"],
     cardLabel: "Cá nhân hóa nhẹ nhàng",
     cardTitle: "Từ thông tin đến bữa ăn cụ thể",
@@ -174,14 +174,60 @@ export const landingContent = {
   }
 } as const;
 
+/** Thin app shells that should not compete in the index. */
+const NOINDEX_PAGES = new Set<PageKey>(["history", "profile", "result"]);
+
+const DEFAULT_OG_IMAGE = "/og-default.png";
+
+function siteMetadataBase() {
+  return new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://pregnancymeal.tips");
+}
+
+/** Layout-only defaults — never set a homepage canonical here (child pages inherit it). */
+export function createRootLayoutMetadata(locale: Locale): Metadata {
+  const seo = pageSeo[locale].home;
+  return {
+    metadataBase: siteMetadataBase(),
+    title: {
+      default: seo.title,
+      template: `%s | ${BRAND_NAME}`
+    },
+    description: seo.description,
+    keywords: seo.keywords,
+    openGraph: {
+      siteName: BRAND_NAME,
+      locale: locale === "vi" ? "vi_VN" : "en_US",
+      alternateLocale: locale === "vi" ? ["en_US"] : ["vi_VN"],
+      type: "website",
+      images: [{ url: DEFAULT_OG_IMAGE, width: 1200, height: 630, alt: BRAND_NAME }]
+    },
+    twitter: {
+      card: "summary_large_image",
+      images: [DEFAULT_OG_IMAGE]
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+        "max-video-preview": -1
+      }
+    }
+  };
+}
+
 export function createPageMetadata(locale: Locale, page: PageKey): Metadata {
   const seo = pageSeo[locale][page];
   const routePath = pagePaths[page];
   const canonical = localizedPath(locale, routePath);
+  const indexable = !NOINDEX_PAGES.has(page);
 
   return {
-    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://pregnancymeal.tips"),
-    title: seo.title,
+    metadataBase: siteMetadataBase(),
+    title: { absolute: seo.title },
     description: seo.description,
     keywords: seo.keywords,
     alternates: {
@@ -199,23 +245,100 @@ export function createPageMetadata(locale: Locale, page: PageKey): Metadata {
       siteName: BRAND_NAME,
       locale: locale === "vi" ? "vi_VN" : "en_US",
       alternateLocale: locale === "vi" ? ["en_US"] : ["vi_VN"],
-      type: "website"
+      type: "website",
+      images: [{ url: DEFAULT_OG_IMAGE, width: 1200, height: 630, alt: seo.title }]
     },
     twitter: {
       card: "summary_large_image",
       title: seo.title,
-      description: seo.description
+      description: seo.description,
+      images: [DEFAULT_OG_IMAGE]
     },
     robots: {
-      index: true,
+      index: indexable,
       follow: true,
       googleBot: {
-        index: true,
+        index: indexable,
         follow: true,
         "max-image-preview": "large",
         "max-snippet": -1,
         "max-video-preview": -1
       }
+    }
+  };
+}
+
+export type SimpleRouteSeo = {
+  title: string;
+  description: string;
+  keywords?: string[];
+  index?: boolean;
+};
+
+/** Full metadata for secondary routes (support, premium, privacy, account, topics). */
+export function createRouteMetadata(locale: Locale, pathname: string, seo: SimpleRouteSeo): Metadata {
+  const canonical = localizedPath(locale, pathname);
+  const indexable = seo.index !== false;
+
+  return {
+    metadataBase: siteMetadataBase(),
+    title: { absolute: seo.title },
+    description: seo.description,
+    keywords: seo.keywords,
+    alternates: {
+      canonical,
+      languages: {
+        "en-US": localizedPath("en", pathname),
+        "vi-VN": localizedPath("vi", pathname),
+        "x-default": localizedPath("en", pathname)
+      }
+    },
+    openGraph: {
+      title: seo.title,
+      description: seo.description,
+      url: canonical,
+      siteName: BRAND_NAME,
+      locale: locale === "vi" ? "vi_VN" : "en_US",
+      alternateLocale: locale === "vi" ? ["en_US"] : ["vi_VN"],
+      type: "website",
+      images: [{ url: DEFAULT_OG_IMAGE, width: 1200, height: 630, alt: seo.title }]
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: seo.title,
+      description: seo.description,
+      images: [DEFAULT_OG_IMAGE]
+    },
+    robots: {
+      index: indexable,
+      follow: true
+    }
+  };
+}
+
+export function createNotFoundMetadata(locale: Locale): Metadata {
+  const title = locale === "en" ? `Page not found | ${BRAND_NAME}` : `Không tìm thấy trang | ${BRAND_NAME}`;
+  const description =
+    locale === "en"
+      ? "This page does not exist. Return home or open the free pregnancy meal planner instead."
+      : "Trang này không tồn tại. Quay về trang chủ hoặc mở trình tạo thực đơn mẹ bầu miễn phí.";
+
+  return {
+    metadataBase: siteMetadataBase(),
+    title: { absolute: title },
+    description,
+    robots: { index: false, follow: true },
+    openGraph: {
+      title,
+      description,
+      siteName: BRAND_NAME,
+      images: [{ url: DEFAULT_OG_IMAGE, width: 1200, height: 630, alt: BRAND_NAME }]
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [DEFAULT_OG_IMAGE]
     }
   };
 }

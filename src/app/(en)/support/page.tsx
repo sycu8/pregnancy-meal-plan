@@ -2,13 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { AgentClaimVerify } from "@/components/shared/AgentClaimVerify";
 import { faqContent } from "@/lib/faq";
-import { faqPageStructuredData, localizedPath } from "@/lib/i18n";
+import { createRouteMetadata, faqPageStructuredData, localizedPath } from "@/lib/i18n";
 import { DEFAULT_SITE_URL, SITE_HOST, SUPPORT_EMAIL, SUPPORT_EMAIL_MAILTO } from "@/lib/site";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createRouteMetadata("en", "/support", {
   title: "Support | Pregnancy Meal Planner",
-  description: "Contact support, read FAQ answers, and learn how Pregnancy Meal Planner works."
-};
+  description:
+    "Get help with Pregnancy Meal Planner: meal plan questions, account and billing support, privacy requests, and FAQ answers for English and Vietnamese users."
+});
 
 export default function EnSupportPage() {
   return (

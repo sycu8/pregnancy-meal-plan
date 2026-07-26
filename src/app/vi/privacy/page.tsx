@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import { createRouteMetadata } from "@/lib/i18n";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createRouteMetadata("vi", "/privacy", {
   title: "Chính sách quyền riêng tư | Pregnancy Meal Planner",
-  description: "Cách Pregnancy Meal Planner lưu trữ dữ liệu trên trình duyệt và khi bạn chọn đồng bộ."
-};
+  description:
+    "Tìm hiểu cách Pregnancy Meal Planner lưu hồ sơ và thực đơn trên trình duyệt, đồng bộ đám mây tùy chọn và lựa chọn quyền riêng tư của bạn."
+});
 
 export default function PrivacyPage() {
   return (

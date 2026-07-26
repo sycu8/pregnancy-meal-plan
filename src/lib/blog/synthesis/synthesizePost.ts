@@ -136,7 +136,7 @@ export function synthesizePost(input: SynthesisInput): SynthesisOutput {
     category,
     tags,
     metaTitle: `${topicVi} | Pregnancy Meal Planner`.slice(0, 70),
-    metaDescription: snippetVi.slice(0, 160),
+    metaDescription: clampMetaDescription(snippetVi, topicVi, "vi"),
     imagePrompt: buildImagePrompt(topicEn, category),
     faqs: faqsVi,
     en: {
@@ -144,7 +144,7 @@ export function synthesizePost(input: SynthesisInput): SynthesisOutput {
       excerpt: snippetEn,
       content: contentEn,
       metaTitle: `${topicEn} | Pregnancy Meal Planner`.slice(0, 70),
-      metaDescription: snippetEn.slice(0, 160),
+      metaDescription: clampMetaDescription(snippetEn, topicEn, "en"),
       faqs: faqsEn
     },
     usedAi: false
@@ -173,7 +173,7 @@ HARD RULES:
   "category": one of ${CATEGORY_SLUGS.join("|")},
   "tags": string[] (3-6 English kebab-case SEO tags, e.g. pregnancy-meal-plan, prenatal-nutrition, postpartum),
   "metaTitle": string (<=60 chars, Vietnamese),
-  "metaDescription": string (<=155 chars, Vietnamese),
+  "metaDescription": string (100-155 chars, Vietnamese),
   "imagePrompt": string (English, photorealistic, no text overlays),
   "faqs": [{"question": string, "answer": string}] (3 Vietnamese FAQ items),
   "en": {
@@ -181,7 +181,7 @@ HARD RULES:
     "excerpt": string (<=220 chars, English),
     "content": string (English markdown, 700-1200 words),
     "metaTitle": string (<=60 chars, English),
-    "metaDescription": string (<=155 chars, English),
+    "metaDescription": string (100-155 chars, English),
     "faqs": [{"question": string, "answer": string}] (3 English FAQ items)
   }
 }
@@ -240,7 +240,7 @@ SEO keywords VI: thực đơn mẹ bầu, dinh dưỡng thai kỳ, tiểu đư�
       category,
       tags: tags.length ? tags : fallback.tags,
       metaTitle: String(parsed.metaTitle || `${title} | Pregnancy Meal Planner`).slice(0, 70),
-      metaDescription: String(parsed.metaDescription || excerpt).slice(0, 160),
+      metaDescription: clampMetaDescription(String(parsed.metaDescription || excerpt), title, "vi"),
       imagePrompt: String(parsed.imagePrompt || buildImagePrompt(en.title, category)).slice(0, 500),
       faqs,
       en: {
@@ -343,9 +343,38 @@ function normalizeEn(value: unknown): SynthesisLocaleBlock | undefined {
     excerpt: excerpt.slice(0, 220),
     content,
     metaTitle: String(row.metaTitle || `${title} | Pregnancy Meal Planner`).slice(0, 70),
-    metaDescription: String(row.metaDescription || excerpt).slice(0, 160),
+    metaDescription: clampMetaDescription(String(row.metaDescription || excerpt), title, "en"),
     faqs
   };
+}
+
+/** Keep SERP snippets in the 100–155 character band used site-wide. */
+export function clampMetaDescription(input: string, title: string, locale: "en" | "vi"): string {
+  const MIN = 100;
+  const MAX = 155;
+  let text = String(input || "").trim().replace(/\s+/g, " ");
+  if (!text) text = title.trim();
+  if (!/[.!?…]$/.test(text)) text += ".";
+
+  if (text.length < MIN) {
+    const suffix =
+      locale === "en"
+        ? " Practical tips for pregnancy and early parenting — educational reference only."
+        : " Gợi ý thực tế cho mẹ bầu và chăm con nhỏ — chỉ mang tính tham khảo giáo dục.";
+    text = `${text.replace(/[.!?…]$/, "")}.${suffix}`.replace(/\s+/g, " ").trim();
+  }
+
+  if (text.length > MAX) {
+    text = text.slice(0, MAX - 1).replace(/\s+\S*$/, "").trim();
+    if (!/[.!?…]$/.test(text)) text += ".";
+  }
+
+  if (text.length < MIN) {
+    const pad = locale === "en" ? " Read more on Pregnancy Meal Planner." : " Đọc thêm trên Pregnancy Meal Planner.";
+    text = `${text.replace(/[.!?…]$/, "")}.${pad}`.trim().slice(0, MAX);
+  }
+
+  return text;
 }
 
 function guessCategory(title: string, snippet: string): BlogCategorySlug {

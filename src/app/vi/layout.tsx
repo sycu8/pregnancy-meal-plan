@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { SiteChrome } from "@/components/shared/SiteChrome";
 import { beVietnamPro } from "@/lib/fonts";
-import { createPageMetadata } from "@/lib/i18n";
+import { createRootLayoutMetadata } from "@/lib/i18n";
 import { siteViewport } from "@/lib/viewport";
 import "../globals.css";
 
-export const metadata: Metadata = createPageMetadata("vi", "home");
+export const metadata: Metadata = createRootLayoutMetadata("vi");
 export const viewport = siteViewport;
 
 export default function VietnameseRootLayout({ children }: { children: React.ReactNode }) {

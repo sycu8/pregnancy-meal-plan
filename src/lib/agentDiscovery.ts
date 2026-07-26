@@ -22,17 +22,26 @@ export const contentSignal = "ai-train=no, search=yes, ai-input=yes";
 const publicPages: { page: PageKey; locale: Locale; priority: string; changefreq: string }[] = [
   { page: "home", locale: "en", priority: "1.0", changefreq: "weekly" },
   { page: "planner", locale: "en", priority: "0.9", changefreq: "weekly" },
-  { page: "history", locale: "en", priority: "0.4", changefreq: "monthly" },
-  { page: "profile", locale: "en", priority: "0.4", changefreq: "monthly" },
-  { page: "result", locale: "en", priority: "0.5", changefreq: "monthly" },
   { page: "home", locale: "vi", priority: "0.8", changefreq: "weekly" },
-  { page: "planner", locale: "vi", priority: "0.7", changefreq: "weekly" },
-  { page: "history", locale: "vi", priority: "0.3", changefreq: "monthly" },
-  { page: "profile", locale: "vi", priority: "0.3", changefreq: "monthly" },
-  { page: "result", locale: "vi", priority: "0.4", changefreq: "monthly" }
+  { page: "planner", locale: "vi", priority: "0.7", changefreq: "weekly" }
 ];
 
-export const publicSiteUrls = publicPages.map((entry) => absoluteUrl(localizedPath(entry.locale, pagePaths[entry.page])));
+/** Indexable marketing/legal routes that are not part of PageKey. */
+const publicStaticRoutes: { path: string; locale: Locale; priority: string; changefreq: string }[] = [
+  { path: "/support", locale: "en", priority: "0.6", changefreq: "monthly" },
+  { path: "/premium", locale: "en", priority: "0.7", changefreq: "monthly" },
+  { path: "/privacy", locale: "en", priority: "0.4", changefreq: "yearly" },
+  { path: "/blog/topics", locale: "en", priority: "0.7", changefreq: "weekly" },
+  { path: "/support", locale: "vi", priority: "0.5", changefreq: "monthly" },
+  { path: "/premium", locale: "vi", priority: "0.6", changefreq: "monthly" },
+  { path: "/privacy", locale: "vi", priority: "0.3", changefreq: "yearly" },
+  { path: "/blog/topics", locale: "vi", priority: "0.6", changefreq: "weekly" }
+];
+
+export const publicSiteUrls = [
+  ...publicPages.map((entry) => absoluteUrl(localizedPath(entry.locale, pagePaths[entry.page]))),
+  ...publicStaticRoutes.map((entry) => absoluteUrl(localizedPath(entry.locale, entry.path)))
+];
 
 export const apiCatalog = {
   linkset: [
@@ -522,16 +531,24 @@ function safePosts(locale: Locale = "en") {
 
 export function sitemapXml() {
   const updated = new Date().toISOString().slice(0, 10);
-  const pageEntries = publicPages
-    .map(
+  const pageEntries = [
+    ...publicPages.map(
       (entry) => `  <url>
     <loc>${escapeXml(absoluteUrl(localizedPath(entry.locale, pagePaths[entry.page])))}</loc>
     <lastmod>${updated}</lastmod>
     <changefreq>${entry.changefreq}</changefreq>
     <priority>${entry.priority}</priority>
   </url>`
+    ),
+    ...publicStaticRoutes.map(
+      (entry) => `  <url>
+    <loc>${escapeXml(absoluteUrl(localizedPath(entry.locale, entry.path)))}</loc>
+    <lastmod>${updated}</lastmod>
+    <changefreq>${entry.changefreq}</changefreq>
+    <priority>${entry.priority}</priority>
+  </url>`
     )
-    .join("\n");
+  ].join("\n");
 
   const blogIndex = ["vi", "en"]
     .map(
@@ -597,7 +614,7 @@ export function markdownForPath(pathname: string): string | null {
 
   const copy = landingContent[locale];
   const planner = absoluteUrl(localizedPath(locale, "/planner"));
-  const history = absoluteUrl(localizedPath(locale, "/history"));
+  const blog = absoluteUrl(localizedPath(locale, "/blog"));
   const apiCatalogUrl = absoluteUrl("/.well-known/api-catalog");
 
   return `# ${copy.headline}
@@ -609,7 +626,7 @@ ${copy.intro}
 ## Actions
 
 - [${copy.primaryCta}](${planner})
-- [${copy.secondaryCta}](${history})
+- [${copy.secondaryCta}](${blog})
 
 ## Highlights
 

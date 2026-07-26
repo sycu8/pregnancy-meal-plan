@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   BRAND_NAME,
+  createPageMetadata,
+  createRouteMetadata,
   faqPageStructuredData,
   localizedPath,
   pageSeo,
@@ -50,5 +52,29 @@ describe("i18n routing", () => {
     expect(faq["@type"]).toBe("FAQPage");
     expect(faq.mainEntity.length).toBeGreaterThan(0);
     expect(faq.url).toContain("/support");
+  });
+
+  it("uses per-route canonicals and noindexes thin app shells", () => {
+    const support = createRouteMetadata("en", "/support", {
+      title: "Support | Pregnancy Meal Planner",
+      description:
+        "Get help with Pregnancy Meal Planner: meal plan questions, account and billing support, privacy requests, and FAQ answers for English and Vietnamese users."
+    });
+    expect(support.alternates?.canonical).toBe("/support");
+    expect(support.openGraph?.url).toBe("/support");
+    expect(support.robots).toMatchObject({ index: true, follow: true });
+
+    const history = createPageMetadata("en", "history");
+    expect(history.alternates?.canonical).toBe("/history");
+    expect(history.robots).toMatchObject({ index: false, follow: true });
+
+    const account = createRouteMetadata("vi", "/account", {
+      title: "Tài khoản | Pregnancy Meal Planner",
+      description:
+        "Đăng nhập để quản lý tài khoản Pregnancy Meal Planner, đồng bộ thực đơn đã lưu, trạng thái Premium và tùy chọn ngôn ngữ.",
+      index: false
+    });
+    expect(account.alternates?.canonical).toBe("/vi/account");
+    expect(account.robots).toMatchObject({ index: false, follow: true });
   });
 });
