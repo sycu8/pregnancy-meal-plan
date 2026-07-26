@@ -5,6 +5,7 @@ import babyLedWeaningLaGi from "../../../content/blog/posts/baby-led-weaning-la-
 import baoQuanSuaMeAnToan from "../../../content/blog/posts/bao-quan-sua-me-an-toan.json";
 import batMiPhuNuSauSinhAnMuopDuocKhongVaNhungCongDungTuMuopChoSanPhu from "../../../content/blog/posts/bat-mi-phu-nu-sau-sinh-an-muop-duoc-khong-va-nhung-cong-dung-tu-muop-cho-san-phu.json";
 import biTieuDuongThaiKyAnBanhMiDuocKhongNenAnLoaiNao73207 from "../../../content/blog/posts/bi-tieu-duong-thai-ky-an-banh-mi-duoc-khong-nen-an-loai-nao-73207.json";
+import boSungDhaOmega3 from "../../../content/blog/posts/bo-sung-dha-omega3.json";
 import caffeineKhiMangThai from "../../../content/blog/posts/caffeine-khi-mang-thai.json";
 import canNangThaiNhiTieuChuan from "../../../content/blog/posts/can-nang-thai-nhi-tieu-chuan.json";
 import canxiVaVitaminDKhiMangThai from "../../../content/blog/posts/canxi-va-vitamin-d-khi-mang-thai.json";
@@ -82,6 +83,8 @@ import thucDonMauTre612Thang from "../../../content/blog/posts/thuc-don-mau-tre-
 import thucDonMauTuanChoMeBauTamCaNguyet2 from "../../../content/blog/posts/thuc-don-mau-tuan-cho-me-bau-tam-ca-nguyet-2.json";
 import thucDonMauTuanTamCaNguyet3 from "../../../content/blog/posts/thuc-don-mau-tuan-tam-ca-nguyet-3.json";
 import thucDonMeBauTieuDuongGoiY from "../../../content/blog/posts/thuc-don-me-bau-tieu-duong-goi-y.json";
+import thucDonThieuMau from "../../../content/blog/posts/thuc-don-thieu-mau.json";
+import thucPhamCanTranhMeBau from "../../../content/blog/posts/thuc-pham-can-tranh-me-bau.json";
 import thucPhamNenTranhKhiMangThai from "../../../content/blog/posts/thuc-pham-nen-tranh-khi-mang-thai.json";
 import thuocNaoSeGaySayThaiVi from "../../../content/blog/posts/thuoc-nao-se-gay-say-thai-vi.json";
 import tiemChungMeBauVaSauSinh from "../../../content/blog/posts/tiem-chung-me-bau-va-sau-sinh.json";
@@ -106,6 +109,7 @@ export const postManifest: BlogPost[] = [
   baoQuanSuaMeAnToan,
   batMiPhuNuSauSinhAnMuopDuocKhongVaNhungCongDungTuMuopChoSanPhu,
   biTieuDuongThaiKyAnBanhMiDuocKhongNenAnLoaiNao73207,
+  boSungDhaOmega3,
   caffeineKhiMangThai,
   canNangThaiNhiTieuChuan,
   canxiVaVitaminDKhiMangThai,
@@ -183,6 +187,8 @@ export const postManifest: BlogPost[] = [
   thucDonMauTuanChoMeBauTamCaNguyet2,
   thucDonMauTuanTamCaNguyet3,
   thucDonMeBauTieuDuongGoiY,
+  thucDonThieuMau,
+  thucPhamCanTranhMeBau,
   thucPhamNenTranhKhiMangThai,
   thuocNaoSeGaySayThaiVi,
   tiemChungMeBauVaSauSinh,
