@@ -130,10 +130,16 @@ Nguồn cảm hứng (không copy): ${input.sourceName} — ${input.url}
       ],
       { config: options.config, temperature: 0.4, maxTokens: 4500 }
     );
-    if (!raw) return fallback;
+    if (!raw) {
+      console.warn("[synthesize] empty AI response — using template fallback");
+      return fallback;
+    }
 
     const parsed = parseJsonObject(raw);
-    if (!parsed) return fallback;
+    if (!parsed) {
+      console.warn(`[synthesize] JSON parse failed — using template. raw head: ${raw.slice(0, 220)}`);
+      return fallback;
+    }
 
     const category = normalizeCategory(parsed.category) ?? fallback.category;
     const tags = Array.isArray(parsed.tags)
@@ -143,7 +149,10 @@ Nguồn cảm hứng (không copy): ${input.sourceName} — ${input.url}
     const title = String(parsed.title || input.title).trim();
     const excerpt = String(parsed.excerpt || fallback.excerpt).trim().slice(0, 220);
     const content = String(parsed.content || "").trim();
-    if (content.length < 400) return fallback;
+    if (content.length < 400) {
+      console.warn(`[synthesize] content too short (${content.length}) — using template fallback`);
+      return fallback;
+    }
 
     const faqs = normalizeFaqs(parsed.faqs) ?? fallback.faqs;
     const en = normalizeEn(parsed.en);
