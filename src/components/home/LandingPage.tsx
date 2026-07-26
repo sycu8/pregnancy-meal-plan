@@ -1,16 +1,11 @@
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import { Button } from "@/components/shared/Button";
 import { Disclaimer } from "@/components/shared/Disclaimer";
 import { TrustedSources } from "@/components/shared/TrustedSources";
 import { PartnerBadges } from "@/components/shared/PartnerBadges";
 import { ReferralCapture } from "@/components/home/ReferralCapture";
+import { ReferralShare } from "@/components/home/ReferralShare";
 import { landingContent, localizedPath, type Locale } from "@/lib/i18n";
-
-const ReferralShare = dynamic(
-  () => import("@/components/home/ReferralShare").then((mod) => mod.ReferralShare),
-  { ssr: false, loading: () => null }
-);
 
 export function LandingPage({ locale }: { locale: Locale }) {
   const copy = landingContent[locale];

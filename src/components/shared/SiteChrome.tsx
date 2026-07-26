@@ -1,15 +1,10 @@
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import { UtensilsCrossed } from "lucide-react";
 import { localizedPath, siteCopy, type Locale } from "@/lib/i18n";
 import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
 import { MobileNav } from "@/components/shared/MobileNav";
+import { WebMcpRegistration } from "@/components/shared/WebMcpRegistration";
 import { CloudflareAnalytics } from "@/components/shared/CloudflareAnalytics";
-
-const WebMcpRegistration = dynamic(
-  () => import("@/components/shared/WebMcpRegistration").then((mod) => mod.WebMcpRegistration),
-  { ssr: false }
-);
 
 export function SiteChrome({ children, locale }: { children: React.ReactNode; locale: Locale }) {
   const copy = siteCopy[locale];
