@@ -29,11 +29,12 @@ describe("social hub + marketing MVP", () => {
     expect(socialSameAs).toHaveLength(3);
   });
 
-  it("builds facebook/x/tiktok drafts from a blog post", () => {
+  it("builds facebook/x drafts from a blog post (no TikTok)", () => {
     const drafts = draftsFromBlogPost(samplePost, ["en"]);
-    expect(drafts).toHaveLength(3);
-    expect(drafts.map((d) => d.platform).sort()).toEqual(["facebook", "tiktok", "x"]);
+    expect(drafts).toHaveLength(2);
+    expect(drafts.map((d) => d.platform).sort()).toEqual(["facebook", "x"]);
     expect(drafts.every((d) => d.link.includes("utm_source="))).toBe(true);
+    expect(drafts.some((d) => d.platform === ("tiktok" as never))).toBe(false);
 
     const x = drafts.find((d) => d.platform === "x");
     expect(x?.text.length).toBeLessThanOrEqual(280);

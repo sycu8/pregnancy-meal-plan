@@ -5,7 +5,7 @@ import { socialProfiles } from "@/lib/social/profiles";
 import { siteOrigin } from "@/lib/agentDiscovery";
 import type { Locale } from "@/lib/i18n";
 
-export type ConnectionState = "ready" | "blocked" | "missing" | "draft_only";
+export type ConnectionState = "ready" | "blocked" | "missing";
 
 function envPresent(name: string) {
   return Boolean(process.env[name]?.trim());
@@ -16,7 +16,6 @@ export function platformConnections() {
   const xRefresh = envPresent("X_REFRESH_TOKEN");
   const fbToken = envPresent("FACEBOOK_PAGE_ACCESS_TOKEN");
   const fbPage = envPresent("FACEBOOK_PAGE_ID");
-  const tiktok = envPresent("TIKTOK_ACCESS_TOKEN");
 
   return [
     {
@@ -43,17 +42,6 @@ export function platformConnections() {
           ? "Page token + page id present."
           : "Missing FACEBOOK_PAGE_ACCESS_TOKEN and/or FACEBOOK_PAGE_ID.",
       notes: ["Requires pages_manage_posts + pages_read_engagement scopes to publish."]
-    },
-    {
-      platform: "tiktok" as const,
-      label: "TikTok",
-      handle: "@pregnancymeal.tips",
-      href: socialProfiles.find((p) => p.platform === "tiktok")?.href,
-      state: (tiktok ? "ready" : "draft_only") as ConnectionState,
-      detail: tiktok
-        ? "TIKTOK_ACCESS_TOKEN present (upload still manual/MVP)."
-        : "Draft/caption only until Content Posting API is approved.",
-      notes: ["n8n/Zapier can still pull TikTok captions and post via TikTok’s own tools."]
     }
   ];
 }

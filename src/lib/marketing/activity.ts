@@ -1,5 +1,5 @@
 import { getBindings } from "@/lib/cloudflare/bindings";
-import type { SocialPlatform } from "@/lib/social/profiles";
+import type { MarketingPlatform } from "@/lib/marketing/drafts";
 
 const ACTIVITY_KEY = "marketing:activity:v1";
 const MAX_EVENTS = 40;
@@ -12,9 +12,9 @@ export type MarketingActivityEvent = {
   live: boolean;
   slug?: string;
   locale?: string;
-  platforms?: SocialPlatform[];
+  platforms?: MarketingPlatform[];
   results?: Array<{
-    platform: SocialPlatform;
+    platform: MarketingPlatform;
     ok: boolean;
     dryRun: boolean;
     id?: string;

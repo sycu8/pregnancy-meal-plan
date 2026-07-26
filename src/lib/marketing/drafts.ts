@@ -1,11 +1,14 @@
 import type { BlogPost } from "@/types/blog";
 import { localizedPath, type Locale } from "@/lib/i18n";
 import { siteOrigin } from "@/lib/agentDiscovery";
-import { withUtm, type SocialPlatform } from "@/lib/social/profiles";
+import { withUtm } from "@/lib/social/profiles";
+
+/** Platforms supported by the marketing draft/publish pipeline. */
+export type MarketingPlatform = "facebook" | "x";
 
 export type SocialDraft = {
   id: string;
-  platform: SocialPlatform;
+  platform: MarketingPlatform;
   locale: Locale;
   text: string;
   link: string;
@@ -13,17 +16,19 @@ export type SocialDraft = {
   createdAt: string;
 };
 
+export const MARKETING_PLATFORMS: MarketingPlatform[] = ["facebook", "x"];
+
 function truncate(text: string, max: number) {
   const clean = text.replace(/\s+/g, " ").trim();
   if (clean.length <= max) return clean;
   return `${clean.slice(0, max - 1).replace(/\s+\S*$/, "").trim()}…`;
 }
 
-function postLink(slug: string, locale: Locale, platform: SocialPlatform) {
+function postLink(slug: string, locale: Locale, platform: MarketingPlatform) {
   return withUtm(`${siteOrigin}${localizedPath(locale, `/blog/${slug}`)}`, platform, "blog_share");
 }
 
-/** Turn one blog post into platform-ready captions (EN + VI when available). */
+/** Turn one blog post into Facebook + X captions (EN + VI when available). */
 export function draftsFromBlogPost(post: BlogPost, locales: Locale[] = ["en"]): SocialDraft[] {
   const createdAt = new Date().toISOString();
   const drafts: SocialDraft[] = [];
@@ -33,7 +38,7 @@ export function draftsFromBlogPost(post: BlogPost, locales: Locale[] = ["en"]): 
     const excerpt = post.excerpt || post.metaDescription || "";
     const tip = truncate(excerpt, locale === "en" ? 180 : 160);
 
-    for (const platform of ["facebook", "x", "tiktok"] as const) {
+    for (const platform of MARKETING_PLATFORMS) {
       const link = postLink(post.slug, locale, platform);
 
       let text: string;
@@ -43,16 +48,11 @@ export function draftsFromBlogPost(post: BlogPost, locales: Locale[] = ["en"]): 
             ? `${title}\n\n${tip}\n\nEducational tip only — not medical advice.\nRead more:`
             : `${title}\n\n${tip}\n\nChỉ mang tính tham khảo giáo dục — không thay thế bác sĩ.\nĐọc thêm:`;
         text = `${body}\n${link}`;
-      } else if (platform === "x") {
+      } else {
         // Keep the full URL intact — truncate caption only, then append link.
         const maxCaption = Math.max(80, 280 - link.length - 1);
         const caption = truncate(`${title} — ${tip}`, maxCaption);
         text = `${caption} ${link}`;
-      } else {
-        text =
-          locale === "en"
-            ? `Hook: ${truncate(title, 70)}\nScript: ${tip}\nCTA: Free planner → pregnancymeal.tips/planner\n#PregnancyMealPlan #PrenatalNutrition`
-            : `Hook: ${truncate(title, 70)}\nScript: ${tip}\nCTA: Planner miễn phí → pregnancymeal.tips/vi/planner\n#ThucDonMeBau #DinhDuongThaiKy`;
       }
 
       drafts.push({
@@ -80,4 +80,8 @@ ${draft.text}
 ---`
     )
     .join("\n\n");
+}
+
+export function isMarketingPlatform(value: string): value is MarketingPlatform {
+  return value === "x" || value === "facebook";
 }

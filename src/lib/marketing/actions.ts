@@ -6,7 +6,7 @@ import { draftsFromBlogPost } from "@/lib/marketing/drafts";
 import { publishDraft } from "@/lib/marketing/publishers";
 import { appendMarketingActivity } from "@/lib/marketing/activity";
 import type { Locale } from "@/lib/i18n";
-import type { SocialPlatform } from "@/lib/social/profiles";
+import type { MarketingPlatform } from "@/lib/marketing/drafts";
 
 export type PortalPublishResult = {
   ok: boolean;
@@ -19,11 +19,11 @@ export type PortalPublishResult = {
 export async function publishLatestFromPortal(input: {
   locale: Locale;
   live: boolean;
-  platforms?: SocialPlatform[];
+  platforms?: MarketingPlatform[];
 }): Promise<PortalPublishResult> {
   const locale = input.locale === "vi" ? "vi" : "en";
   const live = Boolean(input.live);
-  const platforms = new Set<SocialPlatform>(input.platforms?.length ? input.platforms : ["x", "facebook"]);
+  const platforms = new Set<MarketingPlatform>(input.platforms?.length ? input.platforms : ["x", "facebook"]);
 
   const post = getAllPosts(locale)[0];
   if (!post) {

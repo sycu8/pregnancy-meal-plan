@@ -12,7 +12,7 @@ import { getPostBySlug, getAllPosts } from "../src/lib/blog/posts";
 import { draftsFromBlogPost } from "../src/lib/marketing/drafts";
 import { publishDraft } from "../src/lib/marketing/publishers";
 import type { Locale } from "../src/lib/i18n";
-import type { SocialPlatform } from "../src/lib/social/profiles";
+import { isMarketingPlatform, type MarketingPlatform } from "../src/lib/marketing/drafts";
 
 function arg(name: string) {
   const hit = process.argv.find((part) => part.startsWith(`--${name}=`));
@@ -22,11 +22,11 @@ function arg(name: string) {
 const live = process.argv.includes("--live");
 const slug = arg("slug");
 const locale = (arg("locale") as Locale | undefined) ?? "en";
-const platforms = new Set(
-  (arg("platforms") ?? "facebook,x,tiktok")
+const platforms = new Set<MarketingPlatform>(
+  (arg("platforms") ?? "facebook,x")
     .split(",")
     .map((value) => value.trim())
-    .filter(Boolean) as SocialPlatform[]
+    .filter(isMarketingPlatform)
 );
 
 const post = slug ? getPostBySlug(slug, locale) : getAllPosts(locale)[0];

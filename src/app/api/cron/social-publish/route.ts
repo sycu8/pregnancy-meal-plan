@@ -1,10 +1,9 @@
 import { NextResponse } from "next/server";
 import { getAllPosts } from "@/lib/blog/posts";
-import { draftsFromBlogPost } from "@/lib/marketing/drafts";
+import { draftsFromBlogPost, isMarketingPlatform } from "@/lib/marketing/drafts";
 import { publishDraft } from "@/lib/marketing/publishers";
 import { assertMarketingAuth } from "@/lib/marketing/auth";
 import { appendMarketingActivity } from "@/lib/marketing/activity";
-import type { SocialPlatform } from "@/lib/social/profiles";
 
 export const runtime = "nodejs";
 
@@ -25,7 +24,7 @@ export async function POST(request: Request) {
     (url.searchParams.get("platforms") ?? "x,facebook")
       .split(",")
       .map((value) => value.trim())
-      .filter((value): value is SocialPlatform => value === "x" || value === "facebook" || value === "tiktok")
+      .filter(isMarketingPlatform)
   );
 
   const post = getAllPosts(locale)[0];

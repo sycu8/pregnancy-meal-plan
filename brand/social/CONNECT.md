@@ -103,18 +103,8 @@ npm run marketing:publish -- --slug=<blog-slug> --platforms=facebook --live
 
 ## 3) TikTok (@pregnancymeal.tips)
 
-TikTok **Content Posting API** cần duyệt app (không post video bằng token cá nhân đơn giản như X).
-
-MVP hiện tại:
-- Tạo **script/caption draft** sẵn (`marketing:drafts`)
-- Dry-run publisher báo thiếu `TIKTOK_ACCESS_TOKEN`
-- Đăng tay trong TikTok Creator / đăng sau khi app được duyệt
-
-Khi có app:
-```bash
-TIKTOK_ACCESS_TOKEN=...
-```
-Sau đó mở rộng `src/lib/marketing/publishers.ts` để upload video (inbox/direct post).
+TikTok vẫn có trên social hub công khai, nhưng **không còn trong marketing tool** (draft queue / publish / cron / Zapier).  
+Đăng TikTok thủ công ngoài pipeline nếu cần.
 
 ---
 
@@ -127,8 +117,6 @@ npx wrangler secret put CRON_SECRET
 npx wrangler secret put X_ACCESS_TOKEN
 npx wrangler secret put FACEBOOK_PAGE_ACCESS_TOKEN
 npx wrangler secret put FACEBOOK_PAGE_ID
-# optional later
-npx wrangler secret put TIKTOK_ACCESS_TOKEN
 ```
 
 Local `.dev.vars` / `.env.local`:
@@ -173,7 +161,7 @@ Portal load status trực tiếp trên server; nút dry-run/live dùng Server Ac
 
 Portal hiển thị:
 
-- Trạng thái kết nối X / Facebook / TikTok  
+- Trạng thái kết nối X / Facebook  
 - Draft queue từ blog mới nhất  
 - Activity log (dry-run / live)  
 - Endpoint sẵn cho automation  
@@ -252,7 +240,6 @@ Dry-run trước (`live: false`). Khi X có credit và Facebook có `pages_manag
 - [ ] Kết nối X token → `marketing:publish --platforms=x --live`  
 - [ ] Kết nối Facebook Page token → `--platforms=facebook --live`  
 - [ ] Bật cron dry-run 3 ngày, rồi `live=1`  
-- [ ] TikTok: đăng tay theo draft cho đến khi API được duyệt  
 
 ---
 

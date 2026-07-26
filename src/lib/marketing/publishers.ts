@@ -121,32 +121,7 @@ export async function publishToFacebook(draft: SocialDraft, options: PublishOpti
   return { platform: "facebook", ok: true, dryRun: false, id: data.id };
 }
 
-/**
- * TikTok Content Posting API requires app review + user access token.
- * MVP keeps drafts + dry-run until credentials are connected.
- */
-export async function publishToTikTok(draft: SocialDraft, options: PublishOptions = {}): Promise<PublishResult> {
-  const token = env("TIKTOK_ACCESS_TOKEN");
-  if (options.dryRun || !token) {
-    return {
-      platform: "tiktok",
-      ok: true,
-      dryRun: true,
-      id: `dry-run-tt-${draft.id}`,
-      error: token ? undefined : "missing TIKTOK_ACCESS_TOKEN (draft-only until Content Posting API approved)"
-    };
-  }
-
-  return {
-    platform: "tiktok",
-    ok: false,
-    dryRun: false,
-    error: "TikTok video upload is not enabled in MVP — export draft and post via TikTok app/creator tools."
-  };
-}
-
 export async function publishDraft(draft: SocialDraft, options: PublishOptions = {}): Promise<PublishResult> {
   if (draft.platform === "x") return publishToX(draft, options);
-  if (draft.platform === "facebook") return publishToFacebook(draft, options);
-  return publishToTikTok(draft, options);
+  return publishToFacebook(draft, options);
 }

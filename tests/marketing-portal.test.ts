@@ -40,7 +40,8 @@ describe("marketing portal + automation auth", () => {
   it("builds marketing status with connections, queue and automation endpoints", async () => {
     const status = await getMarketingStatus("en");
     expect(status.ok).toBe(true);
-    expect(status.connections.length).toBe(3);
+    expect(status.connections.length).toBe(2);
+    expect(status.connections.map((c) => c.platform)).toEqual(["x", "facebook"]);
     expect(status.automation.endpoints.publish).toContain("/api/marketing/publish");
     expect(status.automation.endpoints.zapierHook).toContain("/api/marketing/hooks/zapier");
     expect(status.queue.count).toBeGreaterThan(0);

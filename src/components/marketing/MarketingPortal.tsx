@@ -25,7 +25,6 @@ const copy = {
     docs: "Automation recipes",
     stateReady: "ready",
     stateMissing: "missing",
-    stateDraft: "draft only",
     stateBlocked: "blocked",
     noActivity: "No activity yet."
   },
@@ -45,7 +44,6 @@ const copy = {
     docs: "Công thức tự động hóa",
     stateReady: "sẵn sàng",
     stateMissing: "thiếu token",
-    stateDraft: "chỉ draft",
     stateBlocked: "bị chặn",
     noActivity: "Chưa có activity."
   }
@@ -54,13 +52,11 @@ const copy = {
 function stateLabel(state: string, t: (typeof copy)[Locale]) {
   if (state === "ready") return t.stateReady;
   if (state === "missing") return t.stateMissing;
-  if (state === "draft_only") return t.stateDraft;
   return t.stateBlocked;
 }
 
 function stateClass(state: string) {
   if (state === "ready") return "bg-accent/15 text-accent";
-  if (state === "draft_only") return "bg-muted text-muted-foreground";
   return "bg-red-50 text-red-700";
 }
 

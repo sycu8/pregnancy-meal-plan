@@ -1,10 +1,9 @@
 import { NextResponse } from "next/server";
 import { getAllPosts, getPostBySlug } from "@/lib/blog/posts";
 import { assertMarketingAuth } from "@/lib/marketing/auth";
-import { draftsFromBlogPost } from "@/lib/marketing/drafts";
+import { draftsFromBlogPost, isMarketingPlatform, type MarketingPlatform } from "@/lib/marketing/drafts";
 import { publishDraft } from "@/lib/marketing/publishers";
 import { appendMarketingActivity } from "@/lib/marketing/activity";
-import type { SocialPlatform } from "@/lib/social/profiles";
 
 export const runtime = "nodejs";
 
@@ -55,8 +54,8 @@ export async function POST(request: Request) {
 
   const locale = body.locale === "vi" ? "vi" : "en";
   const live = body.live === true || body.live === "true" || body.live === "1";
-  const platforms = new Set<SocialPlatform>();
-  if (body.platform === "x" || body.platform === "facebook" || body.platform === "tiktok") {
+  const platforms = new Set<MarketingPlatform>();
+  if (body.platform && isMarketingPlatform(body.platform)) {
     platforms.add(body.platform);
   }
   const listed = Array.isArray(body.platforms)
@@ -65,7 +64,7 @@ export async function POST(request: Request) {
         .split(",")
         .map((p) => p.trim());
   for (const p of listed) {
-    if (p === "x" || p === "facebook" || p === "tiktok") platforms.add(p);
+    if (isMarketingPlatform(p)) platforms.add(p);
   }
 
   // If Zapier sends a fully composed text, publish that one platform draft.
