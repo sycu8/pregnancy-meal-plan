@@ -6,6 +6,7 @@ import baoQuanSuaMeAnToan from "../../../content/blog/posts/bao-quan-sua-me-an-t
 import batMiPhuNuSauSinhAnMuopDuocKhongVaNhungCongDungTuMuopChoSanPhu from "../../../content/blog/posts/bat-mi-phu-nu-sau-sinh-an-muop-duoc-khong-va-nhung-cong-dung-tu-muop-cho-san-phu.json";
 import biTieuDuongThaiKyAnBanhMiDuocKhongNenAnLoaiNao73207 from "../../../content/blog/posts/bi-tieu-duong-thai-ky-an-banh-mi-duoc-khong-nen-an-loai-nao-73207.json";
 import boSungDhaOmega3 from "../../../content/blog/posts/bo-sung-dha-omega3.json";
+import cachGiaiThoatConDauLungChoBaMeSauSinhVi from "../../../content/blog/posts/cach-giai-thoat-con-dau-lung-cho-ba-me-sau-sinh-vi.json";
 import caffeineKhiMangThai from "../../../content/blog/posts/caffeine-khi-mang-thai.json";
 import canNangThaiNhiTieuChuan from "../../../content/blog/posts/can-nang-thai-nhi-tieu-chuan.json";
 import canxiVaVitaminDKhiMangThai from "../../../content/blog/posts/canxi-va-vitamin-d-khi-mang-thai.json";
@@ -39,8 +40,11 @@ import kemVaMagieKhiMangThai from "../../../content/blog/posts/kem-va-magie-khi-
 import khamThaiLanDauTuanBaoNhieu from "../../../content/blog/posts/kham-thai-lan-dau-tuan-bao-nhieu.json";
 import lichKhamThaiDinhKy from "../../../content/blog/posts/lich-kham-thai-dinh-ky.json";
 import loangXuongSauSinh from "../../../content/blog/posts/loang-xuong-sau-sinh.json";
+import lyDoMeThuongDauLungSauSinhVi from "../../../content/blog/posts/ly-do-me-thuong-dau-lung-sau-sinh-vi.json";
 import mangThaiLanDauCanBiet from "../../../content/blog/posts/mang-thai-lan-dau-can-biet.json";
 import mangThaiMuaHeNong from "../../../content/blog/posts/mang-thai-mua-he-nong.json";
+import messageFromTheMinisterOfMentalHealthAndAddictionsAndAssociateMinisterC6d7ff from "../../../content/blog/posts/message-from-the-minister-of-mental-health-and-addictions-and-associate-minister-c6d7ff.json";
+import messageFromTheMinisterOfMentalHealthAndAddictionsAndAssociateMinister from "../../../content/blog/posts/message-from-the-minister-of-mental-health-and-addictions-and-associate-minister.json";
 import nghenNangAnUongVaDieuTri from "../../../content/blog/posts/nghen-nang-an-uong-va-dieu-tri.json";
 import nguyenNhanVaCachGiamDauXuongMuKhiMangThai73283 from "../../../content/blog/posts/nguyen-nhan-va-cach-giam-dau-xuong-mu-khi-mang-thai-73283.json";
 import nhungDauHieuGiupNhanBietThaiLuuVi from "../../../content/blog/posts/nhung-dau-hieu-giup-nhan-biet-thai-luu-vi.json";
@@ -55,6 +59,8 @@ import phuNuSauSinhAnGiBoMauNhungDieuChiEmKhongNenBoQua73178 from "../../../cont
 import phuNuSauSinhAnHatSenDuocKhongCanLuuYGiKhiAnHatSen73159 from "../../../content/blog/posts/phu-nu-sau-sinh-an-hat-sen-duoc-khong-can-luu-y-gi-khi-an-hat-sen-73159.json";
 import picaKhiMangThai from "../../../content/blog/posts/pica-khi-mang-thai.json";
 import postpartumBreastfeedingNutrition from "../../../content/blog/posts/postpartum-breastfeeding-nutrition.json";
+import pregnancyChildbirthNewborn29318b from "../../../content/blog/posts/pregnancy-childbirth-newborn-29318b.json";
+import pregnancyChildbirthNewborn from "../../../content/blog/posts/pregnancy-childbirth-newborn.json";
 import pregnancySnackIdeas from "../../../content/blog/posts/pregnancy-snack-ideas.json";
 import proteinVaCholineKhiMangThai from "../../../content/blog/posts/protein-va-choline-khi-mang-thai.json";
 import quaTrinhHinhThanhRauThaiVi from "../../../content/blog/posts/qua-trinh-hinh-thanh-rau-thai-vi.json";
@@ -66,6 +72,7 @@ import sauSinhThieuMauAnGi from "../../../content/blog/posts/sau-sinh-thieu-mau-
 import sayThaiTuNhienRaMauTrongBaoLauVi from "../../../content/blog/posts/say-thai-tu-nhien-ra-mau-trong-bao-lau-vi.json";
 import sieuAmThaiNhieuCoHaiKhong from "../../../content/blog/posts/sieu-am-thai-nhieu-co-hai-khong.json";
 import startingSolids6Months from "../../../content/blog/posts/starting-solids-6-months.json";
+import statementFromTheChiefPublicHealthOfficerOfCanadaImportanceOfCovid19 from "../../../content/blog/posts/statement-from-the-chief-public-health-officer-of-canada-importance-of-covid-19-.json";
 import suaCongThucKhiCan from "../../../content/blog/posts/sua-cong-thuc-khi-can.json";
 import sucKhoeRangMiengKhiMangThai from "../../../content/blog/posts/suc-khoe-rang-mieng-khi-mang-thai.json";
 import tamQuanTrongCuaVitaminTrongThaiKiVi from "../../../content/blog/posts/tam-quan-trong-cua-vitamin-trong-thai-ki-vi.json";
@@ -96,6 +103,7 @@ import tiemVitaminKChoTreSoSinh from "../../../content/blog/posts/tiem-vitamin-k
 import tienSanGiatDauHieuCanGap from "../../../content/blog/posts/tien-san-giat-dau-hieu-can-gap.json";
 import tienSanGiatSauSinh from "../../../content/blog/posts/tien-san-giat-sau-sinh.json";
 import tieuDuongThaiKyAnUongTheNao from "../../../content/blog/posts/tieu-duong-thai-ky-an-uong-the-nao.json";
+import toddler1224MonthNutrition from "../../../content/blog/posts/toddler-12-24-month-nutrition.json";
 import tramCamLoAuSauSinh from "../../../content/blog/posts/tram-cam-lo-au-sau-sinh.json";
 import treTaoBonKhiAnDam from "../../../content/blog/posts/tre-tao-bon-khi-an-dam.json";
 import uongNuocKhiMangThai from "../../../content/blog/posts/uong-nuoc-khi-mang-thai.json";
@@ -114,6 +122,7 @@ export const postManifest: BlogPost[] = [
   batMiPhuNuSauSinhAnMuopDuocKhongVaNhungCongDungTuMuopChoSanPhu,
   biTieuDuongThaiKyAnBanhMiDuocKhongNenAnLoaiNao73207,
   boSungDhaOmega3,
+  cachGiaiThoatConDauLungChoBaMeSauSinhVi,
   caffeineKhiMangThai,
   canNangThaiNhiTieuChuan,
   canxiVaVitaminDKhiMangThai,
@@ -147,8 +156,11 @@ export const postManifest: BlogPost[] = [
   khamThaiLanDauTuanBaoNhieu,
   lichKhamThaiDinhKy,
   loangXuongSauSinh,
+  lyDoMeThuongDauLungSauSinhVi,
   mangThaiLanDauCanBiet,
   mangThaiMuaHeNong,
+  messageFromTheMinisterOfMentalHealthAndAddictionsAndAssociateMinisterC6d7ff,
+  messageFromTheMinisterOfMentalHealthAndAddictionsAndAssociateMinister,
   nghenNangAnUongVaDieuTri,
   nguyenNhanVaCachGiamDauXuongMuKhiMangThai73283,
   nhungDauHieuGiupNhanBietThaiLuuVi,
@@ -163,6 +175,8 @@ export const postManifest: BlogPost[] = [
   phuNuSauSinhAnHatSenDuocKhongCanLuuYGiKhiAnHatSen73159,
   picaKhiMangThai,
   postpartumBreastfeedingNutrition,
+  pregnancyChildbirthNewborn29318b,
+  pregnancyChildbirthNewborn,
   pregnancySnackIdeas,
   proteinVaCholineKhiMangThai,
   quaTrinhHinhThanhRauThaiVi,
@@ -174,6 +188,7 @@ export const postManifest: BlogPost[] = [
   sayThaiTuNhienRaMauTrongBaoLauVi,
   sieuAmThaiNhieuCoHaiKhong,
   startingSolids6Months,
+  statementFromTheChiefPublicHealthOfficerOfCanadaImportanceOfCovid19,
   suaCongThucKhiCan,
   sucKhoeRangMiengKhiMangThai,
   tamQuanTrongCuaVitaminTrongThaiKiVi,
@@ -204,6 +219,7 @@ export const postManifest: BlogPost[] = [
   tienSanGiatDauHieuCanGap,
   tienSanGiatSauSinh,
   tieuDuongThaiKyAnUongTheNao,
+  toddler1224MonthNutrition,
   tramCamLoAuSauSinh,
   treTaoBonKhiAnDam,
   uongNuocKhiMangThai,
