@@ -1,9 +1,14 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { assertMarketingAuth, marketingSecrets } from "@/lib/marketing/auth";
 import { getMarketingStatus } from "@/lib/marketing/status";
 import { appendMarketingActivity, readMarketingActivity } from "@/lib/marketing/activity";
+import { markDraftsCleared, resetClearedDraftsForTests } from "@/lib/marketing/queue";
 
 describe("marketing portal + automation auth", () => {
+  beforeEach(() => {
+    resetClearedDraftsForTests();
+  });
+
   it("rejects requests without a configured bearer secret", () => {
     const prevMarketing = process.env.MARKETING_API_KEY;
     const prevCron = process.env.CRON_SECRET;
@@ -44,7 +49,18 @@ describe("marketing portal + automation auth", () => {
     expect(status.connections.map((c) => c.platform)).toEqual(["x", "facebook"]);
     expect(status.automation.endpoints.publish).toContain("/api/marketing/publish");
     expect(status.automation.endpoints.zapierHook).toContain("/api/marketing/hooks/zapier");
+    expect(status.automation.endpoints.queue).toContain("/api/marketing/queue");
     expect(status.queue.count).toBeGreaterThan(0);
+  });
+
+  it("clears draft queue items so they no longer appear pending", async () => {
+    const before = await getMarketingStatus("en");
+    expect(before.queue.count).toBeGreaterThan(0);
+    const ids = before.queue.items.map((item) => item.id);
+    const cleared = await markDraftsCleared(ids);
+    expect(cleared).toBe(ids.length);
+    const after = await getMarketingStatus("en");
+    expect(after.queue.count).toBe(0);
   });
 
   it("appends activity events for the portal timeline", async () => {

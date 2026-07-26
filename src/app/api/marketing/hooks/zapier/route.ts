@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
-import { getAllPosts, getPostBySlug } from "@/lib/blog/posts";
 import { assertMarketingAuth } from "@/lib/marketing/auth";
 import { draftsFromBlogPost, isMarketingPlatform, type MarketingPlatform } from "@/lib/marketing/drafts";
-import { publishDraft } from "@/lib/marketing/publishers";
-import { appendMarketingActivity } from "@/lib/marketing/activity";
+import { publishMarketingDrafts } from "@/lib/marketing/publishFlow";
+import { getAllPosts } from "@/lib/blog/posts";
 
 export const runtime = "nodejs";
 
@@ -71,7 +70,7 @@ export async function POST(request: Request) {
   if (body.text && body.platform && platforms.size === 1) {
     const platform = [...platforms][0]!;
     const draft = {
-      id: `zapier-${platform}-${Date.now()}`,
+      id: `${body.slug || "zapier"}-${locale}-${platform}`,
       platform,
       locale: locale as "en" | "vi",
       text: body.text,
@@ -79,37 +78,32 @@ export async function POST(request: Request) {
       sourceSlug: body.slug || "zapier",
       createdAt: new Date().toISOString()
     };
-    const result = await publishDraft(draft, { dryRun: !live });
-    await appendMarketingActivity({
-      action: "publish",
-      source: "zapier",
-      live,
-      slug: draft.sourceSlug,
+    const result = await publishMarketingDrafts({
       locale,
-      platforms: [platform],
-      results: [result]
+      live,
+      platforms,
+      source: "zapier",
+      customDrafts: [draft]
     });
-    return NextResponse.json({ ok: result.ok, live, results: [result] });
+    return NextResponse.json({ ok: result.ok, live, results: result.results });
   }
 
-  const post = body.slug ? getPostBySlug(body.slug, locale) : getAllPosts(locale)[0];
-  if (!post) return NextResponse.json({ error: "no_posts" }, { status: 404 });
-
-  const drafts = draftsFromBlogPost(post, [locale]).filter((d) => platforms.has(d.platform));
-  const results = [];
-  for (const draft of drafts) {
-    results.push(await publishDraft(draft, { dryRun: !live }));
-  }
-
-  await appendMarketingActivity({
-    action: "publish",
-    source: "zapier",
-    live,
-    slug: post.slug,
+  const result = await publishMarketingDrafts({
     locale,
-    platforms: [...platforms],
-    results
+    live,
+    platforms,
+    source: "zapier",
+    slug: body.slug?.trim() || undefined
   });
 
-  return NextResponse.json({ ok: results.every((r) => r.ok), live, slug: post.slug, results });
+  if (!result.drafts.length) {
+    return NextResponse.json({ error: "no_posts" }, { status: 404 });
+  }
+
+  return NextResponse.json({
+    ok: result.ok,
+    live: result.live,
+    slug: result.slug,
+    results: result.results
+  });
 }

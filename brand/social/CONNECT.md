@@ -150,6 +150,17 @@ curl -X POST \
   "https://pregnancymeal.tips/api/cron/social-publish?locale=en&platforms=x,facebook"
 ```
 
+### Auto-post sau “Auto crawl blog (every 6h)”
+Workflow `.github/workflows/auto-crawl-blog.yml` sau khi commit + deploy blog mới sẽ gọi live publish X + Facebook (EN + VI).
+
+Cần GitHub Actions secret:
+
+```bash
+CRON_SECRET=<same value as Worker CRON_SECRET>
+```
+
+Nếu crawl không tạo content mới thì bước auto-post bị bỏ qua.
+
 ---
 
 ## 6) Marketing portal + Zapier / n8n
@@ -162,7 +173,7 @@ Portal load status trực tiếp trên server; nút dry-run/live dùng Server Ac
 Portal hiển thị:
 
 - Trạng thái kết nối X / Facebook  
-- Draft queue từ blog mới nhất  
+- Draft queue từ blog mới nhất (có nút **Clear queue**; item biến mất sau live publish)  
 - Activity log (dry-run / live)  
 - Endpoint sẵn cho automation  
 
@@ -183,6 +194,7 @@ X-API-KEY: $CRON_SECRET
 | GET | `/api/marketing/status?locale=en` | Portal / health |
 | GET | `/api/marketing/drafts?locale=en&limit=3` | Lấy caption |
 | POST | `/api/marketing/publish` | Đăng (default dry-run) |
+| GET/POST | `/api/marketing/queue` | Xem / clear draft queue |
 | GET/POST | `/api/marketing/hooks/zapier` | Zapier poll + action |
 | POST | `/api/cron/social-publish` | Cron |
 

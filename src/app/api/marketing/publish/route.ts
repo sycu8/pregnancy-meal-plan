@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
-import { getAllPosts, getPostBySlug } from "@/lib/blog/posts";
 import { assertMarketingAuth } from "@/lib/marketing/auth";
-import { draftsFromBlogPost, isMarketingPlatform, type MarketingPlatform } from "@/lib/marketing/drafts";
-import { publishDraft } from "@/lib/marketing/publishers";
-import { appendMarketingActivity } from "@/lib/marketing/activity";
+import { isMarketingPlatform, type MarketingPlatform } from "@/lib/marketing/drafts";
+import { publishMarketingDrafts } from "@/lib/marketing/publishFlow";
 
 export const runtime = "nodejs";
 
@@ -42,35 +40,26 @@ export async function POST(request: Request) {
   const live = parseLive(body.live, url);
   const platforms = parsePlatforms(body.platforms ?? url.searchParams.get("platforms") ?? undefined);
   const source = body.source ?? "api";
+  const slug = body.slug?.trim() || url.searchParams.get("slug")?.trim() || undefined;
 
-  const slug = body.slug?.trim() || url.searchParams.get("slug")?.trim();
-  const post = slug ? getPostBySlug(slug, locale) : getAllPosts(locale)[0];
-  if (!post) {
+  const result = await publishMarketingDrafts({
+    locale,
+    live,
+    platforms,
+    source,
+    slug
+  });
+
+  if (!result.drafts.length) {
     return NextResponse.json({ error: "no_posts", slug }, { status: 404 });
   }
 
-  const drafts = draftsFromBlogPost(post, [locale]).filter((draft) => platforms.has(draft.platform));
-  const results = [];
-  for (const draft of drafts) {
-    results.push(await publishDraft(draft, { dryRun: !live }));
-  }
-
-  await appendMarketingActivity({
-    action: "publish",
-    source,
-    live,
-    slug: post.slug,
-    locale,
-    platforms: [...platforms],
-    results
-  });
-
   return NextResponse.json({
-    ok: results.every((result) => result.ok),
-    live,
-    slug: post.slug,
-    locale,
-    results
+    ok: result.ok,
+    live: result.live,
+    slug: result.slug,
+    locale: result.locale,
+    results: result.results
   });
 }
 

@@ -2,11 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import { getAllPosts } from "@/lib/blog/posts";
-import { draftsFromBlogPost } from "@/lib/marketing/drafts";
-import { publishDraft } from "@/lib/marketing/publishers";
+import { draftsFromBlogPost, type MarketingPlatform } from "@/lib/marketing/drafts";
+import { clearAllQueuedDrafts, listClearedDraftIds } from "@/lib/marketing/queue";
+import { publishMarketingDrafts } from "@/lib/marketing/publishFlow";
 import { appendMarketingActivity } from "@/lib/marketing/activity";
 import type { Locale } from "@/lib/i18n";
-import type { MarketingPlatform } from "@/lib/marketing/drafts";
 
 export type PortalPublishResult = {
   ok: boolean;
@@ -15,6 +15,10 @@ export type PortalPublishResult = {
   message: string;
 };
 
+function revalidateMarketing(locale: Locale) {
+  revalidatePath(locale === "vi" ? "/vi/marketing" : "/marketing");
+}
+
 /** Portal publish — runs on the server behind Cloudflare Access; no browser API key. */
 export async function publishLatestFromPortal(input: {
   locale: Locale;
@@ -22,50 +26,61 @@ export async function publishLatestFromPortal(input: {
   platforms?: MarketingPlatform[];
 }): Promise<PortalPublishResult> {
   const locale = input.locale === "vi" ? "vi" : "en";
-  const live = Boolean(input.live);
   const platforms = new Set<MarketingPlatform>(input.platforms?.length ? input.platforms : ["x", "facebook"]);
 
-  const post = getAllPosts(locale)[0];
-  if (!post) {
-    return { ok: false, live, message: "No blog posts available to publish." };
-  }
-
-  const drafts = draftsFromBlogPost(post, [locale]).filter((draft) => platforms.has(draft.platform));
-  const results = [];
-  for (const draft of drafts) {
-    results.push(await publishDraft(draft, { dryRun: !live }));
-  }
-
-  await appendMarketingActivity({
-    action: "publish",
-    source: "portal",
-    live,
-    slug: post.slug,
+  const result = await publishMarketingDrafts({
     locale,
-    platforms: [...platforms],
-    results
+    live: Boolean(input.live),
+    platforms,
+    source: "portal"
   });
 
-  revalidatePath(locale === "vi" ? "/vi/marketing" : "/marketing");
+  revalidateMarketing(locale);
 
-  const summary = results
-    .map((result) => {
-      const state = result.ok ? "ok" : "fail";
-      const mode = result.dryRun ? "dry-run" : "live";
-      const detail = result.error ? result.error.slice(0, 100) : result.id || "";
-      return `${result.platform}:${state}/${mode}${detail ? ` ${detail}` : ""}`;
+  if (!result.drafts.length) {
+    return { ok: false, live: result.live, message: "No blog posts available to publish." };
+  }
+
+  const summary = result.results
+    .map((item) => {
+      const state = item.ok ? "ok" : "fail";
+      const mode = item.dryRun ? "dry-run" : "live";
+      const detail = item.error ? item.error.slice(0, 100) : item.id || "";
+      return `${item.platform}:${state}/${mode}${detail ? ` ${detail}` : ""}`;
     })
     .join(" · ");
 
   return {
-    ok: results.every((result) => result.ok),
-    live,
-    slug: post.slug,
-    message: `${live ? "LIVE" : "DRY-RUN"} · ${post.slug} · ${summary}`
+    ok: result.ok,
+    live: result.live,
+    slug: result.slug,
+    message: `${result.live ? "LIVE" : "DRY-RUN"} · ${result.slug} · ${summary}`
   };
 }
 
+/** Clear currently pending draft-queue items for this locale (portal UI). */
+export async function clearMarketingDraftQueue(locale: Locale): Promise<{ ok: true; cleared: number }> {
+  const resolved = locale === "vi" ? "vi" : "en";
+  const already = new Set(await listClearedDraftIds());
+  const pendingIds = getAllPosts(resolved)
+    .slice(0, 8)
+    .flatMap((post) => draftsFromBlogPost(post, [resolved]))
+    .map((draft) => draft.id)
+    .filter((id) => !already.has(id));
+
+  const cleared = await clearAllQueuedDrafts(pendingIds);
+  await appendMarketingActivity({
+    action: "drafts",
+    source: "portal",
+    live: false,
+    locale: resolved,
+    note: `Cleared ${cleared} draft(s) from queue`
+  });
+  revalidateMarketing(resolved);
+  return { ok: true, cleared };
+}
+
 export async function refreshMarketingPortal(locale: Locale) {
-  revalidatePath(locale === "vi" ? "/vi/marketing" : "/marketing");
+  revalidateMarketing(locale);
   return { ok: true as const };
 }

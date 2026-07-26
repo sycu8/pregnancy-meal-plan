@@ -5,7 +5,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/shared/Button";
 import { localizedPath, type Locale } from "@/lib/i18n";
-import { publishLatestFromPortal, refreshMarketingPortal } from "@/lib/marketing/actions";
+import {
+  clearMarketingDraftQueue,
+  publishLatestFromPortal,
+  refreshMarketingPortal
+} from "@/lib/marketing/actions";
 import type { MarketingStatus } from "@/lib/marketing/status";
 
 const copy = {
@@ -16,6 +20,8 @@ const copy = {
     refresh: "Refresh",
     connections: "Channel connections",
     queue: "Draft queue",
+    clearQueue: "Clear queue",
+    queueEmpty: "Queue is empty. New blog posts appear here until published or cleared.",
     activity: "Recent activity",
     automation: "Zapier / n8n",
     dryRun: "Dry-run publish latest",
@@ -35,6 +41,8 @@ const copy = {
     refresh: "Làm mới",
     connections: "Kết nối kênh",
     queue: "Hàng đợi draft",
+    clearQueue: "Xóa hàng đợi",
+    queueEmpty: "Hàng đợi trống. Bài blog mới sẽ hiện ở đây đến khi đăng hoặc xóa.",
     activity: "Hoạt động gần đây",
     automation: "Zapier / n8n",
     dryRun: "Dry-run bài mới nhất",
@@ -78,6 +86,14 @@ export function MarketingPortal({ locale, status }: { locale: Locale; status: Ma
       setPublishNote(t.publishing);
       const result = await publishLatestFromPortal({ locale, live });
       setPublishNote(result.message);
+      router.refresh();
+    });
+  }
+
+  function onClearQueue() {
+    startTransition(async () => {
+      const result = await clearMarketingDraftQueue(locale);
+      setPublishNote(`${t.clearQueue}: ${result.cleared}`);
       router.refresh();
     });
   }
@@ -143,20 +159,34 @@ export function MarketingPortal({ locale, status }: { locale: Locale; status: Ma
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold">
-            {t.queue} <span className="text-muted-foreground">({status.queue.count})</span>
-          </h2>
-          <ul className="mt-4 space-y-3">
-            {status.queue.items.slice(0, 9).map((item) => (
-              <li key={item.id} className="rounded-md border border-border bg-white px-4 py-3">
-                <p className="text-sm font-semibold">
-                  {item.platform.toUpperCase()} · {item.slug}
-                </p>
-                <p className="mt-1 text-sm text-foreground">{item.title}</p>
-                <p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">{item.textPreview}</p>
-              </li>
-            ))}
-          </ul>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-xl font-semibold">
+              {t.queue} <span className="text-muted-foreground">({status.queue.count})</span>
+            </h2>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={onClearQueue}
+              disabled={pending || status.queue.count === 0}
+            >
+              {t.clearQueue}
+            </Button>
+          </div>
+          {status.queue.count === 0 ? (
+            <p className="mt-3 text-sm text-muted-foreground">{t.queueEmpty}</p>
+          ) : (
+            <ul className="mt-4 space-y-3">
+              {status.queue.items.slice(0, 9).map((item) => (
+                <li key={item.id} className="rounded-md border border-border bg-white px-4 py-3">
+                  <p className="text-sm font-semibold">
+                    {item.platform.toUpperCase()} · {item.slug}
+                  </p>
+                  <p className="mt-1 text-sm text-foreground">{item.title}</p>
+                  <p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">{item.textPreview}</p>
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
 
         <section>

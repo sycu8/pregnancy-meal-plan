@@ -1,6 +1,7 @@
 import { getAllPosts } from "@/lib/blog/posts";
 import { draftsFromBlogPost } from "@/lib/marketing/drafts";
 import { readMarketingActivity } from "@/lib/marketing/activity";
+import { listClearedDraftIds } from "@/lib/marketing/queue";
 import { socialProfiles } from "@/lib/social/profiles";
 import { siteOrigin } from "@/lib/agentDiscovery";
 import type { Locale } from "@/lib/i18n";
@@ -49,20 +50,23 @@ export function platformConnections() {
 export type MarketingStatus = Awaited<ReturnType<typeof getMarketingStatus>>;
 
 export async function getMarketingStatus(locale: Locale = "en") {
-  const posts = getAllPosts(locale).slice(0, 5);
-  const queue = posts.flatMap((post) =>
-    draftsFromBlogPost(post, [locale]).map((draft) => ({
-      id: draft.id,
-      platform: draft.platform,
-      locale: draft.locale,
-      slug: draft.sourceSlug,
-      title: post.title,
-      excerpt: post.excerpt,
-      link: draft.link,
-      textPreview: draft.text.slice(0, 160),
-      createdAt: draft.createdAt
-    }))
-  );
+  const posts = getAllPosts(locale).slice(0, 8);
+  const cleared = new Set(await listClearedDraftIds());
+  const queue = posts
+    .flatMap((post) =>
+      draftsFromBlogPost(post, [locale]).map((draft) => ({
+        id: draft.id,
+        platform: draft.platform,
+        locale: draft.locale,
+        slug: draft.sourceSlug,
+        title: post.title,
+        excerpt: post.excerpt,
+        link: draft.link,
+        textPreview: draft.text.slice(0, 160),
+        createdAt: draft.createdAt
+      }))
+    )
+    .filter((item) => !cleared.has(item.id));
 
   const activity = await readMarketingActivity();
   const connections = platformConnections();
@@ -80,7 +84,8 @@ export async function getMarketingStatus(locale: Locale = "en") {
     connections,
     queue: {
       count: queue.length,
-      items: queue
+      items: queue,
+      clearedCount: cleared.size
     },
     recentPosts: posts.map((post) => ({
       slug: post.slug,
@@ -94,6 +99,7 @@ export async function getMarketingStatus(locale: Locale = "en") {
         status: `${siteOrigin}/api/marketing/status`,
         drafts: `${siteOrigin}/api/marketing/drafts`,
         publish: `${siteOrigin}/api/marketing/publish`,
+        queue: `${siteOrigin}/api/marketing/queue`,
         zapierHook: `${siteOrigin}/api/marketing/hooks/zapier`,
         cron: `${siteOrigin}/api/cron/social-publish`
       },
