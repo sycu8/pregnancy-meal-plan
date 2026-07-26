@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { BRAND_NAME, footerCredit, localizedPath, pageSeo, stripLocaleFromPath } from "@/lib/i18n";
+import { BRAND_NAME, localizedPath, pageSeo, stripLocaleFromPath } from "@/lib/i18n";
 
 describe("i18n routing", () => {
   it("keeps English routes at the root and prefixes Vietnamese routes with /vi", () => {
@@ -21,10 +21,5 @@ describe("i18n routing", () => {
     expect(pageSeo.vi.home.title).toContain("Pregnancy Meal Planner");
     expect(pageSeo.vi.home.description.length).toBeGreaterThan(120);
     expect(pageSeo.en.home.description.length).toBeGreaterThan(120);
-  });
-
-  it("exposes the creator credit and LinkedIn URL for the shared footer", () => {
-    expect(footerCredit.label).toBe("Created by Lê Sỹ Cường");
-    expect(footerCredit.href).toBe("https://www.linkedin.com/in/sycule/");
   });
 });

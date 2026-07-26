@@ -59,11 +59,6 @@ export const siteCopy = {
   }
 } as const;
 
-export const footerCredit = {
-  label: "Created by Lê Sỹ Cường",
-  href: "https://www.linkedin.com/in/sycule/"
-} as const;
-
 export const pageSeo: Record<Locale, Record<PageKey, { title: string; description: string; keywords: string[] }>> = {
   en: {
     home: {

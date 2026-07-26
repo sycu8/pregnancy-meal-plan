@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { UtensilsCrossed } from "lucide-react";
-import { footerCredit, localizedPath, siteCopy, type Locale } from "@/lib/i18n";
+import { localizedPath, siteCopy, type Locale } from "@/lib/i18n";
 import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
 import { MobileNav } from "@/components/shared/MobileNav";
 import { WebMcpRegistration } from "@/components/shared/WebMcpRegistration";
@@ -51,18 +51,6 @@ export function SiteChrome({ children, locale }: { children: React.ReactNode; lo
         </div>
       </nav>
       {children}
-      <footer className="border-t border-border bg-background/80">
-        <div className="mx-auto flex max-w-6xl justify-center px-4 py-6 text-sm text-muted-foreground">
-          <a
-            href={footerCredit.href}
-            target="_blank"
-            rel="noreferrer"
-            className="font-medium text-foreground transition hover:text-accent"
-          >
-            {footerCredit.label}
-          </a>
-        </div>
-      </footer>
     </body>
   );
 }
