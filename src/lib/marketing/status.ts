@@ -58,6 +58,8 @@ export function platformConnections() {
   ];
 }
 
+export type MarketingStatus = Awaited<ReturnType<typeof getMarketingStatus>>;
+
 export async function getMarketingStatus(locale: Locale = "en") {
   const posts = getAllPosts(locale).slice(0, 5);
   const queue = posts.flatMap((post) =>
@@ -107,7 +109,7 @@ export async function getMarketingStatus(locale: Locale = "en") {
         zapierHook: `${siteOrigin}/api/marketing/hooks/zapier`,
         cron: `${siteOrigin}/api/cron/social-publish`
       },
-      auth: "Authorization: Bearer <MARKETING_API_KEY or CRON_SECRET>",
+      auth: "Portal is Cloudflare Access (ZTNA) protected. Automation APIs still use Authorization: Bearer <MARKETING_API_KEY or CRON_SECRET>.",
       zapier: {
         trigger: "GET /api/marketing/drafts?locale=en&limit=3",
         action: "POST /api/marketing/publish with JSON { slug?, platforms, locale, live }"

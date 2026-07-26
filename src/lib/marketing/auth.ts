@@ -1,5 +1,6 @@
 /**
- * Shared bearer auth for marketing APIs (portal, n8n, Zapier, cron).
+ * Shared bearer auth for marketing automation APIs (n8n, Zapier, cron).
+ * The /marketing UI is protected by Cloudflare Access — no browser key.
  * Accepts MARKETING_API_KEY or falls back to CRON_SECRET.
  */
 export function marketingSecrets(): string[] {

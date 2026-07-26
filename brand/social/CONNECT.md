@@ -167,14 +167,18 @@ curl -X POST \
 ## 6) Marketing portal + Zapier / n8n
 
 Portal (noindex): [pregnancymeal.tips/marketing](https://pregnancymeal.tips/marketing)  
-Mở bằng `MARKETING_API_KEY` hoặc `CRON_SECRET` (Bearer). Portal hiển thị:
+
+Trang portal được bảo vệ bằng **Cloudflare Access / ZTNA** — không còn ô API key trong UI.  
+Portal load status trực tiếp trên server; nút dry-run/live dùng Server Action.
+
+Portal hiển thị:
 
 - Trạng thái kết nối X / Facebook / TikTok  
 - Draft queue từ blog mới nhất  
 - Activity log (dry-run / live)  
 - Endpoint sẵn cho automation  
 
-Auth cho mọi API marketing:
+Auth cho API marketing (Zapier / n8n / cron) — **không** dùng trên UI portal:
 
 ```bash
 Authorization: Bearer $CRON_SECRET
