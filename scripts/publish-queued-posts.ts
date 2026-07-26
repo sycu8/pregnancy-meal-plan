@@ -1,9 +1,10 @@
 /**
- * Convert queued metadata items into synthesized blog posts (VI + EN overlays).
+ * Convert queued metadata items into bilingual blog posts (VI + EN).
  * Uses Workers AI via Cloudflare AI Gateway when credentials are available.
  * Generates hero images with Flux and uploads to R2.
  *
  * IMPORTANT: Do not copy source text. Use only title/snippet as inspiration.
+ * Every published post MUST have both Vietnamese and English content.
  *
  * Run: npx tsx scripts/publish-queued-posts.ts
  */
@@ -12,6 +13,7 @@ import path from "node:path";
 import type { BlogCategorySlug, BlogPost, BlogTrimester, BlogPostTranslation } from "../src/types/blog.ts";
 import { hashValue } from "../src/lib/blog/ingestion/dedupe.ts";
 import { estimateReadingTimeMinutes } from "../src/lib/blog/readingTime.ts";
+import { isUsableEnglishTranslation } from "../src/lib/blog/localize.ts";
 import { synthesizePostWithAi } from "../src/lib/blog/synthesis/synthesizePost.ts";
 import { generateAndUploadBlogImage } from "../src/lib/blog/synthesis/uploadBlogImage.ts";
 import { isBlogAiEnabled, readAiGatewayConfig } from "../src/lib/cloudflare/aiGateway.ts";
@@ -22,6 +24,8 @@ type QueueItem = {
   title: string;
   url: string;
   snippet: string;
+  titleVi?: string;
+  snippetVi?: string;
   publishedAt?: string;
   fetchedAt: string;
   status: "draft" | "published";
@@ -65,7 +69,6 @@ function slugFromUrl(url: string) {
   const parsed = new URL(url);
   const parts = parsed.pathname.split("/").filter(Boolean);
   const last = parts[parts.length - 1] ?? "bai-viet";
-  // Editorial anchors: /blog/topics#topic-id → use hash topic id
   if (parsed.hash) return normalizeSlug(parsed.hash.replace(/^#/, ""));
   return normalizeSlug(last);
 }
@@ -85,8 +88,8 @@ function guessTrimester(title: string, snippet: string): BlogTrimester | undefin
   return undefined;
 }
 
-function enContentTemplate(item: QueueItem) {
-  return `## Summary\n\nThis post is a synthesized educational overview based on the public title/description from ${item.sourceName}. It is **not** a substitute for medical advice.\n\n## Key points\n\n- What the topic usually means in pregnancy/parenting context.\n- Common situations and risk factors.\n- What you can do safely at home.\n\n## Seek care urgently if\n\n- Symptoms worsen quickly or do not improve.\n- Heavy bleeding, severe pain, high fever, breathing difficulty, or fainting.\n- Clear decrease in fetal movement (especially later pregnancy).\n\n## Practical tips\n\n- Prioritize balanced meals, hydration, and sleep.\n- Avoid self-medicating or high-dose supplements without clinician guidance.\n- Write down symptoms and questions for your appointment.\n\n## References\n\nSee the original source link listed at the end of the post.`;
+function isTemplateViContent(content: string) {
+  return content.includes("## Gợi ý thực hành") && content.length < 900;
 }
 
 async function main() {
@@ -102,7 +105,7 @@ async function main() {
   console.log(
     aiEnabled && aiConfig
       ? `[publish] AI Gateway enabled (gateway=${aiConfig.gatewayId}, text=${aiConfig.textModel}, image=${aiConfig.imageModel})`
-      : "[publish] AI Gateway unavailable — using template synthesis (no images)."
+      : "[publish] AI Gateway unavailable — using bilingual template synthesis (no images)."
   );
 
   const queueFiles = fs.readdirSync(queueDir).filter((f) => f.endsWith(".json"));
@@ -117,6 +120,7 @@ async function main() {
   }
 
   let published = 0;
+  let skipped = 0;
   const maxPerRun = Number(process.env.BLOG_AUTO_PUBLISH_MAX ?? "10");
   const limit = Number.isFinite(maxPerRun) && maxPerRun > 0 ? maxPerRun : 10;
   const withImages = process.env.BLOG_AI_IMAGES !== "false";
@@ -133,11 +137,25 @@ async function main() {
       {
         title: item.title,
         snippet: item.snippet,
+        titleVi: item.titleVi,
+        snippetVi: item.snippetVi,
         sourceName: item.sourceName,
         url: item.url
       },
       { config: aiConfig }
     );
+
+    if (!synthesized.en || !isUsableEnglishTranslation({ slug, ...synthesized.en })) {
+      console.warn(`[publish] skip ${slug}: English content missing or unusable — keeping queue as draft`);
+      skipped++;
+      continue;
+    }
+
+    if (!synthesized.content || synthesized.content.length < 300) {
+      console.warn(`[publish] skip ${slug}: Vietnamese content too short — keeping queue as draft`);
+      skipped++;
+      continue;
+    }
 
     let content = synthesized.content;
     let ogImage: string | undefined;
@@ -145,12 +163,11 @@ async function main() {
     if (withImages && aiConfig) {
       const image = await generateAndUploadBlogImage({
         slug,
-        prompt: synthesized.imagePrompt || `${item.title}, healthy pregnancy nutrition, photorealistic`,
-        alt: synthesized.title,
+        prompt: synthesized.imagePrompt || `${synthesized.en.title}, healthy pregnancy nutrition, photorealistic`,
+        alt: synthesized.en.title,
         config: aiConfig
       });
       if (image) {
-        // Hero is rendered from post.ogImage in the article header (avoid duplicate body image).
         ogImage = image.ogImage;
       }
     }
@@ -171,7 +188,7 @@ async function main() {
       reviewer: item.editorial ? "Biên tập Pregnancy Meal Planner" : `Tham chiếu ${item.sourceName}`,
       sourceReferences: [
         {
-          title: item.title.trim() || "Bài gốc",
+          title: item.title.trim() || synthesized.en.title || "Source",
           url: item.url,
           publisher: item.sourceName,
           accessedAt: new Date().toISOString().slice(0, 10)
@@ -180,38 +197,34 @@ async function main() {
       publishedAt,
       updatedAt: nowIso(),
       readingTimeMinutes: estimateReadingTimeMinutes(content),
-      metaTitle: synthesized.metaTitle || `${synthesized.title} | Pregnancy Meal Planner Blog`,
+      metaTitle: synthesized.metaTitle || `${synthesized.title} | Pregnancy Meal Planner`,
       metaDescription: synthesized.metaDescription || synthesized.excerpt.slice(0, 160),
       ...(ogImage ? { ogImage } : {}),
       ...(synthesized.faqs ? { faqs: synthesized.faqs } : {}),
       status: "published"
     };
 
-    const enOverlay: BlogPostTranslation = synthesized.en
-      ? {
-          slug,
-          title: synthesized.en.title,
-          excerpt: synthesized.en.excerpt,
-          content: synthesized.en.content,
-          metaTitle: synthesized.en.metaTitle,
-          metaDescription: synthesized.en.metaDescription,
-          author: authorEn,
-          reviewer: item.editorial ? "Pregnancy Meal Planner Editorial" : `References ${item.sourceName}`
-        }
-      : {
-          slug,
-          title: viPost.title,
-          excerpt: viPost.excerpt,
-          content: enContentTemplate(item),
-          metaTitle: `${viPost.title} | Pregnancy Meal Planner Blog`,
-          metaDescription: viPost.metaDescription,
-          author: authorEn,
-          reviewer: item.editorial ? "Pregnancy Meal Planner Editorial" : `References ${item.sourceName}`
-        };
+    const enOverlay: BlogPostTranslation = {
+      slug,
+      title: synthesized.en.title,
+      excerpt: synthesized.en.excerpt,
+      content: synthesized.en.content,
+      metaTitle: synthesized.en.metaTitle,
+      metaDescription: synthesized.en.metaDescription,
+      author: authorEn,
+      reviewer: item.editorial ? "Pregnancy Meal Planner Editorial" : `References ${item.sourceName}`,
+      ...(synthesized.en.faqs?.length ? { faqs: synthesized.en.faqs } : {})
+    };
 
     const outVi = path.join(postsDir, `${slug}.json`);
     const outEn = path.join(enDir, `${slug}.json`);
-    const overwrite = process.env.BLOG_OVERWRITE_POSTS === "true" || synthesized.usedAi;
+    const existingIsTemplate =
+      fs.existsSync(outVi) && isTemplateViContent(readJson<BlogPost>(outVi).content ?? "");
+    const overwrite =
+      process.env.BLOG_OVERWRITE_POSTS === "true" ||
+      synthesized.usedAi ||
+      existingIsTemplate ||
+      !fs.existsSync(outEn);
 
     if (!fs.existsSync(outVi) || overwrite) writeJson(outVi, viPost);
     if (!fs.existsSync(outEn) || overwrite) writeJson(outEn, enOverlay);
@@ -219,10 +232,12 @@ async function main() {
     const nextQueue: QueueItem = { ...item, status: "published", slug };
     writeJson(full, nextQueue);
     published++;
-    console.log(`Published ${slug} (ai=${synthesized.usedAi}, image=${Boolean(ogImage)})`);
+    console.log(
+      `Published ${slug} bilingual (ai=${synthesized.usedAi}, vi=${content.length}c, en=${enOverlay.content.length}c, image=${Boolean(ogImage)})`
+    );
   }
 
-  console.log(`Published ${published} posts from queue.`);
+  console.log(`Published ${published} bilingual posts from queue (skipped ${skipped}).`);
 }
 
 main().catch((e) => {

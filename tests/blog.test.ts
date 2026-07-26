@@ -32,12 +32,19 @@ describe("blog query", () => {
     expect(filtered.length).toBeGreaterThan(0);
   });
 
-  it("loads English localized posts", () => {
+  it("loads English localized posts without Vietnamese title leaks", () => {
     const enPosts = getAllPosts("en");
+    const viPosts = getAllPosts("vi");
     expect(enPosts.length).toBeGreaterThanOrEqual(50);
+    expect(viPosts.length).toBeGreaterThanOrEqual(50);
     const sample = enPosts.find((p) => p.slug === "caffeine-khi-mang-thai");
     expect(sample?.title).toMatch(/Caffeine/i);
     expect(sample?.content.length).toBeGreaterThan(100);
+    // EN pages must not show Vietnamese titles
+    expect(enPosts.every((p) => !/[àáạảãâăèéêìíòóôơùúưỳýđ]/i.test(p.title) || /\b(pregnancy|meal|food|nutrition|during|and|for)\b/i.test(p.title))).toBe(true);
+    const viSample = getPostBySlug("caffeine-khi-mang-thai", "vi");
+    expect(viSample?.title).toMatch(/Caffeine|cà phê|mang thai/i);
+    expect(viSample?.title).not.toEqual(sample?.title);
   });
 
   it("filters by tag", () => {

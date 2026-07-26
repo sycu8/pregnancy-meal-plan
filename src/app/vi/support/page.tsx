@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { faqContent } from "@/lib/faq";
 import { localizedPath } from "@/lib/i18n";
+import { DEFAULT_SITE_URL, SITE_HOST, SUPPORT_EMAIL, SUPPORT_EMAIL_MAILTO } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Hỗ trợ | Pregnancy Meal Planner",
@@ -13,21 +14,21 @@ export default function SupportPage() {
     <main className="mx-auto max-w-3xl px-4 py-10">
       <h1 className="text-3xl font-semibold">Hỗ trợ</h1>
       <p className="mt-4 text-muted-foreground leading-7">
-        Pregnancy Meal Planner giúp mẹ bầu lên thực đơn món Việt theo tuần thai. Nếu bạn cần trợ giúp kỹ thuật hoặc có góp ý sản phẩm, hãy liên hệ qua email bên dưới.
+        Pregnancy Meal Planner giúp mẹ bầu lên thực đơn theo tuần thai. Nếu bạn cần trợ giúp kỹ thuật hoặc có góp ý sản phẩm, hãy liên hệ qua email bên dưới.
       </p>
 
       <section className="mt-8 rounded-lg border border-border bg-white p-5">
         <h2 className="text-xl font-semibold">Liên hệ</h2>
         <p className="mt-3 text-sm leading-7 text-muted-foreground">
           Email:{" "}
-          <a className="font-medium text-accent hover:underline" href="mailto:support@mebauangi.info">
-            support@mebauangi.info
+          <a className="font-medium text-accent hover:underline" href={SUPPORT_EMAIL_MAILTO}>
+            {SUPPORT_EMAIL}
           </a>
         </p>
         <p className="mt-2 text-sm leading-7 text-muted-foreground">
           Website:{" "}
-          <a className="font-medium text-accent hover:underline" href="https://mebauangi.info">
-            mebauangi.info
+          <a className="font-medium text-accent hover:underline" href={DEFAULT_SITE_URL}>
+            {SITE_HOST}
           </a>
         </p>
       </section>
@@ -45,7 +46,7 @@ export default function SupportPage() {
       </section>
 
       <p className="mt-8 text-sm text-muted-foreground">
-        <Link href="/privacy" className="text-accent hover:underline">
+        <Link href={localizedPath("vi", "/privacy")} className="text-accent hover:underline">
           Chính sách quyền riêng tư
         </Link>
         {" · "}

@@ -54,7 +54,7 @@ describe("blog RSS feed", () => {
 });
 
 describe("editorial synthesis", () => {
-  it("creates structured VI content without copying source body", () => {
+  it("creates structured bilingual VI+EN content without copying source body", () => {
     const output = synthesizePost({
       title: "Ăn uống khi nghén",
       snippet: "Gợi ý giảm nghén tam cá nguyệt 1",
@@ -63,5 +63,8 @@ describe("editorial synthesis", () => {
     });
     expect(output.content).toContain("## Tóm tắt");
     expect(output.tags).toContain("nghen");
+    expect(output.en.content).toContain("## Summary");
+    expect(output.en.title.length).toBeGreaterThan(0);
+    expect(output.en.faqs.length).toBeGreaterThan(0);
   });
 });

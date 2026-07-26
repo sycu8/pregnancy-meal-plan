@@ -7,10 +7,10 @@ Complete copy and checklist for **Google Play** and **Apple App Store**. Replace
 | App name | Bầu Ăn Gì? |
 | Bundle ID / Package name | `info.mebauangi.app` |
 | Version | 1.0.0 (build 1) |
-| Website | https://mebauangi.info |
-| Privacy policy (VI) | https://mebauangi.info/privacy |
-| Privacy policy (EN) | https://mebauangi.info/en/privacy |
-| Support email | support@mebauangi.info |
+| Website | https://pregnancymeal.tips |
+| Privacy policy (VI) | https://pregnancymeal.tips/vi/privacy |
+| Privacy policy (EN) | https://pregnancymeal.tips/privacy |
+| Support email | support@pregnancymeal.tips |
 | Developer / legal entity | Lê Sỹ Cường |
 | Primary category | Health & Fitness |
 | Secondary category (Apple) | Food & Drink |
@@ -69,12 +69,12 @@ LƯU Ý QUAN TRỌNG — KHÔNG PHẢI LÀ THIẾT BỊ Y TẾ
 Thực đơn được tạo tự động dựa trên thông tin bạn cung cấp và chỉ mang tính tham khảo. Ứng dụng không chẩn đoán, không điều trị và không thay thế tư vấn từ bác sĩ sản khoa hoặc chuyên gia dinh dưỡng. Nếu bạn có tiểu đường thai kỳ, tăng huyết áp, tiền sản giật, thiếu máu nặng, thai chậm tăng trưởng hoặc bất kỳ vấn đề y khoa nào, hãy hỏi bác sĩ trước khi áp dụng.
 
 QUYỀN RIÊNG TƯ
-Phiên bản miễn phí lưu hồ sơ và thực đơn trên thiết bị của bạn. Chúng tôi không bán dữ liệu cá nhân. Bạn có thể chọn đồng bộ tùy chọn; khi bật, chỉ các trường cần cho thực đơn được lưu theo tài khoản của bạn. Xem chi tiết tại: https://mebauangi.info/privacy
+Phiên bản miễn phí lưu hồ sơ và thực đơn trên thiết bị của bạn. Chúng tôi không bán dữ liệu cá nhân. Bạn có thể chọn đồng bộ tùy chọn; khi bật, chỉ các trường cần cho thực đơn được lưu theo tài khoản của bạn. Xem chi tiết tại: https://pregnancymeal.tips/vi/privacy
 
 MIỄN PHÍ GIAI ĐOẠN ĐẦU
 Ứng dụng miễn phí trong giai đoạn phát hành đầu. Một số tính năng nâng cao có thể được bổ sung sau này.
 
-Liên hệ hỗ trợ: support@mebauangi.info
+Liên hệ hỗ trợ: support@pregnancymeal.tips
 ```
 
 ### 2.2 English
@@ -106,12 +106,12 @@ IMPORTANT — NOT A MEDICAL DEVICE
 Meal plans are generated automatically from the information you provide and are for reference only. The app does not diagnose, treat or replace advice from an obstetrician or registered dietitian. If you have gestational diabetes, hypertension, preeclampsia risk, severe anemia, fetal growth concerns or any medical issue, ask your clinician before following the plan.
 
 PRIVACY
-The free tier stores your profile and meal plans on your device. We do not sell personal data. Optional sync stores only fields needed for meal planning. Details: https://mebauangi.info/en/privacy
+The free tier stores your profile and meal plans on your device. We do not sell personal data. Optional sync stores only fields needed for meal planning. Details: https://pregnancymeal.tips/privacy
 
 FREE DURING EARLY RELEASE
 The app is free during the initial release. Premium features may be added later.
 
-Support: support@mebauangi.info
+Support: support@pregnancymeal.tips
 ```
 
 ---
@@ -169,7 +169,7 @@ Bầu Ăn Gì? is a free pregnancy meal-planning companion for Vietnamese famili
 Test account: Not required — no login is needed for core features.
 
 How to test:
-1. Launch the app (loads https://mebauangi.info in the native WebView).
+1. Launch the app (loads https://pregnancymeal.tips in the native WebView).
 2. Tap “Tạo thực đơn miễn phí” / “Create a free plan”.
 3. Complete the multi-step form (gestational week, weight, preferences).
 4. View the 7-day plan, shopping list and food-safety notes.
@@ -177,8 +177,8 @@ How to test:
 
 The app provides educational meal suggestions only and displays a medical disclaimer. It is not a medical device and does not provide diagnosis or treatment.
 
-Privacy policy: https://mebauangi.info/en/privacy
-Support: support@mebauangi.info
+Privacy policy: https://pregnancymeal.tips/privacy
+Support: support@pregnancymeal.tips
 ```
 
 ### App Privacy (Nutrition Label) — recommended answers
@@ -241,9 +241,9 @@ App uses standard HTTPS only → **No** custom encryption beyond OS APIs (`ITSAp
 
 ### Store listing contact details
 
-- Email: support@mebauangi.info  
+- Email: support@pregnancymeal.tips  
 - Phone: [optional]  
-- Website: https://mebauangi.info
+- Website: https://pregnancymeal.tips
 
 ---
 
@@ -269,7 +269,7 @@ App uses standard HTTPS only → **No** custom encryption beyond OS APIs (`ITSAp
 5. **Safety warnings** — “Cảnh báo an toàn thực phẩm khi mang thai”  
 6. **Blog** — “Blog dinh dưỡng từ nguồn tham khảo uy tín”
 
-Capture from https://mebauangi.info on a phone emulator or device after installing the Capacitor build.
+Capture from https://pregnancymeal.tips on a phone emulator or device after installing the Capacitor build.
 
 ### Feature graphic text (Google Play 1024×500)
 
@@ -283,10 +283,10 @@ Capture from https://mebauangi.info on a phone emulator or device after installi
 
 | Purpose | URL |
 |---------|-----|
-| Privacy policy | https://mebauangi.info/privacy |
+| Privacy policy | https://pregnancymeal.tips/privacy |
 | Terms / disclaimer (in-app) | Shown on planner and result pages |
-| Marketing URL | https://mebauangi.info |
-| Support URL | https://mebauangi.info (or mailto:support@mebauangi.info) |
+| Marketing URL | https://pregnancymeal.tips |
+| Support URL | https://pregnancymeal.tips (or mailto:support@pregnancymeal.tips) |
 
 ### Extended privacy policy text (for store “Privacy policy” field if plain URL not accepted)
 
@@ -315,7 +315,7 @@ Use this wording in both stores and review notes:
 
 ### Both platforms
 
-- [ ] Replace `support@mebauangi.info` and legal entity placeholders  
+- [ ] Confirm support email `support@pregnancymeal.tips` and legal entity placeholders  
 - [ ] Sign release build (Android keystore, Apple distribution cert)  
 - [ ] Test on physical devices (planner → result → history → profile)  
 - [ ] Verify offline shell shows, then loads site over HTTPS  

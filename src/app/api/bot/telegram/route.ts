@@ -55,7 +55,7 @@ export async function POST(request: Request) {
         `Trưa: ${day1.lunch.name}`,
         `Tối: ${day1.dinner.name}`,
         "",
-        "Xem đầy đủ: https://mebauangi.info/planner"
+        "Xem đầy đủ: https://pregnancymeal.tips/planner"
       ].join("\n");
 
       await sendTelegram(chatId, reply);

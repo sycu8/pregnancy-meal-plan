@@ -7,18 +7,23 @@ import { renderBlogMarkdown } from "@/lib/blog/markdown";
 import type { BlogPost } from "@/types/blog";
 
 describe("blog AI synthesis helpers", () => {
-  it("builds template synthesis with category, tags, faqs and image prompt", () => {
+  it("builds bilingual template synthesis with VI + EN content and FAQs", () => {
     const result = synthesizePost({
-      title: "Thực đơn mẹ bầu 7 ngày giàu sắt",
-      snippet: "Gợi ý món Việt giúp bổ sung sắt khi mang thai.",
+      title: "Iron-rich 7-day pregnancy meal plan",
+      titleVi: "Thực đơn mẹ bầu 7 ngày giàu sắt",
+      snippet: "Meal ideas that help boost iron intake during pregnancy.",
+      snippetVi: "Gợi ý món giúp bổ sung sắt khi mang thai.",
       sourceName: "Editorial",
-      url: "https://mebauangi.info/blog/topics#demo"
+      url: "https://pregnancymeal.tips/blog/topics#demo"
     });
 
     expect(result.usedAi).toBe(false);
     expect(result.category).toBe("thuc-don-ba-bau");
     expect(result.content).toContain("## Tóm tắt");
     expect(result.faqs?.length).toBeGreaterThan(0);
+    expect(result.en.title).toMatch(/iron|pregnancy|meal/i);
+    expect(result.en.content).toContain("## Summary");
+    expect(result.en.faqs.length).toBeGreaterThan(0);
     expect(result.imagePrompt).toMatch(/photorealistic/i);
   });
 
@@ -27,11 +32,12 @@ describe("blog AI synthesis helpers", () => {
     expect(buildImagePrompt("Ăn dặm", "cham-con-0-24-thang")).toContain("weaning");
   });
 
-  it("rotates editorial SEO topics", () => {
+  it("rotates bilingual editorial SEO topics", () => {
     expect(EDITORIAL_TOPICS.length).toBeGreaterThanOrEqual(8);
     const picked = pickEditorialTopics(3, "2026-07-26");
     expect(picked).toHaveLength(3);
     expect(picked[0]?.category).toMatch(/dinh-duong|thuc-don|sau-sinh|cham-con|truoc-sinh/);
+    expect(picked.every((topic) => topic.titleVi && topic.snippetVi && topic.title && topic.snippet)).toBe(true);
   });
 });
 
@@ -50,7 +56,7 @@ describe("blog SEO/GEO surfaces", () => {
     readingTimeMinutes: 4,
     metaTitle: "Dinh dưỡng mẹ bầu | Blog",
     metaDescription: "Mô tả",
-    ogImage: "https://mebauangi.info/api/blog/media/blog/images/demo-dinh-duong.jpg",
+    ogImage: "https://pregnancymeal.tips/api/blog/media/blog/images/demo-dinh-duong.jpg",
     faqs: [{ question: "Cần bổ sung gì?", answer: "Folate và sắt theo hướng dẫn bác sĩ." }],
     status: "published"
   };

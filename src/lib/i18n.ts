@@ -59,11 +59,6 @@ export const siteCopy = {
   }
 } as const;
 
-export const footerCredit = {
-  label: "Created by Lê Sỹ Cường",
-  href: "https://www.linkedin.com/in/sycule/"
-} as const;
-
 export const pageSeo: Record<Locale, Record<PageKey, { title: string; description: string; keywords: string[] }>> = {
   en: {
     home: {
@@ -184,7 +179,7 @@ export function createPageMetadata(locale: Locale, page: PageKey): Metadata {
   const canonical = localizedPath(locale, routePath);
 
   return {
-    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://mebauangi.info"),
+    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://pregnancymeal.tips"),
     title: seo.title,
     description: seo.description,
     keywords: seo.keywords,
@@ -227,7 +222,7 @@ export function createPageMetadata(locale: Locale, page: PageKey): Metadata {
 export function structuredData(locale: Locale) {
   const seo = pageSeo[locale].home;
   const homeUrl = localizedPath(locale, "/");
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://mebauangi.info";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://pregnancymeal.tips";
 
   return {
     "@context": "https://schema.org",

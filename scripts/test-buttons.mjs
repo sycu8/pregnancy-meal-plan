@@ -4,7 +4,7 @@
  */
 import { chromium } from "playwright";
 
-const base = process.argv[2] ?? "https://mebauangi.info";
+const base = process.argv[2] ?? "https://pregnancymeal.tips";
 
 const failures = [];
 

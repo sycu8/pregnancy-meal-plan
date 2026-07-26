@@ -1,6 +1,6 @@
 import type { SourceConfig } from "@/types/blog";
 
-export const BLOG_USER_AGENT = "PregnancyMealPlannerBot/1.0 (+https://mebauangi.info/robots.txt; research-ingestion)";
+export const BLOG_USER_AGENT = "PregnancyMealPlannerBot/1.0 (+https://pregnancymeal.tips/robots.txt; research-ingestion)";
 
 export const DEFAULT_RATE_LIMIT_MS = 1200;
 

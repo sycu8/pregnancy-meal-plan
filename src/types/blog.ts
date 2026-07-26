@@ -22,6 +22,11 @@ export type SourceReference = {
   accessedAt?: string;
 };
 
+export type BlogFaq = {
+  question: string;
+  answer: string;
+};
+
 /** English (or other locale) text overlay — slug and metadata stay shared with the Vietnamese post. */
 export type BlogPostTranslation = {
   slug: string;
@@ -32,11 +37,8 @@ export type BlogPostTranslation = {
   metaDescription: string;
   author?: string;
   reviewer?: string;
-};
-
-export type BlogFaq = {
-  question: string;
-  answer: string;
+  /** Locale-specific FAQs shown on English pages */
+  faqs?: BlogFaq[];
 };
 
 export type BlogPost = {

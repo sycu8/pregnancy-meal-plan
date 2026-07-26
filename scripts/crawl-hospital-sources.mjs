@@ -5,7 +5,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const UA = "MeBauAnGiBlogBot/1.0 (+https://mebauangi.info/robots.txt; research-ingestion)";
+const UA = "MeBauAnGiBlogBot/1.0 (+https://pregnancymeal.tips/robots.txt; research-ingestion)";
 
 const TOPIC_RE =
   /thai|bầu|bau|sản|san|mang.?thai|dinh.?duong|cho.?con.?b[uú]|sau.?sinh|sơ.?sinh|so.?sinh|trẻ|tre|mẹ.?bầu|me.?bau|obstet|pregnan|nutrition|weaning|bé|san.?phu|phu.?nu|con.?so|nuoi.?con|an.?dam|tiem.?chung/i;
