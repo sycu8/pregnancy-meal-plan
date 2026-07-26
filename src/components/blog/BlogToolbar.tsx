@@ -51,7 +51,7 @@ export function BlogToolbar({ basePath, query, tags, resultCount, locale = "vi" 
       {typeof resultCount === "number" && (query.q || query.tag) && (
         <p className="mt-3 text-sm text-muted-foreground">
           {resultCount > 0
-            ? ui.resultsFound(resultCount, query.q, query.tag ? formatTagLabel(query.tag) : undefined)
+            ? ui.resultsFound(resultCount, query.q, query.tag ? formatTagLabel(query.tag, locale) : undefined)
             : ui.noResults}
         </p>
       )}
@@ -73,7 +73,7 @@ export function BlogToolbar({ basePath, query, tags, resultCount, locale = "vi" 
                     }`}
                     aria-current={active ? "true" : undefined}
                   >
-                    <span>{formatTagLabel(tag)}</span>
+                    <span>{formatTagLabel(tag, locale)}</span>
                     <span className={active ? "text-accent-foreground/80" : "text-muted-foreground/70"}>({count})</span>
                   </Link>
                 </li>

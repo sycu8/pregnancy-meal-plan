@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { BlogListing } from "@/components/blog/BlogListing";
+import { buildBlogListKeywords, keywordsMetaValue } from "@/lib/blog/keywords";
 import { getAllPosts } from "@/lib/blog/posts";
 import { filterPosts, paginatePosts, parseBlogListQuery } from "@/lib/blog/query";
 import { blogListMetadata } from "@/lib/blog/seo";
@@ -24,6 +25,7 @@ export function BlogIndexContent({ locale, searchParams }: { locale: BlogLocale;
   const meta = blogListMetadata(locale);
   const description = typeof meta.description === "string" ? meta.description : ui.listIntro;
   const plannerHref = localizedPath(locale, "/planner");
+  const keywords = buildBlogListKeywords(locale);
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-8 md:py-12">
@@ -41,6 +43,16 @@ export function BlogIndexContent({ locale, searchParams }: { locale: BlogLocale;
             <p className="text-sm font-medium text-accent">Blog</p>
             <h1 className="mt-2 text-3xl font-semibold tracking-tight md:text-4xl">{ui.listTitle}</h1>
             <p className="mt-4 text-base leading-7 text-muted-foreground">{ui.listIntro}</p>
+            <div className="mt-4">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{ui.popularKeywords}</p>
+              <ul className="mt-2 flex flex-wrap gap-2" aria-label={ui.keywordsAria}>
+                {keywords.slice(0, 10).map((keyword) => (
+                  <li key={keyword}>
+                    <span className="inline-flex rounded-md bg-muted px-2 py-1 text-xs text-muted-foreground">{keyword}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
             <p className="mt-4 flex flex-wrap gap-4">
               <Link href={plannerHref} className="text-sm font-medium text-accent underline underline-offset-2 hover:text-accent/80">
                 {ui.plannerCta}
@@ -66,6 +78,7 @@ export function BlogIndexContent({ locale, searchParams }: { locale: BlogLocale;
             name: locale === "en" ? "Pregnancy Meal Planner Blog" : "Blog Pregnancy Meal Planner",
             url: `${siteOrigin}${base}`,
             description,
+            keywords: keywordsMetaValue(keywords),
             inLanguage: locale === "en" ? "en-US" : "vi-VN",
             publisher: { "@type": "Organization", name: "Pregnancy Meal Planner", url: siteOrigin }
           })

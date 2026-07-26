@@ -21,6 +21,7 @@ export const blogUi = {
     searchButton: "Tìm kiếm",
     clearFilters: "Xóa bộ lọc",
     popularKeywords: "Từ khóa phổ biến",
+    articleKeywords: "Từ khóa",
     keywordsAria: "Từ khóa",
     noResults: "Không có bài phù hợp. Thử từ khóa khác hoặc xóa bộ lọc.",
     resultsFound: (count: number, q?: string, tag?: string) => {
@@ -61,6 +62,7 @@ export const blogUi = {
     searchButton: "Search",
     clearFilters: "Clear filters",
     popularKeywords: "Popular keywords",
+    articleKeywords: "Keywords",
     keywordsAria: "Keywords",
     resultsFound: (count: number, q?: string, tag?: string) => {
       if (count === 0) return null;

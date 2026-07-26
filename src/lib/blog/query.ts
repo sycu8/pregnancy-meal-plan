@@ -1,4 +1,5 @@
 import type { BlogCategorySlug, BlogLocale, BlogPost } from "@/types/blog";
+import { keywordLabel } from "@/lib/blog/keywords";
 import { getAllPosts } from "@/lib/blog/posts";
 
 export const BLOG_PAGE_SIZE = 12;
@@ -37,7 +38,10 @@ export function filterPosts(posts: BlogPost[], query: Pick<BlogListQuery, "q" | 
   if (query.q) {
     const terms = query.q.toLowerCase().split(/\s+/).filter(Boolean);
     result = result.filter((post) => {
-      const haystack = [post.title, post.excerpt, post.content, post.tags.join(" "), post.category].join(" ").toLowerCase();
+      const englishKeywords = post.tags.map((tag) => keywordLabel(tag, "en")).join(" ");
+      const haystack = [post.title, post.excerpt, post.content, post.tags.join(" "), englishKeywords, post.category]
+        .join(" ")
+        .toLowerCase();
       return terms.every((term) => haystack.includes(term));
     });
   }
@@ -76,8 +80,8 @@ export function getTagCounts(posts: BlogPost[], limit = 24): { tag: string; coun
     .slice(0, limit);
 }
 
-export function formatTagLabel(tag: string): string {
-  return tag.replace(/-/g, " ");
+export function formatTagLabel(tag: string, locale: BlogLocale = "en"): string {
+  return keywordLabel(tag, locale);
 }
 
 export function buildBlogListHref(

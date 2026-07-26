@@ -62,7 +62,7 @@ describe("editorial synthesis", () => {
       url: "https://example.com/nghen"
     });
     expect(output.content).toContain("## Tóm tắt");
-    expect(output.tags).toContain("nghen");
+    expect(output.tags).toContain("nausea");
     expect(output.en.content).toContain("## Summary");
     expect(output.en.title.length).toBeGreaterThan(0);
     expect(output.en.faqs.length).toBeGreaterThan(0);

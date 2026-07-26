@@ -6,6 +6,7 @@ import { BlogListing } from "@/components/blog/BlogListing";
 import { getCategoryBySlug, isCategorySlug } from "@/lib/blog/categories";
 import { getPostBySlug, getPostsByCategory, getRelatedPosts } from "@/lib/blog/posts";
 import { filterPosts, paginatePosts, parseBlogListQuery } from "@/lib/blog/query";
+import { buildCategoryKeywords } from "@/lib/blog/keywords";
 import { blogCategoryMetadata, blogFaqJsonLd, blogPostJsonLd, blogPostMetadata, blogBreadcrumbJsonLd } from "@/lib/blog/seo";
 import { blogBasePath, getBlogUi } from "@/lib/blog/ui";
 import { siteOrigin } from "@/lib/agentDiscovery";
@@ -99,6 +100,16 @@ function CategoryPage({
           <header className="mt-4 max-w-3xl">
             <h1 className="text-3xl font-semibold tracking-tight">{category.name}</h1>
             <p className="mt-3 text-base leading-7 text-muted-foreground">{category.description}</p>
+            <div className="mt-4">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{ui.popularKeywords}</p>
+              <ul className="mt-2 flex flex-wrap gap-2" aria-label={ui.keywordsAria}>
+                {buildCategoryKeywords(categorySlug, locale).slice(0, 8).map((keyword) => (
+                  <li key={keyword}>
+                    <span className="inline-flex rounded-md bg-muted px-2 py-1 text-xs text-muted-foreground">{keyword}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </header>
         }
         emptyMessage={ui.emptyCategory}

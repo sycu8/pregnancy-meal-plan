@@ -1,5 +1,11 @@
 import type { Metadata } from "next";
 import type { BlogCategory, BlogLocale, BlogPost } from "@/types/blog";
+import {
+  buildBlogListKeywords,
+  buildCategoryKeywords,
+  buildPostKeywords,
+  keywordsMetaValue
+} from "@/lib/blog/keywords";
 import { blogBasePath } from "@/lib/blog/ui";
 import { siteOrigin } from "@/lib/agentDiscovery";
 import { BRAND_NAME, localizedPath } from "@/lib/i18n";
@@ -24,11 +30,13 @@ const listMeta = {
 export function blogListMetadata(locale: BlogLocale = "en"): Metadata {
   const meta = listMeta[locale];
   const url = `${siteOrigin}${blogBasePath(locale)}`;
+  const keywords = buildBlogListKeywords(locale);
 
   return {
     metadataBase: new URL(siteOrigin),
     title: meta.title,
     description: meta.description,
+    keywords,
     alternates: {
       canonical: url,
       languages: {
@@ -46,11 +54,13 @@ export function blogListMetadata(locale: BlogLocale = "en"): Metadata {
 export function blogCategoryMetadata(category: BlogCategory, locale: BlogLocale = "en"): Metadata {
   const url = `${siteOrigin}${blogBasePath(locale)}/${category.slug}`;
   const ogLocale = locale === "en" ? "en_US" : "vi_VN";
+  const keywords = buildCategoryKeywords(category.slug, locale);
 
   return {
     metadataBase: new URL(siteOrigin),
     title: category.metaTitle,
     description: category.metaDescription,
+    keywords,
     alternates: {
       canonical: url,
       languages: {
@@ -68,11 +78,13 @@ export function blogPostMetadata(post: BlogPost, locale: BlogLocale = "en"): Met
   const base = blogBasePath(locale);
   const url = post.canonicalUrl ?? `${siteOrigin}${base}/${post.slug}`;
   const ogLocale = locale === "en" ? "en_US" : "vi_VN";
+  const keywords = buildPostKeywords(post, locale);
 
   return {
     metadataBase: new URL(siteOrigin),
     title: post.metaTitle,
     description: post.metaDescription,
+    keywords,
     alternates: {
       canonical: url,
       languages: {
@@ -118,8 +130,8 @@ export function blogPostJsonLd(post: BlogPost, locale: BlogLocale = "en") {
     },
     mainEntityOfPage: url,
     inLanguage: lang,
-    keywords: post.tags.join(", "),
-    about: ["pregnancy meal planner", "prenatal nutrition", "baby care"],
+    keywords: keywordsMetaValue(buildPostKeywords(post, locale)),
+    about: ["pregnancy meal planner", "prenatal nutrition", "pregnancy meal plan", "baby care"],
     ...(post.ogImage
       ? {
           image: [post.ogImage]

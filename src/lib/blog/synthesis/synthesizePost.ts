@@ -171,7 +171,7 @@ HARD RULES:
   "excerpt": string (<=220 chars, Vietnamese),
   "content": string (Vietnamese markdown with ## headings; 500-900 words),
   "category": one of ${CATEGORY_SLUGS.join("|")},
-  "tags": string[] (3-6 kebab-case),
+  "tags": string[] (3-6 English kebab-case SEO tags, e.g. pregnancy-meal-plan, prenatal-nutrition, postpartum),
   "metaTitle": string (<=60 chars, Vietnamese),
   "metaDescription": string (<=155 chars, Vietnamese),
   "imagePrompt": string (English, photorealistic, no text overlays),
@@ -359,30 +359,32 @@ function guessCategory(title: string, snippet: string): BlogCategorySlug {
 
 function guessTags(title: string, snippet: string): string[] {
   const text = `${title} ${snippet}`.toLowerCase();
+  // Prefer English SEO-friendly tags; UI maps them to localized labels.
   const tags = new Set<string>();
-  if (/nghén|nghen|nausea/i.test(text)) {
+  if (/nghén|nghen|nausea|morning sickness/i.test(text)) {
     tags.add("nausea");
-    tags.add("nghen");
   }
   if (/tiểu đường|tieu duong|gdm|gestational diabetes/i.test(text)) {
     tags.add("gestational-diabetes");
-    tags.add("tieu-duong");
   }
   if (/thiếu máu|thieu mau|anemia|iron/i.test(text)) {
     tags.add("iron");
-    tags.add("thieu-mau");
   }
   if (/táo bón|tao bon|constipation/i.test(text)) {
     tags.add("constipation");
-    tags.add("tao-bon");
   }
   if (/thực đơn|thuc don|meal plan|menu/i.test(text)) {
     tags.add("meal-plan");
-    tags.add("thuc-don");
+  }
+  if (/sau sinh|postpartum|cho con bú|breastfeed/i.test(text)) {
+    tags.add("postpartum");
+  }
+  if (/ăn dặm|an dam|weaning|starting solids/i.test(text)) {
+    tags.add("weaning");
   }
   if (tags.size === 0) {
     tags.add("pregnancy");
-    tags.add("me-bau");
+    tags.add("nutrition");
   }
   return [...tags].slice(0, 6);
 }

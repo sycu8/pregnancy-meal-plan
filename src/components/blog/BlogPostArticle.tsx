@@ -1,6 +1,9 @@
+import Link from "next/link";
 import type { BlogLocale, BlogPost } from "@/types/blog";
 import { babyAgeLabels, getCategoryBySlug, medicalDisclaimer, trimesterLabels } from "@/lib/blog/categories";
+import { buildPostKeywords, keywordLabel } from "@/lib/blog/keywords";
 import { renderBlogMarkdown } from "@/lib/blog/markdown";
+import { buildBlogListHref } from "@/lib/blog/query";
 import { BlogBreadcrumbs } from "@/components/blog/BlogCard";
 import { BlogPlannerCta } from "@/components/blog/BlogPlannerCta";
 import { blogBasePath, getBlogUi } from "@/lib/blog/ui";
@@ -11,6 +14,7 @@ export function BlogPostArticle({ post, locale = "vi" }: { post: BlogPost; local
   const category = getCategoryBySlug(post.category, locale);
   const html = renderBlogMarkdown(post.content);
   const dateLocale = locale === "en" ? "en-US" : "vi-VN";
+  const keywords = buildPostKeywords(post, locale);
 
   return (
     <article className="mx-auto max-w-3xl">
@@ -49,10 +53,30 @@ export function BlogPostArticle({ post, locale = "vi" }: { post: BlogPost; local
         <div className="mt-4 flex flex-wrap gap-2 text-xs">
           {post.trimester && <MetaPill label={trimesterLabels[locale][post.trimester]} />}
           {post.babyAgeRange && <MetaPill label={babyAgeLabels[locale][post.babyAgeRange]} />}
-          {post.tags.map((tag) => (
-            <MetaPill key={tag} label={`#${tag}`} />
-          ))}
         </div>
+        {keywords.length > 0 && (
+          <div className="mt-4">
+            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{ui.articleKeywords}</p>
+            <ul className="mt-2 flex flex-wrap gap-2" aria-label={ui.keywordsAria}>
+              {post.tags.length > 0
+                ? post.tags.map((tag) => (
+                    <li key={tag}>
+                      <Link
+                        href={buildBlogListHref(base, { tag: tag.toLowerCase() })}
+                        className="inline-flex rounded-md bg-muted px-2 py-1 text-xs text-muted-foreground transition hover:bg-accent/10 hover:text-foreground"
+                      >
+                        {keywordLabel(tag, locale)}
+                      </Link>
+                    </li>
+                  ))
+                : keywords.slice(0, 8).map((keyword) => (
+                    <li key={keyword}>
+                      <MetaPill label={keyword} />
+                    </li>
+                  ))}
+            </ul>
+          </div>
+        )}
         <p className="mt-4 text-sm text-muted-foreground">
           {post.author}
           {post.reviewer ? ` · ${post.reviewer}` : ""}
