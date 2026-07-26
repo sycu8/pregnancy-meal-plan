@@ -37,6 +37,15 @@ export function BlogPostArticle({ post, locale = "vi" }: { post: BlogPost; local
         </div>
         <h1 className="mt-3 text-3xl font-semibold leading-tight text-foreground">{post.title}</h1>
         <p className="mt-3 text-base leading-7 text-muted-foreground">{post.excerpt}</p>
+        {post.ogImage && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={post.ogImage}
+            alt={post.title}
+            className="mt-6 w-full rounded-lg border border-border object-cover"
+            loading="eager"
+          />
+        )}
         <div className="mt-4 flex flex-wrap gap-2 text-xs">
           {post.trimester && <MetaPill label={trimesterLabels[locale][post.trimester]} />}
           {post.babyAgeRange && <MetaPill label={babyAgeLabels[locale][post.babyAgeRange]} />}

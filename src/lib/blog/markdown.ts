@@ -19,8 +19,14 @@ export function renderBlogMarkdown(markdown: string): string {
   function inline(text: string) {
     return escapeHtml(text)
       .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-      .replace(/!\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)/g, '<img src="$2" alt="$1" class="mt-4 rounded-lg" loading="lazy" />')
-      .replace(/\[(.+?)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" rel="noopener noreferrer" target="_blank" class="text-accent underline underline-offset-2 hover:text-accent/80">$1</a>');
+      .replace(
+        /!\[([^\]]*)\]\(((?:https?:\/\/|\/)[^\s)]+)\)/g,
+        '<img src="$2" alt="$1" class="mt-4 w-full rounded-lg" loading="lazy" />'
+      )
+      .replace(
+        /\[(.+?)\]\(((?:https?:\/\/|\/)[^\s)]+)\)/g,
+        '<a href="$2" rel="noopener noreferrer" target="_blank" class="text-accent underline underline-offset-2 hover:text-accent/80">$1</a>'
+      );
   }
 
   for (const line of lines) {

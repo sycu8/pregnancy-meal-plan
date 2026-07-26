@@ -34,6 +34,11 @@ export type BlogPostTranslation = {
   reviewer?: string;
 };
 
+export type BlogFaq = {
+  question: string;
+  answer: string;
+};
+
 export type BlogPost = {
   title: string;
   slug: string;
@@ -53,6 +58,7 @@ export type BlogPost = {
   metaDescription: string;
   canonicalUrl?: string;
   ogImage?: string;
+  faqs?: BlogFaq[];
   status: BlogPostStatus;
 };
 

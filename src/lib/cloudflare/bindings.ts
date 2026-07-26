@@ -17,7 +17,16 @@ export type CloudflareBindings = {
   };
   EXPORTS?: {
     put: (key: string, value: ArrayBuffer | ReadableStream | string | Uint8Array, options?: unknown) => Promise<void>;
-    get: (key: string) => Promise<unknown>;
+    get: (
+      key: string
+    ) => Promise<
+      | {
+          body?: ReadableStream | null;
+          arrayBuffer?: () => Promise<ArrayBuffer>;
+          httpMetadata?: { contentType?: string };
+        }
+      | null
+    >;
   };
 };
 

@@ -114,7 +114,29 @@ export function blogPostJsonLd(post: BlogPost, locale: BlogLocale = "vi") {
     },
     mainEntityOfPage: url,
     inLanguage: lang,
-    keywords: post.tags.join(", ")
+    keywords: post.tags.join(", "),
+    about: ["dinh dưỡng mẹ và bé", "thực đơn mẹ bầu", "chăm sóc em bé"],
+    ...(post.ogImage
+      ? {
+          image: [post.ogImage]
+        }
+      : {})
+  };
+}
+
+export function blogFaqJsonLd(post: BlogPost) {
+  if (!post.faqs?.length) return null;
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: post.faqs.map((faq) => ({
+      "@type": "Question",
+      name: faq.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: faq.answer
+      }
+    }))
   };
 }
 

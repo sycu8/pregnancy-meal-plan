@@ -165,26 +165,42 @@ corepack pnpm mobile:ios       # opens Xcode (macOS)
 
 Store listing copy, privacy questionnaire answers, and screenshot checklist: [`docs/STORE_SUBMISSION.md`](docs/STORE_SUBMISSION.md).
 
-## Blog: tự crawl mỗi 24 giờ
+## Blog: AI generate + lên lịch đăng mỗi 24 giờ
 
 Website tự bổ sung bài `/blog/` (VI) và `/en/blog/` (EN) qua GitHub Actions:
 
 - **Lịch:** mỗi ngày lúc **09:15 (UTC+7)** — file `.github/workflows/auto-crawl-blog.yml`
-- **Nguồn:** WHO, CDC, Vinmec, Tâm Anh, Medlatec, Long Châu (cấu hình trong `src/lib/blog/ingestion/sources.ts`)
-- **Luồng:** crawl metadata → tổng hợp bài mới → sync manifest → deploy Cloudflare (nếu có bài mới)
+- **Nguồn cảm hứng:** WHO, CDC, Vinmec, Tâm Anh, Medlatec, Long Châu + editorial seeds SEO (dinh dưỡng / thực đơn mẹ bầu)
+- **Luồng:** crawl metadata → seed chủ đề editorial → **Workers AI qua AI Gateway** viết bài → **Flux** tạo ảnh → upload **R2** → sync manifest → deploy Cloudflare
 
 Chạy thủ công trên máy dev:
 
 ```bash
+export CLOUDFLARE_API_TOKEN=...
+export CLOUDFLARE_ACCOUNT_ID=...
+export AI_GATEWAY_ID=default   # hoặc gateway name trên dashboard
+export FEATURE_BLOG_AI_ENABLED=true
 npm run publish:blog:auto
 ```
+
+Nếu thiếu token AI, pipeline vẫn publish bằng template fallback (không ảnh).
 
 ### Bật tự động trên GitHub
 
 1. Push repo lên GitHub (workflow phải có trên `main`).
-2. Vào **Settings → Secrets and variables → Actions**, thêm:
-   - `CLOUDFLARE_API_TOKEN`
+2. Vào **Settings → Secrets and variables → Actions**, thêm secrets:
+   - `CLOUDFLARE_API_TOKEN` (Workers AI + AI Gateway + R2 + Deploy)
    - `CLOUDFLARE_ACCOUNT_ID`
-3. Vào **Actions → Auto crawl blog (every 24h) → Run workflow** để thử ngay.
+3. (Khuyến nghị) Variables:
+   - `AI_GATEWAY_ID` = `default` hoặc tên gateway của bạn
+   - `BLOG_AI_TEXT_MODEL` = `@cf/meta/llama-3.3-70b-instruct-fp8-fast`
+   - `BLOG_AI_IMAGE_MODEL` = `@cf/black-forest-labs/flux-1-schnell`
+4. Vào **Actions → Auto crawl blog (every 24h) → Run workflow** để thử ngay.
 
-Mỗi lượt publish tối đa **10 bài** (đổi bằng biến `BLOG_AUTO_PUBLISH_MAX` trong workflow).
+Mỗi lượt publish tối đa **10 bài** (`BLOG_AUTO_PUBLISH_MAX`) + tối đa **3** editorial seeds (`BLOG_EDITORIAL_SEED_MAX`).
+
+### SEO / GEO
+
+- FAQ + Article JSON-LD, OG image từ R2 (`/api/blog/media/blog/images/...`)
+- [`/llms.txt`](https://mebauangi.info/llms.txt) và [`/llms-full.txt`](https://mebauangi.info/llms-full.txt) cho ChatGPT / Claude
+- Blog pages trả markdown khi `Accept: text/markdown`

@@ -32,6 +32,9 @@ Tài liệu triển khai roadmap sản phẩm + kỹ thuật. Cập nhật khi h
 - [x] Unified sitemap crawl trong `ingest.ts`
 - [x] Markdown v2 (ảnh, bảng, blockquote)
 - [x] Topic hubs `/blog/topics`
+- [x] Workers AI + AI Gateway generate content/images → R2 (`aiGateway.ts`, publish pipeline)
+- [x] Editorial SEO seeds (dinh dưỡng / thực đơn mẹ bầu)
+- [x] GEO: `/llms.txt`, `/llms-full.txt`, blog markdown negotiation, FAQ JSON-LD
 
 ## Phase 5 — Agents & scale (Tháng 10–12)
 
@@ -52,8 +55,13 @@ NEXT_PUBLIC_CF_BEACON_TOKEN=
 OAUTH_CLIENT_ID=
 OAUTH_CLIENT_SECRET=
 AI_PROVIDER=workers-ai
+AI_GATEWAY_ID=default
 OPENAI_API_KEY=
 FEATURE_AI_PLANNER_ENABLED=true
+FEATURE_BLOG_AI_ENABLED=true
+BLOG_AI_TEXT_MODEL=@cf/meta/llama-3.3-70b-instruct-fp8-fast
+BLOG_AI_IMAGE_MODEL=@cf/black-forest-labs/flux-1-schnell
+BLOG_R2_BUCKET=bau-an-gi-exports
 APPLE_TEAM_ID=
 ANDROID_SHA256_FINGERPRINT=
 B2B_API_KEY=

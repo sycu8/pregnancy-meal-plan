@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
       '</.well-known/api-catalog>; rel="api-catalog"; type="application/linkset+json"',
       '</openapi.json>; rel="service-desc"; type="application/openapi+json"',
       '</api-docs>; rel="service-doc"; type="text/markdown"',
+      '</llms.txt>; rel="alternate"; type="text/plain"',
       '</.well-known/agent-skills/index.json>; rel="describedby"; type="application/json"',
       '</sitemap.xml>; rel="sitemap"; type="application/xml"'
     ].join(", ");
@@ -18,6 +19,14 @@ const nextConfig: NextConfig = {
       },
       {
         source: "/en",
+        headers: [{ key: "Link", value: discoveryLinks }]
+      },
+      {
+        source: "/blog",
+        headers: [{ key: "Link", value: discoveryLinks }]
+      },
+      {
+        source: "/en/blog",
         headers: [{ key: "Link", value: discoveryLinks }]
       }
     ];

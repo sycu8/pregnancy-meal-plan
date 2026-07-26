@@ -6,7 +6,7 @@ import { BlogListing } from "@/components/blog/BlogListing";
 import { getCategoryBySlug, isCategorySlug } from "@/lib/blog/categories";
 import { getPostBySlug, getPostsByCategory, getRelatedPosts } from "@/lib/blog/posts";
 import { filterPosts, paginatePosts, parseBlogListQuery } from "@/lib/blog/query";
-import { blogCategoryMetadata, blogPostJsonLd, blogPostMetadata, blogBreadcrumbJsonLd } from "@/lib/blog/seo";
+import { blogCategoryMetadata, blogFaqJsonLd, blogPostJsonLd, blogPostMetadata, blogBreadcrumbJsonLd } from "@/lib/blog/seo";
 import { blogBasePath, getBlogUi } from "@/lib/blog/ui";
 import { siteOrigin } from "@/lib/agentDiscovery";
 import type { BlogCategorySlug, BlogLocale } from "@/types/blog";
@@ -41,6 +41,7 @@ export function BlogSlugContent({ slug, locale, searchParams }: { slug: string; 
     ...(category ? [{ name: category.name, url: `${siteOrigin}${base}/${category.slug}` }] : []),
     { name: post.title, url: `${siteOrigin}${base}/${post.slug}` }
   ]);
+  const faqLd = blogFaqJsonLd(post);
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-8 md:py-12">
@@ -59,6 +60,7 @@ export function BlogSlugContent({ slug, locale, searchParams }: { slug: string; 
 
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(blogPostJsonLd(post, locale)) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }} />
+      {faqLd && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />}
     </main>
   );
 }
