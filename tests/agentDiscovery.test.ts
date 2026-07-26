@@ -23,6 +23,7 @@ describe("agent discovery assets", () => {
     expect(robots).toContain("User-agent: *");
     expect(robots).toContain("Allow: /");
     expect(robots).toContain("Disallow: /api/");
+    expect(robots).toContain("Disallow: /marketing");
     expect(robots).toContain("Allow: /auth.md");
     expect(robots).toContain("Allow: /agent/");
     expect(robots).toContain(`Content-Signal: ${contentSignal}`);

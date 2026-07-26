@@ -2,22 +2,21 @@ import { NextResponse } from "next/server";
 import { getAllPosts } from "@/lib/blog/posts";
 import { draftsFromBlogPost } from "@/lib/marketing/drafts";
 import { publishDraft } from "@/lib/marketing/publishers";
+import { assertMarketingAuth } from "@/lib/marketing/auth";
+import { appendMarketingActivity } from "@/lib/marketing/activity";
+import type { SocialPlatform } from "@/lib/social/profiles";
 
 export const runtime = "nodejs";
 
 /**
- * Optional cron entrypoint for auto-posting.
- * Secure with CRON_SECRET header: Authorization: Bearer <CRON_SECRET>
+ * Cron entrypoint for auto-posting.
+ * Secure with Authorization: Bearer <MARKETING_API_KEY|CRON_SECRET>
  *
- * Cloudflare / GitHub Actions can hit:
- *   POST /api/cron/social-publish?locale=en&platforms=x,facebook
+ * POST /api/cron/social-publish?locale=en&platforms=x,facebook&live=1
  */
 export async function POST(request: Request) {
-  const secret = process.env.CRON_SECRET?.trim();
-  const auth = request.headers.get("authorization") ?? "";
-  if (!secret || auth !== `Bearer ${secret}`) {
-    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-  }
+  const auth = assertMarketingAuth(request);
+  if (!auth.ok) return auth.response;
 
   const url = new URL(request.url);
   const locale = url.searchParams.get("locale") === "vi" ? "vi" : "en";
@@ -26,7 +25,7 @@ export async function POST(request: Request) {
     (url.searchParams.get("platforms") ?? "x,facebook")
       .split(",")
       .map((value) => value.trim())
-      .filter(Boolean)
+      .filter((value): value is SocialPlatform => value === "x" || value === "facebook" || value === "tiktok")
   );
 
   const post = getAllPosts(locale)[0];
@@ -40,6 +39,16 @@ export async function POST(request: Request) {
     results.push(await publishDraft(draft, { dryRun: !live }));
   }
 
+  await appendMarketingActivity({
+    action: "publish",
+    source: "cron",
+    live,
+    slug: post.slug,
+    locale,
+    platforms: [...platforms],
+    results
+  });
+
   return NextResponse.json({
     slug: post.slug,
     live,
@@ -49,6 +58,6 @@ export async function POST(request: Request) {
 
 export async function GET() {
   return NextResponse.json({
-    message: "POST with Authorization: Bearer $CRON_SECRET to publish. Default is dry-run unless live=1."
+    message: "POST with Authorization: Bearer $CRON_SECRET (or MARKETING_API_KEY). Default dry-run unless live=1."
   });
 }

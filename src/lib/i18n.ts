@@ -44,7 +44,8 @@ export const siteCopy = {
       premium: "Premium",
       support: "Hỗ trợ",
       blog: "Blog",
-      social: "Social"
+      social: "Social",
+      marketing: "Marketing"
     }
   },
   en: {
@@ -58,7 +59,8 @@ export const siteCopy = {
       premium: "Premium",
       support: "Support",
       blog: "Blog",
-      social: "Social"
+      social: "Social",
+      marketing: "Marketing"
     }
   }
 } as const;
