@@ -164,7 +164,83 @@ curl -X POST \
 
 ---
 
-## 6) Checklist CMO 7 ngày
+## 6) Marketing portal + Zapier / n8n
+
+Portal (noindex): [pregnancymeal.tips/marketing](https://pregnancymeal.tips/marketing)  
+Mở bằng `MARKETING_API_KEY` hoặc `CRON_SECRET` (Bearer). Portal hiển thị:
+
+- Trạng thái kết nối X / Facebook / TikTok  
+- Draft queue từ blog mới nhất  
+- Activity log (dry-run / live)  
+- Endpoint sẵn cho automation  
+
+Auth cho mọi API marketing:
+
+```bash
+Authorization: Bearer $CRON_SECRET
+# hoặc
+Authorization: Bearer $MARKETING_API_KEY
+# Zapier cũng nhận header:
+X-API-KEY: $CRON_SECRET
+```
+
+### Endpoints
+
+| Method | URL | Dùng cho |
+| --- | --- | --- |
+| GET | `/api/marketing/status?locale=en` | Portal / health |
+| GET | `/api/marketing/drafts?locale=en&limit=3` | Lấy caption |
+| POST | `/api/marketing/publish` | Đăng (default dry-run) |
+| GET/POST | `/api/marketing/hooks/zapier` | Zapier poll + action |
+| POST | `/api/cron/social-publish` | Cron |
+
+### Zapier (Webhooks by Zapier)
+
+**Trigger — poll drafts**
+1. App: *Webhooks by Zapier* → *Retrieve Poll*  
+2. URL: `https://pregnancymeal.tips/api/marketing/hooks/zapier?locale=en&limit=3`  
+3. Auth header: `Authorization: Bearer <CRON_SECRET>`  
+4. Deduper key: `id`
+
+**Action — publish**
+1. *Webhooks by Zapier* → *Custom Request* (POST)  
+2. URL: `https://pregnancymeal.tips/api/marketing/publish`  
+3. Headers: `Authorization: Bearer <CRON_SECRET>`, `Content-Type: application/json`  
+4. Body:
+```json
+{
+  "slug": "{{slug}}",
+  "locale": "en",
+  "platforms": ["x", "facebook"],
+  "live": false,
+  "source": "zapier"
+}
+```
+Đổi `"live": true` khi đã tin pipeline.
+
+### n8n
+
+1. **Cron** node (ví dụ 09:00 ICT Mon/Wed/Fri)  
+2. **HTTP Request** GET `https://pregnancymeal.tips/api/marketing/drafts?locale=en&limit=1`  
+   Header `Authorization: Bearer <CRON_SECRET>`  
+3. **Split Out** / Item Lists trên `drafts` (tuỳ chọn)  
+4. **HTTP Request** POST `https://pregnancymeal.tips/api/marketing/publish`  
+```json
+{
+  "slug": "{{$json.drafts[0].sourceSlug}}",
+  "locale": "en",
+  "platforms": ["x", "facebook"],
+  "live": false,
+  "source": "n8n"
+}
+```
+5. Xem kết quả trên `/marketing` → Recent activity  
+
+Dry-run trước (`live: false`). Khi X có credit và Facebook có `pages_manage_posts`, bật `live: true`.
+
+---
+
+## 7) Checklist CMO 7 ngày
 
 - [ ] Bio + avatar + cover đã khớp `brand/social/BRAND_KIT.md`  
 - [ ] Link bio trỏ về `https://pregnancymeal.tips/social`  
@@ -176,7 +252,7 @@ curl -X POST \
 
 ---
 
-## 7) An toàn nội dung
+## 8) An toàn nội dung
 
 Mọi caption generator đều kèm disclaimer giáo dục.  
 Không đăng chẩn đoán / cam kết y khoa. Ưu tiên tip + CTA planner/blog.
