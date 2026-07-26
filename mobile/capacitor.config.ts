@@ -4,7 +4,7 @@ const productionUrl = process.env.CAPACITOR_SERVER_URL ?? "https://mebauangi.inf
 
 const config: CapacitorConfig = {
   appId: "info.mebauangi.app",
-  appName: "Bầu Ăn Gì?",
+  appName: "Pregnancy Meal Planner",
   webDir: "www",
   server: {
     androidScheme: "https",

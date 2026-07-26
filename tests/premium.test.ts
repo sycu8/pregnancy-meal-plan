@@ -91,8 +91,8 @@ describe("PremiumLimitError", () => {
 
 describe("plan share", () => {
   it("builds localized share URLs with plan id", () => {
-    expect(buildPlanShareUrl("plan-test-1", "vi")).toContain("/result?plan=plan-test-1");
-    expect(buildPlanShareUrl("plan-test-1", "en")).toContain("/en/result?plan=plan-test-1");
+    expect(buildPlanShareUrl("plan-test-1", "en")).toContain("/result?plan=plan-test-1");
+    expect(buildPlanShareUrl("plan-test-1", "vi")).toContain("/vi/result?plan=plan-test-1");
   });
 
   it("includes pregnancy week in share text", () => {

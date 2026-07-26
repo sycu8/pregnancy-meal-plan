@@ -91,36 +91,37 @@ export async function synthesizePostWithAi(
   const fallback = synthesizePost(input);
   if (!isBlogAiEnabled() && !options.config) return fallback;
 
-  const system = `Bạn là biên tập viên sức khỏe mẹ và bé cho website Bầu Ăn Gì? (mebauangi.info).
-Viết nội dung giáo dục bằng tiếng Việt, rõ ràng, thực dụng, tối ưu SEO cho chủ đề dinh dưỡng mẹ bầu / thực đơn mẹ bầu / chăm con.
-QUY TẮC BẮT BUỘC:
-- KHÔNG sao chép nguyên văn bài nguồn; chỉ lấy cảm hứng từ tiêu đề + mô tả ngắn.
-- Không chẩn đoán/điều trị; nhắc hỏi bác sĩ khi cần.
-- Ưu tiên kiến thức thực hành: thực đơn, nhóm chất, an toàn thực phẩm, dấu hiệu cần khám.
-- Trả về ĐÚNG một JSON object (không markdown fence), schema:
+  const system = `You are a maternal–child health editor for Pregnancy Meal Planner (mebauangi.info), targeting an international English-first audience.
+Write clear, practical, educational content optimized for SEO/GEO on prenatal nutrition, pregnancy meal plans, postpartum recovery, and baby feeding.
+HARD RULES:
+- Do NOT copy source articles verbatim; use only the title + short snippet as inspiration.
+- Do not diagnose or prescribe; remind readers to consult a clinician when needed.
+- Prioritize actionable guidance: meal ideas, nutrient groups, food safety, red-flag symptoms.
+- Return EXACTLY one JSON object (no markdown fences), schema:
 {
-  "title": string,
-  "excerpt": string (<=220 chars),
-  "content": string (markdown với ## headings, lists; 700-1200 từ),
+  "title": string (Vietnamese title for the VI post file),
+  "excerpt": string (<=220 chars, Vietnamese),
+  "content": string (Vietnamese markdown with ## headings; 500-900 words),
   "category": one of ${CATEGORY_SLUGS.join("|")},
-  "tags": string[] (3-6 kebab-case tiếng Việt không dấu),
-  "metaTitle": string (<=60 chars),
-  "metaDescription": string (<=155 chars),
+  "tags": string[] (3-6 kebab-case, English preferred),
+  "metaTitle": string (<=60 chars, Vietnamese),
+  "metaDescription": string (<=155 chars, Vietnamese),
   "imagePrompt": string (English, photorealistic, no text overlays, pregnancy/baby nutrition safe),
-  "faqs": [{"question": string, "answer": string}] (3 items),
+  "faqs": [{"question": string, "answer": string}] (3 items; English preferred for GEO),
   "en": {
-    "title": string,
-    "excerpt": string,
-    "content": string (markdown English, concise 400-700 words),
-    "metaTitle": string,
-    "metaDescription": string
+    "title": string (PRIMARY English SEO title),
+    "excerpt": string (<=220 chars),
+    "content": string (PRIMARY English markdown, 700-1200 words, richest section),
+    "metaTitle": string (<=60 chars, include "Pregnancy Meal Planner" when natural),
+    "metaDescription": string (<=155 chars)
   }
-}`;
+}
+English in "en" is the primary quality target for international ranking. Vietnamese fields remain for /vi readers.`;
 
-  const user = `Chủ đề: ${input.title}
-Mô tả ngắn: ${input.snippet || "(không có)"}
-Nguồn cảm hứng (không copy): ${input.sourceName} — ${input.url}
-Ưu tiên SEO keywords: dinh dưỡng mẹ và bé, thực đơn mẹ bầu, chăm sóc em bé, nuôi con.`;
+  const user = `Topic: ${input.title}
+Short description: ${input.snippet || "(none)"}
+Inspiration source (do not copy): ${input.sourceName} — ${input.url}
+Priority SEO keywords: pregnancy meal planner, prenatal nutrition, gestational diabetes meals, postpartum diet, baby weaning.`;
 
   try {
     const raw = await gatewayChatCompletion(
@@ -163,7 +164,7 @@ Nguồn cảm hứng (không copy): ${input.sourceName} — ${input.url}
       content: ensureSourceNote(content, input),
       category,
       tags: tags.length ? tags : fallback.tags,
-      metaTitle: String(parsed.metaTitle || `${title} | Blog Bầu Ăn Gì?`).slice(0, 70),
+      metaTitle: String(parsed.metaTitle || `${title} | Pregnancy Meal Planner`).slice(0, 70),
       metaDescription: String(parsed.metaDescription || excerpt).slice(0, 160),
       imagePrompt: String(parsed.imagePrompt || buildImagePrompt(title, category)).slice(0, 500),
       faqs,
@@ -243,7 +244,7 @@ function normalizeEn(value: unknown): SynthesisOutput["en"] | undefined {
     title,
     excerpt: excerpt.slice(0, 220),
     content,
-    metaTitle: String(row.metaTitle || `${title} | Bầu Ăn Gì? Blog`).slice(0, 70),
+    metaTitle: String(row.metaTitle || `${title} | Pregnancy Meal Planner`).slice(0, 70),
     metaDescription: String(row.metaDescription || excerpt).slice(0, 160)
   };
 }

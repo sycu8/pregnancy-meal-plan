@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { BlogTopicsIndex } from "@/components/blog/BlogTopics";
 
 export const metadata: Metadata = {
-  title: "Chủ đề blog | Bầu Ăn Gì?",
+  title: "Chủ đề blog | Pregnancy Meal Planner",
   description: "Các cụm chủ đề dinh dưỡng thai kỳ, nghén, tiểu đường thai kỳ và ăn dặm."
 };
 

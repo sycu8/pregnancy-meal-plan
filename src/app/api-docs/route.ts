@@ -1,7 +1,7 @@
 import { absoluteUrl } from "@/lib/agentDiscovery";
 
 export function GET() {
-  const body = `# Bầu Ăn Gì? API
+  const body = `# Pregnancy Meal Planner API
 
 ## Generate Meal Plan
 

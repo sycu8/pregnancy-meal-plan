@@ -5,7 +5,7 @@ export function buildPlanExportText(plan: MealPlan, locale: Locale = "vi") {
   const lines: string[] = [];
   const week = plan.profileSnapshot.pregnancyWeek;
 
-  lines.push(locale === "vi" ? `Bầu Ăn Gì? — Thực đơn tuần thai ${week}` : `Bầu Ăn Gì? — Pregnancy week ${week} meal plan`);
+  lines.push(locale === "vi" ? `Pregnancy Meal Planner — Thực đơn tuần thai ${week}` : `Pregnancy Meal Planner — Pregnancy week ${week} meal plan`);
   lines.push(plan.summary.message);
   lines.push("");
 

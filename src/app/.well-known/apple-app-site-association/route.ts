@@ -6,7 +6,7 @@ export function GET() {
       details: [
         {
           appID: `${teamId}.info.mebauangi.app`,
-          paths: ["/result", "/en/result", "/planner", "/en/planner", "/history", "/en/history", "/support", "/en/support"]
+          paths: ["/result", "/vi/result", "/planner", "/vi/planner", "/history", "/vi/history", "/support", "/vi/support"]
         }
       ]
     }

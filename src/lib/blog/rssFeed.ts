@@ -15,7 +15,7 @@ function escapeXml(value: string) {
 export function buildBlogRssFeed(locale: BlogLocale, limit = 20): string {
   const posts = getAllPosts(locale).slice(0, limit);
   const base = `${siteOrigin}${blogBasePath(locale)}`;
-  const title = locale === "en" ? "Bầu Ăn Gì? Blog (English)" : "Bầu Ăn Gì? Blog";
+  const title = locale === "en" ? "Pregnancy Meal Planner Blog (English)" : "Pregnancy Meal Planner Blog";
   const description =
     locale === "en"
       ? "Pregnancy nutrition, meal ideas, and maternal health references."

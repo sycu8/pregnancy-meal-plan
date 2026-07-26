@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { PremiumPage } from "@/components/premium/PremiumPage";
 
 export const metadata: Metadata = {
-  title: "Premium Lifetime | Bầu Ăn Gì?",
+  title: "Premium Lifetime | Pregnancy Meal Planner",
   description: "Thanh toán một lần — không giới hạn thực đơn AI, đổi món, lịch sử và xuất PDF."
 };
 

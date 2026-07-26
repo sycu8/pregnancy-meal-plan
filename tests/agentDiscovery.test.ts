@@ -27,7 +27,7 @@ describe("agent discovery assets", () => {
     }
   });
 
-  it("generates a sitemap with canonical Vietnamese and English URLs", () => {
+  it("generates a sitemap with English-first and Vietnamese URLs", () => {
     const sitemap = sitemapXml();
 
     expect(sitemap).toContain('<?xml version="1.0" encoding="UTF-8"?>');
@@ -35,6 +35,7 @@ describe("agent discovery assets", () => {
       expect(sitemap).toContain(`<loc>${url}</loc>`);
     }
     expect(sitemap).toContain(`${siteOrigin}/blog</loc>`);
+    expect(sitemap).toContain(`${siteOrigin}/vi/blog</loc>`);
     expect(sitemap).toContain(`${siteOrigin}/blog/dinh-duong-ba-bau</loc>`);
   });
 
@@ -43,7 +44,7 @@ describe("agent discovery assets", () => {
     expect(apiCatalog.linkset[0]["service-desc"][0].href).toBe(`${siteOrigin}/openapi.json`);
     expect(apiCatalog.linkset[0]["service-doc"][0].href).toBe(`${siteOrigin}/api-docs`);
     expect(apiCatalog.linkset[0].status[0].href).toBe(`${siteOrigin}/api/health`);
-    expect(mcpServerCard.serverInfo.name).toBe("bau-an-gi");
+    expect(mcpServerCard.serverInfo.name).toBe("pregnancy-meal-planner");
     expect(mcpServerCard.transport.endpoint).toBe(`${siteOrigin}/mcp`);
   });
 
@@ -60,9 +61,9 @@ describe("agent discovery assets", () => {
   });
 
   it("returns markdown copy for agents that request markdown", () => {
-    const markdown = markdownForPath("/en");
+    const markdown = markdownForPath("/");
 
     expect(markdown).toContain("# Pregnancy Meal Planner");
-    expect(markdown).toContain(`[Create a free plan](${siteOrigin}/en/planner)`);
+    expect(markdown).toContain(`[Create a free plan](${siteOrigin}/planner)`);
   });
 });

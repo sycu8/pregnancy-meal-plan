@@ -34,14 +34,14 @@ export function ReferralShare({ locale }: { locale: Locale }) {
     locale === "en"
       ? {
           title: "Share with your partner or family",
-          body: "Send a link so they can open Bầu Ăn Gì? and plan meals together.",
+          body: "Send a link so they can open Pregnancy Meal Planner and plan meals together.",
           cta: "Share link",
           shared: "Shared",
           copied: "Link copied"
         }
       : {
           title: "Gửi thực đơn cho chồng / mẹ",
-          body: "Chia sẻ link để người thân mở Bầu Ăn Gì? và cùng xem thực đơn.",
+          body: "Chia sẻ link để người thân mở Pregnancy Meal Planner và cùng xem thực đơn.",
           cta: "Chia sẻ link",
           shared: "Đã chia sẻ",
           copied: "Đã sao chép link"
@@ -51,7 +51,7 @@ export function ReferralShare({ locale }: { locale: Locale }) {
     if (typeof navigator !== "undefined" && navigator.share) {
       try {
         await navigator.share({
-          title: locale === "en" ? "Bầu Ăn Gì?" : "Bầu Ăn Gì?",
+          title: locale === "en" ? "Pregnancy Meal Planner" : "Pregnancy Meal Planner",
           text: copy.body,
           url: shareUrl
         });

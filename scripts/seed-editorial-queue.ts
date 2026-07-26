@@ -91,7 +91,7 @@ function main() {
 
     const payload: QueuedItem = {
       id,
-      sourceName: "Bầu Ăn Gì? Editorial",
+      sourceName: "Pregnancy Meal Planner Editorial",
       title: topic.title,
       url: `https://mebauangi.info/blog/${topic.id}`,
       snippet: topic.snippet,

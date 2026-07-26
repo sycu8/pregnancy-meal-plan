@@ -7,7 +7,7 @@ export const faqContent: Record<Locale, FaqItem[]> = {
     {
       question: "Ứng dụng có thay thế bác sĩ không?",
       answer:
-        "Không. Bầu Ăn Gì? chỉ gợi ý thực đơn tham khảo. Hãy hỏi bác sĩ sản khoa hoặc chuyên gia dinh dưỡng trước khi thay đổi chế độ ăn."
+        "Không. Pregnancy Meal Planner chỉ gợi ý thực đơn tham khảo. Hãy hỏi bác sĩ sản khoa hoặc chuyên gia dinh dưỡng trước khi thay đổi chế độ ăn."
     },
     {
       question: "Dữ liệu được lưu ở đâu?",
@@ -31,7 +31,7 @@ export const faqContent: Record<Locale, FaqItem[]> = {
     {
       question: "Does the app replace my doctor?",
       answer:
-        "No. Bầu Ăn Gì? provides reference meal suggestions only. Ask your obstetrician or dietitian before changing your diet."
+        "No. Pregnancy Meal Planner provides reference meal suggestions only. Ask your obstetrician or dietitian before changing your diet."
     },
     {
       question: "Where is my data stored?",

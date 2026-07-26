@@ -2,7 +2,7 @@
   "name": "bau-an-gi-mobile",
   "version": "1.0.0",
   "private": true,
-  "description": "Bầu Ăn Gì? — iOS and Android apps (Capacitor)",
+  "description": "Pregnancy Meal Planner — iOS and Android apps (Capacitor)",
   "scripts": {
     "sync": "cap sync",
     "copy": "cap copy",

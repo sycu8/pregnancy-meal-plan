@@ -4,8 +4,8 @@ import { faqContent } from "@/lib/faq";
 import { localizedPath } from "@/lib/i18n";
 
 export const metadata: Metadata = {
-  title: "Support | Bầu Ăn Gì?",
-  description: "Support contact, FAQ and app information for Bầu Ăn Gì? pregnancy meal planner."
+  title: "Support | Pregnancy Meal Planner",
+  description: "Support contact, FAQ and app information for Pregnancy Meal Planner pregnancy meal planner."
 };
 
 export default function EnSupportPage() {
@@ -13,7 +13,7 @@ export default function EnSupportPage() {
     <main className="mx-auto max-w-3xl px-4 py-10">
       <h1 className="text-3xl font-semibold">Support</h1>
       <p className="mt-4 text-muted-foreground leading-7">
-        Bầu Ăn Gì? helps expecting parents plan Vietnamese home-style meals by gestational week. For technical help or product feedback, contact us by email below.
+        Pregnancy Meal Planner helps expecting parents plan Vietnamese home-style meals by gestational week. For technical help or product feedback, contact us by email below.
       </p>
 
       <section className="mt-8 rounded-lg border border-border bg-white p-5">
@@ -45,7 +45,7 @@ export default function EnSupportPage() {
       </section>
 
       <p className="mt-8 text-sm text-muted-foreground">
-        <Link href="/en/privacy" className="text-accent hover:underline">
+        <Link href="/privacy" className="text-accent hover:underline">
           Privacy policy
         </Link>
         {" · "}

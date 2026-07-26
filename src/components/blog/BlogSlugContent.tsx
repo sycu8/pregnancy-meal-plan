@@ -19,7 +19,7 @@ export async function blogSlugMetadata(slug: string, locale: BlogLocale) {
     return blogCategoryMetadata(category, locale);
   }
   const post = getPostBySlug(slug, locale);
-  if (!post) return { title: locale === "en" ? "Not found | Blog" : "Không tìm thấy | Blog Bầu Ăn Gì?" };
+  if (!post) return { title: locale === "en" ? "Not found | Pregnancy Meal Planner" : "Không tìm thấy | Pregnancy Meal Planner" };
   return blogPostMetadata(post, locale);
 }
 

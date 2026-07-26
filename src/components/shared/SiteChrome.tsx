@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { HeartPulse } from "lucide-react";
+import { UtensilsCrossed } from "lucide-react";
 import { footerCredit, localizedPath, siteCopy, type Locale } from "@/lib/i18n";
 import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
 import { MobileNav } from "@/components/shared/MobileNav";
@@ -17,9 +17,9 @@ export function SiteChrome({ children, locale }: { children: React.ReactNode; lo
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
           <Link href={localizedPath(locale, "/")} className="flex min-w-0 items-center gap-2 font-semibold text-foreground">
             <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground">
-              <HeartPulse className="h-5 w-5" aria-hidden="true" />
+              <UtensilsCrossed className="h-5 w-5" aria-hidden="true" />
             </span>
-            <span className="truncate">{copy.brand}</span>
+            <span className="truncate text-base tracking-tight sm:text-lg">{copy.brand}</span>
           </Link>
           <div className="flex items-center gap-2 text-sm text-muted-foreground sm:gap-3">
             <div className="hidden items-center gap-3 sm:flex">

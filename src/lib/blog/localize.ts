@@ -19,7 +19,7 @@ export function applyTranslation(post: BlogPost, translation: BlogPostTranslatio
     content: translation.content,
     metaTitle: translation.metaTitle,
     metaDescription: translation.metaDescription,
-    author: translation.author ?? "Bầu Ăn Gì? Team",
+    author: translation.author ?? "Pregnancy Meal Planner Team",
     reviewer: translation.reviewer ?? post.reviewer,
     readingTimeMinutes: estimateReadingTimeMinutes(translation.content)
   };

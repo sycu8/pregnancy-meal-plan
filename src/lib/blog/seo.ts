@@ -2,25 +2,26 @@ import type { Metadata } from "next";
 import type { BlogCategory, BlogLocale, BlogPost } from "@/types/blog";
 import { blogBasePath } from "@/lib/blog/ui";
 import { siteOrigin } from "@/lib/agentDiscovery";
+import { BRAND_NAME, localizedPath } from "@/lib/i18n";
 
 const listMeta = {
   vi: {
-    title: "Blog mẹ bầu & chăm con 0–24 tháng | Bầu Ăn Gì?",
+    title: `Blog mẹ bầu & chăm con 0–24 tháng | ${BRAND_NAME}`,
     description:
       "Kiến thức dinh dưỡng bà bầu, thực đơn thai kỳ, chuẩn bị sinh và chăm con nhỏ — tổng hợp từ WHO, CDC, NHS, ACOG và nguồn y khoa uy tín.",
     locale: "vi_VN",
     lang: "vi-VN"
   },
   en: {
-    title: "Pregnancy & baby blog (0–24 months) | Bầu Ăn Gì?",
+    title: `Pregnancy & baby blog (0–24 months) | ${BRAND_NAME}`,
     description:
-      "Prenatal nutrition, meal plans, birth prep and baby care articles — synthesized from WHO, CDC, NHS, ACOG and trusted medical sources.",
+      "Prenatal nutrition, meal plans, birth prep and baby care articles — synthesized from WHO, CDC, NHS, ACOG, NIH, FDA and trusted international medical sources.",
     locale: "en_US",
     lang: "en-US"
   }
 } as const;
 
-export function blogListMetadata(locale: BlogLocale = "vi"): Metadata {
+export function blogListMetadata(locale: BlogLocale = "en"): Metadata {
   const meta = listMeta[locale];
   const url = `${siteOrigin}${blogBasePath(locale)}`;
 
@@ -31,17 +32,18 @@ export function blogListMetadata(locale: BlogLocale = "vi"): Metadata {
     alternates: {
       canonical: url,
       languages: {
-        "vi-VN": `${siteOrigin}/blog`,
-        "en-US": `${siteOrigin}/en/blog`
+        "en-US": `${siteOrigin}${localizedPath("en", "/blog")}`,
+        "vi-VN": `${siteOrigin}${localizedPath("vi", "/blog")}`,
+        "x-default": `${siteOrigin}${localizedPath("en", "/blog")}`
       }
     },
-    openGraph: { title: meta.title, description: meta.description, url, siteName: "Bầu Ăn Gì?", locale: meta.locale, type: "website" },
+    openGraph: { title: meta.title, description: meta.description, url, siteName: BRAND_NAME, locale: meta.locale, type: "website" },
     twitter: { card: "summary_large_image", title: meta.title, description: meta.description },
     robots: { index: true, follow: true }
   };
 }
 
-export function blogCategoryMetadata(category: BlogCategory, locale: BlogLocale = "vi"): Metadata {
+export function blogCategoryMetadata(category: BlogCategory, locale: BlogLocale = "en"): Metadata {
   const url = `${siteOrigin}${blogBasePath(locale)}/${category.slug}`;
   const ogLocale = locale === "en" ? "en_US" : "vi_VN";
 
@@ -52,16 +54,17 @@ export function blogCategoryMetadata(category: BlogCategory, locale: BlogLocale 
     alternates: {
       canonical: url,
       languages: {
-        "vi-VN": `${siteOrigin}/blog/${category.slug}`,
-        "en-US": `${siteOrigin}/en/blog/${category.slug}`
+        "en-US": `${siteOrigin}${localizedPath("en", `/blog/${category.slug}`)}`,
+        "vi-VN": `${siteOrigin}${localizedPath("vi", `/blog/${category.slug}`)}`,
+        "x-default": `${siteOrigin}${localizedPath("en", `/blog/${category.slug}`)}`
       }
     },
-    openGraph: { title: category.metaTitle, description: category.metaDescription, url, locale: ogLocale, type: "website" },
+    openGraph: { title: category.metaTitle, description: category.metaDescription, url, siteName: BRAND_NAME, locale: ogLocale, type: "website" },
     robots: { index: true, follow: true }
   };
 }
 
-export function blogPostMetadata(post: BlogPost, locale: BlogLocale = "vi"): Metadata {
+export function blogPostMetadata(post: BlogPost, locale: BlogLocale = "en"): Metadata {
   const base = blogBasePath(locale);
   const url = post.canonicalUrl ?? `${siteOrigin}${base}/${post.slug}`;
   const ogLocale = locale === "en" ? "en_US" : "vi_VN";
@@ -73,15 +76,16 @@ export function blogPostMetadata(post: BlogPost, locale: BlogLocale = "vi"): Met
     alternates: {
       canonical: url,
       languages: {
-        "vi-VN": `${siteOrigin}/blog/${post.slug}`,
-        "en-US": `${siteOrigin}/en/blog/${post.slug}`
+        "en-US": `${siteOrigin}${localizedPath("en", `/blog/${post.slug}`)}`,
+        "vi-VN": `${siteOrigin}${localizedPath("vi", `/blog/${post.slug}`)}`,
+        "x-default": `${siteOrigin}${localizedPath("en", `/blog/${post.slug}`)}`
       }
     },
     openGraph: {
       title: post.metaTitle,
       description: post.metaDescription,
       url,
-      siteName: "Bầu Ăn Gì?",
+      siteName: BRAND_NAME,
       locale: ogLocale,
       type: "article",
       publishedTime: post.publishedAt,
@@ -93,7 +97,7 @@ export function blogPostMetadata(post: BlogPost, locale: BlogLocale = "vi"): Met
   };
 }
 
-export function blogPostJsonLd(post: BlogPost, locale: BlogLocale = "vi") {
+export function blogPostJsonLd(post: BlogPost, locale: BlogLocale = "en") {
   const base = blogBasePath(locale);
   const url = post.canonicalUrl ?? `${siteOrigin}${base}/${post.slug}`;
   const lang = locale === "en" ? "en-US" : "vi-VN";
@@ -109,13 +113,13 @@ export function blogPostJsonLd(post: BlogPost, locale: BlogLocale = "vi") {
     ...(post.reviewer ? { reviewedBy: { "@type": "Person", name: post.reviewer } } : {}),
     publisher: {
       "@type": "Organization",
-      name: "Bầu Ăn Gì?",
+      name: BRAND_NAME,
       url: siteOrigin
     },
     mainEntityOfPage: url,
     inLanguage: lang,
     keywords: post.tags.join(", "),
-    about: ["dinh dưỡng mẹ và bé", "thực đơn mẹ bầu", "chăm sóc em bé"],
+    about: ["pregnancy meal planner", "prenatal nutrition", "baby care"],
     ...(post.ogImage
       ? {
           image: [post.ogImage]

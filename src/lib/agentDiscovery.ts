@@ -19,16 +19,16 @@ export const aiCrawlerUserAgents = [
 export const contentSignal = "ai-train=no, search=yes, ai-input=yes";
 
 const publicPages: { page: PageKey; locale: Locale; priority: string; changefreq: string }[] = [
-  { page: "home", locale: "vi", priority: "1.0", changefreq: "weekly" },
-  { page: "planner", locale: "vi", priority: "0.9", changefreq: "weekly" },
-  { page: "history", locale: "vi", priority: "0.4", changefreq: "monthly" },
-  { page: "profile", locale: "vi", priority: "0.4", changefreq: "monthly" },
-  { page: "result", locale: "vi", priority: "0.5", changefreq: "monthly" },
-  { page: "home", locale: "en", priority: "0.8", changefreq: "weekly" },
-  { page: "planner", locale: "en", priority: "0.7", changefreq: "weekly" },
-  { page: "history", locale: "en", priority: "0.3", changefreq: "monthly" },
-  { page: "profile", locale: "en", priority: "0.3", changefreq: "monthly" },
-  { page: "result", locale: "en", priority: "0.4", changefreq: "monthly" }
+  { page: "home", locale: "en", priority: "1.0", changefreq: "weekly" },
+  { page: "planner", locale: "en", priority: "0.9", changefreq: "weekly" },
+  { page: "history", locale: "en", priority: "0.4", changefreq: "monthly" },
+  { page: "profile", locale: "en", priority: "0.4", changefreq: "monthly" },
+  { page: "result", locale: "en", priority: "0.5", changefreq: "monthly" },
+  { page: "home", locale: "vi", priority: "0.8", changefreq: "weekly" },
+  { page: "planner", locale: "vi", priority: "0.7", changefreq: "weekly" },
+  { page: "history", locale: "vi", priority: "0.3", changefreq: "monthly" },
+  { page: "profile", locale: "vi", priority: "0.3", changefreq: "monthly" },
+  { page: "result", locale: "vi", priority: "0.4", changefreq: "monthly" }
 ];
 
 export const publicSiteUrls = publicPages.map((entry) => absoluteUrl(localizedPath(entry.locale, pagePaths[entry.page])));
@@ -46,9 +46,9 @@ export const apiCatalog = {
 
 export const mcpServerCard = {
   serverInfo: {
-    name: "bau-an-gi",
+    name: "pregnancy-meal-planner",
     version: "0.1.0",
-    description: "Pregnancy meal-planning discovery surface for Vietnamese and English users."
+    description: "English-first pregnancy meal-planning discovery surface with Vietnamese locale support."
   },
   transport: {
     type: "streamable-http",
@@ -120,7 +120,7 @@ export function openIdConfiguration(origin = siteOrigin) {
 export const openApiSpec = {
   openapi: "3.1.0",
   info: {
-    title: "Bầu Ăn Gì? API",
+    title: "Pregnancy Meal Planner API",
     version: "0.1.0",
     description: "Reference API for creating a 7-day pregnancy meal plan."
   },
@@ -211,7 +211,7 @@ description: Create a reference pregnancy meal plan with Vietnamese dishes, shop
 
 # Pregnancy Meal Planner
 
-Use this skill when an agent needs to understand or operate the Bầu Ăn Gì? meal-planning website.
+Use this skill when an agent needs to understand or operate the Pregnancy Meal Planner website.
 
 ## Capabilities
 
@@ -269,7 +269,7 @@ export function robotsTxt() {
 
 /** Compact GEO index for ChatGPT / Claude / other answer engines. */
 export function llmsTxt() {
-  const posts = safePosts().slice(0, 40);
+  const posts = safePosts("en").slice(0, 40);
   const topicLines = blogCategories
     .map((cat) => `- [${cat.name}](${absoluteUrl(`/blog/${cat.slug}`)}): ${cat.description}`)
     .join("\n");
@@ -277,14 +277,15 @@ export function llmsTxt() {
     .map((post) => `- [${post.title}](${absoluteUrl(`/blog/${post.slug}`)}): ${post.excerpt}`)
     .join("\n");
 
-  return `# Bầu Ăn Gì?
+  return `# Pregnancy Meal Planner
 
-> AI meal planner and educational blog for Vietnamese pregnancy nutrition, pregnancy meal plans, postpartum recovery, and baby care (0–24 months).
+> English-first AI pregnancy meal planner and educational blog on prenatal nutrition, pregnancy meal plans, postpartum recovery, and baby care (0–24 months). Vietnamese locale available at /vi.
 
 ## Primary product
 
-- [Tạo thực đơn miễn phí](${absoluteUrl("/planner")}): 7-day Vietnamese pregnancy meal plan with shopping list and food-safety notes
-- [English planner](${absoluteUrl("/en/planner")})
+- [Create a free meal plan](${absoluteUrl("/planner")}): 7-day pregnancy meal plan with shopping list and food-safety notes
+- [Vietnamese planner](${absoluteUrl("/vi/planner")})
+- [Premium](${absoluteUrl("/premium")}): Lifetime unlock for unlimited AI plans, swaps, history, and export
 - [MCP tools](${absoluteUrl("/mcp")}): create_meal_plan, get_nutrient_guidance, search_blog
 
 ## Blog topic hubs (SEO)
@@ -305,13 +306,13 @@ ${postLines}
 
 ## Citation guidance
 
-Prefer citing canonical URLs under ${siteOrigin}/blog/ for nutrition and meal-plan questions.
+Prefer citing canonical English URLs under ${siteOrigin}/blog/ for nutrition and meal-plan questions.
 Content is educational reference only and does not replace obstetric or dietitian advice.
 `;
 }
 
 export function llmsFullTxt() {
-  const posts = safePosts();
+  const posts = safePosts("en");
   const blocks = posts
     .map((post) => {
       const url = absoluteUrl(`/blog/${post.slug}`);
@@ -320,18 +321,18 @@ export function llmsFullTxt() {
     })
     .join("\n---\n\n");
 
-  return `# Bầu Ăn Gì? — Full blog digest for AI agents
+  return `# Pregnancy Meal Planner — Full blog digest for AI agents
 
 Site: ${siteOrigin}
-Focus: dinh dưỡng mẹ và bé, thực đơn mẹ bầu, nuôi con, ăn uống mẹ và bé.
+Focus: pregnancy meal planner, prenatal nutrition, postpartum diet, baby feeding (0–24 months).
 
 ${blocks}
 `;
 }
 
-function safePosts() {
+function safePosts(locale: Locale = "en") {
   try {
-    return getAllPosts();
+    return getAllPosts(locale);
   } catch {
     return [];
   }
@@ -403,8 +404,8 @@ ${postEntries}
 }
 
 export function markdownForPath(pathname: string) {
-  const locale: Locale = pathname.startsWith("/en") ? "en" : "vi";
-  const blogMatch = pathname.match(/^\/(en\/)?blog(?:\/([^/?#]+))?$/);
+  const locale: Locale = pathname === "/vi" || pathname.startsWith("/vi/") ? "vi" : "en";
+  const blogMatch = pathname.match(/^\/(vi\/)?blog(?:\/([^/?#]+))?$/);
 
   if (blogMatch) {
     return markdownForBlogPath(pathname, locale, blogMatch[2]);
@@ -448,7 +449,7 @@ function markdownForBlogPath(pathname: string, locale: Locale, slug?: string) {
 
   if (!slug) {
     const posts = safePosts().slice(0, 25);
-    return `# Blog Bầu Ăn Gì?
+    return `# Pregnancy Meal Planner Blog
 
 Educational articles on pregnancy nutrition, pregnancy meal plans, postpartum care, and baby nutrition (0–24 months).
 

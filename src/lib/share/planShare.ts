@@ -29,8 +29,8 @@ export function buildPlanShareText(plan: MealPlan, locale: Locale) {
   if (locale === "en") {
     return [
       postpartum
-        ? `Bầu Ăn Gì? — Postpartum / baby meal plan${plan.profileSnapshot.babyAgeMonths != null ? ` (${plan.profileSnapshot.babyAgeMonths} mo)` : ""}`
-        : `Bầu Ăn Gì? — 7-day pregnancy meal plan (week ${week})`,
+        ? `Pregnancy Meal Planner — Postpartum / baby meal plan${plan.profileSnapshot.babyAgeMonths != null ? ` (${plan.profileSnapshot.babyAgeMonths} mo)` : ""}`
+        : `Pregnancy Meal Planner — 7-day pregnancy meal plan (week ${week})`,
       meals ? `Day 1 sample: ${meals}` : "",
       plan.summary.message,
       `Open: ${buildPlanShareUrl(plan.id, locale)}`,
@@ -42,8 +42,8 @@ export function buildPlanShareText(plan: MealPlan, locale: Locale) {
 
   return [
     postpartum
-      ? `Bầu Ăn Gì? — Thực đơn sau sinh${plan.profileSnapshot.babyAgeMonths != null ? ` (${plan.profileSnapshot.babyAgeMonths} tháng)` : ""}`
-      : `Bầu Ăn Gì? — Thực đơn 7 ngày tuần thai ${week}`,
+      ? `Pregnancy Meal Planner — Thực đơn sau sinh${plan.profileSnapshot.babyAgeMonths != null ? ` (${plan.profileSnapshot.babyAgeMonths} tháng)` : ""}`
+      : `Pregnancy Meal Planner — Thực đơn 7 ngày tuần thai ${week}`,
     meals ? `Mẫu ngày 1: ${meals}` : "",
     plan.summary.message,
     `Mở thực đơn: ${buildPlanShareUrl(plan.id, locale)}`,

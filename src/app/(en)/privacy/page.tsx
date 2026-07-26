@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Privacy policy | Bầu Ăn Gì?",
-  description: "How Bầu Ăn Gì? stores data in your browser and optional cloud sync."
+  title: "Privacy policy | Pregnancy Meal Planner",
+  description: "How Pregnancy Meal Planner stores data in your browser and optional cloud sync."
 };
 
 export default function EnPrivacyPage() {
