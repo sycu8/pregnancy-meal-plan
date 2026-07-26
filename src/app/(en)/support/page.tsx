@@ -55,6 +55,10 @@ export default function EnSupportPage() {
           Privacy policy
         </Link>
         {" · "}
+        <Link href="/terms" className="text-accent hover:underline">
+          Terms of service
+        </Link>
+        {" · "}
         <Link href={localizedPath("en", "/planner")} className="text-accent hover:underline">
           Create a meal plan
         </Link>

@@ -43,6 +43,8 @@ describe("agent discovery assets", () => {
     expect(sitemap).toContain(`${siteOrigin}/support</loc>`);
     expect(sitemap).toContain(`${siteOrigin}/premium</loc>`);
     expect(sitemap).toContain(`${siteOrigin}/privacy</loc>`);
+    expect(sitemap).toContain(`${siteOrigin}/terms</loc>`);
+    expect(sitemap).toContain(`${siteOrigin}/vi/terms</loc>`);
     expect(sitemap).toContain(`${siteOrigin}/blog/topics</loc>`);
     expect(sitemap).toContain(`${siteOrigin}/blog</loc>`);
     expect(sitemap).toContain(`${siteOrigin}/vi/blog</loc>`);

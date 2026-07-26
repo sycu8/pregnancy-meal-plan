@@ -55,6 +55,10 @@ export default function SupportPage() {
           Chính sách quyền riêng tư
         </Link>
         {" · "}
+        <Link href={localizedPath("vi", "/terms")} className="text-accent hover:underline">
+          Điều khoản sử dụng
+        </Link>
+        {" · "}
         <Link href={localizedPath("vi", "/planner")} className="text-accent hover:underline">
           Tạo thực đơn
         </Link>

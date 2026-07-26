@@ -1,23 +1,15 @@
 import type { Metadata } from "next";
+import { LegalDocumentView } from "@/components/legal/LegalDocument";
 import { createRouteMetadata } from "@/lib/i18n";
+import { getPrivacyPolicy } from "@/lib/legal/content";
 
 export const metadata: Metadata = createRouteMetadata("en", "/privacy", {
   title: "Privacy policy | Pregnancy Meal Planner",
   description:
-    "Read how Pregnancy Meal Planner stores profile and meal-plan data in your browser, optional cloud sync, and your privacy choices."
+    "Read how Pregnancy Meal Planner collects and stores profile data, optional account sync, payments, analytics, and your privacy choices.",
+  keywords: ["privacy policy", "pregnancy meal planner privacy", "data protection"]
 });
 
 export default function EnPrivacyPage() {
-  return (
-    <main className="mx-auto max-w-3xl px-4 py-10">
-      <h1 className="text-3xl font-semibold">Privacy policy</h1>
-      <p className="mt-4 text-muted-foreground leading-7">
-        The free tier stores your profile and meal plans in browser localStorage. We do not sell personal data.
-        If you opt into sync, only fields needed for meal planning are stored in Cloudflare D1 linked to your account.
-      </p>
-      <p className="mt-4 text-muted-foreground leading-7">
-        The meal-plan API receives only the information you submit to generate a reference plan. You can clear browser data at any time.
-      </p>
-    </main>
-  );
+  return <LegalDocumentView locale="en" kind="privacy" doc={getPrivacyPolicy("en")} />;
 }

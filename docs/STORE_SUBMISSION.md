@@ -10,6 +10,8 @@ Complete copy and checklist for **Google Play** and **Apple App Store**. Replace
 | Website | https://pregnancymeal.tips |
 | Privacy policy (VI) | https://pregnancymeal.tips/vi/privacy |
 | Privacy policy (EN) | https://pregnancymeal.tips/privacy |
+| Terms of service (VI) | https://pregnancymeal.tips/vi/terms |
+| Terms of service (EN) | https://pregnancymeal.tips/terms |
 | Support email | support@pregnancymeal.tips |
 | Developer / legal entity | Lê Sỹ Cường |
 | Primary category | Health & Fitness |
