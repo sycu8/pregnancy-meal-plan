@@ -1,0 +1,19 @@
+{
+  "id": "37d79d4e97b14326",
+  "sourceName": "Pregnancy Meal Planner Editorial",
+  "title": "Third trimester meal plan: energy, fiber and reflux-friendly plates",
+  "titleVi": "Thực đơn 3 tháng cuối: đủ năng lượng, giảm ợ nóng",
+  "url": "https://pregnancymeal.tips/blog/third-trimester-meal-plan",
+  "snippet": "Later-pregnancy meal ideas with slightly higher energy needs, fiber for constipation, and smaller dinners for reflux.",
+  "snippetVi": "Tăng nhẹ năng lượng, ưu tiên chất xơ và chia nhỏ bữa tối để giảm trào ngược.",
+  "fetchedAt": "2026-07-26T11:00:58.912Z",
+  "status": "published",
+  "note": "Re-queue incomplete bilingual post for AI rewrite (EN+VI required).",
+  "editorial": true,
+  "categoryHint": "thuc-don-ba-bau",
+  "tagsHint": [
+    "third-trimester",
+    "meal-plan"
+  ],
+  "slug": "third-trimester-meal-plan"
+}

@@ -1,0 +1,19 @@
+{
+  "id": "9db3a45b7e6b7953",
+  "sourceName": "Pregnancy Meal Planner Editorial",
+  "title": "Healthy pregnancy snacks under 15 minutes",
+  "titleVi": "Bữa phụ mẹ bầu dưới 15 phút",
+  "url": "https://pregnancymeal.tips/blog/pregnancy-snack-ideas",
+  "snippet": "Ten snack ideas with protein and fiber for between-meal energy — yogurt, eggs, fruit, nuts and whole grains.",
+  "snippetVi": "10 ý tưởng bữa phụ giàu đạm và chất xơ: sữa chua, trứng, trái cây, hạt, ngũ cốc nguyên cám.",
+  "fetchedAt": "2026-07-26T11:00:58.912Z",
+  "status": "published",
+  "note": "Re-queue incomplete bilingual post for AI rewrite (EN+VI required).",
+  "editorial": true,
+  "categoryHint": "thuc-don-ba-bau",
+  "tagsHint": [
+    "snacks",
+    "meal-plan"
+  ],
+  "slug": "pregnancy-snack-ideas"
+}

@@ -28,6 +28,9 @@ import dinhDuongSauSinhVaChoConBu from "../../../content/blog/posts-en/dinh-duon
 import dinhDuongTamCaNguyet2 from "../../../content/blog/posts-en/dinh-duong-tam-ca-nguyet-2.json";
 import dinhDuongTre1224Thang from "../../../content/blog/posts-en/dinh-duong-tre-12-24-thang.json";
 import dungNhauDongLanhSauSinh from "../../../content/blog/posts-en/dung-nhau-dong-lanh-sau-sinh.json";
+import evaluationCommunityActionProgramChildrenCanadaPrenatalNutritionProgram2 from "../../../content/blog/posts-en/evaluation-community-action-program-children-canada-prenatal-nutrition-program-2.json";
+import evaluationFoodBorneWaterBorneEntericIllnessActivities2017201820212022 from "../../../content/blog/posts-en/evaluation-food-borne-water-borne-enteric-illness-activities-2017-2018-2021-2022.json";
+import foodSafetyMonitoringSurveillance from "../../../content/blog/posts-en/food-safety-monitoring-surveillance.json";
 import giacNguKhiMangThai from "../../../content/blog/posts-en/giac-ngu-khi-mang-thai.json";
 import giaiDapThacMacSauSinhAnDaDayLonDuocKhong from "../../../content/blog/posts-en/giai-dap-thac-mac-sau-sinh-an-da-day-lon-duoc-khong.json";
 import hoiChungOngCoTayKhiMangThai from "../../../content/blog/posts-en/hoi-chung-ong-co-tay-khi-mang-thai.json";
@@ -43,6 +46,10 @@ import mangThaiLanDauCanBiet from "../../../content/blog/posts-en/mang-thai-lan-
 import mangThaiMuaHeNong from "../../../content/blog/posts-en/mang-thai-mua-he-nong.json";
 import nghenNangAnUongVaDieuTri from "../../../content/blog/posts-en/nghen-nang-an-uong-va-dieu-tri.json";
 import nguyenNhanVaCachGiamDauXuongMuKhiMangThai73283 from "../../../content/blog/posts-en/nguyen-nhan-va-cach-giam-dau-xuong-mu-khi-mang-thai-73283.json";
+import nguyenThaiBao51534En from "../../../content/blog/posts-en/nguyen-thai-bao-51534-en.json";
+import nguyenThaiHung51088En from "../../../content/blog/posts-en/nguyen-thai-hung-51088-en.json";
+import nguyenThaiTri50984En from "../../../content/blog/posts-en/nguyen-thai-tri-50984-en.json";
+import nguyenVanThai51083En from "../../../content/blog/posts-en/nguyen-van-thai-51083-en.json";
 import nhungDauHieuGiupNhanBietThaiLuuVi from "../../../content/blog/posts-en/nhung-dau-hieu-giup-nhan-biet-thai-luu-vi.json";
 import nhungDieuCanBietKhiMangThaiLanDauDeCaMeVaBeCungKhoeManhVi from "../../../content/blog/posts-en/nhung-dieu-can-biet-khi-mang-thai-lan-dau-de-ca-me-va-be-cung-khoe-manh-vi.json";
 import oOngNongKhiMangThai from "../../../content/blog/posts-en/o-ong-nong-khi-mang-thai.json";
@@ -54,8 +61,12 @@ import phuNuSauSinhAnBunHenDuocKhongLuuYChoCacMeSauSinh73177 from "../../../cont
 import phuNuSauSinhAnGiBoMauNhungDieuChiEmKhongNenBoQua73178 from "../../../content/blog/posts-en/phu-nu-sau-sinh-an-gi-bo-mau-nhung-dieu-chi-em-khong-nen-bo-qua-73178.json";
 import phuNuSauSinhAnHatSenDuocKhongCanLuuYGiKhiAnHatSen73159 from "../../../content/blog/posts-en/phu-nu-sau-sinh-an-hat-sen-duoc-khong-can-luu-y-gi-khi-an-hat-sen-73159.json";
 import picaKhiMangThai from "../../../content/blog/posts-en/pica-khi-mang-thai.json";
+import postpartumBreastfeedingNutrition from "../../../content/blog/posts-en/postpartum-breastfeeding-nutrition.json";
+import pregnancySnackIdeas from "../../../content/blog/posts-en/pregnancy-snack-ideas.json";
 import proteinVaCholineKhiMangThai from "../../../content/blog/posts-en/protein-va-choline-khi-mang-thai.json";
 import quaTrinhHinhThanhRauThaiVi from "../../../content/blog/posts-en/qua-trinh-hinh-thanh-rau-thai-vi.json";
+import resultsEvaluationCommunityActionProgramChildrenCanadaPrenatalNutritionP from "../../../content/blog/posts-en/results-evaluation-community-action-program-children-canada-prenatal-nutrition-p.json";
+import resultsGlanceBloodSafetyContributionProgram from "../../../content/blog/posts-en/results-glance-blood-safety-contribution-program.json";
 import rungTocSauSinh from "../../../content/blog/posts-en/rung-toc-sau-sinh.json";
 import ruouVaThuocLaKhiMangThai from "../../../content/blog/posts-en/ruou-va-thuoc-la-khi-mang-thai.json";
 import sangLocTruocSinhCanLamGi from "../../../content/blog/posts-en/sang-loc-truoc-sinh-can-lam-gi.json";
@@ -63,6 +74,7 @@ import sauSinhAnKhoQuaDuocKhongNhungLoiIchSucKhoeKhoQuaMangLaiLaGi731 from "../.
 import sauSinhThieuMauAnGi from "../../../content/blog/posts-en/sau-sinh-thieu-mau-an-gi.json";
 import sayThaiTuNhienRaMauTrongBaoLauVi from "../../../content/blog/posts-en/say-thai-tu-nhien-ra-mau-trong-bao-lau-vi.json";
 import sieuAmThaiNhieuCoHaiKhong from "../../../content/blog/posts-en/sieu-am-thai-nhieu-co-hai-khong.json";
+import startingSolids6Months from "../../../content/blog/posts-en/starting-solids-6-months.json";
 import suaCongThucKhiCan from "../../../content/blog/posts-en/sua-cong-thuc-khi-can.json";
 import sucKhoeRangMiengKhiMangThai from "../../../content/blog/posts-en/suc-khoe-rang-mieng-khi-mang-thai.json";
 import tamQuanTrongCuaVitaminTrongThaiKiVi from "../../../content/blog/posts-en/tam-quan-trong-cua-vitamin-trong-thai-ki-vi.json";
@@ -77,6 +89,7 @@ import thaiNgoaiTuCungVaCachPhongNguaVi from "../../../content/blog/posts-en/tha
 import thaiNhiHiccupDapNhieu from "../../../content/blog/posts-en/thai-nhi-hiccup-dap-nhieu.json";
 import theoDoiDuongHuyetTieuDuongThaiKy from "../../../content/blog/posts-en/theo-doi-duong-huyet-tieu-duong-thai-ky.json";
 import thieuMauThaiKy from "../../../content/blog/posts-en/thieu-mau-thai-ky.json";
+import thirdTrimesterMealPlan from "../../../content/blog/posts-en/third-trimester-meal-plan.json";
 import thucDonGiamNghenTamCaNguyet1 from "../../../content/blog/posts-en/thuc-don-giam-nghen-tam-ca-nguyet-1.json";
 import thucDonMauMeChoConBu from "../../../content/blog/posts-en/thuc-don-mau-me-cho-con-bu.json";
 import thucDonMauTre612Thang from "../../../content/blog/posts-en/thuc-don-mau-tre-6-12-thang.json";
@@ -93,6 +106,7 @@ import tienSanGiatDauHieuCanGap from "../../../content/blog/posts-en/tien-san-gi
 import tienSanGiatSauSinh from "../../../content/blog/posts-en/tien-san-giat-sau-sinh.json";
 import tieuDuongThaiKyAnUongTheNao from "../../../content/blog/posts-en/tieu-duong-thai-ky-an-uong-the-nao.json";
 import tramCamLoAuSauSinh from "../../../content/blog/posts-en/tram-cam-lo-au-sau-sinh.json";
+import tranVanSang51089En from "../../../content/blog/posts-en/tran-van-sang-51089-en.json";
 import treTaoBonKhiAnDam from "../../../content/blog/posts-en/tre-tao-bon-khi-an-dam.json";
 import uongNuocKhiMangThai from "../../../content/blog/posts-en/uong-nuoc-khi-mang-thai.json";
 import vanDongAnToanKhiMangThai from "../../../content/blog/posts-en/van-dong-an-toan-khi-mang-thai.json";
@@ -132,6 +146,9 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   dinhDuongTamCaNguyet2,
   dinhDuongTre1224Thang,
   dungNhauDongLanhSauSinh,
+  evaluationCommunityActionProgramChildrenCanadaPrenatalNutritionProgram2,
+  evaluationFoodBorneWaterBorneEntericIllnessActivities2017201820212022,
+  foodSafetyMonitoringSurveillance,
   giacNguKhiMangThai,
   giaiDapThacMacSauSinhAnDaDayLonDuocKhong,
   hoiChungOngCoTayKhiMangThai,
@@ -147,6 +164,10 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   mangThaiMuaHeNong,
   nghenNangAnUongVaDieuTri,
   nguyenNhanVaCachGiamDauXuongMuKhiMangThai73283,
+  nguyenThaiBao51534En,
+  nguyenThaiHung51088En,
+  nguyenThaiTri50984En,
+  nguyenVanThai51083En,
   nhungDauHieuGiupNhanBietThaiLuuVi,
   nhungDieuCanBietKhiMangThaiLanDauDeCaMeVaBeCungKhoeManhVi,
   oOngNongKhiMangThai,
@@ -158,8 +179,12 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   phuNuSauSinhAnGiBoMauNhungDieuChiEmKhongNenBoQua73178,
   phuNuSauSinhAnHatSenDuocKhongCanLuuYGiKhiAnHatSen73159,
   picaKhiMangThai,
+  postpartumBreastfeedingNutrition,
+  pregnancySnackIdeas,
   proteinVaCholineKhiMangThai,
   quaTrinhHinhThanhRauThaiVi,
+  resultsEvaluationCommunityActionProgramChildrenCanadaPrenatalNutritionP,
+  resultsGlanceBloodSafetyContributionProgram,
   rungTocSauSinh,
   ruouVaThuocLaKhiMangThai,
   sangLocTruocSinhCanLamGi,
@@ -167,6 +192,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   sauSinhThieuMauAnGi,
   sayThaiTuNhienRaMauTrongBaoLauVi,
   sieuAmThaiNhieuCoHaiKhong,
+  startingSolids6Months,
   suaCongThucKhiCan,
   sucKhoeRangMiengKhiMangThai,
   tamQuanTrongCuaVitaminTrongThaiKiVi,
@@ -181,6 +207,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   thaiNhiHiccupDapNhieu,
   theoDoiDuongHuyetTieuDuongThaiKy,
   thieuMauThaiKy,
+  thirdTrimesterMealPlan,
   thucDonGiamNghenTamCaNguyet1,
   thucDonMauMeChoConBu,
   thucDonMauTre612Thang,
@@ -197,6 +224,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   tienSanGiatSauSinh,
   tieuDuongThaiKyAnUongTheNao,
   tramCamLoAuSauSinh,
+  tranVanSang51089En,
   treTaoBonKhiAnDam,
   uongNuocKhiMangThai,
   vanDongAnToanKhiMangThai,
