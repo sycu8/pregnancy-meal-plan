@@ -33,6 +33,27 @@ describe("shared-plans API", () => {
     );
     expect(response.status).toBe(400);
   });
+
+  it("returns 503 when shared-plan storage binding is unavailable", async () => {
+    const response = await POST(
+      new Request("http://localhost/api/shared-plans", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: "plan-1",
+          createdAt: "2026-07-26T00:00:00.000Z",
+          profileSnapshot: { pregnancyWeek: 20 },
+          days: [{ day: 1 }],
+          summary: { message: "ok", disclaimer: "ref" }
+        })
+      })
+    );
+    // Local vitest has no Cloudflare KV binding.
+    expect(response.status).toBe(503);
+    const data = await response.json();
+    expect(data.ok).toBe(false);
+    expect(data.reason).toBe("storage_unavailable");
+  });
 });
 
 describe("mergeMealPlanHistory", () => {

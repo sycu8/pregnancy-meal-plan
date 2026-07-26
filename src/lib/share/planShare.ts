@@ -8,16 +8,29 @@ export function buildPlanShareUrl(planId: string, locale: Locale) {
   return `${SITE_URL}${path}?plan=${encodeURIComponent(planId)}`;
 }
 
+function mealName(meal: { name?: string } | undefined) {
+  return meal?.name?.trim() || "";
+}
+
 export function buildPlanShareText(plan: MealPlan, locale: Locale) {
   const week = plan.profileSnapshot.pregnancyWeek;
-  const dayOne = plan.days[0];
+  const dayOne = plan.days[0] as
+    | {
+        breakfast?: { name?: string };
+        lunch?: { name?: string };
+        dinner?: { name?: string };
+      }
+    | undefined;
   const meals = dayOne
-    ? [dayOne.breakfast, dayOne.lunch, dayOne.dinner].map((meal) => meal.name).join(" · ")
+    ? [dayOne.breakfast, dayOne.lunch, dayOne.dinner].map(mealName).filter(Boolean).join(" · ")
     : "";
+  const postpartum = plan.profileSnapshot.lifeStage === "postpartum";
 
   if (locale === "en") {
     return [
-      `Bầu Ăn Gì? — 7-day pregnancy meal plan (week ${week})`,
+      postpartum
+        ? `Bầu Ăn Gì? — Postpartum / baby meal plan${plan.profileSnapshot.babyAgeMonths != null ? ` (${plan.profileSnapshot.babyAgeMonths} mo)` : ""}`
+        : `Bầu Ăn Gì? — 7-day pregnancy meal plan (week ${week})`,
       meals ? `Day 1 sample: ${meals}` : "",
       plan.summary.message,
       `Open: ${buildPlanShareUrl(plan.id, locale)}`,
@@ -28,7 +41,9 @@ export function buildPlanShareText(plan: MealPlan, locale: Locale) {
   }
 
   return [
-    `Bầu Ăn Gì? — Thực đơn 7 ngày tuần thai ${week}`,
+    postpartum
+      ? `Bầu Ăn Gì? — Thực đơn sau sinh${plan.profileSnapshot.babyAgeMonths != null ? ` (${plan.profileSnapshot.babyAgeMonths} tháng)` : ""}`
+      : `Bầu Ăn Gì? — Thực đơn 7 ngày tuần thai ${week}`,
     meals ? `Mẫu ngày 1: ${meals}` : "",
     plan.summary.message,
     `Mở thực đơn: ${buildPlanShareUrl(plan.id, locale)}`,
@@ -38,17 +53,23 @@ export function buildPlanShareText(plan: MealPlan, locale: Locale) {
     .join("\n");
 }
 
-export async function shareMealPlan(plan: MealPlan, locale: Locale) {
+export async function persistSharedPlan(plan: MealPlan): Promise<boolean> {
   try {
-    await fetch("/api/shared-plans", {
+    const response = await fetch("/api/shared-plans", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(plan)
     });
+    if (!response.ok) return false;
+    const data = (await response.json()) as { ok?: boolean };
+    return data.ok === true;
   } catch {
-    // Share still works on the same device via localStorage.
+    return false;
   }
+}
 
+export async function shareMealPlan(plan: MealPlan, locale: Locale) {
+  const persisted = await persistSharedPlan(plan);
   const text = buildPlanShareText(plan, locale);
   const url = buildPlanShareUrl(plan.id, locale);
 
@@ -58,12 +79,18 @@ export async function shareMealPlan(plan: MealPlan, locale: Locale) {
       text,
       url
     });
-    return "shared" as const;
+    if (persisted) return "shared";
+    return "shared_local";
   }
 
   if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
     await navigator.clipboard.writeText(text);
-    return "copied" as const;
+    if (persisted) return "copied";
+    return "copied_local";
+  }
+
+  if (!persisted) {
+    throw new Error("Share storage unavailable");
   }
 
   throw new Error("Share not supported");

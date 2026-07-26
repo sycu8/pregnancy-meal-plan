@@ -61,6 +61,20 @@ export function BlogPostArticle({ post, locale = "vi" }: { post: BlogPost; local
 
       <div className="prose-blog mt-8 border-t border-border pt-8" dangerouslySetInnerHTML={{ __html: html }} />
 
+      {post.faqs && post.faqs.length > 0 && (
+        <section className="mt-10 border-t border-border pt-8">
+          <h2 className="text-xl font-semibold">{ui.faqTitle}</h2>
+          <dl className="mt-5 space-y-5">
+            {post.faqs.map((faq) => (
+              <div key={faq.question}>
+                <dt className="font-medium text-foreground">{faq.question}</dt>
+                <dd className="mt-2 text-sm leading-7 text-muted-foreground">{faq.answer}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      )}
+
       <BlogPlannerCta category={post.category} tags={post.tags} locale={locale} />
 
       <aside className="mt-10 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950">
@@ -73,7 +87,12 @@ export function BlogPostArticle({ post, locale = "vi" }: { post: BlogPost; local
         <ul className="mt-4 space-y-3 text-sm">
           {post.sourceReferences.map((ref) => (
             <li key={ref.url} className="leading-6 text-muted-foreground">
-              <a href={ref.url} target="_blank" rel="noopener noreferrer" className="font-medium text-accent underline underline-offset-2">
+              <a
+                href={normalizeReferenceUrl(ref.url, post.slug)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-accent underline underline-offset-2"
+              >
                 {ref.title}
               </a>
               <span className="block text-xs">
@@ -86,6 +105,19 @@ export function BlogPostArticle({ post, locale = "vi" }: { post: BlogPost; local
       </footer>
     </article>
   );
+}
+
+/** Editorial seeds used /blog/topics#slug — point readers to the canonical post instead. */
+function normalizeReferenceUrl(url: string, slug: string) {
+  try {
+    const parsed = new URL(url);
+    if (parsed.pathname.includes("/blog/topics") && parsed.hash) {
+      return `${parsed.origin}/blog/${slug}`;
+    }
+  } catch {
+    // keep original
+  }
+  return url;
 }
 
 function MetaPill({ label }: { label: string }) {

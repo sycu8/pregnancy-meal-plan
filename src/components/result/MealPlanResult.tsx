@@ -112,6 +112,7 @@ const copy = {
     share: "Chia sẻ",
     shared: "Đã chia sẻ",
     copied: "Đã sao chép nội dung",
+    shareLocal: "Đã chia sẻ (chỉ thiết bị này — chưa lưu cloud)",
     shareError: "Không thể chia sẻ trên thiết bị này",
     export: "Xuất file",
     exported: "Đã xuất",
@@ -171,6 +172,7 @@ const copy = {
     share: "Share",
     shared: "Shared",
     copied: "Copied to clipboard",
+    shareLocal: "Shared on this device only (cloud save unavailable)",
     shareError: "Sharing is not supported on this device",
     export: "Export",
     exported: "Exported",
@@ -195,7 +197,7 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
   const weightLabels = locale === "vi" ? weightGainStatusLabels : englishWeightGainStatusLabels;
   const [plan, setPlan] = useState<MealPlan | null>(null);
   const [saved, setSaved] = useState(false);
-  const [shareState, setShareState] = useState<"idle" | "shared" | "copied">("idle");
+  const [shareState, setShareState] = useState<"idle" | "shared" | "copied" | "shared_local" | "copied_local">("idle");
   const [swapError, setSwapError] = useState("");
   const [shareError, setShareError] = useState("");
   const [exportError, setExportError] = useState("");
@@ -374,13 +376,17 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
   }
 
   const activeDay = plan.days[activeDayIndex] ?? plan.days[0];
+  if (!activeDay?.breakfast || !activeDay?.lunch || !activeDay?.dinner) {
+    return <EmptyState locale={locale} title={t.emptyTitle} description={t.planNotFound} />;
+  }
+
   const dayMeals = [activeDay.breakfast, activeDay.morningSnack, activeDay.lunch, activeDay.afternoonSnack, activeDay.dinner];
   const dayCalories = dayMeals.reduce(
-    (total, item) => total + (item.estimatedCalories ?? 0),
+    (total, item) => total + (item?.estimatedCalories ?? 0),
     0
   );
-  const dayCost = dayMeals.reduce((total, item) => total + (item.estimatedCostVnd ?? 0), 0);
-  const shoppingBatches = plan.shoppingBatches?.length ? plan.shoppingBatches : buildFallbackShoppingBatches(plan);
+  const dayCost = dayMeals.reduce((total, item) => total + (item?.estimatedCostVnd ?? 0), 0);
+  const shoppingBatches = plan.shoppingBatches?.length ? plan.shoppingBatches : buildFallbackShoppingBatches(plan, locale);
   const weeklyShopOnePerson = shoppingBatches.reduce((total, batch) => total + (batch.estimatedCostVnd ?? 0), 0);
   const weeklyShopCouple = Math.round(weeklyShopOnePerson * ADULTS_IN_COUPLE);
   const weeklyShopChildren = Math.round(weeklyShopOnePerson * CHILD_PORTION_FACTOR * childrenEatingCount);
@@ -410,7 +416,16 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
               <Save className="h-4 w-4" /> {saved ? t.saved : t.save}
             </Button>
             <Button variant="secondary" onClick={handleShare}>
-              <Share2 className="h-4 w-4" /> {shareState === "shared" ? t.shared : shareState === "copied" ? t.copied : t.share}
+              <Share2 className="h-4 w-4" />{" "}
+              {shareState === "shared" || shareState === "shared_local"
+                ? shareState === "shared_local"
+                  ? t.shareLocal
+                  : t.shared
+                : shareState === "copied" || shareState === "copied_local"
+                  ? shareState === "copied_local"
+                    ? t.shareLocal
+                    : t.copied
+                  : t.share}
             </Button>
             <Button variant="secondary" onClick={handleExport}>
               <Download className="h-4 w-4" /> {exported ? t.exported : t.export}
@@ -650,14 +665,16 @@ function ShoppingListGroups({ copy, groups, shoppingList }: { copy: ResultCopy; 
   );
 }
 
-function buildFallbackShoppingBatches(plan: MealPlan): MealPlan["shoppingBatches"] {
+function buildFallbackShoppingBatches(plan: MealPlan, locale: Locale = "vi"): MealPlan["shoppingBatches"] {
   return [
     {
-      label: "Ngày 1-2",
+      label: locale === "en" ? "Days 1-2" : "Ngày 1-2",
       days: [1, 2],
       shoppingList: plan.shoppingList,
-      freshnessNote: "Thực đơn cũ chưa có lịch đi chợ theo đợt. Hãy tạo lại để có danh sách chính xác hơn."
-      ,
+      freshnessNote:
+        locale === "en"
+          ? "This older plan has no shopping batches. Create a new plan for a more accurate list."
+          : "Thực đơn cũ chưa có lịch đi chợ theo đợt. Hãy tạo lại để có danh sách chính xác hơn.",
       estimatedCostVnd: 0
     }
   ];

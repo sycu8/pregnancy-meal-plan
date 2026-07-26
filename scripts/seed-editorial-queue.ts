@@ -93,7 +93,7 @@ function main() {
       id,
       sourceName: "Bầu Ăn Gì? Editorial",
       title: topic.title,
-      url: `https://mebauangi.info/blog/topics#${topic.id}`,
+      url: `https://mebauangi.info/blog/${topic.id}`,
       snippet: topic.snippet,
       fetchedAt: new Date().toISOString(),
       status: "draft",
