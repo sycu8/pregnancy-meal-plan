@@ -1,3 +1,4 @@
+import { gatewayChatCompletion, isBlogAiEnabled, type AiGatewayConfig } from "@/lib/cloudflare/aiGateway";
 import type { BlogCategorySlug } from "@/types/blog";
 
 export type SynthesisInput = {
@@ -7,13 +8,38 @@ export type SynthesisInput = {
   url: string;
 };
 
+export type SynthesisFaq = {
+  question: string;
+  answer: string;
+};
+
 export type SynthesisOutput = {
   title: string;
   excerpt: string;
   content: string;
   category: BlogCategorySlug;
   tags: string[];
+  metaTitle?: string;
+  metaDescription?: string;
+  imagePrompt?: string;
+  faqs?: SynthesisFaq[];
+  en?: {
+    title: string;
+    excerpt: string;
+    content: string;
+    metaTitle: string;
+    metaDescription: string;
+  };
+  usedAi: boolean;
 };
+
+const CATEGORY_SLUGS: BlogCategorySlug[] = [
+  "dinh-duong-ba-bau",
+  "thuc-don-ba-bau",
+  "truoc-sinh",
+  "sau-sinh",
+  "cham-con-0-24-thang"
+];
 
 export function synthesizePost(input: SynthesisInput): SynthesisOutput {
   const category = guessCategory(input.title, input.snippet);
@@ -46,7 +72,170 @@ export function synthesizePost(input: SynthesisInput): SynthesisOutput {
     excerpt,
     content,
     category,
-    tags
+    tags,
+    imagePrompt: buildImagePrompt(input.title, category),
+    faqs: [
+      {
+        question: `${input.title.trim()} — mẹ bầu cần lưu ý gì?`,
+        answer: excerpt
+      }
+    ],
+    usedAi: false
+  };
+}
+
+export async function synthesizePostWithAi(
+  input: SynthesisInput,
+  options: { config?: AiGatewayConfig | null } = {}
+): Promise<SynthesisOutput> {
+  const fallback = synthesizePost(input);
+  if (!isBlogAiEnabled() && !options.config) return fallback;
+
+  const system = `Bạn là biên tập viên sức khỏe mẹ và bé cho website Bầu Ăn Gì? (mebauangi.info).
+Viết nội dung giáo dục bằng tiếng Việt, rõ ràng, thực dụng, tối ưu SEO cho chủ đề dinh dưỡng mẹ bầu / thực đơn mẹ bầu / chăm con.
+QUY TẮC BẮT BUỘC:
+- KHÔNG sao chép nguyên văn bài nguồn; chỉ lấy cảm hứng từ tiêu đề + mô tả ngắn.
+- Không chẩn đoán/điều trị; nhắc hỏi bác sĩ khi cần.
+- Ưu tiên kiến thức thực hành: thực đơn, nhóm chất, an toàn thực phẩm, dấu hiệu cần khám.
+- Trả về ĐÚNG một JSON object (không markdown fence), schema:
+{
+  "title": string,
+  "excerpt": string (<=220 chars),
+  "content": string (markdown với ## headings, lists; 700-1200 từ),
+  "category": one of ${CATEGORY_SLUGS.join("|")},
+  "tags": string[] (3-6 kebab-case tiếng Việt không dấu),
+  "metaTitle": string (<=60 chars),
+  "metaDescription": string (<=155 chars),
+  "imagePrompt": string (English, photorealistic, no text overlays, pregnancy/baby nutrition safe),
+  "faqs": [{"question": string, "answer": string}] (3 items),
+  "en": {
+    "title": string,
+    "excerpt": string,
+    "content": string (markdown English, concise 400-700 words),
+    "metaTitle": string,
+    "metaDescription": string
+  }
+}`;
+
+  const user = `Chủ đề: ${input.title}
+Mô tả ngắn: ${input.snippet || "(không có)"}
+Nguồn cảm hứng (không copy): ${input.sourceName} — ${input.url}
+Ưu tiên SEO keywords: dinh dưỡng mẹ và bé, thực đơn mẹ bầu, chăm sóc em bé, nuôi con.`;
+
+  try {
+    const raw = await gatewayChatCompletion(
+      [
+        { role: "system", content: system },
+        { role: "user", content: user }
+      ],
+      { config: options.config, temperature: 0.4, maxTokens: 4500 }
+    );
+    if (!raw) return fallback;
+
+    const parsed = parseJsonObject(raw);
+    if (!parsed) return fallback;
+
+    const category = normalizeCategory(parsed.category) ?? fallback.category;
+    const tags = Array.isArray(parsed.tags)
+      ? parsed.tags.map((t) => String(t).toLowerCase().replace(/\s+/g, "-")).filter(Boolean).slice(0, 6)
+      : fallback.tags;
+
+    const title = String(parsed.title || input.title).trim();
+    const excerpt = String(parsed.excerpt || fallback.excerpt).trim().slice(0, 220);
+    const content = String(parsed.content || "").trim();
+    if (content.length < 400) return fallback;
+
+    const faqs = normalizeFaqs(parsed.faqs) ?? fallback.faqs;
+    const en = normalizeEn(parsed.en);
+
+    return {
+      title,
+      excerpt,
+      content: ensureSourceNote(content, input),
+      category,
+      tags: tags.length ? tags : fallback.tags,
+      metaTitle: String(parsed.metaTitle || `${title} | Blog Bầu Ăn Gì?`).slice(0, 70),
+      metaDescription: String(parsed.metaDescription || excerpt).slice(0, 160),
+      imagePrompt: String(parsed.imagePrompt || buildImagePrompt(title, category)).slice(0, 500),
+      faqs,
+      en,
+      usedAi: true
+    };
+  } catch (error) {
+    console.warn("[synthesize] AI failed, using template:", error);
+    return fallback;
+  }
+}
+
+export function buildImagePrompt(title: string, category: BlogCategorySlug): string {
+  const sceneByCategory: Record<BlogCategorySlug, string> = {
+    "dinh-duong-ba-bau": "balanced Vietnamese pregnancy meal with vegetables, eggs, and soup on a wooden table",
+    "thuc-don-ba-bau": "top-down weekly meal prep of healthy Vietnamese dishes for an expectant mother",
+    "truoc-sinh": "calm prenatal care atmosphere with healthy snacks and a pregnancy notebook",
+    "sau-sinh": "warm postpartum recovery scene with nutritious soup and soft natural light",
+    "cham-con-0-24-thang": "gentle baby weaning bowls with soft vegetables, natural daylight, no faces"
+  };
+
+  return [
+    "Photorealistic editorial photo,",
+    sceneByCategory[category],
+    `inspired by topic "${title}",`,
+    "soft natural light, shallow depth of field, no text, no watermark, no logos, respectful family-safe imagery"
+  ].join(" ");
+}
+
+function ensureSourceNote(content: string, input: SynthesisInput) {
+  if (content.includes(input.url)) return content;
+  return `${content.trim()}\n\n> Nội dung tổng hợp tham khảo chủ đề từ [${input.sourceName}](${input.url}), không sao chép nguyên văn.\n`;
+}
+
+function parseJsonObject(raw: string): Record<string, unknown> | null {
+  const fenced = raw.match(/```(?:json)?\s*([\s\S]*?)```/i)?.[1]?.trim();
+  const candidate = fenced || raw.trim();
+  const start = candidate.indexOf("{");
+  const end = candidate.lastIndexOf("}");
+  if (start < 0 || end <= start) return null;
+  try {
+    return JSON.parse(candidate.slice(start, end + 1)) as Record<string, unknown>;
+  } catch {
+    return null;
+  }
+}
+
+function normalizeCategory(value: unknown): BlogCategorySlug | null {
+  const slug = String(value ?? "");
+  return CATEGORY_SLUGS.includes(slug as BlogCategorySlug) ? (slug as BlogCategorySlug) : null;
+}
+
+function normalizeFaqs(value: unknown): SynthesisFaq[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+  const faqs = value
+    .map((item) => {
+      if (!item || typeof item !== "object") return null;
+      const row = item as { question?: unknown; answer?: unknown };
+      const question = String(row.question ?? "").trim();
+      const answer = String(row.answer ?? "").trim();
+      if (!question || !answer) return null;
+      return { question, answer };
+    })
+    .filter((item): item is SynthesisFaq => Boolean(item))
+    .slice(0, 5);
+  return faqs.length ? faqs : undefined;
+}
+
+function normalizeEn(value: unknown): SynthesisOutput["en"] | undefined {
+  if (!value || typeof value !== "object") return undefined;
+  const row = value as Record<string, unknown>;
+  const title = String(row.title ?? "").trim();
+  const excerpt = String(row.excerpt ?? "").trim();
+  const content = String(row.content ?? "").trim();
+  if (!title || !content || content.length < 200) return undefined;
+  return {
+    title,
+    excerpt: excerpt.slice(0, 220),
+    content,
+    metaTitle: String(row.metaTitle || `${title} | Bầu Ăn Gì? Blog`).slice(0, 70),
+    metaDescription: String(row.metaDescription || excerpt).slice(0, 160)
   };
 }
 
@@ -66,6 +255,7 @@ function guessTags(title: string, snippet: string): string[] {
   if (/tiểu đường|tieu duong|gdm/i.test(text)) tags.add("tieu-duong");
   if (/thiếu máu|thieu mau|anemia/i.test(text)) tags.add("thieu-mau");
   if (/táo bón|tao bon|constipation/i.test(text)) tags.add("tao-bon");
+  if (/thực đơn|thuc don|menu/i.test(text)) tags.add("thuc-don");
   if (tags.size === 0) tags.add("me-bau");
   return [...tags].slice(0, 5);
 }

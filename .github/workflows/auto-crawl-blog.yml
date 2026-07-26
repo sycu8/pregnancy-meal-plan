@@ -16,14 +16,44 @@ permissions:
 jobs:
   crawl_publish_deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     env:
       BLOG_AUTO_PUBLISH_MAX: "10"
+      BLOG_AUTO_QUEUE_MAX: "12"
+      BLOG_EDITORIAL_SEED_MAX: "3"
+      FEATURE_BLOG_AI_ENABLED: "true"
+      AI_PROVIDER: "workers-ai"
+      AI_GATEWAY_ID: default
+      BLOG_AI_TEXT_MODEL: "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
+      BLOG_AI_IMAGE_MODEL: "@cf/black-forest-labs/flux-1-schnell"
+      BLOG_R2_BUCKET: bau-an-gi-exports
+      BLOG_AI_IMAGES: "true"
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      NEXT_PUBLIC_SITE_URL: https://mebauangi.info
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Apply optional AI Gateway variables
+        run: |
+          if [ -n "${{ vars.AI_GATEWAY_ID }}" ]; then
+            echo "AI_GATEWAY_ID=${{ vars.AI_GATEWAY_ID }}" >> "$GITHUB_ENV"
+          fi
+          if [ -n "${{ vars.BLOG_AI_TEXT_MODEL }}" ]; then
+            echo "BLOG_AI_TEXT_MODEL=${{ vars.BLOG_AI_TEXT_MODEL }}" >> "$GITHUB_ENV"
+          fi
+          if [ -n "${{ vars.BLOG_AI_IMAGE_MODEL }}" ]; then
+            echo "BLOG_AI_IMAGE_MODEL=${{ vars.BLOG_AI_IMAGE_MODEL }}" >> "$GITHUB_ENV"
+          fi
+          if [ -n "${{ vars.BLOG_R2_BUCKET }}" ]; then
+            echo "BLOG_R2_BUCKET=${{ vars.BLOG_R2_BUCKET }}" >> "$GITHUB_ENV"
+          fi
+          if [ -n "${{ vars.NEXT_PUBLIC_SITE_URL }}" ]; then
+            echo "NEXT_PUBLIC_SITE_URL=${{ vars.NEXT_PUBLIC_SITE_URL }}" >> "$GITHUB_ENV"
+          fi
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -34,7 +64,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Crawl sources + publish VI/EN overlays
+      - name: Crawl + editorial seeds + AI publish VI/EN
         run: npm run publish:blog:auto
 
       - name: Run tests
@@ -52,7 +82,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
-          git commit -m "chore(blog): auto crawl $(date -u +%Y-%m-%d)"
+          git commit -m "chore(blog): auto AI publish $(date -u +%Y-%m-%d)"
           git push
           echo "changed=true" >> "$GITHUB_OUTPUT"
 
