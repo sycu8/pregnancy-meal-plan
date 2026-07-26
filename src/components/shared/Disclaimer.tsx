@@ -9,7 +9,7 @@ const english = {
   medical:
     "This meal plan is generated automatically from the information you provide and is for reference only. The app does not diagnose, treat or replace advice from an obstetrician or registered dietitian. If you have gestational diabetes, hypertension, preeclampsia risk, severe anemia, fetal growth concerns or any medical issue, ask your clinician before following the plan.",
   privacy:
-    "In this free early version, your information is stored in this browser with localStorage. The app does not sync your profile to a server."
+    "By default, your information stays in this browser with localStorage. Cloud sync only happens after you sign in and opt in."
 };
 
 export function Disclaimer({ privacy = false, className, locale = "vi" }: { privacy?: boolean; className?: string; locale?: Locale }) {

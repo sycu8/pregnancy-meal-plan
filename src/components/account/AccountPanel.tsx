@@ -100,22 +100,30 @@ export function AccountPanel({ locale = "vi" }: { locale?: Locale }) {
       return;
     }
 
-    const response = await fetch("/api/auth/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: trimmedEmail, locale })
-    });
-    const data = await response.json();
-    if (!response.ok) {
-      setMessage(data.error ?? "Error");
-      return;
+    try {
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: trimmedEmail, locale })
+      });
+      const data = (await response.json().catch(() => ({}))) as {
+        error?: string;
+        token?: string;
+        user?: StoredAuthUser;
+      };
+      if (!response.ok || !data.token || !data.user) {
+        setMessage(data.error ?? (locale === "vi" ? "Đăng ký thất bại." : "Registration failed."));
+        return;
+      }
+      saveAuthSession(data.token, data.user);
+      setPremiumTier(data.user.premium ? "premium" : "free");
+      setUser(data.user);
+      await pullFromCloud();
+      await syncNow();
+      setMessage(t.signedIn);
+    } catch {
+      setMessage(locale === "vi" ? "Không kết nối được máy chủ." : "Could not reach the server.");
     }
-    saveAuthSession(data.token, data.user);
-    setPremiumTier(data.user.premium ? "premium" : "free");
-    setUser(data.user);
-    await pullFromCloud();
-    await syncNow();
-    setMessage(t.signedIn);
   }
 
   async function syncNow() {

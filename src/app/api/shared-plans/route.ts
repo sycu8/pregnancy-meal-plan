@@ -36,7 +36,9 @@ export async function POST(request: Request) {
   try {
     const plan = mealPlanSchema.parse(await request.json()) as MealPlan;
     const { FEATURE_FLAGS } = await getBindings();
-    if (!FEATURE_FLAGS) return NextResponse.json({ ok: false, reason: "storage_unavailable" });
+    if (!FEATURE_FLAGS) {
+      return NextResponse.json({ ok: false, reason: "storage_unavailable" }, { status: 503 });
+    }
 
     await FEATURE_FLAGS.put(sharedPlanKey(plan.id), JSON.stringify(plan), {
       expirationTtl: SHARED_PLAN_TTL_SECONDS

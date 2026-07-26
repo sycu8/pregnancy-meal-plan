@@ -16,6 +16,8 @@ const copy = {
     emptyDescription:
       "Sau khi tạo thực đơn, ứng dụng sẽ lưu lịch sử trên trình duyệt này để bạn mở lại hoặc xóa khi cần.",
     week: "Tuần thai",
+    postpartum: "Sau sinh",
+    months: "tháng",
     created: "Tạo ngày",
     goals: "Mục tiêu",
     open: "Mở lại",
@@ -28,6 +30,8 @@ const copy = {
     emptyDescription:
       "After you create a meal plan, the app saves local history in this browser so you can reopen or delete it when needed.",
     week: "Pregnancy week",
+    postpartum: "Postpartum",
+    months: "mo",
     created: "Created",
     goals: "Goals",
     open: "Open",
@@ -60,7 +64,11 @@ export function HistoryList({ locale = "vi" }: { locale?: Locale }) {
       {history.map((plan) => (
         <article key={plan.id} className="flex flex-col gap-4 rounded-lg border border-border bg-white p-5 shadow-soft md:flex-row md:items-center md:justify-between">
           <div>
-            <h2 className="font-semibold">{t.week} {plan.profileSnapshot.pregnancyWeek}</h2>
+            <h2 className="font-semibold">
+              {plan.profileSnapshot.lifeStage === "postpartum"
+                ? `${t.postpartum}${plan.profileSnapshot.babyAgeMonths != null ? ` · ${plan.profileSnapshot.babyAgeMonths} ${t.months}` : ""}`
+                : `${t.week} ${plan.profileSnapshot.pregnancyWeek}`}
+            </h2>
             <p className="mt-1 text-sm text-muted-foreground">
               {t.created} {new Date(plan.createdAt).toLocaleDateString(t.locale)} · {t.goals}:{" "}
               {plan.profileSnapshot.goals.map((goal) => labels.nutritionGoalLabels[goal]).join(", ")}
