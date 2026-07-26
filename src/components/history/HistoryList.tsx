@@ -5,7 +5,10 @@ import { useEffect, useState } from "react";
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/shared/Button";
 import { EmptyState } from "@/components/shared/EmptyState";
+import { PremiumUpsell } from "@/components/premium/PremiumUpsell";
 import { getNutritionLabels } from "@/lib/nutrition/labels";
+import { getPremiumLimits } from "@/lib/premium/limits";
+import { getPremiumTier } from "@/lib/premium/tier";
 import { deleteMealPlan, getMealPlanHistory } from "@/lib/storage/localStorage";
 import { localizedPath, type Locale } from "@/lib/i18n";
 import type { MealPlan } from "@/types/mealPlan";
@@ -23,7 +26,8 @@ const copy = {
     open: "Mở lại",
     delete: "Xóa",
     deleteLabel: "Xóa thực đơn",
-    locale: "vi-VN"
+    locale: "vi-VN",
+    capNote: (n: number) => `Gói miễn phí đang giữ tối đa ${n} thực đơn gần nhất.`
   },
   en: {
     emptyTitle: "No meal plan history yet",
@@ -37,7 +41,8 @@ const copy = {
     open: "Open",
     delete: "Delete",
     deleteLabel: "Delete meal plan",
-    locale: "en-US"
+    locale: "en-US",
+    capNote: (n: number) => `Free plan keeps at most the latest ${n} meal plans.`
   }
 } as const;
 
@@ -45,6 +50,9 @@ export function HistoryList({ locale = "vi" }: { locale?: Locale }) {
   const t = copy[locale];
   const labels = getNutritionLabels(locale);
   const [history, setHistory] = useState<MealPlan[]>([]);
+  const tier = getPremiumTier();
+  const historyCap = getPremiumLimits(tier).historyPlans;
+  const atHistoryCap = tier === "free" && Number.isFinite(historyCap) && history.length >= historyCap;
 
   useEffect(() => {
     setHistory(getMealPlanHistory());
@@ -61,6 +69,12 @@ export function HistoryList({ locale = "vi" }: { locale?: Locale }) {
 
   return (
     <div className="space-y-3">
+      {atHistoryCap ? (
+        <div className="space-y-2">
+          <p className="text-sm text-muted-foreground">{t.capNote(historyCap)}</p>
+          <PremiumUpsell locale={locale} reason="history-limit" />
+        </div>
+      ) : null}
       {history.map((plan) => (
         <article key={plan.id} className="flex flex-col gap-4 rounded-lg border border-border bg-white p-5 shadow-soft md:flex-row md:items-center md:justify-between">
           <div>

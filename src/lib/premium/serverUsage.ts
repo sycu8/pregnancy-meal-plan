@@ -66,10 +66,10 @@ export async function checkAndIncrementUsage(
 export function usageLimitMessage(bucket: UsageBucket, locale: "vi" | "en" = "vi") {
   if (bucket === "ai-plan") {
     return locale === "en"
-      ? "Daily AI meal-plan limit reached. Try again tomorrow or use the rule-based plan."
-      : "Đã hết lượt tạo thực đơn AI trong ngày. Hãy thử lại ngày mai hoặc dùng thực đơn rule-based.";
+      ? "Daily AI meal-plan limit reached. Try again tomorrow or unlock Premium Lifetime for unlimited plans."
+      : "Đã hết lượt tạo thực đơn AI trong ngày. Hãy thử lại ngày mai hoặc mở Premium Lifetime để không giới hạn.";
   }
   return locale === "en"
-    ? "Daily meal-swap limit reached. Try again tomorrow."
-    : "Đã hết lượt đổi món trong ngày. Hãy thử lại ngày mai.";
+    ? "Daily meal-swap limit reached. Try again tomorrow or unlock Premium Lifetime."
+    : "Đã hết lượt đổi món trong ngày. Hãy thử lại ngày mai hoặc mở Premium Lifetime để không giới hạn.";
 }
