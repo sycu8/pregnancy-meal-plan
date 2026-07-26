@@ -32,7 +32,8 @@ async function ensureClaimsTable() {
   if (ensuredTable) return;
   const { DB } = await getBindings();
   if (!DB) return;
-  await DB.prepare(
+  // D1 prepared statements expose `.run()` directly; our typings require `.bind()`.
+  const stmt = DB.prepare(
     `CREATE TABLE IF NOT EXISTS agent_claims (
       claim_token TEXT PRIMARY KEY NOT NULL,
       user_code TEXT NOT NULL UNIQUE,
@@ -41,7 +42,12 @@ async function ensureClaimsTable() {
       created_at INTEGER NOT NULL,
       expires_at INTEGER NOT NULL
     )`
-  ).bind().run();
+  ) as unknown as { run: () => Promise<unknown>; bind: (...args: unknown[]) => { run: () => Promise<unknown> } };
+  if (typeof stmt.run === "function") {
+    await stmt.run();
+  } else {
+    await stmt.bind().run();
+  }
   ensuredTable = true;
 }
 
@@ -79,28 +85,34 @@ export async function createClaim(input: { email?: string; claimToken?: string; 
   memoryByCode.set(record.userCode, record.claimToken);
 
   const { DB } = await getBindings();
-  if (DB) {
-    await ensureClaimsTable();
-    await DB.prepare(
-      `INSERT INTO agent_claims (claim_token, user_code, email, status, created_at, expires_at)
-       VALUES (?, ?, ?, ?, ?, ?)
-       ON CONFLICT(claim_token) DO UPDATE SET
-         user_code = excluded.user_code,
-         email = excluded.email,
-         status = excluded.status,
-         created_at = excluded.created_at,
-         expires_at = excluded.expires_at`
-    )
-      .bind(
-        record.claimToken,
-        record.userCode,
-        record.email ?? null,
-        record.status,
-        record.createdAt,
-        record.expiresAt
-      )
-      .run();
+  if (!DB) {
+    // Local/dev fallback only — production Workers always bind D1.
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("D1 not configured for agent claims");
+    }
+    return record;
   }
+
+  await ensureClaimsTable();
+  await DB.prepare(
+    `INSERT INTO agent_claims (claim_token, user_code, email, status, created_at, expires_at)
+     VALUES (?, ?, ?, ?, ?, ?)
+     ON CONFLICT(claim_token) DO UPDATE SET
+       user_code = excluded.user_code,
+       email = excluded.email,
+       status = excluded.status,
+       created_at = excluded.created_at,
+       expires_at = excluded.expires_at`
+  )
+    .bind(
+      record.claimToken,
+      record.userCode,
+      record.email ?? null,
+      record.status,
+      record.createdAt,
+      record.expiresAt
+    )
+    .run();
 
   return record;
 }
