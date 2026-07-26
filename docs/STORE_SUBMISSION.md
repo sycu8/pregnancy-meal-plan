@@ -286,13 +286,14 @@ Capture from https://pregnancymeal.tips on a phone emulator or device after inst
 | Purpose | URL |
 |---------|-----|
 | Privacy policy | https://pregnancymeal.tips/privacy |
-| Terms / disclaimer (in-app) | Shown on planner and result pages |
+| Terms of service | https://pregnancymeal.tips/terms |
+| Medical disclaimer (in-app) | Shown on planner and result pages |
 | Marketing URL | https://pregnancymeal.tips |
 | Support URL | https://pregnancymeal.tips (or mailto:support@pregnancymeal.tips) |
 
 ### Extended privacy policy text (for store “Privacy policy” field if plain URL not accepted)
 
-Use the live pages at `/privacy` and `/en/privacy`. Summary:
+Use the live pages at `/privacy` and `/vi/privacy` (terms at `/terms` and `/vi/terms`). Summary:
 
 - Free tier: profile and meal plans stored on device via local storage.  
 - No sale of personal data.  

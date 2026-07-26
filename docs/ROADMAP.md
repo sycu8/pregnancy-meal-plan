@@ -24,7 +24,8 @@ Tài liệu triển khai roadmap sản phẩm + kỹ thuật. Cập nhật khi h
 - [x] D1 schema `migrations/0001_init.sql` + `cloudStorage.ts`
 - [x] OAuth client_credentials (`/oauth/token`, `/oauth/authorize`)
 - [x] Opt-in sync banner (`SyncOptInBanner`)
-- [x] Privacy policy pages (VI/EN) — `/privacy`, `/en/privacy`
+- [x] Privacy policy pages (VI/EN) — `/privacy`, `/vi/privacy`
+- [x] Terms of service pages (VI/EN) — `/terms`, `/vi/terms`
 
 ## Phase 4 — Content engine & SEO (Tháng 7–9)
 
