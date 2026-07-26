@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { getTopicCluster } from "@/components/blog/BlogTopics";
 import { LOCAL_PRIVACY_NOTICE } from "@/lib/nutrition/safetyRules";
-import { DEFAULT_STRIPE_CHECKOUT_URL } from "@/app/api/premium/checkout/route";
+import { DEFAULT_STRIPE_CHECKOUT_URL } from "@/lib/premium/stripeCheckout";
 import { buildPlanShareText } from "@/lib/share/planShare";
 import type { MealPlan } from "@/types/mealPlan";
 
