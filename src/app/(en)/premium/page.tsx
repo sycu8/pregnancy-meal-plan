@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { PremiumPage } from "@/components/premium/PremiumPage";
 
 export const metadata: Metadata = {
-  title: "Premium | Pregnancy Meal Planner",
-  description: "Upgrade to Premium — unlimited usage and PDF export."
+  title: "Premium Lifetime | Pregnancy Meal Planner",
+  description: "One-time payment — unlimited AI meal plans, swaps, history, and PDF export."
 };
 
 export default function EnPremiumRoutePage() {

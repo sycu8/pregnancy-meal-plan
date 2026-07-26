@@ -16,7 +16,7 @@ export const faqContent: Record<Locale, FaqItem[]> = {
     },
     {
       question: "Giới hạn miễn phí là gì?",
-      answer: "3 lượt tạo thực đơn AI/ngày, 5 lượt đổi món/ngày, 20 thực đơn lưu. Rule-based vẫn dùng được khi hết lượt AI."
+      answer: "1 lượt tạo thực đơn AI/ngày, 2 lượt đổi món/ngày, 5 thực đơn lưu gần nhất. Rule-based vẫn dùng được khi hết lượt AI. Premium Lifetime bỏ giới hạn."
     },
     {
       question: "Có hỗ trợ sau sinh không?",
@@ -40,7 +40,7 @@ export const faqContent: Record<Locale, FaqItem[]> = {
     },
     {
       question: "What are the free-tier limits?",
-      answer: "3 AI meal plans per day, 5 meal swaps per day, 20 saved plans. Rule-based planning remains available."
+      answer: "1 AI meal plan per day, 2 meal swaps per day, 5 recent saved plans. Rule-based planning remains available. Premium Lifetime removes the caps."
     },
     {
       question: "Is postpartum supported?",

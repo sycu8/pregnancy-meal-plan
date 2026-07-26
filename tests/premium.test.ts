@@ -52,14 +52,17 @@ const samplePlan = {
 
 describe("premium limits", () => {
   it("defines free tier daily caps", () => {
-    expect(getPremiumLimits("free").aiPlansPerDay).toBe(3);
-    expect(getPremiumLimits("free").mealSwapsPerDay).toBe(5);
-    expect(getPremiumLimits("free").historyPlans).toBe(20);
+    expect(getPremiumLimits("free").aiPlansPerDay).toBe(1);
+    expect(getPremiumLimits("free").mealSwapsPerDay).toBe(2);
+    expect(getPremiumLimits("free").historyPlans).toBe(5);
+    expect(getPremiumLimits("free").cloudExport).toBe(false);
   });
 
   it("removes caps for premium tier", () => {
     expect(getPremiumLimits("premium").aiPlansPerDay).toBe(Number.POSITIVE_INFINITY);
     expect(getPremiumLimits("premium").mealSwapsPerDay).toBe(Number.POSITIVE_INFINITY);
+    expect(getPremiumLimits("premium").historyPlans).toBe(Number.POSITIVE_INFINITY);
+    expect(getPremiumLimits("premium").cloudExport).toBe(true);
   });
 
   it("uses the configured Stripe Payment Link for checkout", () => {

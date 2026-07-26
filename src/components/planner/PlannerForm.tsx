@@ -6,6 +6,7 @@ import { ArrowLeft, ArrowRight, Loader2, Save, Sparkles } from "lucide-react";
 import { Button } from "@/components/shared/Button";
 import { Disclaimer } from "@/components/shared/Disclaimer";
 import { PremiumUsageHint } from "@/components/shared/PremiumUsageHint";
+import { PremiumUpsell } from "@/components/premium/PremiumUpsell";
 import { canCreateAiPlan } from "@/lib/premium/usage";
 import { getPremiumTier } from "@/lib/premium/tier";
 import { getNutritionLabels } from "@/lib/nutrition/labels";
@@ -120,12 +121,18 @@ export function PlannerForm({ mode = "planner", locale = "vi" }: { mode?: "plann
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
+  const [showPlanUpsell, setShowPlanUpsell] = useState(false);
   const isProfileMode = mode === "profile";
 
   useEffect(() => {
     const stored = getProfile();
     if (stored) setProfile({ ...defaultProfile, ...stored });
   }, []);
+
+  useEffect(() => {
+    if (isProfileMode) return;
+    setShowPlanUpsell(getPremiumTier() === "free" && !canCreateAiPlan("free"));
+  }, [isProfileMode, step]);
 
   const progress = useMemo(() => Math.round(((step + 1) / t.steps.length) * 100), [step, t.steps.length]);
 
@@ -174,6 +181,7 @@ export function PlannerForm({ mode = "planner", locale = "vi" }: { mode?: "plann
       let plan;
       try {
         if (!canCreateAiPlan(getPremiumTier())) {
+          setShowPlanUpsell(true);
           plan = createLocalMealPlan(validProfile, locale);
           if (typeof window !== "undefined") {
             window.sessionStorage.setItem(PLAN_NOTICE_KEY, t.planLimit);
@@ -183,6 +191,7 @@ export function PlannerForm({ mode = "planner", locale = "vi" }: { mode?: "plann
         }
       } catch (caught) {
         if (caught instanceof PremiumLimitError) {
+          setShowPlanUpsell(true);
           plan = createLocalMealPlan(validProfile, locale);
           if (typeof window !== "undefined") {
             window.sessionStorage.setItem(PLAN_NOTICE_KEY, t.planLimit);
@@ -313,7 +322,12 @@ export function PlannerForm({ mode = "planner", locale = "vi" }: { mode?: "plann
 
         {error && <p className="mt-4 rounded-md bg-red-50 p-3 text-sm text-red-700">{error}</p>}
         {saved && <p className="mt-4 rounded-md bg-emerald-50 p-3 text-sm text-emerald-800">{t.saved}</p>}
-        {!isProfileMode && step === t.steps.length - 1 && <PremiumUsageHint locale={locale} mode="ai" />}
+        {!isProfileMode && step === t.steps.length - 1 && (
+          <div className="mt-4 space-y-3">
+            <PremiumUsageHint locale={locale} mode="ai" />
+            {showPlanUpsell ? <PremiumUpsell locale={locale} reason="ai-limit" /> : null}
+          </div>
+        )}
 
         <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:justify-between">
           <Button type="button" variant="secondary" disabled={step === 0 || isLoading} onClick={() => setStep((current) => Math.max(0, current - 1))}>

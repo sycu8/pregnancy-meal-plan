@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { PremiumPage } from "@/components/premium/PremiumPage";
 
 export const metadata: Metadata = {
-  title: "Premium | Pregnancy Meal Planner",
-  description: "Nâng cấp Premium — không giới hạn lượt và xuất PDF."
+  title: "Premium Lifetime | Pregnancy Meal Planner",
+  description: "Thanh toán một lần — không giới hạn thực đơn AI, đổi món, lịch sử và xuất PDF."
 };
 
 export default function ViPremiumPage() {
