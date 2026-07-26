@@ -202,5 +202,5 @@ Mỗi lượt publish tối đa **10 bài** (`BLOG_AUTO_PUBLISH_MAX`) + tối đ
 ### SEO / GEO
 
 - FAQ + Article JSON-LD, OG image từ R2 (`/api/blog/media/blog/images/...`)
-- [`/llms.txt`](https://mebauangi.info/llms.txt) và [`/llms-full.txt`](https://mebauangi.info/llms-full.txt) cho ChatGPT / Claude
+- [`/llms.txt`](https://pregnancymeal.tips/llms.txt) và [`/llms-full.txt`](https://pregnancymeal.tips/llms-full.txt) cho ChatGPT / Claude
 - Blog pages trả markdown khi `Accept: text/markdown`

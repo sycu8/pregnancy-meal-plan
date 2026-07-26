@@ -1,7 +1,7 @@
 import { localizedPath, type Locale } from "@/lib/i18n";
 import type { MealPlan } from "@/types/mealPlan";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://mebauangi.info";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://pregnancymeal.tips";
 
 export function buildPlanShareUrl(planId: string, locale: Locale) {
   const path = localizedPath(locale, "/result");

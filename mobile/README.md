@@ -1,12 +1,12 @@
 # Bầu Ăn Gì? — Mobile (iOS & Android)
 
-Native shells for [mebauangi.info](https://mebauangi.info) built with [Capacitor 7](https://capacitorjs.com/). The apps open the production web experience in a secure WebView with native splash screen, status bar, and back-button handling.
+Native shells for [pregnancymeal.tips](https://pregnancymeal.tips) built with [Capacitor 7](https://capacitorjs.com/). The apps open the production web experience in a secure WebView with native splash screen, status bar, and back-button handling.
 
 | | |
 |--|--|
 | App ID | `info.mebauangi.app` |
 | Display name | Bầu Ăn Gì? |
-| Web entry | `www/` → redirects to `https://mebauangi.info` |
+| Web entry | `www/` → redirects to `https://pregnancymeal.tips` |
 
 ## Prerequisites
 
@@ -125,7 +125,7 @@ mobile/
 
 | Issue | Fix |
 |-------|-----|
-| Blank WebView after launch | Check device internet; confirm `mebauangi.info` is reachable |
+| Blank WebView after launch | Check device internet; confirm `pregnancymeal.tips` is reachable |
 | SSL errors | Ensure `androidScheme` / `iosScheme` are `https` in `capacitor.config.ts` |
 | iOS pod errors | `cd ios/App && pod install` |
 | Gradle SDK not found | Set `ANDROID_HOME` and install SDK Platform 34 in Android Studio |

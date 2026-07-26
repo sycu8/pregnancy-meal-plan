@@ -1,6 +1,6 @@
 import fs from "node:fs";
 
-const UA = "MeBauAnGiBlogBot/1.0 (+https://mebauangi.info/robots.txt)";
+const UA = "MeBauAnGiBlogBot/1.0 (+https://pregnancymeal.tips/robots.txt)";
 const TOPIC =
   /mang thai|mang bầu|thai kỳ|thai ky|sản phụ|san phu|mẹ bầu|me bau|dinh dưỡng|dinh duong|cho con bú|sau sinh|sơ sinh|nghén|nghen|tiểu đường thai|tăng cân|folate|sắt|canxi|omega|ăn dặm|an dam|tiêm chủng|tiem chung|bổ sung|bo sung|vitamin|thai nhi|thai nhi/i;
 

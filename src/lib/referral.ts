@@ -12,6 +12,6 @@ export function getReferralCode() {
 }
 
 export function buildReferralShareUrl(locale: "vi" | "en", code: string) {
-  const base = locale === "vi" ? "https://mebauangi.info/vi" : "https://mebauangi.info";
+  const base = locale === "vi" ? "https://pregnancymeal.tips/vi" : "https://pregnancymeal.tips";
   return `${base}?ref=${encodeURIComponent(code)}`;
 }

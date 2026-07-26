@@ -107,7 +107,7 @@ function main() {
       sourceName: "Pregnancy Meal Planner Editorial",
       title: topic.title,
       titleVi: topic.titleVi,
-      url: `https://mebauangi.info/blog/${topic.id}`,
+      url: `https://pregnancymeal.tips/blog/${topic.id}`,
       snippet: topic.snippet,
       snippetVi: topic.snippetVi,
       fetchedAt: new Date().toISOString(),

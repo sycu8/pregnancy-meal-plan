@@ -2,7 +2,7 @@ import { landingContent, localizedPath, pagePaths, type Locale, type PageKey } f
 import { blogCategories } from "@/lib/blog/categories";
 import { getAllPosts } from "@/lib/blog/posts";
 
-export const siteOrigin = process.env.NEXT_PUBLIC_SITE_URL ?? "https://mebauangi.info";
+export const siteOrigin = process.env.NEXT_PUBLIC_SITE_URL ?? "https://pregnancymeal.tips";
 
 export const aiCrawlerUserAgents = [
   "GPTBot",

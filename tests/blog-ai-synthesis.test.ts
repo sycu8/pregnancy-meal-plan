@@ -14,7 +14,7 @@ describe("blog AI synthesis helpers", () => {
       snippet: "Meal ideas that help boost iron intake during pregnancy.",
       snippetVi: "Gợi ý món giúp bổ sung sắt khi mang thai.",
       sourceName: "Editorial",
-      url: "https://mebauangi.info/blog/topics#demo"
+      url: "https://pregnancymeal.tips/blog/topics#demo"
     });
 
     expect(result.usedAi).toBe(false);
@@ -56,7 +56,7 @@ describe("blog SEO/GEO surfaces", () => {
     readingTimeMinutes: 4,
     metaTitle: "Dinh dưỡng mẹ bầu | Blog",
     metaDescription: "Mô tả",
-    ogImage: "https://mebauangi.info/api/blog/media/blog/images/demo-dinh-duong.jpg",
+    ogImage: "https://pregnancymeal.tips/api/blog/media/blog/images/demo-dinh-duong.jpg",
     faqs: [{ question: "Cần bổ sung gì?", answer: "Folate và sắt theo hướng dẫn bác sĩ." }],
     status: "published"
   };

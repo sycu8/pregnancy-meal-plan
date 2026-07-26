@@ -158,7 +158,7 @@ export async function synthesizePostWithAi(
   const fallback = synthesizePost(input);
   if (!isBlogAiEnabled() && !options.config) return fallback;
 
-  const system = `You are a bilingual maternal–child health editor for Pregnancy Meal Planner (mebauangi.info).
+  const system = `You are a bilingual maternal–child health editor for Pregnancy Meal Planner (pregnancymeal.tips).
 Write EVERY post in BOTH English and Vietnamese. The website shows English on /blog and Vietnamese on /vi/blog.
 HARD RULES:
 - Do NOT copy source articles verbatim; use only the title + short snippet as inspiration.

@@ -1,6 +1,6 @@
 import type { CapacitorConfig } from "@capacitor/cli";
 
-const productionUrl = process.env.CAPACITOR_SERVER_URL ?? "https://mebauangi.info";
+const productionUrl = process.env.CAPACITOR_SERVER_URL ?? "https://pregnancymeal.tips";
 
 const config: CapacitorConfig = {
   appId: "info.mebauangi.app",
@@ -9,8 +9,8 @@ const config: CapacitorConfig = {
   server: {
     androidScheme: "https",
     iosScheme: "https",
-    hostname: "app.mebauangi.info",
-    allowNavigation: ["mebauangi.info", "*.mebauangi.info"]
+    hostname: "app.pregnancymeal.tips",
+    allowNavigation: ["pregnancymeal.tips", "*.pregnancymeal.tips"]
   },
   plugins: {
     SplashScreen: {

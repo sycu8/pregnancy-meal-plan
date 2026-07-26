@@ -1,5 +1,5 @@
 (function () {
-  var APP_ORIGIN = "https://mebauangi.info";
+  var APP_ORIGIN = "https://pregnancymeal.tips";
   var RETRY_MS = 4000;
 
   function setStatus(message) {
