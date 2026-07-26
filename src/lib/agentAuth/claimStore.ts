@@ -9,18 +9,12 @@ export type ClaimRecord = {
   expiresAt: number;
 };
 
+/** In-memory fallback for local/dev when D1 is unavailable. Not shared across isolates. */
 const memoryClaims = new Map<string, ClaimRecord>();
 const memoryByCode = new Map<string, string>();
 
 const CLAIM_TTL_SECONDS = 900;
-
-function kvKey(claimToken: string) {
-  return `agent-claim:${claimToken}`;
-}
-
-function codeKey(userCode: string) {
-  return `agent-claim-code:${userCode}`;
-}
+let ensuredTable = false;
 
 export function mintOpaque(prefix: string) {
   const rand =
@@ -32,6 +26,42 @@ export function mintOpaque(prefix: string) {
 
 export function mintUserCode() {
   return String(Math.floor(100000 + Math.random() * 900000));
+}
+
+async function ensureClaimsTable() {
+  if (ensuredTable) return;
+  const { DB } = await getBindings();
+  if (!DB) return;
+  await DB.prepare(
+    `CREATE TABLE IF NOT EXISTS agent_claims (
+      claim_token TEXT PRIMARY KEY NOT NULL,
+      user_code TEXT NOT NULL UNIQUE,
+      email TEXT,
+      status TEXT NOT NULL DEFAULT 'pending',
+      created_at INTEGER NOT NULL,
+      expires_at INTEGER NOT NULL
+    )`
+  ).bind().run();
+  ensuredTable = true;
+}
+
+function rowToClaim(row: {
+  claim_token: string;
+  user_code: string;
+  email: string | null;
+  status: string;
+  created_at: number;
+  expires_at: number;
+}): ClaimRecord | null {
+  if (row.expires_at < Date.now()) return null;
+  return {
+    claimToken: row.claim_token,
+    userCode: row.user_code,
+    email: row.email ?? undefined,
+    status: row.status === "verified" ? "verified" : "pending",
+    createdAt: row.created_at,
+    expiresAt: row.expires_at
+  };
 }
 
 export async function createClaim(input: { email?: string; claimToken?: string; userCode?: string }): Promise<ClaimRecord> {
@@ -48,68 +78,119 @@ export async function createClaim(input: { email?: string; claimToken?: string; 
   memoryClaims.set(record.claimToken, record);
   memoryByCode.set(record.userCode, record.claimToken);
 
-  const env = await getBindings();
-  if (env.FEATURE_FLAGS) {
-    await env.FEATURE_FLAGS.put(kvKey(record.claimToken), JSON.stringify(record), {
-      expirationTtl: CLAIM_TTL_SECONDS
-    });
-    await env.FEATURE_FLAGS.put(codeKey(record.userCode), record.claimToken, {
-      expirationTtl: CLAIM_TTL_SECONDS
-    });
+  const { DB } = await getBindings();
+  if (DB) {
+    await ensureClaimsTable();
+    await DB.prepare(
+      `INSERT INTO agent_claims (claim_token, user_code, email, status, created_at, expires_at)
+       VALUES (?, ?, ?, ?, ?, ?)
+       ON CONFLICT(claim_token) DO UPDATE SET
+         user_code = excluded.user_code,
+         email = excluded.email,
+         status = excluded.status,
+         created_at = excluded.created_at,
+         expires_at = excluded.expires_at`
+    )
+      .bind(
+        record.claimToken,
+        record.userCode,
+        record.email ?? null,
+        record.status,
+        record.createdAt,
+        record.expiresAt
+      )
+      .run();
   }
 
   return record;
 }
 
-async function readClaim(claimToken: string): Promise<ClaimRecord | null> {
-  const cached = memoryClaims.get(claimToken);
-  if (cached) {
-    if (cached.expiresAt < Date.now()) {
-      memoryClaims.delete(claimToken);
-      memoryByCode.delete(cached.userCode);
-      return null;
+export async function getClaimByToken(claimToken: string): Promise<ClaimRecord | null> {
+  const { DB } = await getBindings();
+  if (DB) {
+    await ensureClaimsTable();
+    const row = await DB.prepare(
+      `SELECT claim_token, user_code, email, status, created_at, expires_at FROM agent_claims WHERE claim_token = ?`
+    )
+      .bind(claimToken)
+      .first<{
+        claim_token: string;
+        user_code: string;
+        email: string | null;
+        status: string;
+        created_at: number;
+        expires_at: number;
+      }>();
+    if (row) {
+      const claim = rowToClaim(row);
+      if (claim) {
+        memoryClaims.set(claim.claimToken, claim);
+        memoryByCode.set(claim.userCode, claim.claimToken);
+      }
+      return claim;
     }
-    return cached;
   }
 
-  const env = await getBindings();
-  if (!env.FEATURE_FLAGS) return null;
-  const raw = await env.FEATURE_FLAGS.get(kvKey(claimToken));
-  if (!raw) return null;
-  try {
-    const parsed = JSON.parse(raw) as ClaimRecord;
-    if (parsed.expiresAt < Date.now()) return null;
-    memoryClaims.set(claimToken, parsed);
-    memoryByCode.set(parsed.userCode, claimToken);
-    return parsed;
-  } catch {
+  const cached = memoryClaims.get(claimToken);
+  if (!cached) return null;
+  if (cached.expiresAt < Date.now()) {
+    memoryClaims.delete(claimToken);
+    memoryByCode.delete(cached.userCode);
     return null;
   }
-}
-
-export async function getClaimByToken(claimToken: string): Promise<ClaimRecord | null> {
-  return readClaim(claimToken);
+  return cached;
 }
 
 export async function getClaimByUserCode(userCode: string): Promise<ClaimRecord | null> {
-  const fromMemory = memoryByCode.get(userCode);
-  if (fromMemory) return readClaim(fromMemory);
+  const { DB } = await getBindings();
+  if (DB) {
+    await ensureClaimsTable();
+    const row = await DB.prepare(
+      `SELECT claim_token, user_code, email, status, created_at, expires_at FROM agent_claims WHERE user_code = ?`
+    )
+      .bind(userCode)
+      .first<{
+        claim_token: string;
+        user_code: string;
+        email: string | null;
+        status: string;
+        created_at: number;
+        expires_at: number;
+      }>();
+    if (row) return rowToClaim(row);
+  }
 
-  const env = await getBindings();
-  if (!env.FEATURE_FLAGS) return null;
-  const claimToken = await env.FEATURE_FLAGS.get(codeKey(userCode));
-  if (!claimToken) return null;
-  return readClaim(claimToken);
+  const fromMemory = memoryByCode.get(userCode);
+  if (!fromMemory) return null;
+  return getClaimByToken(fromMemory);
 }
 
 async function writeClaim(record: ClaimRecord) {
   memoryClaims.set(record.claimToken, record);
   memoryByCode.set(record.userCode, record.claimToken);
-  const env = await getBindings();
-  if (!env.FEATURE_FLAGS) return;
-  const ttl = Math.max(60, Math.floor((record.expiresAt - Date.now()) / 1000));
-  await env.FEATURE_FLAGS.put(kvKey(record.claimToken), JSON.stringify(record), { expirationTtl: ttl });
-  await env.FEATURE_FLAGS.put(codeKey(record.userCode), record.claimToken, { expirationTtl: ttl });
+
+  const { DB } = await getBindings();
+  if (!DB) return;
+  await ensureClaimsTable();
+  await DB.prepare(
+    `INSERT INTO agent_claims (claim_token, user_code, email, status, created_at, expires_at)
+     VALUES (?, ?, ?, ?, ?, ?)
+     ON CONFLICT(claim_token) DO UPDATE SET
+       user_code = excluded.user_code,
+       email = excluded.email,
+       status = excluded.status,
+       created_at = excluded.created_at,
+       expires_at = excluded.expires_at`
+  )
+    .bind(
+      record.claimToken,
+      record.userCode,
+      record.email ?? null,
+      record.status,
+      record.createdAt,
+      record.expiresAt
+    )
+    .run();
 }
 
 /** Human completes ownership by presenting the issued user_code. */
