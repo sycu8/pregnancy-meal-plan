@@ -4,6 +4,9 @@
  *
  * Auth: CLOUDFLARE_API_TOKEN + CLOUDFLARE_ACCOUNT_ID
  * Gateway: AI_GATEWAY_ID (defaults to "default")
+ *
+ * Text uses the same AI Gateway workers-ai provider path that succeeded for images,
+ * with OpenAI-compat + unified API as fallbacks.
  */
 
 export type ChatMessage = {
@@ -42,6 +45,46 @@ export function isBlogAiEnabled(env: NodeJS.ProcessEnv = process.env): boolean {
   return Boolean(readAiGatewayConfig(env));
 }
 
+function workersAiModelPath(model: string) {
+  return model.startsWith("@cf/") || model.startsWith("@hf/") ? model : `@cf/${model.replace(/^workers-ai\//, "")}`;
+}
+
+function extractChatText(data: unknown): string | null {
+  if (!data || typeof data !== "object") return null;
+  const row = data as {
+    choices?: { message?: { content?: string } }[];
+    result?: { response?: string; message?: string };
+    response?: string;
+    output_text?: string;
+  };
+
+  const fromChoices = row.choices?.[0]?.message?.content?.trim();
+  if (fromChoices) return fromChoices;
+
+  const fromResult = row.result?.response?.trim() || row.result?.message?.trim();
+  if (fromResult) return fromResult;
+
+  const direct = row.response?.trim() || row.output_text?.trim();
+  return direct || null;
+}
+
+async function postJson(url: string, headers: Record<string, string>, body: unknown): Promise<{ ok: boolean; status: number; data: unknown; raw: string }> {
+  const response = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...headers },
+    body: JSON.stringify(body),
+    signal: AbortSignal.timeout(120_000)
+  });
+  const raw = await response.text().catch(() => "");
+  let data: unknown = null;
+  try {
+    data = raw ? JSON.parse(raw) : null;
+  } catch {
+    data = { response: raw };
+  }
+  return { ok: response.ok, status: response.status, data, raw };
+}
+
 export async function gatewayChatCompletion(
   messages: ChatMessage[],
   options: {
@@ -53,41 +96,69 @@ export async function gatewayChatCompletion(
   const config = options.config ?? readAiGatewayConfig();
   if (!config) return null;
 
-  const url = `https://api.cloudflare.com/client/v4/accounts/${config.accountId}/ai/v1/chat/completions`;
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${config.apiToken}`,
-      "Content-Type": "application/json",
-      "cf-aig-gateway-id": config.gatewayId
+  const model = workersAiModelPath(config.textModel);
+  const auth = { Authorization: `Bearer ${config.apiToken}` };
+  const attempts: { name: string; url: string; headers: Record<string, string>; body: unknown }[] = [
+    // 1) Same workers-ai provider path that already works for Flux images
+    {
+      name: "gateway-workers-ai",
+      url: `https://gateway.ai.cloudflare.com/v1/${config.accountId}/${config.gatewayId}/workers-ai/${model}`,
+      headers: auth,
+      body: {
+        messages,
+        temperature: options.temperature ?? 0.45,
+        max_tokens: options.maxTokens ?? 4096
+      }
     },
-    body: JSON.stringify({
-      model: config.textModel,
-      messages,
-      temperature: options.temperature ?? 0.45,
-      max_tokens: options.maxTokens ?? 4096
-    }),
-    signal: AbortSignal.timeout(120_000)
-  });
+    // 2) OpenAI-compatible gateway endpoint
+    {
+      name: "gateway-compat",
+      url: `https://gateway.ai.cloudflare.com/v1/${config.accountId}/${config.gatewayId}/compat/chat/completions`,
+      headers: {
+        ...auth,
+        "cf-aig-authorization": `Bearer ${config.apiToken}`
+      },
+      body: {
+        model: `workers-ai/${model}`,
+        messages,
+        temperature: options.temperature ?? 0.45,
+        max_tokens: options.maxTokens ?? 4096
+      }
+    },
+    // 3) Unified API on api.cloudflare.com
+    {
+      name: "unified-chat",
+      url: `https://api.cloudflare.com/client/v4/accounts/${config.accountId}/ai/v1/chat/completions`,
+      headers: {
+        ...auth,
+        "cf-aig-gateway-id": config.gatewayId
+      },
+      body: {
+        model,
+        messages,
+        temperature: options.temperature ?? 0.45,
+        max_tokens: options.maxTokens ?? 4096
+      }
+    }
+  ];
 
-  if (!response.ok) {
-    const detail = await response.text().catch(() => "");
-    console.warn(`[ai-gateway] chat failed ${response.status}: ${detail.slice(0, 300)}`);
-    return null;
+  for (const attempt of attempts) {
+    try {
+      const result = await postJson(attempt.url, attempt.headers, attempt.body);
+      const text = extractChatText(result.data);
+      if (result.ok && text) {
+        console.log(`[ai-gateway] chat ok via ${attempt.name} (${text.length} chars)`);
+        return text;
+      }
+      console.warn(
+        `[ai-gateway] chat miss via ${attempt.name} status=${result.status}: ${result.raw.slice(0, 280)}`
+      );
+    } catch (error) {
+      console.warn(`[ai-gateway] chat error via ${attempt.name}:`, error);
+    }
   }
 
-  const data = (await response.json()) as {
-    choices?: { message?: { content?: string } }[];
-    result?: { response?: string };
-    response?: string;
-  };
-
-  return (
-    data.choices?.[0]?.message?.content?.trim() ||
-    data.result?.response?.trim() ||
-    data.response?.trim() ||
-    null
-  );
+  return null;
 }
 
 export async function gatewayGenerateImage(
@@ -101,8 +172,9 @@ export async function gatewayGenerateImage(
   const config = options.config ?? readAiGatewayConfig();
   if (!config) return null;
 
-  // Classic Workers AI provider path through AI Gateway (best for Flux image models).
-  const url = `https://gateway.ai.cloudflare.com/v1/${config.accountId}/${config.gatewayId}/workers-ai/${config.imageModel}`;
+  const model = workersAiModelPath(config.imageModel);
+  // Classic Workers AI provider path through AI Gateway (proven in production publish).
+  const url = `https://gateway.ai.cloudflare.com/v1/${config.accountId}/${config.gatewayId}/workers-ai/${model}`;
   const response = await fetch(url, {
     method: "POST",
     headers: {
@@ -133,7 +205,10 @@ export async function gatewayGenerateImage(
     image?: string;
   };
   const b64 = data.result?.image ?? data.image;
-  if (!b64) return null;
+  if (!b64) {
+    console.warn("[ai-gateway] image response missing base64 payload");
+    return null;
+  }
 
   return base64ToBytes(b64);
 }

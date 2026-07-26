@@ -123,7 +123,11 @@ async function main() {
 
   for (const { full, item } of drafts.slice(0, limit)) {
     const baseSlug = slugFromUrl(item.url);
-    const slug = ensureUniqueSlug(baseSlug);
+    const existingPath = path.join(postsDir, `${baseSlug}.json`);
+    const allowOverwrite =
+      process.env.BLOG_OVERWRITE_POSTS === "true" ||
+      (item.editorial === true && fs.existsSync(existingPath));
+    const slug = allowOverwrite && baseSlug ? baseSlug : ensureUniqueSlug(baseSlug);
 
     const synthesized = await synthesizePostWithAi(
       {
@@ -207,9 +211,10 @@ async function main() {
 
     const outVi = path.join(postsDir, `${slug}.json`);
     const outEn = path.join(enDir, `${slug}.json`);
+    const overwrite = process.env.BLOG_OVERWRITE_POSTS === "true" || synthesized.usedAi;
 
-    if (!fs.existsSync(outVi)) writeJson(outVi, viPost);
-    if (!fs.existsSync(outEn)) writeJson(outEn, enOverlay);
+    if (!fs.existsSync(outVi) || overwrite) writeJson(outVi, viPost);
+    if (!fs.existsSync(outEn) || overwrite) writeJson(outEn, enOverlay);
 
     const nextQueue: QueueItem = { ...item, status: "published", slug };
     writeJson(full, nextQueue);

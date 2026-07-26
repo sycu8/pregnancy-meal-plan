@@ -37,6 +37,18 @@ function existingSlugs() {
   );
 }
 
+function isTemplateOnlyPost(slug: string) {
+  const file = path.join(postsDir, `${slug}.json`);
+  if (!fs.existsSync(file)) return false;
+  try {
+    const post = JSON.parse(fs.readFileSync(file, "utf8")) as { content?: string };
+    const content = post.content ?? "";
+    return content.includes("## Gợi ý thực hành") && content.length < 900;
+  } catch {
+    return false;
+  }
+}
+
 function existingQueueTitles() {
   if (!fs.existsSync(queueDir)) return new Set<string>();
   const titles = new Set<string>();
@@ -62,12 +74,20 @@ function main() {
   let seeded = 0;
   for (const topic of topics) {
     if (seeded >= limit) break;
-    if (slugs.has(topic.id)) continue;
-    if (titles.has(topic.title.trim().toLowerCase())) continue;
+    const needsRewrite = isTemplateOnlyPost(topic.id);
+    if (slugs.has(topic.id) && !needsRewrite) continue;
+    if (!needsRewrite && titles.has(topic.title.trim().toLowerCase())) continue;
 
     const id = hashValue(`editorial:${topic.id}`);
     const file = path.join(queueDir, `${id}.json`);
-    if (fs.existsSync(file)) continue;
+    if (fs.existsSync(file) && !needsRewrite) {
+      try {
+        const existing = JSON.parse(fs.readFileSync(file, "utf8")) as QueuedItem;
+        if (existing.status === "draft") continue;
+      } catch {
+        // rewrite file below
+      }
+    }
 
     const payload: QueuedItem = {
       id,
@@ -77,7 +97,9 @@ function main() {
       snippet: topic.snippet,
       fetchedAt: new Date().toISOString(),
       status: "draft",
-      note: "Editorial SEO topic seed — synthesize original content; do not copy external articles.",
+      note: needsRewrite
+        ? "Re-queue template-only post for AI rewrite."
+        : "Editorial SEO topic seed — synthesize original content; do not copy external articles.",
       editorial: true,
       categoryHint: topic.category,
       tagsHint: topic.tags
