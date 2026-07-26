@@ -64,7 +64,7 @@ const categoriesEn: BlogCategory[] = [
     description: "Sample weekly menus, portion guidance and planning by gestational week, BMI and budget.",
     metaTitle: "Pregnancy meal plans | Pregnancy Meal Planner Blog",
     metaDescription:
-      "Sample 7-day pregnancy meal plans with shopping lists, portion guidance and budget-friendly ideas."
+      "Sample 7-day pregnancy meal plans with shopping lists, portion guidance, and budget-friendly ideas for expectant mothers."
   },
   {
     slug: "truoc-sinh",

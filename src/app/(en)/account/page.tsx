@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
 import { AccountPanel } from "@/components/account/AccountPanel";
+import { createRouteMetadata } from "@/lib/i18n";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createRouteMetadata("en", "/account", {
   title: "Account | Pregnancy Meal Planner",
-  description: "Register email, sync meal plans and manage your data."
-};
+  description:
+    "Sign in to manage your Pregnancy Meal Planner account, sync saved meal plans, Premium status, and bilingual settings securely.",
+  index: false
+});
 
 export default function EnAccountPage() {
   return (

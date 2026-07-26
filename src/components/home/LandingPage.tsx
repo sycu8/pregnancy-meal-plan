@@ -27,7 +27,7 @@ export function LandingPage({ locale }: { locale: Locale }) {
               <Link href={localizedPath(locale, "/planner")}>{copy.primaryCta}</Link>
             </Button>
             <Button asChild size="lg" variant="secondary" className="w-full sm:w-auto">
-              <Link href={localizedPath(locale, "/history")}>{copy.secondaryCta}</Link>
+              <Link href={localizedPath(locale, "/blog")}>{copy.secondaryCta}</Link>
             </Button>
           </div>
           <ul className="mt-8 grid list-none gap-3 p-0 sm:grid-cols-2">

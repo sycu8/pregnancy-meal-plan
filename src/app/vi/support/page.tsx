@@ -2,13 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { AgentClaimVerify } from "@/components/shared/AgentClaimVerify";
 import { faqContent } from "@/lib/faq";
-import { faqPageStructuredData, localizedPath } from "@/lib/i18n";
+import { createRouteMetadata, faqPageStructuredData, localizedPath } from "@/lib/i18n";
 import { DEFAULT_SITE_URL, SITE_HOST, SUPPORT_EMAIL, SUPPORT_EMAIL_MAILTO } from "@/lib/site";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createRouteMetadata("vi", "/support", {
   title: "Hỗ trợ | Pregnancy Meal Planner",
-  description: "Liên hệ hỗ trợ, xem câu hỏi thường gặp và thông tin về Pregnancy Meal Planner."
-};
+  description:
+    "Nhận hỗ trợ Pregnancy Meal Planner: câu hỏi về thực đơn, tài khoản và thanh toán, quyền riêng tư, cùng FAQ bằng tiếng Việt hoặc tiếng Anh."
+});
 
 export default function SupportPage() {
   return (

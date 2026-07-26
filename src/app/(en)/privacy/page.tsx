@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import { createRouteMetadata } from "@/lib/i18n";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createRouteMetadata("en", "/privacy", {
   title: "Privacy policy | Pregnancy Meal Planner",
-  description: "How Pregnancy Meal Planner stores data in your browser and optional cloud sync."
-};
+  description:
+    "Read how Pregnancy Meal Planner stores profile and meal-plan data in your browser, optional cloud sync, and your privacy choices."
+});
 
 export default function EnPrivacyPage() {
   return (

@@ -10,6 +10,8 @@ import { blogBasePath } from "@/lib/blog/ui";
 import { siteOrigin } from "@/lib/agentDiscovery";
 import { BRAND_NAME, localizedPath } from "@/lib/i18n";
 
+const DEFAULT_OG_IMAGE = "/og-default.png";
+
 const listMeta = {
   vi: {
     title: `Blog mẹ bầu & chăm con 0–24 tháng | ${BRAND_NAME}`,
@@ -45,8 +47,21 @@ export function blogListMetadata(locale: BlogLocale = "en"): Metadata {
         "x-default": `${siteOrigin}${localizedPath("en", "/blog")}`
       }
     },
-    openGraph: { title: meta.title, description: meta.description, url, siteName: BRAND_NAME, locale: meta.locale, type: "website" },
-    twitter: { card: "summary_large_image", title: meta.title, description: meta.description },
+    openGraph: {
+      title: meta.title,
+      description: meta.description,
+      url,
+      siteName: BRAND_NAME,
+      locale: meta.locale,
+      type: "website",
+      images: [{ url: DEFAULT_OG_IMAGE, width: 1200, height: 630, alt: meta.title }]
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: meta.title,
+      description: meta.description,
+      images: [DEFAULT_OG_IMAGE]
+    },
     robots: { index: true, follow: true }
   };
 }
@@ -69,7 +84,21 @@ export function blogCategoryMetadata(category: BlogCategory, locale: BlogLocale 
         "x-default": `${siteOrigin}${localizedPath("en", `/blog/${category.slug}`)}`
       }
     },
-    openGraph: { title: category.metaTitle, description: category.metaDescription, url, siteName: BRAND_NAME, locale: ogLocale, type: "website" },
+    openGraph: {
+      title: category.metaTitle,
+      description: category.metaDescription,
+      url,
+      siteName: BRAND_NAME,
+      locale: ogLocale,
+      type: "website",
+      images: [{ url: DEFAULT_OG_IMAGE, width: 1200, height: 630, alt: category.metaTitle }]
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: category.metaTitle,
+      description: category.metaDescription,
+      images: [DEFAULT_OG_IMAGE]
+    },
     robots: { index: true, follow: true }
   };
 }
@@ -102,9 +131,14 @@ export function blogPostMetadata(post: BlogPost, locale: BlogLocale = "en"): Met
       type: "article",
       publishedTime: post.publishedAt,
       modifiedTime: post.updatedAt,
-      ...(post.ogImage ? { images: [{ url: post.ogImage }] } : {})
+      images: [{ url: post.ogImage || DEFAULT_OG_IMAGE, width: 1200, height: 630, alt: post.metaTitle }]
     },
-    twitter: { card: "summary_large_image", title: post.metaTitle, description: post.metaDescription },
+    twitter: {
+      card: "summary_large_image",
+      title: post.metaTitle,
+      description: post.metaDescription,
+      images: [post.ogImage || DEFAULT_OG_IMAGE]
+    },
     robots: { index: true, follow: true }
   };
 }

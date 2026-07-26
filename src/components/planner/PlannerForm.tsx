@@ -39,6 +39,8 @@ const copy = {
   vi: {
     steps: ["Thai kỳ", "Thông tin mẹ", "Sức khỏe", "Khẩu vị", "Ngân sách"],
     progress: "Bước",
+    pageTitle: "Tạo thực đơn mẹ bầu 7 ngày",
+    pageDescription: "Nhập tuần thai, cân nặng, khẩu vị và tình trạng sức khỏe để tạo thực đơn 7 ngày kèm danh sách đi chợ.",
     pregnancyInfo: "Thông tin thai kỳ",
     pregnancyWeek: "Tuần thai hiện tại",
     pregnancyType: "Mang thai",
@@ -76,6 +78,8 @@ const copy = {
   en: {
     steps: ["Pregnancy", "About you", "Health", "Taste", "Budget"],
     progress: "Step",
+    pageTitle: "Create a 7-day pregnancy meal plan",
+    pageDescription: "Enter week, weight, preferences, and health notes to build a 7-day pregnancy meal plan with a shopping list.",
     pregnancyInfo: "Pregnancy information",
     pregnancyWeek: "Current pregnancy week",
     pregnancyType: "Pregnancy type",
@@ -214,6 +218,11 @@ export function PlannerForm({ mode = "planner", locale = "vi" }: { mode?: "plann
 
   return (
     <div className="mx-auto max-w-3xl">
+      <header className="mb-5 space-y-2">
+        <h1 className="text-3xl font-semibold tracking-tight">{t.pageTitle}</h1>
+        <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">{t.pageDescription}</p>
+      </header>
+
       <div className="mb-5 rounded-lg border border-border bg-white p-4 shadow-soft">
         <div className="mb-3 flex items-center justify-between text-sm font-medium">
           <span>
@@ -355,7 +364,7 @@ export function PlannerForm({ mode = "planner", locale = "vi" }: { mode?: "plann
 function Step({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="space-y-5">
-      <h1 className="text-2xl font-semibold">{title}</h1>
+      <h2 className="text-2xl font-semibold">{title}</h2>
       {children}
     </section>
   );

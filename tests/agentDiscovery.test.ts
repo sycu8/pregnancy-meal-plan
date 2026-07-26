@@ -39,9 +39,17 @@ describe("agent discovery assets", () => {
     for (const url of publicSiteUrls) {
       expect(sitemap).toContain(`<loc>${url}</loc>`);
     }
+    expect(sitemap).toContain(`${siteOrigin}/support</loc>`);
+    expect(sitemap).toContain(`${siteOrigin}/premium</loc>`);
+    expect(sitemap).toContain(`${siteOrigin}/privacy</loc>`);
+    expect(sitemap).toContain(`${siteOrigin}/blog/topics</loc>`);
     expect(sitemap).toContain(`${siteOrigin}/blog</loc>`);
     expect(sitemap).toContain(`${siteOrigin}/vi/blog</loc>`);
     expect(sitemap).toContain(`${siteOrigin}/blog/dinh-duong-ba-bau</loc>`);
+    expect(sitemap).not.toContain(`${siteOrigin}/history</loc>`);
+    expect(sitemap).not.toContain(`${siteOrigin}/profile</loc>`);
+    expect(sitemap).not.toContain(`${siteOrigin}/result</loc>`);
+    expect(sitemap).not.toContain(`${siteOrigin}/account</loc>`);
   });
 
   it("describes the meal-plan API through an API catalog and MCP server card", () => {
@@ -100,6 +108,7 @@ describe("agent discovery assets", () => {
 
     expect(markdown).toContain("# Pregnancy Meal Planner");
     expect(markdown).toContain(`[Create a free plan](${siteOrigin}/planner)`);
+    expect(markdown).toContain(`[Read pregnancy nutrition tips](${siteOrigin}/blog)`);
     expect(markdown).toContain(`${siteOrigin}/auth.md`);
   });
 });

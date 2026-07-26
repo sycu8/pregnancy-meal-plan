@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
 import { BlogTopicsIndex } from "@/components/blog/BlogTopics";
+import { createRouteMetadata } from "@/lib/i18n";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createRouteMetadata("vi", "/blog/topics", {
   title: "Chủ đề blog | Pregnancy Meal Planner",
-  description: "Các cụm chủ đề dinh dưỡng thai kỳ, nghén, tiểu đường thai kỳ và ăn dặm."
-};
+  description:
+    "Duyệt các cụm chủ đề dinh dưỡng thai kỳ: thực đơn mẹ bầu, nghén, tiểu đường thai kỳ, chuẩn bị sinh, sau sinh và chăm con 0–24 tháng.",
+  keywords: ["chủ đề blog mẹ bầu", "dinh dưỡng thai kỳ", "thực đơn bà bầu", "ăn dặm"]
+});
 
 export default function BlogTopicsPage() {
   return (
