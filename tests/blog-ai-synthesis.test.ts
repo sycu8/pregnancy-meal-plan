@@ -52,8 +52,8 @@ describe("blog AI synthesis helpers", () => {
       sourceName: "Editorial",
       url: "https://pregnancymeal.tips/blog/topics#iron"
     });
-    expect(synthesized.metaDescription.length).toBeGreaterThanOrEqual(100);
-    expect(synthesized.en.metaDescription.length).toBeGreaterThanOrEqual(100);
+    expect(synthesized.metaDescription?.length ?? 0).toBeGreaterThanOrEqual(100);
+    expect(synthesized.en.metaDescription?.length ?? 0).toBeGreaterThanOrEqual(100);
   });
 
   it("rotates bilingual editorial SEO topics", () => {
