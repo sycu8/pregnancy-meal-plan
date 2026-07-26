@@ -33,31 +33,33 @@ export function draftsFromBlogPost(post: BlogPost, locales: Locale[] = ["en"]): 
     const excerpt = post.excerpt || post.metaDescription || "";
     const tip = truncate(excerpt, locale === "en" ? 180 : 160);
 
-    const bodies: Record<SocialPlatform, string> = {
-      facebook:
-        locale === "en"
-          ? `${title}\n\n${tip}\n\nEducational tip only — not medical advice.\nRead more:`
-          : `${title}\n\n${tip}\n\nChỉ mang tính tham khảo giáo dục — không thay thế bác sĩ.\nĐọc thêm:`,
-      x:
-        locale === "en"
-          ? truncate(`${title} — ${tip}`, 220)
-          : truncate(`${title} — ${tip}`, 220),
-      tiktok:
-        locale === "en"
-          ? `Hook: ${truncate(title, 70)}\nScript: ${tip}\nCTA: Free planner → pregnancymeal.tips/planner\n#PregnancyMealPlan #PrenatalNutrition`
-          : `Hook: ${truncate(title, 70)}\nScript: ${tip}\nCTA: Planner miễn phí → pregnancymeal.tips/vi/planner\n#ThucDonMeBau #DinhDuongThaiKy`
-    };
-
     for (const platform of ["facebook", "x", "tiktok"] as const) {
       const link = postLink(post.slug, locale, platform);
-      const text =
-        platform === "tiktok" ? bodies[platform] : `${bodies[platform]} ${platform === "x" ? link : `\n${link}`}`;
+
+      let text: string;
+      if (platform === "facebook") {
+        const body =
+          locale === "en"
+            ? `${title}\n\n${tip}\n\nEducational tip only — not medical advice.\nRead more:`
+            : `${title}\n\n${tip}\n\nChỉ mang tính tham khảo giáo dục — không thay thế bác sĩ.\nĐọc thêm:`;
+        text = `${body}\n${link}`;
+      } else if (platform === "x") {
+        // Keep the full URL intact — truncate caption only, then append link.
+        const maxCaption = Math.max(80, 280 - link.length - 1);
+        const caption = truncate(`${title} — ${tip}`, maxCaption);
+        text = `${caption} ${link}`;
+      } else {
+        text =
+          locale === "en"
+            ? `Hook: ${truncate(title, 70)}\nScript: ${tip}\nCTA: Free planner → pregnancymeal.tips/planner\n#PregnancyMealPlan #PrenatalNutrition`
+            : `Hook: ${truncate(title, 70)}\nScript: ${tip}\nCTA: Planner miễn phí → pregnancymeal.tips/vi/planner\n#ThucDonMeBau #DinhDuongThaiKy`;
+      }
 
       drafts.push({
         id: `${post.slug}-${locale}-${platform}`,
         platform,
         locale,
-        text: platform === "x" ? truncate(text, 280) : text,
+        text,
         link,
         sourceSlug: post.slug,
         createdAt

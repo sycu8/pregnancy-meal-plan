@@ -34,7 +34,27 @@ describe("social hub + marketing MVP", () => {
     expect(drafts).toHaveLength(3);
     expect(drafts.map((d) => d.platform).sort()).toEqual(["facebook", "tiktok", "x"]);
     expect(drafts.every((d) => d.link.includes("utm_source="))).toBe(true);
-    expect(drafts.find((d) => d.platform === "x")?.text.length).toBeLessThanOrEqual(280);
+
+    const x = drafts.find((d) => d.platform === "x");
+    expect(x?.text.length).toBeLessThanOrEqual(280);
+    expect(x?.text).toContain(x!.link);
+    expect(x?.text.trimEnd().endsWith(x!.link)).toBe(true);
+
+    const facebook = drafts.find((d) => d.platform === "facebook");
+    expect(facebook?.text).toContain(facebook!.link);
+  });
+
+  it("keeps the full X link even when the caption is long", () => {
+    const longPost: BlogPost = {
+      ...samplePost,
+      title: "A very long pregnancy nutrition title about iron folate calcium hydration and balanced plates",
+      excerpt:
+        "This excerpt is intentionally long so the draft caption would previously overflow the 280 character tweet limit and truncate away the blog URL before publishing to X."
+    };
+    const x = draftsFromBlogPost(longPost, ["en"]).find((d) => d.platform === "x");
+    expect(x?.text).toContain(x!.link);
+    expect(x?.text.trimEnd().endsWith(x!.link)).toBe(true);
+    expect(x?.text.length).toBeLessThanOrEqual(280);
   });
 
   it("dry-runs publishers when tokens are missing", async () => {
