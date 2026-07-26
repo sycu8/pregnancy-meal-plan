@@ -26,22 +26,18 @@ const publicPages: { page: PageKey; locale: Locale; priority: string; changefreq
   { page: "planner", locale: "vi", priority: "0.7", changefreq: "weekly" }
 ];
 
-<<<<<<< HEAD
 /** Indexable marketing/legal routes that are not part of PageKey. */
 const publicStaticRoutes: { path: string; locale: Locale; priority: string; changefreq: string }[] = [
   { path: "/support", locale: "en", priority: "0.6", changefreq: "monthly" },
   { path: "/premium", locale: "en", priority: "0.7", changefreq: "monthly" },
   { path: "/privacy", locale: "en", priority: "0.4", changefreq: "yearly" },
   { path: "/blog/topics", locale: "en", priority: "0.7", changefreq: "weekly" },
+  { path: "/social", locale: "en", priority: "0.75", changefreq: "weekly" },
   { path: "/support", locale: "vi", priority: "0.5", changefreq: "monthly" },
   { path: "/premium", locale: "vi", priority: "0.6", changefreq: "monthly" },
   { path: "/privacy", locale: "vi", priority: "0.3", changefreq: "yearly" },
-  { path: "/blog/topics", locale: "vi", priority: "0.6", changefreq: "weekly" }
-=======
-const publicStaticRoutes: { path: string; locale: Locale; priority: string; changefreq: string }[] = [
-  { path: "/social", locale: "en", priority: "0.75", changefreq: "weekly" },
+  { path: "/blog/topics", locale: "vi", priority: "0.6", changefreq: "weekly" },
   { path: "/social", locale: "vi", priority: "0.65", changefreq: "weekly" }
->>>>>>> origin/cursor/social-page-marketing-mvp-237e
 ];
 
 export const publicSiteUrls = [

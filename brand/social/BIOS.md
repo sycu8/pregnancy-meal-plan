@@ -42,15 +42,6 @@ Planner 7 ngày miễn phí + list đi chợ
 pregnancymeal.tips
 ```
 
-<<<<<<< HEAD
-## Suggested handles
-
-| Platform | Display name | Handle |
-| --- | --- | --- |
-| Facebook | Pregnancy Meal Planner | @PregnancyMealPlanner |
-| X | Pregnancy Meal Planner | @PregMealTips |
-| TikTok | Pregnancy Meal Planner | @pregnancymeal.tips |
-=======
 ## Live profiles
 
 | Platform | Display name | URL |
@@ -61,4 +52,3 @@ pregnancymeal.tips
 | Web hub | Pregnancy Meal Planner | https://pregnancymeal.tips/social |
 
 Link-in-bio / website field on every profile → `https://pregnancymeal.tips/social`
->>>>>>> origin/cursor/social-page-marketing-mvp-237e
