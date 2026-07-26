@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import type { IngestedFeedItem, SourceConfig } from "@/types/blog";
 import { dedupeFeedItems, hashValue, topicMatches } from "./dedupe";
+import { reviewBlogSeedRelevance } from "./relevance";
 import { discoverSitemapCandidates } from "./sitemap";
 import { parseRssOrAtom } from "./rss";
 import { assertUrlAllowedByRobots } from "./robots";
@@ -139,6 +140,7 @@ export async function ingestBlogSources(options?: { sources?: SourceConfig[] }):
 
       const candidates = items
         .filter((item) => topicMatches(item.title, item.description, source.topics))
+        .filter((item) => reviewBlogSeedRelevance({ title: item.title, snippet: item.description, url: item.link }).ok)
         .map((item) => ({
           id: hashValue(`${source.name}:${item.link}`),
           sourceName: source.name,

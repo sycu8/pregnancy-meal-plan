@@ -1,5 +1,6 @@
 import type { SourceConfig } from "@/types/blog";
 import { topicMatches } from "@/lib/blog/ingestion/dedupe";
+import { reviewBlogSeedRelevance } from "@/lib/blog/ingestion/relevance";
 import { assertUrlAllowedByRobots } from "@/lib/blog/ingestion/robots";
 import { BLOG_USER_AGENT } from "@/lib/blog/ingestion/sources";
 
@@ -20,8 +21,11 @@ function isXmlUrl(url: string) {
 
 function urlAllowedBySource(url: string, source: SourceConfig) {
   if (!url.startsWith(source.baseUrl)) return false;
-  if (!source.allowedPaths || source.allowedPaths.length === 0) return true;
   const parsed = new URL(url);
+  if (source.deniedPaths?.some((prefix) => parsed.pathname.includes(prefix) || parsed.pathname.startsWith(prefix))) {
+    return false;
+  }
+  if (!source.allowedPaths || source.allowedPaths.length === 0) return true;
   return source.allowedPaths.some((prefix) => parsed.pathname.startsWith(prefix));
 }
 
@@ -89,6 +93,7 @@ export async function discoverSitemapCandidates(
     const meta = extractMeta(html);
     if (!meta.title) continue;
     if (!topicMatches(meta.title, meta.desc, source.topics)) continue;
+    if (!reviewBlogSeedRelevance({ title: meta.title, snippet: meta.desc, url }).ok) continue;
     results.push({ title: meta.title, url, snippet: meta.desc });
   }
 

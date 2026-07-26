@@ -11,6 +11,7 @@ import fs from "node:fs";
 import path from "node:path";
 import type { SourceConfig } from "../src/types/blog.ts";
 import { dedupeFeedItems, hashValue, topicMatches } from "../src/lib/blog/ingestion/dedupe.ts";
+import { reviewBlogSeedRelevance } from "../src/lib/blog/ingestion/relevance.ts";
 import { assertUrlAllowedByRobots } from "../src/lib/blog/ingestion/robots.ts";
 import { BLOG_USER_AGENT, DEFAULT_RATE_LIMIT_MS, getEnabledSources } from "../src/lib/blog/ingestion/sources.ts";
 import { ingestBlogSources, loadIngestedIndex, saveIngestedIndex } from "../src/lib/blog/ingestion/ingest.ts";
@@ -23,7 +24,7 @@ type QueuedItem = {
   snippet: string;
   publishedAt?: string;
   fetchedAt: string;
-  status: "draft" | "published";
+  status: "draft" | "published" | "rejected";
   note: string;
 };
 
@@ -49,8 +50,11 @@ function isXmlUrl(url: string) {
 
 function urlAllowedBySource(url: string, source: SourceConfig) {
   if (!url.startsWith(source.baseUrl)) return false;
-  if (!source.allowedPaths || source.allowedPaths.length === 0) return true;
   const parsed = new URL(url);
+  if (source.deniedPaths?.some((prefix) => parsed.pathname.includes(prefix) || parsed.pathname.startsWith(prefix))) {
+    return false;
+  }
+  if (!source.allowedPaths || source.allowedPaths.length === 0) return true;
   return source.allowedPaths.some((prefix) => parsed.pathname.startsWith(prefix));
 }
 
@@ -121,6 +125,7 @@ async function discoverFromSitemap(source: SourceConfig, options: { maxSitemaps:
     const { title, desc } = extractMeta(html);
     if (!title) continue;
     if (!topicMatches(title, desc, source.topics)) continue;
+    if (!reviewBlogSeedRelevance({ title, snippet: desc, url }).ok) continue;
     validated.push({ url, title, snippet: desc });
   }
 

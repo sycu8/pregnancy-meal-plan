@@ -28,9 +28,6 @@ import dinhDuongSauSinhVaChoConBu from "../../../content/blog/posts/dinh-duong-s
 import dinhDuongTamCaNguyet2 from "../../../content/blog/posts/dinh-duong-tam-ca-nguyet-2.json";
 import dinhDuongTre1224Thang from "../../../content/blog/posts/dinh-duong-tre-12-24-thang.json";
 import dungNhauDongLanhSauSinh from "../../../content/blog/posts/dung-nhau-dong-lanh-sau-sinh.json";
-import evaluationCommunityActionProgramChildrenCanadaPrenatalNutritionProgram2 from "../../../content/blog/posts/evaluation-community-action-program-children-canada-prenatal-nutrition-program-2.json";
-import evaluationFoodBorneWaterBorneEntericIllnessActivities2017201820212022 from "../../../content/blog/posts/evaluation-food-borne-water-borne-enteric-illness-activities-2017-2018-2021-2022.json";
-import foodSafetyMonitoringSurveillance from "../../../content/blog/posts/food-safety-monitoring-surveillance.json";
 import giacNguKhiMangThai from "../../../content/blog/posts/giac-ngu-khi-mang-thai.json";
 import giaiDapThacMacSauSinhAnDaDayLonDuocKhong from "../../../content/blog/posts/giai-dap-thac-mac-sau-sinh-an-da-day-lon-duoc-khong.json";
 import hoiChungOngCoTayKhiMangThai from "../../../content/blog/posts/hoi-chung-ong-co-tay-khi-mang-thai.json";
@@ -61,8 +58,6 @@ import postpartumBreastfeedingNutrition from "../../../content/blog/posts/postpa
 import pregnancySnackIdeas from "../../../content/blog/posts/pregnancy-snack-ideas.json";
 import proteinVaCholineKhiMangThai from "../../../content/blog/posts/protein-va-choline-khi-mang-thai.json";
 import quaTrinhHinhThanhRauThaiVi from "../../../content/blog/posts/qua-trinh-hinh-thanh-rau-thai-vi.json";
-import resultsEvaluationCommunityActionProgramChildrenCanadaPrenatalNutritionP from "../../../content/blog/posts/results-evaluation-community-action-program-children-canada-prenatal-nutrition-p.json";
-import resultsGlanceBloodSafetyContributionProgram from "../../../content/blog/posts/results-glance-blood-safety-contribution-program.json";
 import rungTocSauSinh from "../../../content/blog/posts/rung-toc-sau-sinh.json";
 import ruouVaThuocLaKhiMangThai from "../../../content/blog/posts/ruou-va-thuoc-la-khi-mang-thai.json";
 import sangLocTruocSinhCanLamGi from "../../../content/blog/posts/sang-loc-truoc-sinh-can-lam-gi.json";
@@ -141,9 +136,6 @@ export const postManifest: BlogPost[] = [
   dinhDuongTamCaNguyet2,
   dinhDuongTre1224Thang,
   dungNhauDongLanhSauSinh,
-  evaluationCommunityActionProgramChildrenCanadaPrenatalNutritionProgram2,
-  evaluationFoodBorneWaterBorneEntericIllnessActivities2017201820212022,
-  foodSafetyMonitoringSurveillance,
   giacNguKhiMangThai,
   giaiDapThacMacSauSinhAnDaDayLonDuocKhong,
   hoiChungOngCoTayKhiMangThai,
@@ -174,8 +166,6 @@ export const postManifest: BlogPost[] = [
   pregnancySnackIdeas,
   proteinVaCholineKhiMangThai,
   quaTrinhHinhThanhRauThaiVi,
-  resultsEvaluationCommunityActionProgramChildrenCanadaPrenatalNutritionP,
-  resultsGlanceBloodSafetyContributionProgram,
   rungTocSauSinh,
   ruouVaThuocLaKhiMangThai,
   sangLocTruocSinhCanLamGi,

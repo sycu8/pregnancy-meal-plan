@@ -77,6 +77,8 @@ export type SourceConfig = {
   baseUrl: string;
   rssUrl?: string;
   allowedPaths?: string[];
+  /** Path prefixes that must never be queued (checked before allowedPaths matches). */
+  deniedPaths?: string[];
   topics: string[];
   credibility: SourceCredibility;
   language: "en" | "vi";

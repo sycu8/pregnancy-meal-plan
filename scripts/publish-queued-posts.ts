@@ -12,6 +12,7 @@ import fs from "node:fs";
 import path from "node:path";
 import type { BlogCategorySlug, BlogPost, BlogTrimester, BlogPostTranslation } from "../src/types/blog.ts";
 import { hashValue } from "../src/lib/blog/ingestion/dedupe.ts";
+import { reviewBlogSeedRelevance } from "../src/lib/blog/ingestion/relevance.ts";
 import { estimateReadingTimeMinutes } from "../src/lib/blog/readingTime.ts";
 import { isUsableEnglishTranslation } from "../src/lib/blog/localize.ts";
 import { synthesizePostWithAi } from "../src/lib/blog/synthesis/synthesizePost.ts";
@@ -28,7 +29,7 @@ type QueueItem = {
   snippetVi?: string;
   publishedAt?: string;
   fetchedAt: string;
-  status: "draft" | "published";
+  status: "draft" | "published" | "rejected";
   note?: string;
   slug?: string;
   editorial?: boolean;
@@ -127,6 +128,24 @@ async function main() {
 
   for (const { full, item } of drafts.slice(0, limit)) {
     try {
+      const relevance = reviewBlogSeedRelevance({
+        title: item.titleVi || item.title,
+        snippet: item.snippetVi || item.snippet,
+        url: item.url,
+        editorial: item.editorial === true
+      });
+      if (!relevance.ok) {
+        const rejected: QueueItem = {
+          ...item,
+          status: "rejected",
+          note: `Rejected before publish: ${relevance.reason}`
+        };
+        writeJson(full, rejected);
+        skipped++;
+        console.warn(`[publish] reject ${item.id}: ${relevance.reason}`);
+        continue;
+      }
+
       const baseSlug = slugFromUrl(item.url);
       const existingPath = path.join(postsDir, `${baseSlug}.json`);
       const allowOverwrite =
