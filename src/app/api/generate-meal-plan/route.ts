@@ -4,7 +4,7 @@ import { checkRateLimit } from "@/lib/cloudflare/rateLimit";
 import { validateB2BApiKey } from "@/lib/b2b/apiKey";
 import { createAIClient } from "@/lib/cloudflare/aiClient";
 import { verifyTurnstileToken } from "@/lib/cloudflare/turnstile";
-import { checkAndIncrementUsage, usageLimitMessage } from "@/lib/premium/serverUsage";
+import { checkUsage, incrementUsage, usageLimitMessage } from "@/lib/premium/serverUsage";
 import type { Locale } from "@/lib/i18n";
 import { regenerateMealInPlan } from "@/lib/nutrition/mealPlanner";
 import { pregnancyProfileSchema, validationErrorToLocale, validationErrorToVietnamese } from "@/lib/nutrition/validation";
@@ -54,16 +54,14 @@ export async function POST(request: Request) {
     }
 
     if (parsed.regenerate) {
-      let swapUsage: { used: number; limit: number } | null = null;
       if (!isB2B) {
-        const usage = await checkAndIncrementUsage(request, "meal-swap");
+        const usage = await checkUsage(request, "meal-swap");
         if (!usage.ok) {
           return NextResponse.json(
             { error: usageLimitMessage("meal-swap", locale), usage: { mealSwapsUsed: usage.used, mealSwapsLimit: usage.limit } },
             { status: 429 }
           );
         }
-        swapUsage = { used: usage.used, limit: usage.limit };
       }
 
       const plan = regenerateMealInPlan(
@@ -73,6 +71,12 @@ export async function POST(request: Request) {
         parsed.regenerate.mealSlot,
         locale
       );
+
+      let swapUsage: { used: number; limit: number } | null = null;
+      if (!isB2B) {
+        swapUsage = await incrementUsage(request, "meal-swap");
+      }
+
       return NextResponse.json({
         plan,
         usage: swapUsage ? { mealSwapsUsed: swapUsage.used, mealSwapsLimit: swapUsage.limit } : undefined
@@ -80,15 +84,16 @@ export async function POST(request: Request) {
     }
 
     if (!isB2B) {
-      const aiUsage = await checkAndIncrementUsage(request, "ai-plan");
-      if (!aiUsage.ok) {
+      const aiCheck = await checkUsage(request, "ai-plan");
+      if (!aiCheck.ok) {
         return NextResponse.json(
-          { error: usageLimitMessage("ai-plan", locale), usage: { aiPlansUsed: aiUsage.used, aiPlansLimit: aiUsage.limit } },
+          { error: usageLimitMessage("ai-plan", locale), usage: { aiPlansUsed: aiCheck.used, aiPlansLimit: aiCheck.limit } },
           { status: 429 }
         );
       }
 
       const plan = await createAIClient().generateMealPlan(parsed.profile, locale);
+      const aiUsage = await incrementUsage(request, "ai-plan");
       return NextResponse.json({
         plan,
         usage: { aiPlansUsed: aiUsage.used, aiPlansLimit: aiUsage.limit }

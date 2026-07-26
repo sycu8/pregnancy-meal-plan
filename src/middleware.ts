@@ -27,6 +27,12 @@ export function middleware(request: NextRequest) {
 
   if (isMarkdownPath(pathname) && wantsMarkdown(accept)) {
     const markdown = markdownForPath(pathname);
+    if (!markdown) {
+      return new Response("# Not found\n", {
+        status: 404,
+        headers: { "Content-Type": "text/markdown; charset=utf-8" }
+      });
+    }
     return new Response(markdown, {
       headers: {
         "Content-Type": "text/markdown; charset=utf-8",

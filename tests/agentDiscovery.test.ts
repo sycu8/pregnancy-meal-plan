@@ -66,6 +66,9 @@ describe("agent discovery assets", () => {
     expect(authServer.issuer).toBe("https://example.test");
     expect(authServer.token_endpoint).toBe("https://example.test/oauth/token");
     expect(authServer.revocation_endpoint).toBe("https://example.test/oauth/revoke");
+    expect(authServer).not.toHaveProperty("resource");
+    expect(authServer).not.toHaveProperty("authorization_servers");
+    expect(authServer).not.toHaveProperty("bearer_methods_supported");
     expect(authServer.agent_auth.skill).toBe("https://example.test/auth.md");
     expect(authServer.agent_auth.register_uri).toBe("https://example.test/agent/identity");
     expect(authServer.agent_auth.claim_uri).toBe("https://example.test/agent/identity/claim");

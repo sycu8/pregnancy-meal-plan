@@ -74,13 +74,15 @@ const desired = [
 
 const existingRes = await cf(`/zones/${zoneId}/dns_records?per_page=500`);
 if (!existingRes.json.success) {
-  console.error("DNS list failed — token may lack Zone DNS Edit.");
-  console.error(existingRes.json.errors ?? existingRes.json);
-  console.error("Apply records manually from dns/dns-aid.zone");
-  process.exit(2);
+  // Soft-fail: Workers deploy tokens often lack Zone DNS Edit. Manual zone apply remains valid.
+  console.warn("DNS list failed — token may lack Zone DNS Edit.");
+  console.warn(existingRes.json.errors ?? existingRes.json);
+  console.warn("Apply records manually from dns/dns-aid.zone (CI continues).");
+  process.exit(0);
 }
 
 const existing = existingRes.json.result ?? [];
+let failures = 0;
 
 for (const record of desired) {
   const match = existing.find((row) => row.type === record.type && row.name === record.name);
@@ -89,14 +91,29 @@ for (const record of desired) {
       method: "PUT",
       body: JSON.stringify({ ...record, proxied: undefined })
     });
-    console.log(updated.json.success ? `updated ${record.type} ${record.name}` : `failed update ${record.type} ${record.name}`, updated.json.errors ?? "");
+    if (updated.json.success) {
+      console.log(`updated ${record.type} ${record.name}`);
+    } else {
+      failures += 1;
+      console.warn(`failed update ${record.type} ${record.name}`, updated.json.errors ?? "");
+    }
   } else {
     const created = await cf(`/zones/${zoneId}/dns_records`, {
       method: "POST",
       body: JSON.stringify(record)
     });
-    console.log(created.json.success ? `created ${record.type} ${record.name}` : `failed create ${record.type} ${record.name}`, created.json.errors ?? "");
+    if (created.json.success) {
+      console.log(`created ${record.type} ${record.name}`);
+    } else {
+      failures += 1;
+      console.warn(`failed create ${record.type} ${record.name}`, created.json.errors ?? "");
+    }
   }
+}
+
+if (failures > 0) {
+  console.warn(`${failures} DNS-AID record(s) not published. Apply manually from dns/dns-aid.zone`);
+  process.exit(0);
 }
 
 console.log("Done. Validate with:");

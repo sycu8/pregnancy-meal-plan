@@ -1,5 +1,6 @@
 import { landingContent, localizedPath, pagePaths, type Locale, type PageKey } from "@/lib/i18n";
 import { blogCategories } from "@/lib/blog/categories";
+import { hasUsableEnglishTranslation } from "@/lib/blog/localize";
 import { getAllPosts } from "@/lib/blog/posts";
 
 export const siteOrigin = process.env.NEXT_PUBLIC_SITE_URL ?? "https://pregnancymeal.tips";
@@ -115,23 +116,20 @@ export function agentAuthMetadata(origin = siteOrigin) {
 }
 
 export function oauthAuthorizationServerMetadata(origin = siteOrigin) {
-  const prm = oauthProtectedResourceMetadata(origin);
   return {
-    resource: prm.resource,
-    authorization_servers: prm.authorization_servers,
-    scopes_supported: prm.scopes_supported,
-    bearer_methods_supported: prm.bearer_methods_supported,
     issuer: origin,
     authorization_endpoint: withOrigin("/oauth/authorize", origin),
     token_endpoint: withOrigin("/oauth/token", origin),
     revocation_endpoint: withOrigin("/oauth/revoke", origin),
     jwks_uri: withOrigin("/oauth/jwks.json", origin),
+    scopes_supported: ["meal-plan:generate", "meal-plan:read", "agent:preclaim"],
     grant_types_supported: [
       "client_credentials",
       "urn:ietf:params:oauth:grant-type:jwt-bearer",
       "urn:workos:agent-auth:grant-type:claim"
     ],
     response_types_supported: ["token"],
+    token_endpoint_auth_methods_supported: ["client_secret_basic", "none"],
     service_documentation: withOrigin("/api-docs", origin),
     agent_auth: agentAuthMetadata(origin)
   };
@@ -244,10 +242,10 @@ Content-Type: application/json
 POST ${claim}
 Content-Type: application/json
 
-{ "claim_token": "<from register>", "email": "user@example.com" }
+{ "claim_token": "<from register>" }
 \`\`\`
 
-Surface \`user_code\` + \`verification_uri\` to the human. Complete ownership at the verification URI, then poll the token endpoint with grant \`urn:workos:agent-auth:grant-type:claim\`.
+Surface \`user_code\` + \`verification_uri\` to the human. The human must confirm the issued \`user_code\` at \`/support\` (or POST \`{ complete: true, user_code, email }\` to the claim endpoint). Then poll with the same \`claim_token\` (or use grant \`urn:workos:agent-auth:grant-type:claim\` at the token endpoint) — credentials are issued only after verification.
 
 ## Step 5 — Exchange for an access_token
 
@@ -291,7 +289,7 @@ export function openIdConfiguration(origin = siteOrigin) {
     grant_types_supported: ["client_credentials"],
     response_types_supported: ["token"],
     subject_types_supported: ["public"],
-    id_token_signing_alg_values_supported: ["RS256"],
+    // Opaque access tokens only — JWKS is intentionally empty (no JWT id_tokens).
     scopes_supported: ["openid", "meal-plan:generate"],
     service_documentation: withOrigin("/api-docs", origin)
   };
@@ -561,17 +559,19 @@ export function sitemapXml() {
 
   let postEntries = "";
   try {
-    postEntries = getAllPosts()
-      .flatMap((post) =>
-        (["vi", "en"] as const).map(
+    postEntries = getAllPosts("vi")
+      .flatMap((post) => {
+        const locales: Locale[] = ["vi"];
+        if (hasUsableEnglishTranslation(post.slug)) locales.push("en");
+        return locales.map(
           (locale) => `  <url>
     <loc>${escapeXml(absoluteUrl(localizedPath(locale, `/blog/${post.slug}`)))}</loc>
     <lastmod>${escapeXml(post.updatedAt.slice(0, 10))}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>`
-        )
-      )
+        );
+      })
       .join("\n");
   } catch {
     postEntries = "";
@@ -587,7 +587,7 @@ ${postEntries}
 `;
 }
 
-export function markdownForPath(pathname: string) {
+export function markdownForPath(pathname: string): string | null {
   const locale: Locale = pathname === "/vi" || pathname.startsWith("/vi/") ? "vi" : "en";
   const blogMatch = pathname.match(/^\/(vi\/)?blog(?:\/([^/?#]+))?$/);
 
@@ -630,11 +630,11 @@ This website provides reference meal-planning support only and does not replace 
 `;
 }
 
-function markdownForBlogPath(pathname: string, locale: Locale, slug?: string) {
+function markdownForBlogPath(pathname: string, locale: Locale, slug?: string): string | null {
   const base = absoluteUrl(pathname.split("?")[0] || "/blog");
 
   if (!slug) {
-    const posts = safePosts().slice(0, 25);
+    const posts = safePosts(locale).slice(0, 25);
     return `# Pregnancy Meal Planner Blog
 
 Educational articles on pregnancy nutrition, pregnancy meal plans, postpartum care, and baby nutrition (0–24 months).
@@ -658,7 +658,7 @@ ${posts.map((post) => `- [${post.title}](${absoluteUrl(localizedPath(locale, `/b
 
   const category = blogCategories.find((cat) => cat.slug === slug);
   if (category) {
-    const posts = safePosts().filter((post) => post.category === category.slug).slice(0, 20);
+    const posts = safePosts(locale).filter((post) => post.category === category.slug).slice(0, 20);
     return `# ${category.name}
 
 ${category.description}
@@ -671,9 +671,9 @@ ${posts.map((post) => `- [${post.title}](${absoluteUrl(localizedPath(locale, `/b
 `;
   }
 
-  const post = safePosts().find((item) => item.slug === slug);
+  const post = safePosts(locale).find((item) => item.slug === slug);
   if (!post) {
-    return `# Not found\n\nNo blog page at ${base}\n`;
+    return null;
   }
 
   return `# ${post.title}

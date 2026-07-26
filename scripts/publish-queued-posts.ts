@@ -126,115 +126,129 @@ async function main() {
   const withImages = process.env.BLOG_AI_IMAGES !== "false";
 
   for (const { full, item } of drafts.slice(0, limit)) {
-    const baseSlug = slugFromUrl(item.url);
-    const existingPath = path.join(postsDir, `${baseSlug}.json`);
-    const allowOverwrite =
-      process.env.BLOG_OVERWRITE_POSTS === "true" ||
-      (item.editorial === true && fs.existsSync(existingPath));
-    const slug = allowOverwrite && baseSlug ? baseSlug : ensureUniqueSlug(baseSlug);
+    try {
+      const baseSlug = slugFromUrl(item.url);
+      const existingPath = path.join(postsDir, `${baseSlug}.json`);
+      const allowOverwrite =
+        process.env.BLOG_OVERWRITE_POSTS === "true" ||
+        (item.editorial === true && fs.existsSync(existingPath));
+      const slug = allowOverwrite && baseSlug ? baseSlug : ensureUniqueSlug(baseSlug);
 
-    const synthesized = await synthesizePostWithAi(
-      {
-        title: item.title,
-        snippet: item.snippet,
-        titleVi: item.titleVi,
-        snippetVi: item.snippetVi,
-        sourceName: item.sourceName,
-        url: item.url
-      },
-      { config: aiConfig }
-    );
-
-    if (!synthesized.en || !isUsableEnglishTranslation({ slug, ...synthesized.en })) {
-      console.warn(`[publish] skip ${slug}: English content missing or unusable — keeping queue as draft`);
-      skipped++;
-      continue;
-    }
-
-    if (!synthesized.content || synthesized.content.length < 300) {
-      console.warn(`[publish] skip ${slug}: Vietnamese content too short — keeping queue as draft`);
-      skipped++;
-      continue;
-    }
-
-    let content = synthesized.content;
-    let ogImage: string | undefined;
-
-    if (withImages && aiConfig) {
-      const image = await generateAndUploadBlogImage({
-        slug,
-        prompt: synthesized.imagePrompt || `${synthesized.en.title}, healthy pregnancy nutrition, photorealistic`,
-        alt: synthesized.en.title,
-        config: aiConfig
-      });
-      if (image) {
-        ogImage = image.ogImage;
-      }
-    }
-
-    const publishedAt = item.publishedAt ?? item.fetchedAt ?? nowIso();
-    const category = item.categoryHint ?? synthesized.category;
-    const tags = [...new Set([...(item.tagsHint ?? []), ...synthesized.tags])].slice(0, 6);
-
-    const viPost: BlogPost = {
-      title: synthesized.title,
-      slug,
-      excerpt: synthesized.excerpt,
-      content,
-      category,
-      tags,
-      trimester: guessTrimester(synthesized.title, synthesized.excerpt),
-      author: authorVi,
-      reviewer: item.editorial ? "Biên tập Pregnancy Meal Planner" : `Tham chiếu ${item.sourceName}`,
-      sourceReferences: [
+      const synthesized = await synthesizePostWithAi(
         {
-          title: item.title.trim() || synthesized.en.title || "Source",
-          url: item.url,
-          publisher: item.sourceName,
-          accessedAt: new Date().toISOString().slice(0, 10)
+          title: item.title,
+          snippet: item.snippet,
+          titleVi: item.titleVi,
+          snippetVi: item.snippetVi,
+          sourceName: item.sourceName,
+          url: item.url
+        },
+        { config: aiConfig }
+      );
+
+      if (!synthesized.en || !isUsableEnglishTranslation({ slug, ...synthesized.en })) {
+        console.warn(`[publish] skip ${slug}: English content missing or unusable — keeping queue as draft`);
+        skipped++;
+        continue;
+      }
+
+      if (!synthesized.content || synthesized.content.length < 300) {
+        console.warn(`[publish] skip ${slug}: Vietnamese content too short — keeping queue as draft`);
+        skipped++;
+        continue;
+      }
+
+      const content = synthesized.content;
+      let ogImage: string | undefined;
+
+      if (withImages && aiConfig) {
+        const image = await generateAndUploadBlogImage({
+          slug,
+          prompt: synthesized.imagePrompt || `${synthesized.en.title}, healthy pregnancy nutrition, photorealistic`,
+          alt: synthesized.en.title,
+          config: aiConfig
+        });
+        if (image) {
+          ogImage = image.ogImage;
         }
-      ],
-      publishedAt,
-      updatedAt: nowIso(),
-      readingTimeMinutes: estimateReadingTimeMinutes(content),
-      metaTitle: synthesized.metaTitle || `${synthesized.title} | Pregnancy Meal Planner`,
-      metaDescription: synthesized.metaDescription || synthesized.excerpt.slice(0, 160),
-      ...(ogImage ? { ogImage } : {}),
-      ...(synthesized.faqs ? { faqs: synthesized.faqs } : {}),
-      status: "published"
-    };
+      }
 
-    const enOverlay: BlogPostTranslation = {
-      slug,
-      title: synthesized.en.title,
-      excerpt: synthesized.en.excerpt,
-      content: synthesized.en.content,
-      metaTitle: synthesized.en.metaTitle,
-      metaDescription: synthesized.en.metaDescription,
-      author: authorEn,
-      reviewer: item.editorial ? "Pregnancy Meal Planner Editorial" : `References ${item.sourceName}`,
-      ...(synthesized.en.faqs?.length ? { faqs: synthesized.en.faqs } : {})
-    };
+      const publishedAt = item.publishedAt ?? item.fetchedAt ?? nowIso();
+      const category = item.categoryHint ?? synthesized.category;
+      const tags = [...new Set([...(item.tagsHint ?? []), ...synthesized.tags])].slice(0, 6);
 
-    const outVi = path.join(postsDir, `${slug}.json`);
-    const outEn = path.join(enDir, `${slug}.json`);
-    const existingIsTemplate =
-      fs.existsSync(outVi) && isTemplateViContent(readJson<BlogPost>(outVi).content ?? "");
-    const overwrite =
-      process.env.BLOG_OVERWRITE_POSTS === "true" ||
-      synthesized.usedAi ||
-      existingIsTemplate ||
-      !fs.existsSync(outEn);
+      const viPost: BlogPost = {
+        title: synthesized.title,
+        slug,
+        excerpt: synthesized.excerpt,
+        content,
+        category,
+        tags,
+        trimester: guessTrimester(synthesized.title, synthesized.excerpt),
+        author: authorVi,
+        reviewer: item.editorial ? "Biên tập Pregnancy Meal Planner" : `Tham chiếu ${item.sourceName}`,
+        sourceReferences: [
+          {
+            title: item.title.trim() || synthesized.en.title || "Source",
+            url: item.url,
+            publisher: item.sourceName,
+            accessedAt: new Date().toISOString().slice(0, 10)
+          }
+        ],
+        publishedAt,
+        updatedAt: nowIso(),
+        readingTimeMinutes: estimateReadingTimeMinutes(content),
+        metaTitle: synthesized.metaTitle || `${synthesized.title} | Pregnancy Meal Planner`,
+        metaDescription: synthesized.metaDescription || synthesized.excerpt.slice(0, 160),
+        ...(ogImage ? { ogImage } : {}),
+        ...(synthesized.faqs ? { faqs: synthesized.faqs } : {}),
+        status: "published"
+      };
 
-    if (!fs.existsSync(outVi) || overwrite) writeJson(outVi, viPost);
-    if (!fs.existsSync(outEn) || overwrite) writeJson(outEn, enOverlay);
+      const enOverlay: BlogPostTranslation = {
+        slug,
+        title: synthesized.en.title,
+        excerpt: synthesized.en.excerpt,
+        content: synthesized.en.content,
+        metaTitle: synthesized.en.metaTitle,
+        metaDescription: synthesized.en.metaDescription,
+        author: authorEn,
+        reviewer: item.editorial ? "Pregnancy Meal Planner Editorial" : `References ${item.sourceName}`,
+        ...(synthesized.en.faqs?.length ? { faqs: synthesized.en.faqs } : {})
+      };
 
-    const nextQueue: QueueItem = { ...item, status: "published", slug };
-    writeJson(full, nextQueue);
-    published++;
-    console.log(
-      `Published ${slug} bilingual (ai=${synthesized.usedAi}, vi=${content.length}c, en=${enOverlay.content.length}c, image=${Boolean(ogImage)})`
-    );
+      const outVi = path.join(postsDir, `${slug}.json`);
+      const outEn = path.join(enDir, `${slug}.json`);
+      const existingIsTemplate =
+        fs.existsSync(outVi) && isTemplateViContent(readJson<BlogPost>(outVi).content ?? "");
+      const overwrite =
+        process.env.BLOG_OVERWRITE_POSTS === "true" ||
+        synthesized.usedAi ||
+        existingIsTemplate ||
+        !fs.existsSync(outEn);
+
+      if (!fs.existsSync(outVi) || overwrite) writeJson(outVi, viPost);
+      if (!fs.existsSync(outEn) || overwrite) writeJson(outEn, enOverlay);
+
+      // Only mark the queue item published when bilingual files are on disk.
+      if (!fs.existsSync(outVi) || !fs.existsSync(outEn)) {
+        console.warn(`[publish] skip ${slug}: bilingual files missing after write — keeping queue as draft`);
+        skipped++;
+        continue;
+      }
+
+      const nextQueue: QueueItem = { ...item, status: "published", slug };
+      writeJson(full, nextQueue);
+      published++;
+      console.log(
+        `Published ${slug} bilingual (ai=${synthesized.usedAi}, vi=${content.length}c, en=${enOverlay.content.length}c, image=${Boolean(ogImage)})`
+      );
+    } catch (error) {
+      skipped++;
+      console.warn(
+        `[publish] skip queue item ${item.id}: ${error instanceof Error ? error.message : String(error)} — keeping as draft`
+      );
+    }
   }
 
   console.log(`Published ${published} bilingual posts from queue (skipped ${skipped}).`);

@@ -2,6 +2,7 @@ import { createAIClient } from "@/lib/cloudflare/aiClient";
 import { checkRateLimit } from "@/lib/cloudflare/rateLimit";
 import { getNutrientGuidance } from "@/lib/nutrition/nutrientGuidance";
 import { searchBlogPosts } from "@/lib/blog/query";
+import { localizedPath } from "@/lib/i18n";
 import { pregnancyProfileSchema } from "@/lib/nutrition/validation";
 import type { BlogLocale } from "@/types/blog";
 
@@ -39,7 +40,12 @@ async function handleToolCall(name: string, args: Record<string, unknown>) {
     const limit = Number(args.limit ?? 5);
     const { posts } = searchBlogPosts(locale, { q, page: 1, pageSize: limit });
     return {
-      posts: posts.map((post) => ({ slug: post.slug, title: post.title, excerpt: post.excerpt, url: `/${locale === "en" ? "en/" : ""}blog/${post.slug}` }))
+      posts: posts.map((post) => ({
+        slug: post.slug,
+        title: post.title,
+        excerpt: post.excerpt,
+        url: localizedPath(locale, `/blog/${post.slug}`)
+      }))
     };
   }
 

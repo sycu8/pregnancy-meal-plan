@@ -43,7 +43,7 @@ for (const url of sample) {
     const m = await meta(url);
     if (m.match) matched.push(m);
     console.log(m.match ? "+" : "-", m.title?.slice(0, 70));
-  } catch (e) {
+  } catch {
     console.log("ERR", url);
   }
 }

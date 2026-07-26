@@ -33,6 +33,24 @@ export async function findOrCreateUserByEmail(email: string, locale: "vi" | "en"
   return { id, email: normalized, locale, premium: false };
 }
 
+export async function getUserByEmail(email: string): Promise<CloudUserRecord | null> {
+  const { DB } = await getBindings();
+  if (!DB) return null;
+
+  const normalized = email.trim().toLowerCase();
+  const row = await DB.prepare(`SELECT id, email, locale, premium FROM users WHERE email = ?`)
+    .bind(normalized)
+    .first<{ id: string; email: string | null; locale: string; premium: number }>();
+
+  if (!row) return null;
+  return {
+    id: row.id,
+    email: row.email ?? undefined,
+    locale: row.locale === "en" ? "en" : "vi",
+    premium: Boolean(row.premium)
+  };
+}
+
 export async function getUserById(userId: string): Promise<CloudUserRecord | null> {
   const { DB } = await getBindings();
   if (!DB) return null;

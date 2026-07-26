@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { getPremiumTier } from "@/lib/premium/tier";
-import { getUsageSnapshot } from "@/lib/premium/usage";
+import { getUsageSnapshot, type UsageSnapshot } from "@/lib/premium/usage";
 import { localizedPath, type Locale } from "@/lib/i18n";
 
 const copy = {
@@ -29,10 +30,23 @@ export function PremiumUsageHint({
   mode?: "ai" | "swap";
   refreshKey?: number;
 }) {
-  void refreshKey;
-  const tier = getPremiumTier();
-  const snapshot = getUsageSnapshot(tier);
+  const [ready, setReady] = useState(false);
+  const [tier, setTier] = useState<"free" | "premium">("free");
+  const [snapshot, setSnapshot] = useState<UsageSnapshot>(() => getUsageSnapshot("free"));
+
+  useEffect(() => {
+    const nextTier = getPremiumTier();
+    setTier(nextTier);
+    setSnapshot(getUsageSnapshot(nextTier));
+    setReady(true);
+  }, [refreshKey]);
+
   const t = copy[locale];
+
+  // Render a stable free-tier placeholder until client localStorage is read.
+  if (!ready) {
+    return <p className="text-xs text-muted-foreground">&nbsp;</p>;
+  }
 
   if (tier === "premium") {
     return <p className="text-xs text-muted-foreground">{t.unlimited}</p>;

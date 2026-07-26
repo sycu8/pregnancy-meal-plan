@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { AgentClaimVerify } from "@/components/shared/AgentClaimVerify";
 import { faqContent } from "@/lib/faq";
 import { faqPageStructuredData, localizedPath } from "@/lib/i18n";
 import { DEFAULT_SITE_URL, SITE_HOST, SUPPORT_EMAIL, SUPPORT_EMAIL_MAILTO } from "@/lib/site";
@@ -20,6 +21,8 @@ export default function SupportPage() {
       <p className="mt-4 text-muted-foreground leading-7">
         Pregnancy Meal Planner giúp mẹ bầu lên thực đơn theo tuần thai. Nếu bạn cần trợ giúp kỹ thuật hoặc có góp ý sản phẩm, hãy liên hệ qua email bên dưới.
       </p>
+
+      <AgentClaimVerify locale="vi" />
 
       <section className="mt-8 rounded-lg border border-border bg-white p-5">
         <h2 className="text-xl font-semibold">Liên hệ</h2>

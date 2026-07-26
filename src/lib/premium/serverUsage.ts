@@ -1,5 +1,5 @@
 import { getPremiumLimits, type PremiumTier } from "@/lib/premium/limits";
-import { getUsageDateKey, isValidUsageDateKey } from "@/lib/premium/dateKey";
+import { getUsageDateKey } from "@/lib/premium/dateKey";
 import { resolvePremiumTier } from "@/lib/premium/resolveTier";
 import { getBindings } from "@/lib/cloudflare/bindings";
 
@@ -7,9 +7,9 @@ export type UsageBucket = "ai-plan" | "meal-swap";
 
 const memoryUsage = new Map<string, number>();
 
-function usageDateKey(request: Request) {
-  const header = request.headers.get("x-usage-date");
-  return isValidUsageDateKey(header) ? header! : getUsageDateKey();
+/** Server calendar day only — never trust client `x-usage-date` (bypass vector). */
+function usageDateKey() {
+  return getUsageDateKey();
 }
 
 function resolveClientKey(request: Request) {
@@ -24,6 +24,10 @@ async function resolveTier(request: Request): Promise<PremiumTier> {
 function limitForBucket(tier: PremiumTier, bucket: UsageBucket) {
   const limits = getPremiumLimits(tier);
   return bucket === "ai-plan" ? limits.aiPlansPerDay : limits.mealSwapsPerDay;
+}
+
+function usageKey(request: Request, bucket: UsageBucket) {
+  return `usage:${bucket}:${usageDateKey()}:${resolveClientKey(request)}`;
 }
 
 async function readCount(key: string): Promise<number> {
@@ -43,7 +47,7 @@ async function writeCount(key: string, count: number) {
   memoryUsage.set(key, count);
 }
 
-export async function checkAndIncrementUsage(
+export async function checkUsage(
   request: Request,
   bucket: UsageBucket
 ): Promise<{ ok: true; used: number; limit: number } | { ok: false; used: number; limit: number }> {
@@ -53,14 +57,37 @@ export async function checkAndIncrementUsage(
     return { ok: true, used: 0, limit: Number.MAX_SAFE_INTEGER };
   }
 
-  const key = `usage:${bucket}:${usageDateKey(request)}:${resolveClientKey(request)}`;
-  const used = await readCount(key);
+  const used = await readCount(usageKey(request, bucket));
   if (used >= limit) {
     return { ok: false, used, limit };
   }
+  return { ok: true, used, limit };
+}
 
-  await writeCount(key, used + 1);
-  return { ok: true, used: used + 1, limit };
+export async function incrementUsage(
+  request: Request,
+  bucket: UsageBucket
+): Promise<{ used: number; limit: number }> {
+  const tier = await resolveTier(request);
+  const limit = limitForBucket(tier, bucket);
+  if (!Number.isFinite(limit)) {
+    return { used: 0, limit: Number.MAX_SAFE_INTEGER };
+  }
+
+  const key = usageKey(request, bucket);
+  const used = (await readCount(key)) + 1;
+  await writeCount(key, used);
+  return { used, limit };
+}
+
+export async function checkAndIncrementUsage(
+  request: Request,
+  bucket: UsageBucket
+): Promise<{ ok: true; used: number; limit: number } | { ok: false; used: number; limit: number }> {
+  const checked = await checkUsage(request, bucket);
+  if (!checked.ok) return checked;
+  const next = await incrementUsage(request, bucket);
+  return { ok: true, used: next.used, limit: next.limit };
 }
 
 export function usageLimitMessage(bucket: UsageBucket, locale: "vi" | "en" = "vi") {

@@ -1,5 +1,4 @@
 import type { Locale } from "@/lib/i18n";
-import { getUsageDateKey } from "@/lib/premium/dateKey";
 import { premiumTierHeader } from "@/lib/premium/tier";
 import { authHeaders } from "@/lib/storage/authSession";
 import { syncUsageFromServer } from "@/lib/premium/usage";
@@ -21,8 +20,7 @@ export type GenerateMealPlanResponse =
 function usageHeaders() {
   return {
     ...premiumTierHeader(),
-    ...authHeaders(),
-    "x-usage-date": getUsageDateKey()
+    ...authHeaders()
   };
 }
 

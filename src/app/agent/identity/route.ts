@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { findOrCreateUserByEmail } from "@/lib/auth/user";
+import { createClaim, mintOpaque } from "@/lib/agentAuth/claimStore";
 
 type IdentityBody = {
   type?: string;
@@ -7,14 +8,6 @@ type IdentityBody = {
   assertion?: string;
   login_hint?: string;
 };
-
-function mintOpaque(prefix: string) {
-  const rand =
-    typeof crypto !== "undefined" && "randomUUID" in crypto
-      ? crypto.randomUUID().replace(/-/g, "")
-      : `${Date.now()}_${Math.random().toString(36).slice(2)}`;
-  return `${prefix}_${Buffer.from(`${prefix}:${rand}`).toString("base64url")}`;
-}
 
 /**
  * Auth.md registration entrypoint.
@@ -25,10 +18,11 @@ export async function POST(request: Request) {
   const type = body.type;
 
   if (type === "anonymous") {
+    const claim = await createClaim({});
     return NextResponse.json({
       type: "anonymous",
       identity_assertion: mintOpaque("ida"),
-      claim_token: mintOpaque("claim"),
+      claim_token: claim.claimToken,
       credential_types_supported: ["access_token"],
       expires_in: 3600
     });
@@ -54,7 +48,7 @@ export async function POST(request: Request) {
     }
 
     const origin = new URL(request.url).origin;
-    const userCode = String(Math.floor(100000 + Math.random() * 900000));
+    const claim = await createClaim({ email });
 
     try {
       await findOrCreateUserByEmail(email, "en");
@@ -64,11 +58,11 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       type: "service_auth",
-      claim_token: mintOpaque("claim"),
+      claim_token: claim.claimToken,
       claim: {
-        user_code: userCode,
+        user_code: claim.userCode,
         verification_uri: `${origin}/support`,
-        verification_uri_complete: `${origin}/support?user_code=${userCode}&email=${encodeURIComponent(email)}`,
+        verification_uri_complete: `${origin}/support?user_code=${claim.userCode}&email=${encodeURIComponent(email)}`,
         expires_in: 900,
         interval: 5
       },

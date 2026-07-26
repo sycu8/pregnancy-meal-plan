@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getClaimByToken } from "@/lib/agentAuth/claimStore";
 
 function isAuthorized(request: Request) {
   const clientId = process.env.OAUTH_CLIENT_ID;
@@ -64,17 +65,21 @@ export async function POST(request: Request) {
     if (!body.claim_token) {
       return NextResponse.json({ error: "invalid_request", error_description: "claim_token required" }, { status: 400 });
     }
-    // Passive scans do not complete claim ceremonies; return a usable token when claimed,
-    // or authorization_pending when still waiting on the human.
-    if (body.claim_token.includes("pending")) {
+
+    const claim = await getClaimByToken(body.claim_token);
+    if (!claim) {
+      return NextResponse.json({ error: "invalid_grant", error_description: "unknown or expired claim_token" }, { status: 400 });
+    }
+    if (claim.status !== "verified") {
       return NextResponse.json({ error: "authorization_pending" }, { status: 400 });
     }
+
     return NextResponse.json({
-      access_token: mintAccessToken(body.claim_token.slice(0, 24)),
+      access_token: mintAccessToken(claim.claimToken.slice(0, 24)),
       token_type: "Bearer",
       expires_in: 3600,
       scope: "meal-plan:generate meal-plan:read",
-      identity_assertion: `ida_${body.claim_token}`
+      identity_assertion: `ida_${claim.claimToken}`
     });
   }
 

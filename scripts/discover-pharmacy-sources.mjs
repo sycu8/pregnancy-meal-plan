@@ -23,7 +23,7 @@ function parseSitemapLocs(xml) {
   return [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
 }
 
-async function discoverFromSitemaps(base, sitemapUrls) {
+async function _discoverFromSitemaps(base, sitemapUrls) {
   const urls = new Set();
   for (const sm of sitemapUrls) {
     try {
@@ -38,8 +38,7 @@ async function discoverFromSitemaps(base, sitemapUrls) {
   }
   return [...urls];
 }
-
-async function discoverFromPage(listUrl, linkPattern) {
+async function _discoverFromPage(listUrl, linkPattern) {
   const html = await fetchText(listUrl);
   const links = [
     ...html.matchAll(linkPattern),
@@ -54,6 +53,10 @@ async function discoverFromPage(listUrl, linkPattern) {
     .filter((u) => SLUG_TOPIC.test(u));
   return [...new Set(links)];
 }
+
+// Helpers retained for future crawl expansion; current sources use dedicated fetchers.
+void _discoverFromSitemaps;
+void _discoverFromPage;
 
 async function meta(url) {
   const html = await fetchText(url);
