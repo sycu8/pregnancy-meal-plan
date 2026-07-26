@@ -3,7 +3,7 @@ import { getPremiumLimits } from "@/lib/premium/limits";
 import { getUsageDateKey, isValidUsageDateKey } from "@/lib/premium/dateKey";
 import { buildPlanShareText, buildPlanShareUrl } from "@/lib/share/planShare";
 import { PremiumLimitError } from "@/lib/nutrition/fetchMealPlan";
-import { DEFAULT_STRIPE_CHECKOUT_URL } from "@/app/api/premium/checkout/route";
+import { DEFAULT_STRIPE_CHECKOUT_URL } from "@/lib/premium/stripeCheckout";
 import type { MealPlan } from "@/types/mealPlan";
 
 const samplePlan = {
