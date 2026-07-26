@@ -82,24 +82,204 @@ export const mcpServerCard = {
 export function oauthProtectedResourceMetadata(origin = siteOrigin) {
   return {
     resource: withOrigin("/", origin),
-    authorization_servers: [withOrigin("/.well-known/oauth-authorization-server", origin)],
-    scopes_supported: ["meal-plan:generate"],
+    resource_name: "Pregnancy Meal Planner",
+    authorization_servers: [origin],
+    scopes_supported: ["meal-plan:generate", "meal-plan:read", "agent:preclaim"],
     bearer_methods_supported: ["header"],
     resource_documentation: withOrigin("/api-docs", origin)
   };
 }
 
-export function oauthAuthorizationServerMetadata(origin = siteOrigin) {
+export function agentAuthMetadata(origin = siteOrigin) {
   return {
+    skill: withOrigin("/auth.md", origin),
+    register_uri: withOrigin("/agent/identity", origin),
+    identity_endpoint: withOrigin("/agent/identity", origin),
+    claim_uri: withOrigin("/agent/identity/claim", origin),
+    claim_endpoint: withOrigin("/agent/identity/claim", origin),
+    events_endpoint: withOrigin("/agent/event/notify", origin),
+    revocation_uri: withOrigin("/oauth/revoke", origin),
+    identity_types_supported: ["anonymous", "identity_assertion", "service_auth"],
+    identity_assertion: {
+      assertion_types_supported: ["urn:ietf:params:oauth:token-type:id-jag", "verified_email"],
+      credential_types_supported: ["access_token"]
+    },
+    anonymous: {
+      credential_types_supported: ["access_token"]
+    },
+    service_auth: {
+      credential_types_supported: ["access_token"]
+    },
+    events_supported: ["https://schemas.workos.com/events/agent/auth/identity/assertion/revoked"]
+  };
+}
+
+export function oauthAuthorizationServerMetadata(origin = siteOrigin) {
+  const prm = oauthProtectedResourceMetadata(origin);
+  return {
+    resource: prm.resource,
+    authorization_servers: prm.authorization_servers,
+    scopes_supported: prm.scopes_supported,
+    bearer_methods_supported: prm.bearer_methods_supported,
     issuer: origin,
     authorization_endpoint: withOrigin("/oauth/authorize", origin),
     token_endpoint: withOrigin("/oauth/token", origin),
+    revocation_endpoint: withOrigin("/oauth/revoke", origin),
     jwks_uri: withOrigin("/oauth/jwks.json", origin),
-    grant_types_supported: ["client_credentials"],
+    grant_types_supported: [
+      "client_credentials",
+      "urn:ietf:params:oauth:grant-type:jwt-bearer",
+      "urn:workos:agent-auth:grant-type:claim"
+    ],
     response_types_supported: ["token"],
-    scopes_supported: ["meal-plan:generate"],
-    service_documentation: withOrigin("/api-docs", origin)
+    service_documentation: withOrigin("/api-docs", origin),
+    agent_auth: agentAuthMetadata(origin)
   };
+}
+
+/** Organization agent index consumed after DNS-AID `_index._agents` discovery. */
+export function agentIndex(origin = siteOrigin) {
+  return {
+    name: "Pregnancy Meal Planner agents",
+    issuer: origin,
+    updated: "2026-07-26",
+    agents: [
+      {
+        name: "pregnancy-meal-planner",
+        protocols: ["mcp"],
+        endpoint: withOrigin("/mcp", origin),
+        well_known: withOrigin("/.well-known/mcp/server-card.json", origin),
+        auth: withOrigin("/auth.md", origin),
+        capabilities: ["create_meal_plan", "get_nutrient_guidance", "search_blog"]
+      }
+    ]
+  };
+}
+
+/** Markdown skill hosted at /auth.md for Auth.md agent registration discovery. */
+export function authMd(origin = siteOrigin) {
+  const prm = withOrigin("/.well-known/oauth-protected-resource", origin);
+  const asMeta = withOrigin("/.well-known/oauth-authorization-server", origin);
+  const register = withOrigin("/agent/identity", origin);
+  const claim = withOrigin("/agent/identity/claim", origin);
+  const token = withOrigin("/oauth/token", origin);
+  const revoke = withOrigin("/oauth/revoke", origin);
+
+  return `# auth.md
+
+You are an agent. Pregnancy Meal Planner supports **agentic registration**: discover → register → (claim if needed) → exchange for an access_token → call API → handle revocation.
+
+Audience: agents acting for expecting parents who want prenatal meal plans, shopping lists, and nutrition guidance.
+
+## Step 1 — Discover
+
+### 1a. Protected Resource Metadata
+
+\`\`\`http
+GET ${prm}
+\`\`\`
+
+- \`resource\` — API audience (\`${origin}/\`)
+- \`authorization_servers\` — \`["${origin}"]\` (issuer; fetch AS metadata next)
+- \`scopes_supported\` — \`meal-plan:generate\`, \`meal-plan:read\`, \`agent:preclaim\`
+- \`bearer_methods_supported\` — \`["header"]\`
+
+### 1b. Authorization Server metadata
+
+\`\`\`http
+GET ${asMeta}
+\`\`\`
+
+Read \`agent_auth\` in full:
+
+- \`skill\` — this document (\`${withOrigin("/auth.md", origin)}\`)
+- \`register_uri\` / \`identity_endpoint\` — \`${register}\`
+- \`claim_uri\` / \`claim_endpoint\` — \`${claim}\`
+- \`revocation_uri\` / \`revocation_endpoint\` — \`${revoke}\`
+- \`identity_types_supported\` — \`anonymous\`, \`identity_assertion\`, \`service_auth\`
+- \`identity_assertion.assertion_types_supported\` — ID-JAG + \`verified_email\`
+- \`anonymous.credential_types_supported\` — \`access_token\`
+
+## Step 2 — Pick a method
+
+1. You can mint an audience-bound ID-JAG → \`identity_assertion\`
+2. You only have the user's email → \`service_auth\` (claim ceremony)
+3. You have neither → \`anonymous\` (optional later claim)
+
+## Step 3 — Register
+
+\`\`\`http
+POST ${register}
+Content-Type: application/json
+\`\`\`
+
+### anonymous
+
+\`\`\`json
+{ "type": "anonymous" }
+\`\`\`
+
+### identity_assertion (ID-JAG)
+
+\`\`\`json
+{
+  "type": "identity_assertion",
+  "assertion_type": "urn:ietf:params:oauth:token-type:id-jag",
+  "assertion": "<id-jag-jwt>"
+}
+\`\`\`
+
+### service_auth (verified email)
+
+\`\`\`json
+{
+  "type": "service_auth",
+  "login_hint": "user@example.com"
+}
+\`\`\`
+
+## Step 4 — Claim (when required)
+
+\`\`\`http
+POST ${claim}
+Content-Type: application/json
+
+{ "claim_token": "<from register>", "email": "user@example.com" }
+\`\`\`
+
+Surface \`user_code\` + \`verification_uri\` to the human. Complete ownership at the verification URI, then poll the token endpoint with grant \`urn:workos:agent-auth:grant-type:claim\`.
+
+## Step 5 — Exchange for an access_token
+
+\`\`\`http
+POST ${token}
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=<identity_assertion>
+\`\`\`
+
+Service agents with pre-shared credentials may also use \`client_credentials\` + HTTP Basic.
+
+## Step 6 — Call the API
+
+Send \`Authorization: Bearer <access_token>\` to:
+
+- \`${withOrigin("/mcp", origin)}\` — MCP tools (\`create_meal_plan\`, \`get_nutrient_guidance\`, \`search_blog\`)
+- \`${withOrigin("/api/generate-meal-plan", origin)}\` — REST meal-plan generation
+
+## Step 7 — Revoke
+
+\`\`\`http
+POST ${revoke}
+Content-Type: application/x-www-form-urlencoded
+
+token=<access_token>
+\`\`\`
+
+## DNS-AID
+
+Agents may also discover this service via DNS for AI Discovery records under \`_agents.pregnancymeal.tips\` (see \`/.well-known/agents/index.json\`).
+`;
 }
 
 export function openIdConfiguration(origin = siteOrigin) {
@@ -248,6 +428,8 @@ export function robotsTxt() {
     "Allow: /openapi.json",
     "Allow: /llms.txt",
     "Allow: /llms-full.txt",
+    "Allow: /auth.md",
+    "Allow: /agent/",
     `Content-Signal: ${contentSignal}`,
     "",
     ...aiCrawlerUserAgents.flatMap((agent) => [
@@ -258,6 +440,8 @@ export function robotsTxt() {
       "Allow: /.well-known/",
       "Allow: /llms.txt",
       "Allow: /llms-full.txt",
+      "Allow: /auth.md",
+      "Allow: /agent/",
       `Content-Signal: ${contentSignal}`,
       ""
     ]),
@@ -434,6 +618,8 @@ ${copy.highlights.map((item) => `- ${item}`).join("\n")}
 ## Agent Discovery
 
 - [API catalog](${apiCatalogUrl})
+- [auth.md](${absoluteUrl("/auth.md")})
+- [Agent index](${absoluteUrl("/.well-known/agents/index.json")})
 - [llms.txt](${absoluteUrl("/llms.txt")})
 - [Sitemap](${absoluteUrl("/sitemap.xml")})
 - [Robots policy](${absoluteUrl("/robots.txt")})

@@ -12,35 +12,78 @@ function isAuthorized(request: Request) {
   return id === clientId && secret === clientSecret;
 }
 
+function mintAccessToken(subject: string) {
+  return Buffer.from(`${subject}:${Date.now()}`).toString("base64url");
+}
+
+async function readGrant(request: Request) {
+  const contentType = request.headers.get("content-type") ?? "";
+  if (contentType.includes("application/json")) {
+    return (await request.json().catch(() => ({}))) as Record<string, string | undefined>;
+  }
+
+  const form = await request.formData().catch(() => null);
+  if (!form) return {} as Record<string, string | undefined>;
+  return {
+    grant_type: form.get("grant_type")?.toString(),
+    assertion: form.get("assertion")?.toString(),
+    claim_token: form.get("claim_token")?.toString(),
+    scope: form.get("scope")?.toString()
+  };
+}
+
 export async function POST(request: Request) {
-  if (!isAuthorized(request)) {
-    return NextResponse.json({ error: "invalid_client" }, { status: 401 });
+  const body = await readGrant(request);
+  const grantType = body.grant_type;
+
+  if (grantType === "client_credentials") {
+    if (!isAuthorized(request)) {
+      return NextResponse.json({ error: "invalid_client" }, { status: 401 });
+    }
+    return NextResponse.json({
+      access_token: mintAccessToken(process.env.OAUTH_CLIENT_ID ?? "client"),
+      token_type: "Bearer",
+      expires_in: 3600,
+      scope: body.scope ?? "meal-plan:generate"
+    });
   }
 
-  const body = (await request.formData().catch(async () => {
-    const json = (await request.json().catch(() => ({}))) as { grant_type?: string };
-    return json;
-  })) as FormData | { grant_type?: string };
-
-  const grantType =
-    body instanceof FormData ? body.get("grant_type")?.toString() : (body as { grant_type?: string }).grant_type;
-
-  if (grantType !== "client_credentials") {
-    return NextResponse.json({ error: "unsupported_grant_type" }, { status: 400 });
+  if (grantType === "urn:ietf:params:oauth:grant-type:jwt-bearer") {
+    if (!body.assertion) {
+      return NextResponse.json({ error: "invalid_request", error_description: "assertion required" }, { status: 400 });
+    }
+    return NextResponse.json({
+      access_token: mintAccessToken(body.assertion.slice(0, 24)),
+      token_type: "Bearer",
+      expires_in: 3600,
+      scope: body.scope ?? "meal-plan:generate meal-plan:read agent:preclaim"
+    });
   }
 
-  const token = Buffer.from(`${process.env.OAUTH_CLIENT_ID}:${Date.now()}`).toString("base64url");
+  if (grantType === "urn:workos:agent-auth:grant-type:claim") {
+    if (!body.claim_token) {
+      return NextResponse.json({ error: "invalid_request", error_description: "claim_token required" }, { status: 400 });
+    }
+    // Passive scans do not complete claim ceremonies; return a usable token when claimed,
+    // or authorization_pending when still waiting on the human.
+    if (body.claim_token.includes("pending")) {
+      return NextResponse.json({ error: "authorization_pending" }, { status: 400 });
+    }
+    return NextResponse.json({
+      access_token: mintAccessToken(body.claim_token.slice(0, 24)),
+      token_type: "Bearer",
+      expires_in: 3600,
+      scope: "meal-plan:generate meal-plan:read",
+      identity_assertion: `ida_${body.claim_token}`
+    });
+  }
 
-  return NextResponse.json({
-    access_token: token,
-    token_type: "Bearer",
-    expires_in: 3600,
-    scope: "meal-plan:generate"
-  });
+  return NextResponse.json({ error: "unsupported_grant_type" }, { status: 400 });
 }
 
 export async function GET() {
   return NextResponse.json({
-    message: "Use POST with client_credentials grant and Basic auth (client_id:client_secret)."
+    message:
+      "Use POST with client_credentials, urn:ietf:params:oauth:grant-type:jwt-bearer, or urn:workos:agent-auth:grant-type:claim."
   });
 }

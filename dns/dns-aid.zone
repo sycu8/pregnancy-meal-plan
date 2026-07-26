@@ -1,0 +1,24 @@
+; DNS for AI Discovery (DNS-AID) — pregnancymeal.tips
+; Draft: https://datatracker.ietf.org/doc/draft-mozleywilliams-dnsop-dnsaid/
+; Zone is DNSSEC-signed at Cloudflare (DS already at the parent).
+
+$ORIGIN pregnancymeal.tips.
+$TTL 3600
+
+; Organization agent index (well-known DNS-AID entrypoint)
+_index._agents 3600 IN SVCB 1 pregnancymeal.tips. (
+  alpn="h2"
+  port=443
+  mandatory=alpn,port
+)
+
+; MCP agent endpoint advertisement
+_mcp._agents 3600 IN SVCB 1 pregnancymeal.tips. (
+  alpn="mcp,h2"
+  port=443
+  mandatory=alpn,port
+)
+
+; HTTPS ServiceMode variants (acceptable for HTTPS agent endpoints)
+_index._agents 3600 IN HTTPS 1 pregnancymeal.tips. alpn="h2" port=443
+_mcp._agents 3600 IN HTTPS 1 pregnancymeal.tips. alpn="mcp,h2" port=443

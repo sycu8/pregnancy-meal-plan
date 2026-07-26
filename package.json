@@ -13,6 +13,7 @@
     "test:watch": "vitest",
     "preview:cloudflare": "opennextjs-cloudflare build && wrangler dev",
     "deploy:cloudflare": "opennextjs-cloudflare build && node scripts/wrangler-with-env.mjs deploy",
+    "publish:dns-aid": "node scripts/publish-dns-aid.mjs",
     "ingest:blog": "tsx scripts/ingest-blog.ts",
     "ingest:blog:auto": "tsx scripts/ingest-blog-auto.ts",
     "seed:blog:editorial": "tsx scripts/seed-editorial-queue.ts",

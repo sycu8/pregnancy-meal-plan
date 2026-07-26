@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
+  agentAuthMetadata,
+  agentIndex,
   aiCrawlerUserAgents,
   apiCatalog,
+  authMd,
   contentSignal,
   markdownForPath,
   mcpServerCard,
@@ -20,6 +23,8 @@ describe("agent discovery assets", () => {
     expect(robots).toContain("User-agent: *");
     expect(robots).toContain("Allow: /");
     expect(robots).toContain("Disallow: /api/");
+    expect(robots).toContain("Allow: /auth.md");
+    expect(robots).toContain("Allow: /agent/");
     expect(robots).toContain(`Content-Signal: ${contentSignal}`);
     expect(robots).toContain(`Sitemap: ${siteOrigin}/sitemap.xml`);
     for (const userAgent of aiCrawlerUserAgents) {
@@ -48,16 +53,43 @@ describe("agent discovery assets", () => {
     expect(mcpServerCard.transport.endpoint).toBe(`${siteOrigin}/mcp`);
   });
 
-  it("builds OAuth protected resource metadata from the request origin", () => {
+  it("builds OAuth PRM + AS metadata with Auth.md agent_auth discovery", () => {
     const metadata = oauthProtectedResourceMetadata("https://example.test");
     const authServer = oauthAuthorizationServerMetadata("https://example.test");
+    const agentAuth = agentAuthMetadata("https://example.test");
 
     expect(metadata.resource).toBe("https://example.test/");
-    expect(metadata.authorization_servers).toEqual(["https://example.test/.well-known/oauth-authorization-server"]);
+    expect(metadata.authorization_servers).toEqual(["https://example.test"]);
     expect(metadata.scopes_supported).toContain("meal-plan:generate");
     expect(metadata.bearer_methods_supported).toContain("header");
+
     expect(authServer.issuer).toBe("https://example.test");
     expect(authServer.token_endpoint).toBe("https://example.test/oauth/token");
+    expect(authServer.revocation_endpoint).toBe("https://example.test/oauth/revoke");
+    expect(authServer.agent_auth.skill).toBe("https://example.test/auth.md");
+    expect(authServer.agent_auth.register_uri).toBe("https://example.test/agent/identity");
+    expect(authServer.agent_auth.claim_uri).toBe("https://example.test/agent/identity/claim");
+    expect(authServer.agent_auth.identity_types_supported).toEqual(
+      expect.arrayContaining(["anonymous", "identity_assertion", "service_auth"])
+    );
+    expect(agentAuth.identity_assertion.assertion_types_supported).toContain(
+      "urn:ietf:params:oauth:token-type:id-jag"
+    );
+  });
+
+  it("publishes auth.md with the required H1 and registration steps", () => {
+    const markdown = authMd("https://example.test");
+    expect(markdown.startsWith("# auth.md")).toBe(true);
+    expect(markdown).toContain("register_uri");
+    expect(markdown).toContain("https://example.test/agent/identity");
+    expect(markdown).toContain("anonymous");
+  });
+
+  it("publishes a DNS-AID agent index for the organization entrypoint", () => {
+    const index = agentIndex("https://example.test");
+    expect(index.agents[0].name).toBe("pregnancy-meal-planner");
+    expect(index.agents[0].protocols).toContain("mcp");
+    expect(index.agents[0].endpoint).toBe("https://example.test/mcp");
   });
 
   it("returns markdown copy for agents that request markdown", () => {
@@ -65,5 +97,6 @@ describe("agent discovery assets", () => {
 
     expect(markdown).toContain("# Pregnancy Meal Planner");
     expect(markdown).toContain(`[Create a free plan](${siteOrigin}/planner)`);
+    expect(markdown).toContain(`${siteOrigin}/auth.md`);
   });
 });
