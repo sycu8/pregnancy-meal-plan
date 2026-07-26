@@ -46,10 +46,6 @@ import mangThaiLanDauCanBiet from "../../../content/blog/posts-en/mang-thai-lan-
 import mangThaiMuaHeNong from "../../../content/blog/posts-en/mang-thai-mua-he-nong.json";
 import nghenNangAnUongVaDieuTri from "../../../content/blog/posts-en/nghen-nang-an-uong-va-dieu-tri.json";
 import nguyenNhanVaCachGiamDauXuongMuKhiMangThai73283 from "../../../content/blog/posts-en/nguyen-nhan-va-cach-giam-dau-xuong-mu-khi-mang-thai-73283.json";
-import nguyenThaiBao51534En from "../../../content/blog/posts-en/nguyen-thai-bao-51534-en.json";
-import nguyenThaiHung51088En from "../../../content/blog/posts-en/nguyen-thai-hung-51088-en.json";
-import nguyenThaiTri50984En from "../../../content/blog/posts-en/nguyen-thai-tri-50984-en.json";
-import nguyenVanThai51083En from "../../../content/blog/posts-en/nguyen-van-thai-51083-en.json";
 import nhungDauHieuGiupNhanBietThaiLuuVi from "../../../content/blog/posts-en/nhung-dau-hieu-giup-nhan-biet-thai-luu-vi.json";
 import nhungDieuCanBietKhiMangThaiLanDauDeCaMeVaBeCungKhoeManhVi from "../../../content/blog/posts-en/nhung-dieu-can-biet-khi-mang-thai-lan-dau-de-ca-me-va-be-cung-khoe-manh-vi.json";
 import oOngNongKhiMangThai from "../../../content/blog/posts-en/o-ong-nong-khi-mang-thai.json";
@@ -106,7 +102,6 @@ import tienSanGiatDauHieuCanGap from "../../../content/blog/posts-en/tien-san-gi
 import tienSanGiatSauSinh from "../../../content/blog/posts-en/tien-san-giat-sau-sinh.json";
 import tieuDuongThaiKyAnUongTheNao from "../../../content/blog/posts-en/tieu-duong-thai-ky-an-uong-the-nao.json";
 import tramCamLoAuSauSinh from "../../../content/blog/posts-en/tram-cam-lo-au-sau-sinh.json";
-import tranVanSang51089En from "../../../content/blog/posts-en/tran-van-sang-51089-en.json";
 import treTaoBonKhiAnDam from "../../../content/blog/posts-en/tre-tao-bon-khi-an-dam.json";
 import uongNuocKhiMangThai from "../../../content/blog/posts-en/uong-nuoc-khi-mang-thai.json";
 import vanDongAnToanKhiMangThai from "../../../content/blog/posts-en/van-dong-an-toan-khi-mang-thai.json";
@@ -164,10 +159,6 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   mangThaiMuaHeNong,
   nghenNangAnUongVaDieuTri,
   nguyenNhanVaCachGiamDauXuongMuKhiMangThai73283,
-  nguyenThaiBao51534En,
-  nguyenThaiHung51088En,
-  nguyenThaiTri50984En,
-  nguyenVanThai51083En,
   nhungDauHieuGiupNhanBietThaiLuuVi,
   nhungDieuCanBietKhiMangThaiLanDauDeCaMeVaBeCungKhoeManhVi,
   oOngNongKhiMangThai,
@@ -224,7 +215,6 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   tienSanGiatSauSinh,
   tieuDuongThaiKyAnUongTheNao,
   tramCamLoAuSauSinh,
-  tranVanSang51089En,
   treTaoBonKhiAnDam,
   uongNuocKhiMangThai,
   vanDongAnToanKhiMangThai,
