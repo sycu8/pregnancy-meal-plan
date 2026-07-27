@@ -62,6 +62,8 @@ function normalizeSlug(raw: string) {
     .toLowerCase()
     .replace(/\.html?$/i, "")
     .replace(/-s\d+-n\d+$/i, "")
+    // Vinmec and similar often append a language suffix like `-vi`
+    .replace(/-vi$/i, "")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .slice(0, 80);
@@ -75,8 +77,15 @@ function slugFromUrl(url: string) {
   return normalizeSlug(last);
 }
 
+/** Prefer an English title for public URLs; fall back to the source URL slug. */
+function slugFromEnglishTitle(title: string | undefined, fallbackUrlSlug: string) {
+  const fromTitle = title ? normalizeSlug(title) : "";
+  if (fromTitle && /[a-z]/.test(fromTitle) && fromTitle.length >= 8) return fromTitle;
+  return fallbackUrlSlug || "post";
+}
+
 function ensureUniqueSlug(base: string) {
-  const slug = base || "bai-viet";
+  const slug = base || "post";
   if (!fs.existsSync(path.join(postsDir, `${slug}.json`))) return slug;
   const suffix = hashValue(`${slug}:${Date.now()}`).slice(0, 6);
   return `${slug}-${suffix}`;
@@ -147,12 +156,11 @@ async function main() {
         continue;
       }
 
-      const baseSlug = slugFromUrl(item.url);
-      const existingPath = path.join(postsDir, `${baseSlug}.json`);
+      const urlSlug = slugFromUrl(item.url);
+      const existingUrlPath = path.join(postsDir, `${urlSlug}.json`);
       const allowOverwrite =
         process.env.BLOG_OVERWRITE_POSTS === "true" ||
-        (item.editorial === true && fs.existsSync(existingPath));
-      const slug = allowOverwrite && baseSlug ? baseSlug : ensureUniqueSlug(baseSlug);
+        (item.editorial === true && fs.existsSync(existingUrlPath));
 
       const synthesized = await synthesizePostWithAi(
         {
@@ -165,6 +173,16 @@ async function main() {
         },
         { config: aiConfig }
       );
+
+      // Public URLs use English slugs derived from the EN title when possible.
+      const preferredSlug = slugFromEnglishTitle(synthesized.en?.title, urlSlug);
+      const existingPreferred = path.join(postsDir, `${preferredSlug}.json`);
+      const slug =
+        allowOverwrite && fs.existsSync(existingUrlPath)
+          ? urlSlug
+          : allowOverwrite && fs.existsSync(existingPreferred)
+            ? preferredSlug
+            : ensureUniqueSlug(preferredSlug);
 
       if (!synthesized.content || synthesized.content.length < 300) {
         console.warn(`[publish] skip ${slug}: Vietnamese content too short — keeping queue as draft`);
