@@ -17,6 +17,27 @@ const nextConfig: NextConfig = {
         source: "/en/:path*",
         destination: "/:path*",
         permanent: true
+      },
+      // Legacy Vietnamese Vinmec-derived slugs → English URLs
+      {
+        source: "/blog/cach-giai-thoat-con-dau-lung-cho-ba-me-sau-sinh-vi",
+        destination: "/blog/how-to-relieve-postpartum-back-pain",
+        permanent: true
+      },
+      {
+        source: "/vi/blog/cach-giai-thoat-con-dau-lung-cho-ba-me-sau-sinh-vi",
+        destination: "/vi/blog/how-to-relieve-postpartum-back-pain",
+        permanent: true
+      },
+      {
+        source: "/blog/ly-do-me-thuong-dau-lung-sau-sinh-vi",
+        destination: "/blog/why-postpartum-back-pain-is-common",
+        permanent: true
+      },
+      {
+        source: "/vi/blog/ly-do-me-thuong-dau-lung-sau-sinh-vi",
+        destination: "/vi/blog/why-postpartum-back-pain-is-common",
+        permanent: true
       }
     ];
   },
