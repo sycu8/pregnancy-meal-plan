@@ -4,10 +4,13 @@
  * Run before sync/deploy so incomplete translations never go live.
  *
  *   npx tsx scripts/assert-blog-en-ready.ts
+ *
+ * Intentionally imports only pure quality helpers (not en-post-manifest),
+ * so a temporarily invalid generated manifest cannot crash this gate.
  */
 import fs from "node:fs";
 import path from "node:path";
-import { isUsableEnglishTranslation } from "../src/lib/blog/localize.ts";
+import { isUsableEnglishTranslation } from "../src/lib/blog/enQuality.ts";
 import type { BlogPost, BlogPostTranslation } from "../src/types/blog.ts";
 
 const postsDir = path.join(process.cwd(), "content/blog/posts");
