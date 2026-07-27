@@ -3,24 +3,44 @@ import { getCategoryBySlug, isCategorySlug } from "@/lib/blog/categories";
 import { parseRssOrAtom } from "@/lib/blog/ingestion/rss";
 import { dedupeFeedItems, topicMatches } from "@/lib/blog/ingestion/dedupe";
 import { renderBlogMarkdown } from "@/lib/blog/markdown";
-import { getAllPosts, getPostBySlug, getPostsByCategory } from "@/lib/blog/posts";
+import { hasUsableEnglishTranslation } from "@/lib/blog/localize";
+import { getAllPosts, getPostBySlug, getPostsByCategory, listPostsMissingEnglish } from "@/lib/blog/posts";
 import { BLOG_PAGE_SIZE, filterPosts, paginatePosts, parseBlogListQuery } from "@/lib/blog/query";
 
 describe("blog posts", () => {
-  it("loads published seed posts", () => {
+  it("loads published seed posts (EN-first default requires usable English)", () => {
     const posts = getAllPosts();
     expect(posts.length).toBeGreaterThanOrEqual(50);
     expect(posts.every((p) => p.status === "published")).toBe(true);
     expect(posts.every((p) => p.sourceReferences.length >= 1)).toBe(true);
+    // Default locale is English
+    expect(posts[0]?.title).toBeTruthy();
+    expect(posts.every((p) => !/[àáạảãâăèéêìíòóôơùúưỳýđ]/i.test(p.title) || /\b(pregnancy|meal|food|nutrition|during|and|for|iron|care)\b/i.test(p.title))).toBe(true);
   });
 
-  it("resolves post by slug", () => {
-    const post = getPostBySlug("dinh-duong-3-thang-dau-thai-ky");
+  it("keeps EN and VI web listings in sync and never lists posts missing English", () => {
+    const en = getAllPosts("en");
+    const vi = getAllPosts("vi");
+    expect(en.map((p) => p.slug).sort()).toEqual(vi.map((p) => p.slug).sort());
+    expect(en.every((p) => hasUsableEnglishTranslation(p.slug))).toBe(true);
+    expect(listPostsMissingEnglish()).toEqual([]);
+  });
+
+  it("resolves post by slug in Vietnamese when requested", () => {
+    const post = getPostBySlug("dinh-duong-3-thang-dau-thai-ky", "vi");
     expect(post?.title).toContain("3 tháng đầu");
   });
 
+  it("only resolves bilingual posts on the web (EN gate)", () => {
+    const en = getPostBySlug("dinh-duong-3-thang-dau-thai-ky", "en");
+    const vi = getPostBySlug("dinh-duong-3-thang-dau-thai-ky", "vi");
+    expect(en).toBeTruthy();
+    expect(vi).toBeTruthy();
+    expect(hasUsableEnglishTranslation("dinh-duong-3-thang-dau-thai-ky")).toBe(true);
+  });
+
   it("filters by category", () => {
-    const posts = getPostsByCategory("cham-con-0-24-thang");
+    const posts = getPostsByCategory("cham-con-0-24-thang", "vi");
     expect(posts.length).toBeGreaterThanOrEqual(2);
   });
 });
@@ -48,13 +68,13 @@ describe("blog query", () => {
   });
 
   it("filters by tag", () => {
-    const posts = getAllPosts();
+    const posts = getAllPosts("vi");
     const filtered = filterPosts(posts, { tag: "an-dam" });
     expect(filtered.every((p) => p.tags.includes("an-dam"))).toBe(true);
   });
 
   it("paginates results", () => {
-    const posts = getAllPosts();
+    const posts = getAllPosts("en");
     const page1 = paginatePosts(posts, 1, BLOG_PAGE_SIZE);
     const page2 = paginatePosts(posts, 2, BLOG_PAGE_SIZE);
     expect(page1.items.length).toBeLessThanOrEqual(BLOG_PAGE_SIZE);

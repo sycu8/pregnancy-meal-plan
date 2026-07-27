@@ -28,6 +28,9 @@ jobs:
       - name: Install dependencies
         run: corepack pnpm install --frozen-lockfile
 
+      - name: Assert English blog overlays are complete
+        run: corepack pnpm assert:blog:en
+
       - name: Run tests
         run: corepack pnpm test
 

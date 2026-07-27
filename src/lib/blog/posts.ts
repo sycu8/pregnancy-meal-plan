@@ -9,46 +9,59 @@ function loadRawPosts(): BlogPost[] {
   return postManifest.map((raw) => normalizePost(raw));
 }
 
+/** A post is live on the web only when EN translation is complete and usable. */
+export function isWebPublishableSlug(slug: string): boolean {
+  return hasUsableEnglishTranslation(slug);
+}
+
+function loadPublishedBilingual(): BlogPost[] {
+  return sortPostsByDate(filterPublished(loadRawPosts())).filter((post) => isWebPublishableSlug(post.slug));
+}
+
 function loadPosts(locale: BlogLocale): BlogPost[] {
-  const published = sortPostsByDate(filterPublished(loadRawPosts()));
+  const published = loadPublishedBilingual();
   if (locale === "vi") return published;
 
-  // English web: only posts that have a usable English translation
+  // English web: localize overlays (already gated for usable EN above)
   return published.flatMap((post) => {
     const localized = localizePost(post, "en");
     return localized ? [localized] : [];
   });
 }
 
-export function getAllPosts(locale: BlogLocale = "vi"): BlogPost[] {
+/** Default locale matches site defaultLocale (EN first). */
+export function getAllPosts(locale: BlogLocale = "en"): BlogPost[] {
   return loadPosts(locale);
 }
 
-export function getPostBySlug(slug: string, locale: BlogLocale = "vi"): BlogPost | undefined {
+export function getPostBySlug(slug: string, locale: BlogLocale = "en"): BlogPost | undefined {
+  if (!isWebPublishableSlug(slug)) return undefined;
+
+  const raw = filterPublished(loadRawPosts()).find((post) => post.slug === slug);
+  if (!raw) return undefined;
+
   if (locale === "en") {
-    const raw = filterPublished(loadRawPosts()).find((post) => post.slug === slug);
-    if (!raw) return undefined;
     return localizePost(raw, "en") ?? undefined;
   }
-  return getAllPosts("vi").find((post) => post.slug === slug);
+  return raw;
 }
 
-export function getPostsByCategory(category: BlogCategorySlug, locale: BlogLocale = "vi"): BlogPost[] {
+export function getPostsByCategory(category: BlogCategorySlug, locale: BlogLocale = "en"): BlogPost[] {
   return getAllPosts(locale).filter((post) => post.category === category);
 }
 
-export function getAllPostSlugs(locale: BlogLocale = "vi"): string[] {
+export function getAllPostSlugs(locale: BlogLocale = "en"): string[] {
   return getAllPosts(locale).map((post) => post.slug);
 }
 
-/** Static params: published posts + category landing pages (no collision). */
-export function getAllBlogRouteSlugs(locale: BlogLocale = "vi"): string[] {
+/** Static params: published bilingual posts + category landing pages (no collision). */
+export function getAllBlogRouteSlugs(locale: BlogLocale = "en"): string[] {
   const posts = getAllPostSlugs(locale);
   const categories = ["dinh-duong-ba-bau", "thuc-don-ba-bau", "truoc-sinh", "sau-sinh", "cham-con-0-24-thang"] as const;
   return [...categories, ...posts.filter((slug) => !isCategorySlug(slug))];
 }
 
-export function getRelatedPosts(post: BlogPost, locale: BlogLocale = "vi", limit = 3): BlogPost[] {
+export function getRelatedPosts(post: BlogPost, locale: BlogLocale = "en", limit = 3): BlogPost[] {
   return getAllPosts(locale)
     .filter((p) => p.slug !== post.slug && (p.category === post.category || p.tags.some((t) => post.tags.includes(t))))
     .slice(0, limit);
@@ -64,4 +77,9 @@ export function requireEnglishTranslation(post: BlogPost): BlogPost | null {
   const translation = enTranslationBySlug.get(post.slug);
   if (!translation) return null;
   return applyTranslation(post, translation);
+}
+
+/** Published VI posts that are missing a usable EN overlay (should not be live). */
+export function listPostsMissingEnglish(): BlogPost[] {
+  return sortPostsByDate(filterPublished(loadRawPosts())).filter((post) => !hasUsableEnglishTranslation(post.slug));
 }
