@@ -16,6 +16,7 @@ import { reviewBlogSeedRelevance } from "../src/lib/blog/ingestion/relevance.ts"
 import { estimateReadingTimeMinutes } from "../src/lib/blog/readingTime.ts";
 import { isUsableEnglishTranslation } from "../src/lib/blog/localize.ts";
 import { synthesizePostWithAi } from "../src/lib/blog/synthesis/synthesizePost.ts";
+import { translatePostToEn } from "../src/lib/blog/synthesis/translatePostToEn.ts";
 import { generateAndUploadBlogImage } from "../src/lib/blog/synthesis/uploadBlogImage.ts";
 import { isBlogAiEnabled, readAiGatewayConfig } from "../src/lib/cloudflare/aiGateway.ts";
 
@@ -165,17 +166,59 @@ async function main() {
         { config: aiConfig }
       );
 
-      if (!synthesized.en || !isUsableEnglishTranslation({ slug, ...synthesized.en })) {
-        console.warn(`[publish] skip ${slug}: English content missing or unusable — keeping queue as draft`);
-        skipped++;
-        continue;
-      }
-
       if (!synthesized.content || synthesized.content.length < 300) {
         console.warn(`[publish] skip ${slug}: Vietnamese content too short — keeping queue as draft`);
         skipped++;
         continue;
       }
+
+      let enBlock = synthesized.en;
+      if (!enBlock || !isUsableEnglishTranslation({ slug, ...enBlock })) {
+        console.warn(`[publish] ${slug}: EN weak — retrying Workers AI VI→EN translation`);
+        const translated = await translatePostToEn(
+          {
+            title: synthesized.title,
+            slug,
+            excerpt: synthesized.excerpt,
+            content: synthesized.content,
+            category: synthesized.category,
+            tags: synthesized.tags,
+            author: authorVi,
+            sourceReferences: [
+              {
+                title: item.title.trim() || synthesized.title,
+                url: item.url,
+                publisher: item.sourceName,
+                accessedAt: new Date().toISOString().slice(0, 10)
+              }
+            ],
+            publishedAt: item.publishedAt ?? item.fetchedAt ?? nowIso(),
+            updatedAt: nowIso(),
+            readingTimeMinutes: estimateReadingTimeMinutes(synthesized.content),
+            metaTitle: synthesized.metaTitle || synthesized.title,
+            metaDescription: synthesized.metaDescription || synthesized.excerpt,
+            status: "published"
+          },
+          { config: aiConfig }
+        );
+        if (translated.translation) {
+          enBlock = {
+            title: translated.translation.title,
+            excerpt: translated.translation.excerpt,
+            content: translated.translation.content,
+            metaTitle: translated.translation.metaTitle,
+            metaDescription: translated.translation.metaDescription,
+            faqs: translated.translation.faqs || []
+          };
+        }
+      }
+
+      if (!enBlock || !isUsableEnglishTranslation({ slug, ...enBlock })) {
+        console.warn(`[publish] skip ${slug}: English content missing or unusable — keeping queue as draft`);
+        skipped++;
+        continue;
+      }
+      synthesized.en = enBlock;
 
       const content = synthesized.content;
       let ogImage: string | undefined;

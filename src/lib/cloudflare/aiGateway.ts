@@ -49,23 +49,34 @@ function workersAiModelPath(model: string) {
   return model.startsWith("@cf/") || model.startsWith("@hf/") ? model : `@cf/${model.replace(/^workers-ai\//, "")}`;
 }
 
+function asTrimmedText(value: unknown): string | null {
+  if (typeof value === "string") {
+    const text = value.trim();
+    return text || null;
+  }
+  if (value && typeof value === "object") {
+    const row = value as { response?: unknown; message?: unknown; content?: unknown; text?: unknown };
+    return asTrimmedText(row.response) || asTrimmedText(row.message) || asTrimmedText(row.content) || asTrimmedText(row.text);
+  }
+  return null;
+}
+
 function extractChatText(data: unknown): string | null {
   if (!data || typeof data !== "object") return null;
   const row = data as {
-    choices?: { message?: { content?: string } }[];
-    result?: { response?: string; message?: string };
-    response?: string;
-    output_text?: string;
+    choices?: { message?: { content?: unknown } }[];
+    result?: { response?: unknown; message?: unknown };
+    response?: unknown;
+    output_text?: unknown;
   };
 
-  const fromChoices = row.choices?.[0]?.message?.content?.trim();
-  if (fromChoices) return fromChoices;
-
-  const fromResult = row.result?.response?.trim() || row.result?.message?.trim();
-  if (fromResult) return fromResult;
-
-  const direct = row.response?.trim() || row.output_text?.trim();
-  return direct || null;
+  return (
+    asTrimmedText(row.choices?.[0]?.message?.content) ||
+    asTrimmedText(row.result?.response) ||
+    asTrimmedText(row.result?.message) ||
+    asTrimmedText(row.response) ||
+    asTrimmedText(row.output_text)
+  );
 }
 
 async function postJson(url: string, headers: Record<string, string>, body: unknown): Promise<{ ok: boolean; status: number; data: unknown; raw: string }> {
