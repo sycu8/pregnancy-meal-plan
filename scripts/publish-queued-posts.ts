@@ -84,9 +84,8 @@ function slugFromEnglishTitle(title: string | undefined, fallbackUrlSlug: string
   return fallbackUrlSlug || "post";
 }
 
-function ensureUniqueSlug(base: string, reserved?: string) {
+function ensureUniqueSlug(base: string) {
   const slug = base || "post";
-  if (reserved && slug === reserved) return slug;
   if (!fs.existsSync(path.join(postsDir, `${slug}.json`))) return slug;
   const suffix = hashValue(`${slug}:${Date.now()}`).slice(0, 6);
   return `${slug}-${suffix}`;
