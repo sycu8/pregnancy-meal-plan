@@ -14,7 +14,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import { isUsableEnglishTranslation } from "../src/lib/blog/localize.ts";
+import { isUsableEnglishTranslation } from "../src/lib/blog/enQuality.ts";
 import { translatePostToEn } from "../src/lib/blog/synthesis/translatePostToEn.ts";
 import { readAiGatewayConfig, isBlogAiEnabled } from "../src/lib/cloudflare/aiGateway.ts";
 import type { BlogPost, BlogPostTranslation } from "../src/types/blog.ts";

@@ -4,17 +4,10 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import { uniqueSlugVars } from "./lib/slugToVar.ts";
 
 const postsDir = path.join(process.cwd(), "content/blog/posts-en");
 const outFile = path.join(process.cwd(), "src/lib/blog/en-post-manifest.ts");
-
-function slugToVar(slug: string) {
-  return slug
-    .split("-")
-    .map((part, i) => (i === 0 ? part : part.charAt(0).toUpperCase() + part.slice(1)))
-    .join("")
-    .replace(/[^a-zA-Z0-9]/g, "");
-}
 
 if (!fs.existsSync(postsDir)) {
   fs.mkdirSync(postsDir, { recursive: true });
@@ -25,11 +18,11 @@ const files = fs
   .filter((f) => f.endsWith(".json"))
   .sort();
 
-const imports = files.map((file) => {
-  const slug = file.replace(/\.json$/, "");
-  const varName = slugToVar(slug);
-  return { file, varName, slug };
-});
+const imports = uniqueSlugVars(files.map((file) => file.replace(/\.json$/, ""))).map(({ slug, varName }) => ({
+  file: `${slug}.json`,
+  varName,
+  slug
+}));
 
 const importLines = imports
   .map(({ file, varName }) => `import ${varName} from "../../../content/blog/posts-en/${file}";`)

@@ -65,12 +65,15 @@ jobs:
         run: npm ci
 
       - name: Crawl + editorial seeds + AI publish EN/VI
-        # Pipeline writes EN first, translates fully, then asserts usable EN before sync/deploy.
+        # Pipeline writes EN first, translates fully, asserts usable EN, then syncs manifests.
         # Keep going past individual source timeouts; only fail on hard script errors.
         run: npm run publish:blog:auto
 
-      - name: Assert English ready before deploy
-        run: npm run assert:blog:en
+      - name: Assert English ready + validate generated manifests
+        run: |
+          npm run assert:blog:en
+          # Catch invalid import bindings (e.g. digit-leading slugs) before commit/deploy.
+          npx tsx -e "import './src/lib/blog/en-post-manifest.ts'; import './src/lib/blog/post-manifest.ts'; console.log('[manifests] OK');"
 
       - name: Run tests
         run: npm test

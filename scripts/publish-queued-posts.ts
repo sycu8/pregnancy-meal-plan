@@ -14,7 +14,7 @@ import type { BlogCategorySlug, BlogPost, BlogTrimester, BlogPostTranslation } f
 import { hashValue } from "../src/lib/blog/ingestion/dedupe.ts";
 import { reviewBlogSeedRelevance } from "../src/lib/blog/ingestion/relevance.ts";
 import { estimateReadingTimeMinutes } from "../src/lib/blog/readingTime.ts";
-import { isUsableEnglishTranslation } from "../src/lib/blog/localize.ts";
+import { isUsableEnglishTranslation } from "../src/lib/blog/enQuality.ts";
 import { synthesizePostWithAi } from "../src/lib/blog/synthesis/synthesizePost.ts";
 import { translatePostToEn } from "../src/lib/blog/synthesis/translatePostToEn.ts";
 import { generateAndUploadBlogImage } from "../src/lib/blog/synthesis/uploadBlogImage.ts";
@@ -58,7 +58,7 @@ function nowIso() {
 }
 
 function normalizeSlug(raw: string) {
-  return raw
+  let slug = raw
     .toLowerCase()
     .replace(/\.html?$/i, "")
     .replace(/-s\d+-n\d+$/i, "")
@@ -67,6 +67,9 @@ function normalizeSlug(raw: string) {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .slice(0, 80);
+  // Avoid digit-leading slugs breaking generated TS import bindings (e.g. `7-day-...`).
+  if (/^[0-9]/.test(slug)) slug = `n-${slug}`;
+  return slug;
 }
 
 function slugFromUrl(url: string) {
