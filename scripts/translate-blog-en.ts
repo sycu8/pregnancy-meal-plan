@@ -48,13 +48,6 @@ function listCandidateSlugs(): string[] {
 }
 
 async function main() {
-  const config = readAiGatewayConfig();
-  if (!config || !isBlogAiEnabled()) {
-    console.error("[translate-en] AI Gateway not configured. Set CLOUDFLARE_API_TOKEN + CLOUDFLARE_ACCOUNT_ID.");
-    process.exit(1);
-  }
-  console.log(`[translate-en] gateway=${config.gatewayId} model=${config.textModel}`);
-
   const candidates: string[] = [];
   for (const slug of listCandidateSlugs()) {
     const viPath = path.join(postsDir, `${slug}.json`);
@@ -67,6 +60,20 @@ async function main() {
     if (!force && existing && isUsableEnglishTranslation(existing)) continue;
     candidates.push(slug);
   }
+
+  if (candidates.length === 0) {
+    console.log("[translate-en] All selected posts already have usable English — nothing to translate.");
+    return;
+  }
+
+  const config = readAiGatewayConfig();
+  if (!config || !isBlogAiEnabled()) {
+    console.error(
+      `[translate-en] ${candidates.length} post(s) need English, but AI Gateway is not configured. Set CLOUDFLARE_API_TOKEN + CLOUDFLARE_ACCOUNT_ID.`
+    );
+    process.exit(1);
+  }
+  console.log(`[translate-en] gateway=${config.gatewayId} model=${config.textModel}`);
 
   const work = candidates.slice(0, Math.max(1, limit));
   console.log(`[translate-en] ${candidates.length} incomplete · translating ${work.length}`);

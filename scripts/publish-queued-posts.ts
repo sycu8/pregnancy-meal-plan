@@ -289,10 +289,25 @@ async function main() {
         existingIsTemplate ||
         !fs.existsSync(outEn);
 
-      if (!fs.existsSync(outVi) || overwrite) writeJson(outVi, viPost);
+      // Write English first — never mark a post live without a usable EN overlay.
+      if (!isUsableEnglishTranslation(enOverlay)) {
+        console.warn(`[publish] skip ${slug}: English overlay failed final quality gate — keeping queue as draft`);
+        skipped++;
+        continue;
+      }
       if (!fs.existsSync(outEn) || overwrite) writeJson(outEn, enOverlay);
 
-      // Only mark the queue item published when bilingual files are on disk.
+      const writtenEn = fs.existsSync(outEn) ? readJson<BlogPostTranslation>(outEn) : null;
+      if (!writtenEn || !isUsableEnglishTranslation(writtenEn)) {
+        if (fs.existsSync(outEn)) fs.unlinkSync(outEn);
+        console.warn(`[publish] skip ${slug}: written EN unusable — keeping queue as draft`);
+        skipped++;
+        continue;
+      }
+
+      // Only write Vietnamese as published after English is confirmed on disk.
+      if (!fs.existsSync(outVi) || overwrite) writeJson(outVi, viPost);
+
       if (!fs.existsSync(outVi) || !fs.existsSync(outEn)) {
         console.warn(`[publish] skip ${slug}: bilingual files missing after write — keeping queue as draft`);
         skipped++;

@@ -1,6 +1,5 @@
 import { landingContent, localizedPath, pagePaths, type Locale, type PageKey } from "@/lib/i18n";
 import { blogCategories } from "@/lib/blog/categories";
-import { hasUsableEnglishTranslation } from "@/lib/blog/localize";
 import { getAllPosts } from "@/lib/blog/posts";
 
 export const siteOrigin = process.env.NEXT_PUBLIC_SITE_URL ?? "https://pregnancymeal.tips";
@@ -558,7 +557,7 @@ export function sitemapXml() {
     )
   ].join("\n");
 
-  const blogIndex = ["vi", "en"]
+  const blogIndex = ["en", "vi"]
     .map(
       (locale) => `  <url>
     <loc>${escapeXml(absoluteUrl(localizedPath(locale as "vi" | "en", "/blog")))}</loc>
@@ -571,7 +570,7 @@ export function sitemapXml() {
 
   const categoryEntries = blogCategories
     .flatMap((cat) =>
-      (["vi", "en"] as const).map(
+      (["en", "vi"] as const).map(
         (locale) => `  <url>
     <loc>${escapeXml(absoluteUrl(localizedPath(locale, `/blog/${cat.slug}`)))}</loc>
     <lastmod>${updated}</lastmod>
@@ -584,19 +583,18 @@ export function sitemapXml() {
 
   let postEntries = "";
   try {
-    postEntries = getAllPosts("vi")
-      .flatMap((post) => {
-        const locales: Locale[] = ["vi"];
-        if (hasUsableEnglishTranslation(post.slug)) locales.push("en");
-        return locales.map(
+    // Only bilingual (EN-ready) posts are indexed; English URL listed first.
+    postEntries = getAllPosts("en")
+      .flatMap((post) =>
+        (["en", "vi"] as const).map(
           (locale) => `  <url>
     <loc>${escapeXml(absoluteUrl(localizedPath(locale, `/blog/${post.slug}`)))}</loc>
     <lastmod>${escapeXml(post.updatedAt.slice(0, 10))}</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <priority>${locale === "en" ? "0.72" : "0.68"}</priority>
   </url>`
-        );
-      })
+        )
+      )
       .join("\n");
   } catch {
     postEntries = "";

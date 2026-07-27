@@ -65,8 +65,12 @@ jobs:
         run: npm ci
 
       - name: Crawl + editorial seeds + AI publish EN/VI
+        # Pipeline writes EN first, translates fully, then asserts usable EN before sync/deploy.
         # Keep going past individual source timeouts; only fail on hard script errors.
         run: npm run publish:blog:auto
+
+      - name: Assert English ready before deploy
+        run: npm run assert:blog:en
 
       - name: Run tests
         run: npm test
