@@ -1,0 +1,20 @@
+{
+  "id": "edbee1d58706f761",
+  "sourceName": "Pregnancy Meal Planner Editorial",
+  "title": "7-day pregnancy meal plan: balanced plates for busy weeks",
+  "titleVi": "Thực đơn mẹ bầu 7 ngày: bữa ăn cân bằng cho tuần bận rộn",
+  "url": "https://pregnancymeal.tips/blog/7-day-pregnancy-meal-plan",
+  "snippet": "A practical 7-day pregnancy meal plan with protein, iron, folate, calcium and fiber — plus snack ideas and grocery batching tips.",
+  "snippetVi": "Gợi ý thực đơn 7 ngày với đạm, sắt, folate, canxi và chất xơ — kèm bữa phụ và mẹo đi chợ theo đợt.",
+  "fetchedAt": "2026-07-27T19:57:50.436Z",
+  "status": "published",
+  "note": "Re-queue incomplete bilingual post for AI rewrite (EN+VI required).",
+  "editorial": true,
+  "categoryHint": "thuc-don-ba-bau",
+  "tagsHint": [
+    "meal-plan",
+    "pregnancy",
+    "nutrition"
+  ],
+  "slug": "n-7-day-pregnancy-meal-plan-balanced-plates-for-busy-weeks"
+}
