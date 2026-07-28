@@ -28,6 +28,7 @@ import dinhDuongSauSinhVaChoConBu from "../../../content/blog/posts-en/dinh-duon
 import dinhDuongTamCaNguyet2 from "../../../content/blog/posts-en/dinh-duong-tam-ca-nguyet-2.json";
 import dinhDuongTre1224Thang from "../../../content/blog/posts-en/dinh-duong-tre-12-24-thang.json";
 import dungNhauDongLanhSauSinh from "../../../content/blog/posts-en/dung-nhau-dong-lanh-sau-sinh.json";
+import firstTrimesterNutritionChecklistFolateIronAndSaferFoods3decfd from "../../../content/blog/posts-en/first-trimester-nutrition-checklist-folate-iron-and-safer-foods-3decfd.json";
 import firstTrimesterNutritionChecklistFolateIronAndSaferFoods4a6572 from "../../../content/blog/posts-en/first-trimester-nutrition-checklist-folate-iron-and-safer-foods-4a6572.json";
 import firstTrimesterNutritionChecklistFolateIronAndSaferFoods82093e from "../../../content/blog/posts-en/first-trimester-nutrition-checklist-folate-iron-and-safer-foods-82093e.json";
 import firstTrimesterNutritionChecklistFolateIronAndSaferFoods from "../../../content/blog/posts-en/first-trimester-nutrition-checklist-folate-iron-and-safer-foods.json";
@@ -47,10 +48,12 @@ import mangThaiLanDauCanBiet from "../../../content/blog/posts-en/mang-thai-lan-
 import mangThaiMuaHeNong from "../../../content/blog/posts-en/mang-thai-mua-he-nong.json";
 import messageFromTheMinisterOfMentalHealthAndAddictionsAndAssociateMinisterC6d7ff from "../../../content/blog/posts-en/message-from-the-minister-of-mental-health-and-addictions-and-associate-minister-c6d7ff.json";
 import messageFromTheMinisterOfMentalHealthAndAddictionsAndAssociateMinister from "../../../content/blog/posts-en/message-from-the-minister-of-mental-health-and-addictions-and-associate-minister.json";
+import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks362648 from "../../../content/blog/posts-en/n-7-day-pregnancy-meal-plan-balanced-plates-for-busy-weeks-362648.json";
 import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks684b1f from "../../../content/blog/posts-en/n-7-day-pregnancy-meal-plan-balanced-plates-for-busy-weeks-684b1f.json";
 import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeksE35656 from "../../../content/blog/posts-en/n-7-day-pregnancy-meal-plan-balanced-plates-for-busy-weeks-e35656.json";
 import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks from "../../../content/blog/posts-en/n-7-day-pregnancy-meal-plan-balanced-plates-for-busy-weeks.json";
 import nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrients8ff8cd from "../../../content/blog/posts-en/nausea-friendly-pregnancy-meals-that-still-cover-key-nutrients-8ff8cd.json";
+import nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsA4f5e0 from "../../../content/blog/posts-en/nausea-friendly-pregnancy-meals-that-still-cover-key-nutrients-a4f5e0.json";
 import nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrients from "../../../content/blog/posts-en/nausea-friendly-pregnancy-meals-that-still-cover-key-nutrients.json";
 import nghenNangAnUongVaDieuTri from "../../../content/blog/posts-en/nghen-nang-an-uong-va-dieu-tri.json";
 import nguyenNhanVaCachGiamDauXuongMuKhiMangThai73283 from "../../../content/blog/posts-en/nguyen-nhan-va-cach-giam-dau-xuong-mu-khi-mang-thai-73283.json";
@@ -152,6 +155,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   dinhDuongTamCaNguyet2,
   dinhDuongTre1224Thang,
   dungNhauDongLanhSauSinh,
+  firstTrimesterNutritionChecklistFolateIronAndSaferFoods3decfd,
   firstTrimesterNutritionChecklistFolateIronAndSaferFoods4a6572,
   firstTrimesterNutritionChecklistFolateIronAndSaferFoods82093e,
   firstTrimesterNutritionChecklistFolateIronAndSaferFoods,
@@ -171,10 +175,12 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   mangThaiMuaHeNong,
   messageFromTheMinisterOfMentalHealthAndAddictionsAndAssociateMinisterC6d7ff,
   messageFromTheMinisterOfMentalHealthAndAddictionsAndAssociateMinister,
+  n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks362648,
   n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks684b1f,
   n7DayPregnancyMealPlanBalancedPlatesForBusyWeeksE35656,
   n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks,
   nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrients8ff8cd,
+  nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsA4f5e0,
   nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrients,
   nghenNangAnUongVaDieuTri,
   nguyenNhanVaCachGiamDauXuongMuKhiMangThai73283,
