@@ -1,0 +1,19 @@
+{
+  "id": "4ec6d3d1028a42cf",
+  "sourceName": "Pregnancy Meal Planner Editorial",
+  "title": "Nausea-friendly pregnancy meals that still cover key nutrients",
+  "titleVi": "Thực đơn khi nghén: món dễ ăn vẫn đủ chất",
+  "url": "https://pregnancymeal.tips/blog/nausea-friendly-meals",
+  "snippet": "Smaller meals, gentler textures, and nutrient-dense snacks when morning sickness makes eating hard.",
+  "snippetVi": "Chia nhỏ bữa, chọn món dễ tiêu và bữa phụ giàu dinh dưỡng khi nghén nặng.",
+  "fetchedAt": "2026-07-28T03:37:54.995Z",
+  "status": "published",
+  "note": "Re-queue incomplete bilingual post for AI rewrite (EN+VI required).",
+  "editorial": true,
+  "categoryHint": "thuc-don-ba-bau",
+  "tagsHint": [
+    "nausea",
+    "meal-plan"
+  ],
+  "slug": "nausea-friendly-pregnancy-meals-that-still-cover-key-nutrients"
+}
