@@ -43,7 +43,7 @@ const privacyEn: LegalDocument = {
         "Optional cloud-sync data if you sign in and opt in (profile JSON, meal plans, and favorites linked to your account).",
         "Billing-related status if you purchase Premium (we receive confirmation from Stripe that a payment succeeded; we do not store full card numbers on our servers).",
         "Technical and security signals such as Turnstile challenge results when enabled, and standard request logs needed to operate the Service.",
-        "Optional analytics signals from Cloudflare Web Analytics when that beacon is enabled (aggregated traffic metrics)."
+        "Optional analytics signals from Cloudflare Web Analytics when that beacon is enabled, and Google Analytics (GA4) when the site measurement tag is enabled (aggregated traffic metrics)."
       ]
     },
     {
@@ -77,7 +77,7 @@ const privacyEn: LegalDocument = {
       heading: "7. Cookies and similar technologies",
       paragraphs: [
         "We do not use first-party cookies for account login. Authentication for the web app uses tokens managed by the Service.",
-        "Cloudflare and related infrastructure may set cookies or similar technologies for security, bot protection (including Turnstile when enabled), performance, and optional Web Analytics. Your browser settings control many of these technologies."
+        "Cloudflare and related infrastructure may set cookies or similar technologies for security, bot protection (including Turnstile when enabled), performance, and optional Web Analytics. Google Analytics (GA4) may also set cookies or similar identifiers for aggregated traffic measurement when enabled. Your browser settings control many of these technologies."
       ]
     },
     {
@@ -95,7 +95,7 @@ const privacyEn: LegalDocument = {
     {
       heading: "9. Sharing",
       paragraphs: [
-        "We do not sell personal data. We share information only with service providers that help us run the Service (for example Cloudflare hosting/database/AI infrastructure and Stripe for payments), when required by law, or to protect the Service and users.",
+        "We do not sell personal data. We share information only with service providers that help us run the Service (for example Cloudflare hosting/database/AI infrastructure, Google Analytics for traffic measurement, and Stripe for payments), when required by law, or to protect the Service and users.",
         "Social publishing tools and internal marketing automation (if used by us) operate under our operator credentials and are not part of end-user data collection."
       ]
     },
@@ -154,7 +154,7 @@ const privacyVi: LegalDocument = {
         "Dữ liệu đồng bộ đám mây tùy chọn nếu bạn đăng nhập và bật đồng bộ (hồ sơ, thực đơn và mục yêu thích gắn với tài khoản).",
         "Trạng thái thanh toán nếu bạn mua Premium (chúng tôi nhận xác nhận thanh toán thành công từ Stripe; không lưu số thẻ đầy đủ trên máy chủ của chúng tôi).",
         "Tín hiệu kỹ thuật/bảo mật như kết quả Turnstile (khi bật) và nhật ký yêu cầu cần thiết để vận hành.",
-        "Phân tích tùy chọn từ Cloudflare Web Analytics khi beacon được bật (chỉ số lưu lượng tổng hợp)."
+        "Phân tích tùy chọn từ Cloudflare Web Analytics khi beacon được bật, và Google Analytics (GA4) khi thẻ đo lường trang được bật (chỉ số lưu lượng tổng hợp)."
       ]
     },
     {
@@ -188,7 +188,7 @@ const privacyVi: LegalDocument = {
       heading: "7. Cookie và công nghệ tương tự",
       paragraphs: [
         "Chúng tôi không dùng cookie phía first-party để đăng nhập tài khoản. Xác thực web dùng token do Dịch vụ quản lý.",
-        "Cloudflare và hạ tầng liên quan có thể đặt cookie hoặc công nghệ tương tự cho bảo mật, chống bot (gồm Turnstile khi bật), hiệu năng và Web Analytics tùy chọn. Trình duyệt của bạn kiểm soát nhiều công nghệ trong số này."
+        "Cloudflare và hạ tầng liên quan có thể đặt cookie hoặc công nghệ tương tự cho bảo mật, chống bot (gồm Turnstile khi bật), hiệu năng và Web Analytics tùy chọn. Google Analytics (GA4) cũng có thể đặt cookie hoặc định danh tương tự để đo lưu lượng tổng hợp khi được bật. Trình duyệt của bạn kiểm soát nhiều công nghệ trong số này."
       ]
     },
     {
@@ -204,7 +204,7 @@ const privacyVi: LegalDocument = {
     {
       heading: "9. Chia sẻ",
       paragraphs: [
-        "Chúng tôi không bán dữ liệu cá nhân. Chúng tôi chỉ chia sẻ với nhà cung cấp giúp vận hành Dịch vụ (ví dụ Cloudflare và Stripe), khi pháp luật yêu cầu, hoặc để bảo vệ Dịch vụ và người dùng.",
+        "Chúng tôi không bán dữ liệu cá nhân. Chúng tôi chỉ chia sẻ với nhà cung cấp giúp vận hành Dịch vụ (ví dụ Cloudflare, Google Analytics để đo lưu lượng, và Stripe), khi pháp luật yêu cầu, hoặc để bảo vệ Dịch vụ và người dùng.",
         "Công cụ đăng bài mạng xã hội / tự động hóa marketing nội bộ (nếu chúng tôi dùng) chạy bằng thông tin đăng nhập của đơn vị vận hành và không phải phần thu thập dữ liệu người dùng cuối."
       ]
     },
