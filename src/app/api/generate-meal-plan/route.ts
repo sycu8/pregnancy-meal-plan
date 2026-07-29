@@ -7,6 +7,7 @@ import { verifyTurnstileToken } from "@/lib/cloudflare/turnstile";
 import { checkUsage, incrementUsage, usageLimitMessage } from "@/lib/premium/serverUsage";
 import type { Locale } from "@/lib/i18n";
 import { regenerateMealInPlan } from "@/lib/nutrition/mealPlanner";
+import { localizeMealPlanForLocale } from "@/lib/nutrition/localizeMealPlan";
 import { pregnancyProfileSchema, validationErrorToLocale, validationErrorToVietnamese } from "@/lib/nutrition/validation";
 import type { MealPlan } from "@/types/mealPlan";
 
@@ -78,7 +79,7 @@ export async function POST(request: Request) {
       }
 
       return NextResponse.json({
-        plan,
+        plan: localizeMealPlanForLocale(plan, locale),
         usage: swapUsage ? { mealSwapsUsed: swapUsage.used, mealSwapsLimit: swapUsage.limit } : undefined
       });
     }

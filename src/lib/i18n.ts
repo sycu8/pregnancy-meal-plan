@@ -151,6 +151,10 @@ export const landingContent = {
     primaryCta: "Create a free plan",
     secondaryCta: "Read pregnancy nutrition tips",
     highlights: ["Free to start", "No sign-in required", "Practical everyday meals", "Shopping list included"],
+    countryPricingLabel: "Country-based grocery pricing",
+    countryPricingTitle: "Shopping cost estimates that match where you live",
+    countryPricingIntro:
+      "If you live in Vietnam, the app keeps the current VND meal pricing. If you live abroad, it switches to public supermarket or convenience-store reference prices in that country and shows the cost in the local currency.",
     cardLabel: "Gentle personalization",
     cardTitle: "From pregnancy basics to specific meals",
     cardPoints: [
@@ -167,6 +171,10 @@ export const landingContent = {
     primaryCta: "Tạo thực đơn miễn phí",
     secondaryCta: "Đọc kiến thức dinh dưỡng mẹ bầu",
     highlights: ["Miễn phí giai đầu", "Không cần đăng nhập", "Món dễ nấu", "Có danh sách đi chợ"],
+    countryPricingLabel: "Đi chợ theo từng quốc gia",
+    countryPricingTitle: "Ước tính chi phí đi chợ theo nơi bạn đang sống",
+    countryPricingIntro:
+      "Nếu bạn ở Việt Nam, ứng dụng giữ cách tính giá bữa ăn bằng VND như hiện tại. Nếu bạn đang ở nước ngoài, hệ thống dùng giá tham khảo công khai từ siêu thị hoặc cửa hàng tiện lợi của quốc gia đó và hiển thị đúng đồng tiền địa phương.",
     cardLabel: "Cá nhân hóa nhẹ nhàng",
     cardTitle: "Từ thông tin đến bữa ăn cụ thể",
     cardPoints: [

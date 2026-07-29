@@ -401,6 +401,21 @@ const ingredientEnByVi: Record<string, string> = {
 
 const defaultCautionEn = "Eat while hot; refrigerate leftovers properly if prepping ahead.";
 
+const enNameToViName = new Map(
+  Object.entries(mealTextByViName).map(([viName, text]) => [text.name.toLowerCase(), viName])
+);
+
+const ingredientViByEn = new Map(
+  Object.entries(ingredientEnByVi).map(([vi, en]) => [en.toLowerCase(), vi])
+);
+
+/** Resolve the stable Vietnamese meal id from a mealId or localized display name. */
+export function resolveMealId(nameOrId: string | undefined | null): string | undefined {
+  if (!nameOrId) return undefined;
+  if (mealTextByViName[nameOrId]) return nameOrId;
+  return enNameToViName.get(nameOrId.toLowerCase()) ?? nameOrId;
+}
+
 export function localizeMealText(
   viName: string,
   locale: Locale,
@@ -415,6 +430,7 @@ export function localizeMealText(
       caution: en?.caution ?? (fallback.caution ? defaultCautionEn : undefined)
     };
   }
+  // Vietnamese UI must always show Vietnamese meal copy (never leave English leftovers).
   return {
     name: viName,
     reason: fallback.reason,
@@ -424,11 +440,21 @@ export function localizeMealText(
 }
 
 export function localizeIngredient(ingredient: string, locale: Locale): string {
-  if (locale !== "en") return ingredient;
-  const key = ingredient.toLowerCase();
-  return ingredientEnByVi[key] ?? ingredientEnByVi[ingredient] ?? ingredient;
+  if (locale === "en") {
+    const key = ingredient.toLowerCase();
+    return ingredientEnByVi[key] ?? ingredientEnByVi[ingredient] ?? ingredient;
+  }
+
+  const fromEn = ingredientViByEn.get(ingredient.toLowerCase());
+  if (fromEn) return fromEn;
+  // Already Vietnamese (or unknown) — keep as-is for vi locale.
+  return ingredient;
 }
 
 export function localizeIngredientList(items: string[], locale: Locale): string[] {
   return items.map((item) => localizeIngredient(item, locale));
+}
+
+export function hasVietnameseMealTranslation(viName: string): boolean {
+  return Boolean(mealTextByViName[viName]);
 }

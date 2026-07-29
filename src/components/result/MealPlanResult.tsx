@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Printer, RefreshCcw, Save, Share2, Download } from "lucide-react";
 import { Button } from "@/components/shared/Button";
 import { EmptyState } from "@/components/shared/EmptyState";
@@ -24,6 +24,7 @@ import { authHeaders } from "@/lib/storage/authSession";
 import { buildPlanExportText } from "@/lib/export/planExport";
 import { fetchMealPlan, PremiumLimitError } from "@/lib/nutrition/fetchMealPlan";
 import { regenerateMealInPlan, type MealSlot } from "@/lib/nutrition/mealPlanner";
+import { localizeMealPlanForLocale } from "@/lib/nutrition/localizeMealPlan";
 import { batchEstimatedCost, mealEstimatedCost } from "@/lib/nutrition/costHelpers";
 import { formatMoney, getCountryPricing } from "@/lib/nutrition/countries";
 import { localizedPath, type Locale } from "@/lib/i18n";
@@ -219,6 +220,7 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
   const [showPlanUpsell, setShowPlanUpsell] = useState(false);
   const isFreeTier = getPremiumTier() === "free";
   const canCloudExport = getPremiumLimits(getPremiumTier()).cloudExport;
+  const displayPlan = useMemo(() => (plan ? localizeMealPlanForLocale(plan, locale) : null), [plan, locale]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -231,10 +233,10 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
   }, []);
 
   useEffect(() => {
-    if (plan) {
-      cacheOfflineSnapshot(plan.profileSnapshot, plan);
+    if (displayPlan) {
+      cacheOfflineSnapshot(displayPlan.profileSnapshot, displayPlan);
     }
-  }, [plan]);
+  }, [displayPlan]);
 
   useEffect(() => {
     setShowReview(shouldShowReviewPrompt());
@@ -323,10 +325,10 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
   }
 
   async function handleShare() {
-    if (!plan) return;
+    if (!displayPlan) return;
     setShareError("");
     try {
-      const result = await shareMealPlan(plan, locale);
+      const result = await shareMealPlan(displayPlan, locale);
       setShareState(result);
     } catch {
       setShareState("idle");
@@ -335,7 +337,7 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
   }
 
   async function handleExport() {
-    if (!plan) return;
+    if (!displayPlan) return;
     setExportError("");
     if (isFreeTier || !canCloudExport) {
       setShowExportUpsell(true);
@@ -344,7 +346,7 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
       const response = await fetch("/api/export/plan", {
         method: "POST",
         headers: { "Content-Type": "application/json", ...authHeaders() },
-        body: JSON.stringify({ planId: plan.id, locale, plan })
+        body: JSON.stringify({ planId: displayPlan.id, locale, plan: displayPlan })
       });
       const data = await response.json();
       if (!response.ok) {
@@ -353,22 +355,22 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
         return;
       }
 
-      const content = data.content ?? buildPlanExportText(plan, locale);
+      const content = data.content ?? buildPlanExportText(displayPlan, locale);
       const blob = new Blob([content], { type: data.format === "html" ? "text/html;charset=utf-8" : "text/plain;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const anchor = document.createElement("a");
       anchor.href = url;
-      anchor.download = `bau-an-gi-plan-${plan.id}.${data.format === "html" ? "html" : "txt"}`;
+      anchor.download = `bau-an-gi-plan-${displayPlan.id}.${data.format === "html" ? "html" : "txt"}`;
       anchor.click();
       URL.revokeObjectURL(url);
       setExported(true);
     } catch {
-      const fallback = buildPlanExportText(plan, locale);
+      const fallback = buildPlanExportText(displayPlan, locale);
       const blob = new Blob([fallback], { type: "text/plain;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const anchor = document.createElement("a");
       anchor.href = url;
-      anchor.download = `bau-an-gi-plan-${plan.id}.txt`;
+      anchor.download = `bau-an-gi-plan-${displayPlan.id}.txt`;
       anchor.click();
       URL.revokeObjectURL(url);
       setExported(true);
@@ -383,17 +385,17 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
     return <EmptyState locale={locale} title={t.emptyTitle} description={t.planNotFound} />;
   }
 
-  if (!plan) {
+  if (!plan || !displayPlan) {
     return <EmptyState locale={locale} title={t.emptyTitle} description={t.emptyDescription} />;
   }
 
   function handleSave() {
-    if (!plan) return;
-    saveMealPlan(plan);
+    if (!displayPlan) return;
+    saveMealPlan(displayPlan);
     setSaved(true);
   }
 
-  const activeDay = plan.days[activeDayIndex] ?? plan.days[0];
+  const activeDay = displayPlan.days[activeDayIndex] ?? displayPlan.days[0];
   if (!activeDay?.breakfast || !activeDay?.lunch || !activeDay?.dinner) {
     return <EmptyState locale={locale} title={t.emptyTitle} description={t.planNotFound} />;
   }
@@ -404,9 +406,11 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
     0
   );
   const dayCost = dayMeals.reduce((total, item) => total + mealEstimatedCost(item), 0);
-  const shoppingBatches = plan.shoppingBatches?.length ? plan.shoppingBatches : buildFallbackShoppingBatches(plan, locale);
+  const shoppingBatches = displayPlan.shoppingBatches?.length
+    ? displayPlan.shoppingBatches
+    : buildFallbackShoppingBatches(displayPlan, locale);
   const weeklyShopOnePerson = shoppingBatches.reduce((total, batch) => total + batchEstimatedCost(batch), 0);
-  const country = getCountryPricing(plan.costEstimate?.countryCode ?? plan.profileSnapshot.residenceCountry);
+  const country = getCountryPricing(displayPlan.costEstimate?.countryCode ?? displayPlan.profileSnapshot.residenceCountry);
   const formatCost = (value: number) => formatMoney(value, country);
   const weeklyShopCouple = Math.round(weeklyShopOnePerson * ADULTS_IN_COUPLE);
   const weeklyShopChildren = Math.round(weeklyShopOnePerson * CHILD_PORTION_FACTOR * childrenEatingCount);
@@ -426,11 +430,11 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
           <div>
             <p className="text-sm text-muted-foreground">{t.overview}</p>
             <h1 className="mt-1 text-2xl font-semibold">
-              {plan.profileSnapshot.lifeStage === "postpartum"
-                ? `${t.titlePostpartum}${plan.profileSnapshot.babyAgeMonths != null ? ` (${plan.profileSnapshot.babyAgeMonths} ${locale === "vi" ? "tháng" : "mo"})` : ""}`
-                : `${t.titlePrefix} ${plan.profileSnapshot.pregnancyWeek}`}
+              {displayPlan.profileSnapshot.lifeStage === "postpartum"
+                ? `${t.titlePostpartum}${displayPlan.profileSnapshot.babyAgeMonths != null ? ` (${displayPlan.profileSnapshot.babyAgeMonths} ${locale === "vi" ? "tháng" : "mo"})` : ""}`
+                : `${t.titlePrefix} ${displayPlan.profileSnapshot.pregnancyWeek}`}
             </h1>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">{plan.summary.message}</p>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">{displayPlan.summary.message}</p>
           </div>
           <div className="no-print flex flex-wrap gap-2">
             <Button variant="secondary" onClick={handleSave}>
@@ -471,17 +475,17 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
         </div>
 
         <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <Metric label={t.bmi} value={plan.summary.bmi?.toString() ?? t.noData} />
-          <Metric label={t.bmiGroup} value={bmiLabels[plan.summary.bmiCategory]} />
-          <Metric label={t.gained} value={plan.summary.weightGainKg === null ? t.noData : `${plan.summary.weightGainKg} kg`} />
-          <Metric label={t.status} value={weightLabels[plan.summary.weightGainStatus]} />
+          <Metric label={t.bmi} value={displayPlan.summary.bmi?.toString() ?? t.noData} />
+          <Metric label={t.bmiGroup} value={bmiLabels[displayPlan.summary.bmiCategory]} />
+          <Metric label={t.gained} value={displayPlan.summary.weightGainKg === null ? t.noData : `${displayPlan.summary.weightGainKg} kg`} />
+          <Metric label={t.status} value={weightLabels[displayPlan.summary.weightGainStatus]} />
         </div>
       </section>
 
-      {plan.urgentWarnings && plan.urgentWarnings.length > 0 && (
+      {displayPlan.urgentWarnings && displayPlan.urgentWarnings.length > 0 && (
         <section className="rounded-lg border border-red-200 bg-red-50 p-5 text-sm text-red-800">
           <h2 className="font-semibold">{t.medicalAttention}</h2>
-          {plan.urgentWarnings.map((warning) => (
+          {displayPlan.urgentWarnings.map((warning) => (
             <p key={warning} className="mt-2">
               {warning}
             </p>
@@ -502,7 +506,7 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
         </div>
 
         <div className="mt-5 grid grid-cols-4 gap-2 sm:grid-cols-7" role="tablist" aria-label={t.tabLabel}>
-          {plan.days.map((day, index) => (
+          {displayPlan.days.map((day, index) => (
             <button
               key={day.day}
               type="button"
@@ -533,7 +537,7 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
           </div>
         </article>
 
-        <DailyShoppingList copy={t} groups={groups} shoppingList={activeDay.dailyShoppingList ?? plan.shoppingList} />
+        <DailyShoppingList copy={t} groups={groups} shoppingList={activeDay.dailyShoppingList ?? displayPlan.shoppingList} />
       </section>
 
       <section className="rounded-lg border border-border bg-white p-5">
@@ -543,7 +547,7 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
           {t.shoppingIntro}
         </p>
         <p className="mt-2 max-w-3xl text-xs leading-5 text-muted-foreground">
-          {t.sourcePrefix}: {plan.costEstimate?.sourceNames?.join(", ") ?? "Kingfoodmart, WinMart, GO!/BigC/Tops"}. {plan.costEstimate?.note ?? "Giá có thể thay đổi theo khu vực và khuyến mãi."}
+          {t.sourcePrefix}: {displayPlan.costEstimate?.sourceNames?.join(", ") ?? "Kingfoodmart, WinMart, GO!/BigC/Tops"}. {displayPlan.costEstimate?.note ?? "Giá có thể thay đổi theo khu vực và khuyến mãi."}
         </p>
         <div className="mt-5 grid gap-4 lg:grid-cols-3">
           {shoppingBatches.map((batch) => (
@@ -582,8 +586,8 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
       <NutrientGuidancePanel locale={locale} />
 
       <section className="grid gap-5 md:grid-cols-2">
-        <ListPanel title={t.safety} items={plan.safetyWarnings} />
-        <ListPanel title={t.specialNotes} items={plan.specialNotes.length ? plan.specialNotes : [t.noSpecial]} />
+        <ListPanel title={t.safety} items={displayPlan.safetyWarnings} />
+        <ListPanel title={t.specialNotes} items={displayPlan.specialNotes.length ? displayPlan.specialNotes : [t.noSpecial]} />
       </section>
 
       <TrustedSources locale={locale} />
