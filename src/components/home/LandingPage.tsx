@@ -5,10 +5,12 @@ import { TrustedSources } from "@/components/shared/TrustedSources";
 import { PartnerBadges } from "@/components/shared/PartnerBadges";
 import { ReferralCapture } from "@/components/home/ReferralCapture";
 import { ReferralShare } from "@/components/home/ReferralShare";
+import { residenceCountries } from "@/lib/nutrition/countries";
 import { landingContent, localizedPath, type Locale } from "@/lib/i18n";
 
 export function LandingPage({ locale }: { locale: Locale }) {
   const copy = landingContent[locale];
+  const featuredCountries = residenceCountries.slice(0, 8);
 
   return (
     <main>
@@ -54,6 +56,23 @@ export function LandingPage({ locale }: { locale: Locale }) {
           </div>
           <Disclaimer locale={locale} className="mt-4" />
           <Disclaimer locale={locale} privacy className="mt-4" />
+        </div>
+      </section>
+      <section className="mx-auto max-w-6xl px-4 pb-12">
+        <div className="rounded-2xl border border-border bg-white p-6 shadow-soft md:p-8">
+          <p className="text-sm font-medium text-accent">{copy.countryPricingLabel}</p>
+          <h2 className="mt-2 text-2xl font-semibold">{copy.countryPricingTitle}</h2>
+          <p className="mt-3 max-w-3xl text-base leading-7 text-muted-foreground">{copy.countryPricingIntro}</p>
+          <div className="mt-5 flex flex-wrap gap-2">
+            {featuredCountries.map((country) => (
+              <span
+                key={country.code}
+                className="rounded-full border border-border bg-muted px-3 py-1.5 text-sm text-foreground"
+              >
+                {country.labels[locale]} · {country.currency}
+              </span>
+            ))}
+          </div>
         </div>
       </section>
       <section className="mx-auto max-w-6xl space-y-6 px-4 pb-12">
