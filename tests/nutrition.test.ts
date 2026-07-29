@@ -9,6 +9,7 @@ import {
   getConditionSpecificWarnings
 } from "@/lib/nutrition/safetyRules";
 import { ruleBasedMealPlanner } from "@/lib/nutrition/mealPlanner";
+import { localizeMealPlanForLocale } from "@/lib/nutrition/localizeMealPlan";
 import type { PregnancyProfile } from "@/types/pregnancy";
 
 const baseProfile: PregnancyProfile = {
@@ -136,5 +137,20 @@ describe("rule-based meal planner", () => {
     expect(plan.days[0].breakfast.estimatedCost).toBeGreaterThan(0);
     expect(plan.days[0].breakfast.estimatedCost).toBeLessThan(100);
     expect(plan.shoppingBatches[0].estimatedCost).toBeGreaterThan(0);
+  });
+
+  it("shows Vietnamese meal copy when an English plan is localized to vi", () => {
+    const englishPlan = ruleBasedMealPlanner(baseProfile, "en");
+    expect(englishPlan.days[0].breakfast.name).not.toMatch(/[àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ]/i);
+
+    const vietnamesePlan = localizeMealPlanForLocale(englishPlan, "vi");
+    const breakfast = vietnamesePlan.days[0].breakfast;
+
+    expect(breakfast.mealId).toBeTruthy();
+    expect(breakfast.name).toBe(breakfast.mealId);
+    expect(breakfast.reason).toMatch(/[àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ]/i);
+    expect(breakfast.nutrients.join(" ")).toMatch(/đạm|rau|tinh bột|canxi|chất|sắt|omega|vitamin|năng lượng|kali|nước|probiotic|choline|folate|kẽm|iodine|beta/i);
+    expect(vietnamesePlan.shoppingList.proteins.join(" ")).toMatch(/[àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ]/i);
+    expect(vietnamesePlan.costEstimate.note).toContain("ước tính");
   });
 });

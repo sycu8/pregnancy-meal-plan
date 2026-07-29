@@ -3,6 +3,7 @@ import { getBindings, readFeatureFlag } from "@/lib/cloudflare/bindings";
 import { getOptionalAiEnv } from "@/lib/cloudflare/env";
 import { buildMealPlanPrompt } from "@/lib/nutrition/aiPromptBuilder";
 import { ruleBasedMealPlanner } from "@/lib/nutrition/mealPlanner";
+import { localizeMealPlanForLocale } from "@/lib/nutrition/localizeMealPlan";
 import type { MealPlan } from "@/types/mealPlan";
 import type { PregnancyProfile } from "@/types/pregnancy";
 
@@ -64,7 +65,7 @@ export function createAIClient(): AIClient {
 
   return {
     async generateMealPlan(input, locale = "vi") {
-      const baseline = ruleBasedMealPlanner(input, locale);
+      const baseline = localizeMealPlanForLocale(ruleBasedMealPlanner(input, locale), locale);
       const aiEnabled = await readFeatureFlag("ai_planner_enabled", Boolean(env.OPENAI_API_KEY || env.AI_PROVIDER === "workers-ai"));
 
       if (!aiEnabled) return baseline;
@@ -73,7 +74,7 @@ export function createAIClient(): AIClient {
       if (!hasProvider) return baseline;
 
       try {
-        const prompt = `${buildMealPlanPrompt(input)}\nLocale: ${locale}\nReturn JSON with field "specialNotes" as string array customizing the baseline plan.`;
+        const prompt = `${buildMealPlanPrompt(input)}\nLocale: ${locale}\nReturn JSON with field "specialNotes" as string array customizing the baseline plan. For locale=vi write specialNotes in Vietnamese only.`;
         const raw =
           env.AI_PROVIDER === "workers-ai"
             ? await callWorkersAi(prompt)
@@ -85,10 +86,11 @@ export function createAIClient(): AIClient {
 
         const parsed = JSON.parse(raw) as { specialNotes?: string[] };
         if (Array.isArray(parsed.specialNotes) && parsed.specialNotes.length > 0) {
-          return {
+          const withNotes = {
             ...baseline,
             specialNotes: [...new Set([...baseline.specialNotes, ...parsed.specialNotes])]
           };
+          return localizeMealPlanForLocale(withNotes, locale);
         }
       } catch {
         // Fall through to rule-based baseline.

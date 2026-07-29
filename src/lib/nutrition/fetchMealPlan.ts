@@ -5,6 +5,7 @@ import { syncUsageFromServer } from "@/lib/premium/usage";
 import type { MealPlan } from "@/types/mealPlan";
 import type { PregnancyProfile } from "@/types/pregnancy";
 import { ruleBasedMealPlanner } from "@/lib/nutrition/mealPlanner";
+import { localizeMealPlanForLocale } from "@/lib/nutrition/localizeMealPlan";
 
 export type GenerateMealPlanRequest = {
   profile: PregnancyProfile;
@@ -87,7 +88,7 @@ export async function fetchMealPlan(
 
       if ("plan" in data) {
         applyUsageFromResponse(data);
-        return data.plan;
+        return localizeMealPlanForLocale(data.plan, locale);
       }
 
       applyUsageFromResponse(data);
@@ -96,7 +97,7 @@ export async function fetchMealPlan(
         if (options?.regenerate) {
           throw new PremiumLimitError("error" in data ? data.error : "Daily limit reached");
         }
-        return ruleBasedMealPlanner(profile, locale);
+        return localizeMealPlanForLocale(ruleBasedMealPlanner(profile, locale), locale);
       }
 
       if (attempt === 1) {
@@ -117,10 +118,10 @@ export async function fetchMealPlan(
     throw new Error("Could not swap meal");
   }
 
-  return ruleBasedMealPlanner(profile, locale);
+  return localizeMealPlanForLocale(ruleBasedMealPlanner(profile, locale), locale);
 }
 
 /** Full plan without calling the API (does not consume daily API quota). */
 export function createLocalMealPlan(profile: PregnancyProfile, locale: Locale = "vi") {
-  return ruleBasedMealPlanner(profile, locale);
+  return localizeMealPlanForLocale(ruleBasedMealPlanner(profile, locale), locale);
 }
