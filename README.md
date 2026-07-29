@@ -125,20 +125,21 @@ Thực đơn được tạo tự động dựa trên thông tin bạn cung cấp
 - Medlatec: tin y khoa, xét nghiệm và sức khỏe mẹ bầu.
 - Long Châu: bài viết mẹ và bé, dinh dưỡng thai kỳ.
 
-## Roadmap Cloudflare
+## Roadmap
 
-Xem chi tiết 5 phase tại [`docs/ROADMAP.md`](docs/ROADMAP.md).
+Xem roadmap sản phẩm + kỹ thuật hiện tại tại [`docs/ROADMAP.md`](docs/ROADMAP.md) (đã nhóm theo stream: planner, AI, accounts/premium, content, mobile, international pricing).
 
-Tóm tắt:
+**Follow-up:** README vẫn còn mô tả MVP cũ (localStorage-only, giá chỉ VND Việt Nam). Cập nhật README theo roadmap — tài khoản/sync, premium limits, EN/VI, giá theo quốc gia, deploy Cloudflare OpenNext.
 
-1. Workers AI hoặc OpenAI qua Worker
-2. Cloudflare AI Gateway để log, cache, rate limit AI calls
-3. D1 cho user profile khi có account
-4. KV cho public config/cache meal templates
-5. R2 cho PDF export hoặc upload xét nghiệm
-6. Turnstile chống spam
-7. Web Analytics
-8. Rate Limiting
+Tóm tắt hướng Cloudflare đã vận hành:
+
+1. Workers AI / OpenAI qua Worker + AI Gateway
+2. D1 cho profile / meal plans khi có account
+3. KV cho feature flags + usage counters
+4. R2 cho export / blog media
+5. Turnstile chống spam
+6. Web Analytics + rate limiting
+7. Deploy OpenNext Workers (`pnpm deploy:cloudflare`)
 
 ## Optional Env Sau Này
 
