@@ -5,12 +5,14 @@ import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
 import { MobileNav } from "@/components/shared/MobileNav";
 import { WebMcpRegistration } from "@/components/shared/WebMcpRegistration";
 import { CloudflareAnalytics } from "@/components/shared/CloudflareAnalytics";
+import { GoogleAnalytics } from "@/components/shared/GoogleAnalytics";
 
 export function SiteChrome({ children, locale }: { children: React.ReactNode; locale: Locale }) {
   const copy = siteCopy[locale];
 
   return (
     <body className="min-h-screen font-sans antialiased">
+      <GoogleAnalytics />
       <CloudflareAnalytics />
       <WebMcpRegistration />
       <nav className="sticky top-0 z-40 border-b border-border bg-background">
