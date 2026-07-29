@@ -24,6 +24,8 @@ import { authHeaders } from "@/lib/storage/authSession";
 import { buildPlanExportText } from "@/lib/export/planExport";
 import { fetchMealPlan, PremiumLimitError } from "@/lib/nutrition/fetchMealPlan";
 import { regenerateMealInPlan, type MealSlot } from "@/lib/nutrition/mealPlanner";
+import { batchEstimatedCost, mealEstimatedCost } from "@/lib/nutrition/costHelpers";
+import { formatMoney, getCountryPricing } from "@/lib/nutrition/countries";
 import { localizedPath, type Locale } from "@/lib/i18n";
 import type { MealItem, MealPlan } from "@/types/mealPlan";
 
@@ -401,9 +403,11 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
     (total, item) => total + (item?.estimatedCalories ?? 0),
     0
   );
-  const dayCost = dayMeals.reduce((total, item) => total + (item?.estimatedCostVnd ?? 0), 0);
+  const dayCost = dayMeals.reduce((total, item) => total + mealEstimatedCost(item), 0);
   const shoppingBatches = plan.shoppingBatches?.length ? plan.shoppingBatches : buildFallbackShoppingBatches(plan, locale);
-  const weeklyShopOnePerson = shoppingBatches.reduce((total, batch) => total + (batch.estimatedCostVnd ?? 0), 0);
+  const weeklyShopOnePerson = shoppingBatches.reduce((total, batch) => total + batchEstimatedCost(batch), 0);
+  const country = getCountryPricing(plan.costEstimate?.countryCode ?? plan.profileSnapshot.residenceCountry);
+  const formatCost = (value: number) => formatMoney(value, country);
   const weeklyShopCouple = Math.round(weeklyShopOnePerson * ADULTS_IN_COUPLE);
   const weeklyShopChildren = Math.round(weeklyShopOnePerson * CHILD_PORTION_FACTOR * childrenEatingCount);
   const weeklyHouseholdTotal = weeklyShopCouple + weeklyShopChildren;
@@ -493,7 +497,7 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
           </div>
           <p className="rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground">
             {t.day} {activeDay.day}: {dayCalories > 0 ? `${t.aboutCalories} ${dayCalories} ${t.calories}` : t.estimatedLater}
-            {dayCost > 0 ? ` · ${t.onePersonMealCost}: ${formatVnd(dayCost)}` : ""}
+            {dayCost > 0 ? ` · ${t.onePersonMealCost}: ${formatCost(dayCost)}` : ""}
           </p>
         </div>
 
@@ -516,11 +520,11 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
 
         <article className="mt-5">
           <div className="grid gap-3 md:grid-cols-2">
-            <MealBlock copy={t} title={t.meals[0]} item={activeDay.breakfast} mealSlot="breakfast" swapping={swappingSlot === "breakfast"} onSwap={handleSwapMeal} />
-            <MealBlock copy={t} title={t.meals[1]} item={activeDay.morningSnack} mealSlot="morningSnack" swapping={swappingSlot === "morningSnack"} onSwap={handleSwapMeal} />
-            <MealBlock copy={t} title={t.meals[2]} item={activeDay.lunch} mealSlot="lunch" swapping={swappingSlot === "lunch"} onSwap={handleSwapMeal} />
-            <MealBlock copy={t} title={t.meals[3]} item={activeDay.afternoonSnack} mealSlot="afternoonSnack" swapping={swappingSlot === "afternoonSnack"} onSwap={handleSwapMeal} />
-            <MealBlock copy={t} title={t.meals[4]} item={activeDay.dinner} mealSlot="dinner" swapping={swappingSlot === "dinner"} onSwap={handleSwapMeal} />
+            <MealBlock copy={t} title={t.meals[0]} item={activeDay.breakfast} mealSlot="breakfast" swapping={swappingSlot === "breakfast"} onSwap={handleSwapMeal} formatCost={formatCost} />
+            <MealBlock copy={t} title={t.meals[1]} item={activeDay.morningSnack} mealSlot="morningSnack" swapping={swappingSlot === "morningSnack"} onSwap={handleSwapMeal} formatCost={formatCost} />
+            <MealBlock copy={t} title={t.meals[2]} item={activeDay.lunch} mealSlot="lunch" swapping={swappingSlot === "lunch"} onSwap={handleSwapMeal} formatCost={formatCost} />
+            <MealBlock copy={t} title={t.meals[3]} item={activeDay.afternoonSnack} mealSlot="afternoonSnack" swapping={swappingSlot === "afternoonSnack"} onSwap={handleSwapMeal} formatCost={formatCost} />
+            <MealBlock copy={t} title={t.meals[4]} item={activeDay.dinner} mealSlot="dinner" swapping={swappingSlot === "dinner"} onSwap={handleSwapMeal} formatCost={formatCost} />
             <div className="rounded-md bg-muted p-4 text-sm text-muted-foreground">
               <p className="font-medium text-foreground">{t.hydration}</p>
               <p className="mt-1 leading-6">{activeDay.hydrationNote}</p>
@@ -546,9 +550,9 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
             <div key={batch.label} className="rounded-md border border-border p-4">
               <div className="flex items-start justify-between gap-3">
                 <h3 className="font-semibold">{batch.label}</h3>
-                {batch.estimatedCostVnd > 0 && (
+                {batchEstimatedCost(batch) > 0 && (
                   <span className="rounded-md bg-muted px-2 py-1 text-xs font-semibold" title="Ước tính cho 1 người (mẹ)">
-                    {formatVnd(batch.estimatedCostVnd)}
+                    {formatCost(batchEstimatedCost(batch))}
                   </span>
                 )}
               </div>
@@ -571,6 +575,7 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
           childrenEatingCount={childrenEatingCount}
           onChildrenCountChange={setChildrenEatingCount}
           locale={locale}
+          formatCost={formatCost}
         />
       </section>
 
@@ -612,7 +617,8 @@ function MealBlock({
   item,
   mealSlot,
   swapping,
-  onSwap
+  onSwap,
+  formatCost
 }: {
   copy: ResultCopy;
   title: string;
@@ -620,16 +626,18 @@ function MealBlock({
   mealSlot: MealSlot;
   swapping: boolean;
   onSwap: (slot: MealSlot) => void;
+  formatCost: (value: number) => string;
 }) {
   const hasEstimate = item.portionGram > 0 && item.estimatedCalories > 0;
-  const hasCost = item.estimatedCostVnd > 0;
+  const cost = mealEstimatedCost(item);
+  const hasCost = cost > 0;
 
   return (
     <div className="rounded-md border border-border p-4">
       <div className="flex items-start justify-between gap-2">
         <p className="text-xs font-medium uppercase text-accent">{title}</p>
         <div className="no-print flex items-center gap-1">
-          <FavoriteButton mealName={item.name} />
+          <FavoriteButton mealName={item.mealId ?? item.name} />
           <Button type="button" variant="ghost" size="sm" className="h-8 px-2 text-xs" disabled={swapping} onClick={() => onSwap(mealSlot)}>
             {swapping ? copy.swapping : copy.swapMeal}
           </Button>
@@ -639,7 +647,7 @@ function MealBlock({
       {hasEstimate && (
         <p className="mt-2 rounded-md bg-muted px-3 py-2 text-xs font-medium text-foreground">
           {copy.estimate}: {item.portionGram} g · {item.estimatedCalories} kcal
-          {hasCost ? ` · ${formatVnd(item.estimatedCostVnd)}` : ""}
+          {hasCost ? ` · ${formatCost(cost)}` : ""}
         </p>
       )}
       <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.reason}</p>
@@ -694,17 +702,10 @@ function buildFallbackShoppingBatches(plan: MealPlan, locale: Locale = "vi"): Me
         locale === "en"
           ? "This older plan has no shopping batches. Create a new plan for a more accurate list."
           : "Thực đơn cũ chưa có lịch đi chợ theo đợt. Hãy tạo lại để có danh sách chính xác hơn.",
+      estimatedCost: 0,
       estimatedCostVnd: 0
     }
   ];
-}
-
-function formatVnd(value: number) {
-  return new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "VND",
-    maximumFractionDigits: 0
-  }).format(value);
 }
 
 function HouseholdCostSection({
@@ -719,7 +720,8 @@ function HouseholdCostSection({
   activeDayNumber,
   childrenEatingCount,
   onChildrenCountChange,
-  locale
+  locale,
+  formatCost
 }: {
   weeklyShopOnePerson: number;
   weeklyShopCouple: number;
@@ -733,6 +735,7 @@ function HouseholdCostSection({
   childrenEatingCount: number;
   onChildrenCountChange: (n: number) => void;
   locale: Locale;
+  formatCost: (value: number) => string;
 }) {
   const household = {
     vi: {
@@ -806,6 +809,7 @@ function HouseholdCostSection({
       <div className="mt-5 grid gap-3 sm:grid-cols-2">
         <CostBreakdownCard
           title={h.weekTitle}
+          formatCost={formatCost}
           rows={[
             { label: h.one, value: weeklyShopOnePerson },
             { label: h.coupleRow, value: weeklyShopCouple },
@@ -821,6 +825,7 @@ function HouseholdCostSection({
         />
         <CostBreakdownCard
           title={h.dayTitle}
+          formatCost={formatCost}
           rows={[
             { label: h.one, value: dayCost },
             { label: h.coupleRow, value: dayCostCouple },
@@ -842,10 +847,12 @@ function HouseholdCostSection({
 
 function CostBreakdownCard({
   title,
-  rows
+  rows,
+  formatCost
 }: {
   title: string;
   rows: { label: string; value: number; emphasize?: boolean; muted?: boolean }[];
+  formatCost: (value: number) => string;
 }) {
   return (
     <div className="rounded-md border border-border bg-white p-4">
@@ -858,7 +865,7 @@ function CostBreakdownCard({
           >
             <span className={row.emphasize ? "text-foreground" : ""}>{row.label}</span>
             <span className={`shrink-0 tabular-nums ${row.emphasize ? "text-accent" : "text-foreground"}`}>
-              {row.muted && row.value === 0 ? "—" : formatVnd(row.value)}
+              {row.muted && row.value === 0 ? "—" : formatCost(row.value)}
             </span>
           </li>
         ))}

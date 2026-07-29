@@ -25,7 +25,11 @@ async function callOpenAi(prompt: string, apiKey: string, gatewayUrl?: string): 
     body: JSON.stringify({
       model: "gpt-4o-mini",
       messages: [
-        { role: "system", content: "Return only valid JSON for a 7-day Vietnamese pregnancy meal plan structure." },
+        {
+          role: "system",
+          content:
+            "Author meal-plan guidance in English first, then translate to the requested locale. Return only valid JSON with a specialNotes string array."
+        },
         { role: "user", content: prompt }
       ],
       temperature: 0.4
@@ -43,7 +47,11 @@ async function callWorkersAi(prompt: string): Promise<string | null> {
 
   const result = (await AI.run(WORKERS_AI_MODEL, {
     messages: [
-      { role: "system", content: "You assist with pregnancy meal planning references. Respond concisely." },
+      {
+        role: "system",
+        content:
+          "You assist with pregnancy meal planning. Draft English first, then adapt to the requested locale. Respond concisely as JSON."
+      },
       { role: "user", content: prompt }
     ]
   })) as { response?: string };

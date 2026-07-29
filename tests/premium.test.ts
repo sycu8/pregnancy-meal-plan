@@ -33,11 +33,11 @@ const samplePlan = {
   days: [
     {
       day: 1,
-      breakfast: { name: "Phở bò", portionGram: 400, estimatedCalories: 450, estimatedCostVnd: 45000, reason: "test", nutrients: ["protein"], alternatives: [], caution: "" },
-      morningSnack: { name: "Sữa chua", portionGram: 150, estimatedCalories: 120, estimatedCostVnd: 12000, reason: "test", nutrients: ["calcium"], alternatives: [], caution: "" },
-      lunch: { name: "Cá hấp", portionGram: 350, estimatedCalories: 420, estimatedCostVnd: 50000, reason: "test", nutrients: ["omega3"], alternatives: [], caution: "" },
-      afternoonSnack: { name: "Chuối", portionGram: 120, estimatedCalories: 110, estimatedCostVnd: 8000, reason: "test", nutrients: ["fiber"], alternatives: [], caution: "" },
-      dinner: { name: "Canh rau", portionGram: 300, estimatedCalories: 180, estimatedCostVnd: 20000, reason: "test", nutrients: ["iron"], alternatives: [], caution: "" },
+      breakfast: { name: "Phở bò", portionGram: 400, estimatedCalories: 450, estimatedCost: 45000, estimatedCostVnd: 45000, reason: "test", nutrients: ["protein"], alternatives: [], caution: "" },
+      morningSnack: { name: "Sữa chua", portionGram: 150, estimatedCalories: 120, estimatedCost: 12000, estimatedCostVnd: 12000, reason: "test", nutrients: ["calcium"], alternatives: [], caution: "" },
+      lunch: { name: "Cá hấp", portionGram: 350, estimatedCalories: 420, estimatedCost: 50000, estimatedCostVnd: 50000, reason: "test", nutrients: ["omega3"], alternatives: [], caution: "" },
+      afternoonSnack: { name: "Chuối", portionGram: 120, estimatedCalories: 110, estimatedCost: 8000, estimatedCostVnd: 8000, reason: "test", nutrients: ["fiber"], alternatives: [], caution: "" },
+      dinner: { name: "Canh rau", portionGram: 300, estimatedCalories: 180, estimatedCost: 20000, estimatedCostVnd: 20000, reason: "test", nutrients: ["iron"], alternatives: [], caution: "" },
       hydrationNote: "Uống đủ nước",
       dailyShoppingList: { proteins: [], vegetables: [], fruits: [], dairy: [], grains: [], others: [] }
     }
@@ -47,7 +47,7 @@ const samplePlan = {
   safetyWarnings: [],
   specialNotes: [],
   urgentWarnings: [],
-  costEstimate: { totalVnd: 0, sourceNames: ["Kingfoodmart"], note: "test" }
+  costEstimate: { countryCode: "VN", currency: "VND", updatedAt: "2026-05-11", sourceNames: ["Kingfoodmart"], note: "test" }
 } as unknown as MealPlan;
 
 describe("premium limits", () => {

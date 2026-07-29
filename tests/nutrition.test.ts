@@ -110,9 +110,31 @@ describe("rule-based meal planner", () => {
     const plan = ruleBasedMealPlanner(baseProfile);
     const firstDay = plan.days[0];
 
-    expect(firstDay.breakfast.estimatedCostVnd).toBeGreaterThan(0);
-    expect(firstDay.lunch.estimatedCostVnd).toBeGreaterThan(firstDay.morningSnack.estimatedCostVnd);
-    expect(plan.shoppingBatches[0].estimatedCostVnd).toBeGreaterThan(firstDay.breakfast.estimatedCostVnd);
+    expect(firstDay.breakfast.estimatedCost).toBeGreaterThan(0);
+    expect(firstDay.lunch.estimatedCost).toBeGreaterThan(firstDay.morningSnack.estimatedCost);
+    expect(plan.shoppingBatches[0].estimatedCost).toBeGreaterThan(firstDay.breakfast.estimatedCost);
     expect(plan.costEstimate.sourceNames).toContain("Kingfoodmart");
+    expect(plan.costEstimate.currency).toBe("VND");
+    expect(plan.costEstimate.countryCode).toBe("VN");
+  });
+
+  it("localizes meal content to English while keeping Vietnamese source ids", () => {
+    const plan = ruleBasedMealPlanner(baseProfile, "en");
+    const breakfast = plan.days[0].breakfast;
+
+    expect(breakfast.mealId).toBeTruthy();
+    expect(breakfast.name).not.toMatch(/[àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ]/i);
+    expect(breakfast.nutrients.join(" ")).toMatch(/protein|iron|fiber|calcium|omega|starch|vitamin|plant|lean|healthy|energy|fluids|potassium|probiotic|choline|folate|zinc|iodine|beta/i);
+  });
+
+  it("uses local supermarket currency when residence is abroad", () => {
+    const plan = ruleBasedMealPlanner({ ...baseProfile, residenceCountry: "US" }, "en");
+
+    expect(plan.costEstimate.countryCode).toBe("US");
+    expect(plan.costEstimate.currency).toBe("USD");
+    expect(plan.costEstimate.sourceNames).toEqual(expect.arrayContaining(["Walmart"]));
+    expect(plan.days[0].breakfast.estimatedCost).toBeGreaterThan(0);
+    expect(plan.days[0].breakfast.estimatedCost).toBeLessThan(100);
+    expect(plan.shoppingBatches[0].estimatedCost).toBeGreaterThan(0);
   });
 });

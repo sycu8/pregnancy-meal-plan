@@ -33,10 +33,28 @@ export type NutritionGoal =
   | "relieve_constipation"
   | "increase_iron_calcium_protein";
 
+/** ISO 3166-1 alpha-2 country where the meal-plan creator lives / shops. */
+export type ResidenceCountryCode =
+  | "VN"
+  | "US"
+  | "JP"
+  | "KR"
+  | "SG"
+  | "AU"
+  | "GB"
+  | "CA"
+  | "DE"
+  | "FR"
+  | "TH"
+  | "MY"
+  | "TW";
+
 export type PregnancyProfile = {
   lifeStage?: LifeStage;
   babyAgeMonths?: number;
   strictGestationalDiabetes?: boolean;
+  /** Where the creator shops; drives local-currency grocery estimates. Defaults to VN. */
+  residenceCountry?: ResidenceCountryCode;
   pregnancyWeek: number;
   pregnancyType: "singleton" | "twins";
   fetalWeightGram?: number;

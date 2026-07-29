@@ -1,8 +1,16 @@
 import type { MealItem, MealPlan, MealPlanDay, ShoppingList } from "@/types/mealPlan";
-import type { CuisinePreference, HealthCondition, NutritionGoal, PregnancyProfile } from "@/types/pregnancy";
+import type { CuisinePreference, HealthCondition, NutritionGoal, PregnancyProfile, ResidenceCountryCode } from "@/types/pregnancy";
 import type { Locale } from "@/lib/i18n";
 import { calculateBmi, getBmiCategory } from "./bmi";
-import { breakfastMeals, mainMeals, type MealRecord, type MealTag, snackMeals } from "./mealDatabase";
+import {
+  breakfastMeals,
+  findMealRecordByName,
+  flattenMealIngredients,
+  mainMeals,
+  type MealRecord,
+  type MealTag,
+  snackMeals
+} from "./mealDatabase";
 import {
   detectUrgentWarnings,
   ENGLISH_MEDICAL_DISCLAIMER,
@@ -10,12 +18,20 @@ import {
   getGeneralPregnancyFoodWarnings,
   MEDICAL_DISCLAIMER
 } from "./safetyRules";
-import { estimateShoppingListCostVnd, groceryPriceGuideUpdatedAt, groceryPriceNote, groceryPriceSources } from "./priceGuide";
+import { estimateMealCostForCountry, estimateShoppingListCost } from "./priceGuide";
+import { getCountryPricing, DEFAULT_RESIDENCE_COUNTRY } from "./countries";
+import { localizeIngredientList, localizeMealText } from "./mealLocales";
 import { getWeightGainStatus } from "./weightGain";
 
 type PoolName = "breakfast" | "main" | "snack";
 
+function resolveResidenceCountry(profile: PregnancyProfile): ResidenceCountryCode {
+  return profile.residenceCountry ?? DEFAULT_RESIDENCE_COUNTRY;
+}
+
 export function ruleBasedMealPlanner(profile: PregnancyProfile, locale: Locale = "vi"): MealPlan {
+  const countryCode = resolveResidenceCountry(profile);
+  const country = getCountryPricing(countryCode);
   const bmi = calculateBmi(profile.prePregnancyWeightKg, profile.heightCm);
   const bmiCategory = getBmiCategory(bmi);
   const weightGainKg = Number((profile.currentWeightKg - profile.prePregnancyWeightKg).toFixed(1));
@@ -33,23 +49,31 @@ export function ruleBasedMealPlanner(profile: PregnancyProfile, locale: Locale =
 
     return {
       day: index + 1,
-      breakfast: toMealItem(breakfast, "breakfast", profile),
-      morningSnack: toMealItem(morningSnack, "snack", profile),
-      lunch: toMealItem(lunch, "main", profile),
-      afternoonSnack: toMealItem(afternoonSnack, "snack", profile),
-      dinner: toMealItem(dinner, "main", profile),
+      breakfast: toMealItem(breakfast, "breakfast", profile, locale, countryCode),
+      morningSnack: toMealItem(morningSnack, "snack", profile, locale, countryCode),
+      lunch: toMealItem(lunch, "main", profile, locale, countryCode),
+      afternoonSnack: toMealItem(afternoonSnack, "snack", profile, locale, countryCode),
+      dinner: toMealItem(dinner, "main", profile, locale, countryCode),
       hydrationNote:
         locale === "vi"
           ? "Uống nước đều trong ngày; thêm trái cây tươi nguyên miếng nếu không có chống chỉ định."
           : "Drink water steadily through the day; add whole fresh fruit if you have no contraindication.",
-      dailyShoppingList: buildShoppingList(dayItems.map((meal) => toMealItem(meal, "main", profile)))
+      dailyShoppingList: localizeShoppingList(buildShoppingList(dayItems), locale)
     };
   });
+
+  const rawShoppingList = buildShoppingList(
+    days.flatMap((day) =>
+      [day.breakfast, day.morningSnack, day.lunch, day.afternoonSnack, day.dinner]
+        .map((item) => findMealRecordByName(item.mealId ?? item.name))
+        .filter(Boolean) as MealRecord[]
+    )
+  );
 
   return {
     id: createPlanId(),
     createdAt: new Date().toISOString(),
-    profileSnapshot: profile,
+    profileSnapshot: { ...profile, residenceCountry: countryCode },
     summary: {
       bmi,
       bmiCategory,
@@ -59,12 +83,14 @@ export function ruleBasedMealPlanner(profile: PregnancyProfile, locale: Locale =
       disclaimer: locale === "vi" ? MEDICAL_DISCLAIMER : ENGLISH_MEDICAL_DISCLAIMER
     },
     days,
-    shoppingList: buildShoppingList(days.flatMap((day) => [day.breakfast, day.morningSnack, day.lunch, day.afternoonSnack, day.dinner])),
-    shoppingBatches: buildShoppingBatches(days, locale),
+    shoppingList: localizeShoppingList(rawShoppingList, locale),
+    shoppingBatches: buildShoppingBatches(days, locale, countryCode),
     costEstimate: {
-      sourceNames: [...groceryPriceSources],
-      updatedAt: groceryPriceGuideUpdatedAt,
-      note: groceryPriceNote
+      countryCode: country.code,
+      currency: country.currency,
+      sourceNames: [...country.sources],
+      updatedAt: country.updatedAt,
+      note: country.note[locale]
     },
     safetyWarnings: [...getGeneralPregnancyFoodWarnings(locale), ...getConditionSpecificWarnings(profile, locale)],
     specialNotes: getConditionSpecificWarnings(profile, locale),
@@ -72,7 +98,11 @@ export function ruleBasedMealPlanner(profile: PregnancyProfile, locale: Locale =
   };
 }
 
-function buildShoppingBatches(days: MealPlan["days"], locale: Locale): MealPlan["shoppingBatches"] {
+function buildShoppingBatches(
+  days: MealPlan["days"],
+  locale: Locale,
+  countryCode: ResidenceCountryCode
+): MealPlan["shoppingBatches"] {
   const ranges =
     locale === "vi"
       ? [
@@ -88,10 +118,20 @@ function buildShoppingBatches(days: MealPlan["days"], locale: Locale): MealPlan[
 
   return ranges.map((range) => {
     const selectedDays = days.filter((day) => range.days.includes(day.day));
+    const rawList = mergeShoppingLists(
+      selectedDays.map((day) => {
+        const meals = [day.breakfast, day.morningSnack, day.lunch, day.afternoonSnack, day.dinner]
+          .map((item) => findMealRecordByName(item.mealId ?? item.name))
+          .filter(Boolean) as MealRecord[];
+        return buildShoppingList(meals);
+      })
+    );
+    const estimatedCost = estimateShoppingListCost(rawList, countryCode);
     return {
       ...range,
-      shoppingList: mergeShoppingLists(selectedDays.map((day) => day.dailyShoppingList)),
-      estimatedCostVnd: estimateShoppingListCostVnd(mergeShoppingLists(selectedDays.map((day) => day.dailyShoppingList)))
+      shoppingList: localizeShoppingList(rawList, locale),
+      estimatedCost,
+      estimatedCostVnd: countryCode === "VN" ? estimatedCost : undefined
     };
   });
 }
@@ -114,9 +154,9 @@ function chooseMeal(pool: PoolName, profile: PregnancyProfile, used: Set<string>
     .sort((a, b) => scoreMeal(b, profile) - scoreMeal(a, profile));
 
   const candidates = filtered.length > 0 ? filtered : source;
-  const firstUnused = candidates.find((meal) => !used.has(meal.name));
+  const firstUnused = candidates.find((meal) => !used.has(meal.id));
   const selected = firstUnused ?? candidates[offset % candidates.length];
-  used.add(selected.name);
+  used.add(selected.id);
   return selected;
 }
 
@@ -210,32 +250,44 @@ function goalToTags(goal: NutritionGoal): MealTag[] {
   return tags[goal];
 }
 
-function toMealItem(meal: MealRecord, pool: PoolName, profile: PregnancyProfile): MealItem {
+function toMealItem(
+  meal: MealRecord,
+  pool: PoolName,
+  profile: PregnancyProfile,
+  locale: Locale,
+  countryCode: ResidenceCountryCode
+): MealItem {
   const source = pool === "breakfast" ? breakfastMeals : pool === "snack" ? snackMeals : mainMeals;
-  const alternatives = source
-    .filter((candidate) => candidate.name !== meal.name && isAllowedByPreferences(candidate, profile))
-    .slice(0, 2)
-    .map((candidate) => candidate.name);
-
-  return {
-    name: meal.name,
+  const localized = localizeMealText(meal.id, locale, {
     reason: meal.reason,
     nutrients: meal.nutrients,
+    caution: meal.caution
+  });
+  const alternatives = source
+    .filter((candidate) => candidate.id !== meal.id && isAllowedByPreferences(candidate, profile))
+    .slice(0, 2)
+    .map((candidate) => localizeMealText(candidate.id, locale, { reason: candidate.reason, nutrients: candidate.nutrients }).name);
+
+  const estimatedCost = estimateMealCostForCountry(flattenMealIngredients(meal), meal.portionGram, countryCode);
+
+  return {
+    mealId: meal.id,
+    name: localized.name,
+    reason: localized.reason,
+    nutrients: localized.nutrients,
     portionGram: meal.portionGram,
     estimatedCalories: meal.estimatedCalories,
-    estimatedCostVnd: meal.estimatedCostVnd,
+    estimatedCost,
+    estimatedCostVnd: countryCode === "VN" ? estimatedCost : undefined,
     alternatives,
-    caution: meal.caution
+    caution: localized.caution
   };
 }
 
-function buildShoppingList(items: MealItem[]): ShoppingList {
-  const allMeals = [...breakfastMeals, ...mainMeals, ...snackMeals];
+function buildShoppingList(items: MealRecord[]): ShoppingList {
   const shoppingList: ShoppingList = { proteins: [], vegetables: [], fruits: [], dairy: [], grains: [], others: [] };
 
-  for (const item of items) {
-    const meal = allMeals.find((candidate) => candidate.name === item.name);
-    if (!meal) continue;
+  for (const meal of items) {
     for (const key of Object.keys(shoppingList) as (keyof ShoppingList)[]) {
       shoppingList[key].push(...(meal.ingredients[key] ?? []));
     }
@@ -244,6 +296,17 @@ function buildShoppingList(items: MealItem[]): ShoppingList {
   return Object.fromEntries(
     Object.entries(shoppingList).map(([key, values]) => [key, uniqueSorted(values)])
   ) as ShoppingList;
+}
+
+function localizeShoppingList(list: ShoppingList, locale: Locale): ShoppingList {
+  return {
+    proteins: localizeIngredientList(list.proteins, locale),
+    vegetables: localizeIngredientList(list.vegetables, locale),
+    fruits: localizeIngredientList(list.fruits, locale),
+    dairy: localizeIngredientList(list.dairy, locale),
+    grains: localizeIngredientList(list.grains, locale),
+    others: localizeIngredientList(list.others, locale)
+  };
 }
 
 function uniqueSorted(values: string[]) {
@@ -294,14 +357,15 @@ export function regenerateMealInPlan(
   mealSlot: MealSlot,
   locale: Locale = "vi"
 ): MealPlan {
+  const countryCode = resolveResidenceCountry(profile);
   const used = new Set<string>();
   for (const day of plan.days) {
     for (const slot of ["breakfast", "morningSnack", "lunch", "afternoonSnack", "dinner"] as const) {
       if (day.day === dayNumber && slot === mealSlot) continue;
-      used.add(day[slot].name);
+      used.add(day[slot].mealId ?? day[slot].name);
     }
   }
-  used.add(plan.days.find((d) => d.day === dayNumber)?.[mealSlot].name ?? "");
+  used.add(plan.days.find((d) => d.day === dayNumber)?.[mealSlot].mealId ?? plan.days.find((d) => d.day === dayNumber)?.[mealSlot].name ?? "");
 
   const pool: PoolName =
     mealSlot === "breakfast" ? "breakfast" : mealSlot === "morningSnack" || mealSlot === "afternoonSnack" ? "snack" : "main";
@@ -309,16 +373,34 @@ export function regenerateMealInPlan(
 
   const days = plan.days.map((day) => {
     if (day.day !== dayNumber) return day;
-    const nextDay = { ...day, [mealSlot]: toMealItem(replacement, pool, profile) };
-    const dayMeals = [nextDay.breakfast, nextDay.morningSnack, nextDay.lunch, nextDay.afternoonSnack, nextDay.dinner];
-    return { ...nextDay, dailyShoppingList: buildShoppingList(dayMeals) };
+    const nextDay = { ...day, [mealSlot]: toMealItem(replacement, pool, profile, locale, countryCode) };
+    const dayMeals = [nextDay.breakfast, nextDay.morningSnack, nextDay.lunch, nextDay.afternoonSnack, nextDay.dinner]
+      .map((item) => findMealRecordByName(item.mealId ?? item.name))
+      .filter(Boolean) as MealRecord[];
+    return { ...nextDay, dailyShoppingList: localizeShoppingList(buildShoppingList(dayMeals), locale) };
   });
 
+  const country = getCountryPricing(countryCode);
   return {
     ...plan,
-    profileSnapshot: profile,
+    profileSnapshot: { ...profile, residenceCountry: countryCode },
     days,
-    shoppingList: buildShoppingList(days.flatMap((day) => [day.breakfast, day.morningSnack, day.lunch, day.afternoonSnack, day.dinner])),
-    shoppingBatches: buildShoppingBatches(days, locale)
+    shoppingList: localizeShoppingList(
+      buildShoppingList(
+        days
+          .flatMap((day) => [day.breakfast, day.morningSnack, day.lunch, day.afternoonSnack, day.dinner])
+          .map((item) => findMealRecordByName(item.mealId ?? item.name))
+          .filter(Boolean) as MealRecord[]
+      ),
+      locale
+    ),
+    shoppingBatches: buildShoppingBatches(days, locale, countryCode),
+    costEstimate: {
+      countryCode: country.code,
+      currency: country.currency,
+      sourceNames: [...country.sources],
+      updatedAt: country.updatedAt,
+      note: country.note[locale]
+    }
   };
 }

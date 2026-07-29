@@ -15,13 +15,15 @@ import { pregnancyProfileSchema, validationErrorToLocale } from "@/lib/nutrition
 import { saveMealPlan, saveProfile, getProfile } from "@/lib/storage/localStorage";
 import { cacheOfflineSnapshot, incrementPlanCount } from "@/lib/storage/offlineCache";
 import { localizedPath, type Locale } from "@/lib/i18n";
-import type { CuisinePreference, HealthCondition, NutritionGoal, PregnancyProfile } from "@/types/pregnancy";
+import type { CuisinePreference, HealthCondition, NutritionGoal, PregnancyProfile, ResidenceCountryCode } from "@/types/pregnancy";
+import { residenceCountries } from "@/lib/nutrition/countries";
 
 const PLAN_NOTICE_KEY = "bau-an-gi:plan-notice";
 
 const defaultProfile: PregnancyProfile = {
   lifeStage: "pregnancy",
   strictGestationalDiabetes: false,
+  residenceCountry: "VN",
   pregnancyWeek: 20,
   pregnancyType: "singleton",
   heightCm: 160,
@@ -60,6 +62,7 @@ const copy = {
     dislikedFoods: "Món không thích",
     budgetTime: "Ngân sách và thời gian nấu",
     budget: "Ngân sách",
+    residenceCountry: "Nơi ở / mua sắm",
     cookingTime: "Thời gian nấu",
     goals: "Mục tiêu",
     saved: "Đã lưu hồ sơ trên trình duyệt này.",
@@ -99,6 +102,7 @@ const copy = {
     dislikedFoods: "Foods you dislike",
     budgetTime: "Budget and cooking time",
     budget: "Budget",
+    residenceCountry: "Where you live / shop",
     cookingTime: "Cooking time",
     goals: "Goals",
     saved: "Profile saved in this browser.",
@@ -320,6 +324,12 @@ export function PlannerForm({ mode = "planner", locale = "vi" }: { mode?: "plann
 
         {step === 4 && (
           <Step title={t.budgetTime}>
+            <SelectField
+              label={t.residenceCountry}
+              value={profile.residenceCountry ?? "VN"}
+              onChange={(value) => update("residenceCountry", value as ResidenceCountryCode)}
+              options={residenceCountries.map((country) => [country.code, country.labels[locale]] as [string, string])}
+            />
             <SelectField label={t.budget} value={profile.budget} onChange={(value) => update("budget", value as PregnancyProfile["budget"])} options={Object.entries(labels.budgetLabels)} />
             <SelectField label={t.cookingTime} value={profile.cookingTime} onChange={(value) => update("cookingTime", value as PregnancyProfile["cookingTime"])} options={Object.entries(labels.cookingTimeLabels)} />
             <div>

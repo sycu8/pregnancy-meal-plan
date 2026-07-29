@@ -41,6 +41,10 @@ export const pregnancyProfileSchema = z.object({
   ),
   dislikedFoods: z.string().optional(),
   allergies: z.string().optional(),
+  residenceCountry: z
+    .enum(["VN", "US", "JP", "KR", "SG", "AU", "GB", "CA", "DE", "FR", "TH", "MY", "TW"])
+    .optional()
+    .default("VN"),
   budget: z.enum(["low", "medium", "high"]),
   cookingTime: z.enum(["under_15", "around_30", "meal_prep"]),
   goals: z.array(

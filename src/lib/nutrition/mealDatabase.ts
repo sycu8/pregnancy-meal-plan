@@ -21,6 +21,8 @@ export type MealTag =
   | "low_glycemic";
 
 export type MealRecord = MealItem & {
+  /** Stable Vietnamese name used as internal key / matching id. */
+  id: string;
   tags: MealTag[];
   ingredients: {
     proteins?: string[];
@@ -112,14 +114,17 @@ function meal(
   caution = safeCooked
 ): MealRecord {
   const estimates = estimateMealPortion(name, tags);
-  const estimatedCostVnd = estimateMealCost(ingredients, estimates.portionGram);
+  /** Baseline VN cost; planner recalculates for the selected residence country. */
+  const estimatedCost = estimateMealCost(ingredients, estimates.portionGram);
   const record: MealRecord = {
+    id: name,
     name,
     reason,
     nutrients,
     portionGram: estimates.portionGram,
     estimatedCalories: estimates.estimatedCalories,
-    estimatedCostVnd,
+    estimatedCost,
+    estimatedCostVnd: estimatedCost,
     alternatives: [],
     caution,
     tags,
@@ -184,4 +189,21 @@ for (const pool of [breakfastMeals, mainMeals, snackMeals]) {
       meal.tags.push("low_glycemic");
     }
   }
+}
+
+export function flattenMealIngredients(meal: MealRecord): string[] {
+  return [
+    ...(meal.ingredients.proteins ?? []),
+    ...(meal.ingredients.vegetables ?? []),
+    ...(meal.ingredients.fruits ?? []),
+    ...(meal.ingredients.dairy ?? []),
+    ...(meal.ingredients.grains ?? []),
+    ...(meal.ingredients.others ?? [])
+  ];
+}
+
+export function findMealRecordByName(name: string): MealRecord | undefined {
+  return [...breakfastMeals, ...mainMeals, ...snackMeals].find(
+    (candidate) => candidate.id === name || candidate.name === name
+  );
 }

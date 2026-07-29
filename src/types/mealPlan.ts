@@ -33,12 +33,18 @@ export type MealPlanDay = {
 };
 
 export type MealItem = {
+  /** Stable Vietnamese meal id used for matching / regeneration. */
+  mealId?: string;
+  /** Localized display name (English-first content, then Vietnamese). */
   name: string;
   reason: string;
   nutrients: string[];
   portionGram: number;
   estimatedCalories: number;
-  estimatedCostVnd: number;
+  /** Estimated cost in the plan's local currency (see costEstimate.currency). */
+  estimatedCost: number;
+  /** @deprecated Prefer estimatedCost; kept for older saved plans. */
+  estimatedCostVnd?: number;
   alternatives?: string[];
   caution?: string;
 };
@@ -57,10 +63,15 @@ export type ShoppingBatch = {
   days: number[];
   shoppingList: ShoppingList;
   freshnessNote: string;
-  estimatedCostVnd: number;
+  /** Estimated cost in the plan's local currency (see costEstimate.currency). */
+  estimatedCost: number;
+  /** @deprecated Prefer estimatedCost; kept for older saved plans. */
+  estimatedCostVnd?: number;
 };
 
 export type CostEstimate = {
+  countryCode: string;
+  currency: string;
   sourceNames: string[];
   updatedAt: string;
   note: string;
