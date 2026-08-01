@@ -78,6 +78,7 @@ import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks71617d from "../../../con
 import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks87deb1 from "../../../content/blog/posts/n-7-day-pregnancy-meal-plan-balanced-plates-for-busy-weeks-87deb1.json";
 import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks888fe5 from "../../../content/blog/posts/n-7-day-pregnancy-meal-plan-balanced-plates-for-busy-weeks-888fe5.json";
 import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks9660a3 from "../../../content/blog/posts/n-7-day-pregnancy-meal-plan-balanced-plates-for-busy-weeks-9660a3.json";
+import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeksA55f4c from "../../../content/blog/posts/n-7-day-pregnancy-meal-plan-balanced-plates-for-busy-weeks-a55f4c.json";
 import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeksB7bf92 from "../../../content/blog/posts/n-7-day-pregnancy-meal-plan-balanced-plates-for-busy-weeks-b7bf92.json";
 import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeksD00e1e from "../../../content/blog/posts/n-7-day-pregnancy-meal-plan-balanced-plates-for-busy-weeks-d00e1e.json";
 import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeksE35656 from "../../../content/blog/posts/n-7-day-pregnancy-meal-plan-balanced-plates-for-busy-weeks-e35656.json";
@@ -246,6 +247,7 @@ export const postManifest: BlogPost[] = [
   n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks87deb1,
   n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks888fe5,
   n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks9660a3,
+  n7DayPregnancyMealPlanBalancedPlatesForBusyWeeksA55f4c,
   n7DayPregnancyMealPlanBalancedPlatesForBusyWeeksB7bf92,
   n7DayPregnancyMealPlanBalancedPlatesForBusyWeeksD00e1e,
   n7DayPregnancyMealPlanBalancedPlatesForBusyWeeksE35656,
