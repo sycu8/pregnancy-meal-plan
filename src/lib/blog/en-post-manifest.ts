@@ -30,6 +30,7 @@ import dinhDuongTre1224Thang from "../../../content/blog/posts-en/dinh-duong-tre
 import dungNhauDongLanhSauSinh from "../../../content/blog/posts-en/dung-nhau-dong-lanh-sau-sinh.json";
 import firstTrimesterNutritionChecklistFolateIronAndSaferFoods0ba5d6 from "../../../content/blog/posts-en/first-trimester-nutrition-checklist-folate-iron-and-safer-foods-0ba5d6.json";
 import firstTrimesterNutritionChecklistFolateIronAndSaferFoods22a3c7 from "../../../content/blog/posts-en/first-trimester-nutrition-checklist-folate-iron-and-safer-foods-22a3c7.json";
+import firstTrimesterNutritionChecklistFolateIronAndSaferFoods29cb93 from "../../../content/blog/posts-en/first-trimester-nutrition-checklist-folate-iron-and-safer-foods-29cb93.json";
 import firstTrimesterNutritionChecklistFolateIronAndSaferFoods2b1436 from "../../../content/blog/posts-en/first-trimester-nutrition-checklist-folate-iron-and-safer-foods-2b1436.json";
 import firstTrimesterNutritionChecklistFolateIronAndSaferFoods2b6c25 from "../../../content/blog/posts-en/first-trimester-nutrition-checklist-folate-iron-and-safer-foods-2b6c25.json";
 import firstTrimesterNutritionChecklistFolateIronAndSaferFoods36473a from "../../../content/blog/posts-en/first-trimester-nutrition-checklist-folate-iron-and-safer-foods-36473a.json";
@@ -69,6 +70,7 @@ import messageFromTheMinisterOfMentalHealthAndAddictionsAndAssociateMinister fro
 import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks00e23a from "../../../content/blog/posts-en/n-7-day-pregnancy-meal-plan-balanced-plates-for-busy-weeks-00e23a.json";
 import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks03c4c6 from "../../../content/blog/posts-en/n-7-day-pregnancy-meal-plan-balanced-plates-for-busy-weeks-03c4c6.json";
 import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks101bfe from "../../../content/blog/posts-en/n-7-day-pregnancy-meal-plan-balanced-plates-for-busy-weeks-101bfe.json";
+import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks15f1e6 from "../../../content/blog/posts-en/n-7-day-pregnancy-meal-plan-balanced-plates-for-busy-weeks-15f1e6.json";
 import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks16ec2f from "../../../content/blog/posts-en/n-7-day-pregnancy-meal-plan-balanced-plates-for-busy-weeks-16ec2f.json";
 import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks2088bc from "../../../content/blog/posts-en/n-7-day-pregnancy-meal-plan-balanced-plates-for-busy-weeks-2088bc.json";
 import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks362648 from "../../../content/blog/posts-en/n-7-day-pregnancy-meal-plan-balanced-plates-for-busy-weeks-362648.json";
@@ -202,6 +204,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   dungNhauDongLanhSauSinh,
   firstTrimesterNutritionChecklistFolateIronAndSaferFoods0ba5d6,
   firstTrimesterNutritionChecklistFolateIronAndSaferFoods22a3c7,
+  firstTrimesterNutritionChecklistFolateIronAndSaferFoods29cb93,
   firstTrimesterNutritionChecklistFolateIronAndSaferFoods2b1436,
   firstTrimesterNutritionChecklistFolateIronAndSaferFoods2b6c25,
   firstTrimesterNutritionChecklistFolateIronAndSaferFoods36473a,
@@ -241,6 +244,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks00e23a,
   n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks03c4c6,
   n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks101bfe,
+  n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks15f1e6,
   n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks16ec2f,
   n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks2088bc,
   n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks362648,
