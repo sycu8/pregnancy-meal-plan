@@ -43,6 +43,7 @@ import firstTrimesterNutritionChecklistFolateIronAndSaferFoods63bf6c from "../..
 import firstTrimesterNutritionChecklistFolateIronAndSaferFoods63fd02 from "../../../content/blog/posts-en/first-trimester-nutrition-checklist-folate-iron-and-safer-foods-63fd02.json";
 import firstTrimesterNutritionChecklistFolateIronAndSaferFoods7ff0d7 from "../../../content/blog/posts-en/first-trimester-nutrition-checklist-folate-iron-and-safer-foods-7ff0d7.json";
 import firstTrimesterNutritionChecklistFolateIronAndSaferFoods82093e from "../../../content/blog/posts-en/first-trimester-nutrition-checklist-folate-iron-and-safer-foods-82093e.json";
+import firstTrimesterNutritionChecklistFolateIronAndSaferFoods8fdc45 from "../../../content/blog/posts-en/first-trimester-nutrition-checklist-folate-iron-and-safer-foods-8fdc45.json";
 import firstTrimesterNutritionChecklistFolateIronAndSaferFoods92c70b from "../../../content/blog/posts-en/first-trimester-nutrition-checklist-folate-iron-and-safer-foods-92c70b.json";
 import firstTrimesterNutritionChecklistFolateIronAndSaferFoodsA81ee3 from "../../../content/blog/posts-en/first-trimester-nutrition-checklist-folate-iron-and-safer-foods-a81ee3.json";
 import firstTrimesterNutritionChecklistFolateIronAndSaferFoodsB06585 from "../../../content/blog/posts-en/first-trimester-nutrition-checklist-folate-iron-and-safer-foods-b06585.json";
@@ -95,6 +96,7 @@ import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeksB94195 from "../../../con
 import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeksB984a0 from "../../../content/blog/posts-en/n-7-day-pregnancy-meal-plan-balanced-plates-for-busy-weeks-b984a0.json";
 import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeksC318d3 from "../../../content/blog/posts-en/n-7-day-pregnancy-meal-plan-balanced-plates-for-busy-weeks-c318d3.json";
 import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeksD00e1e from "../../../content/blog/posts-en/n-7-day-pregnancy-meal-plan-balanced-plates-for-busy-weeks-d00e1e.json";
+import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeksD3f529 from "../../../content/blog/posts-en/n-7-day-pregnancy-meal-plan-balanced-plates-for-busy-weeks-d3f529.json";
 import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeksE35656 from "../../../content/blog/posts-en/n-7-day-pregnancy-meal-plan-balanced-plates-for-busy-weeks-e35656.json";
 import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeksE3fbd4 from "../../../content/blog/posts-en/n-7-day-pregnancy-meal-plan-balanced-plates-for-busy-weeks-e3fbd4.json";
 import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeksEda476 from "../../../content/blog/posts-en/n-7-day-pregnancy-meal-plan-balanced-plates-for-busy-weeks-eda476.json";
@@ -113,6 +115,7 @@ import nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsB83b30 from "../../
 import nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsBd43b6 from "../../../content/blog/posts-en/nausea-friendly-pregnancy-meals-that-still-cover-key-nutrients-bd43b6.json";
 import nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsC2fe61 from "../../../content/blog/posts-en/nausea-friendly-pregnancy-meals-that-still-cover-key-nutrients-c2fe61.json";
 import nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsC58fd9 from "../../../content/blog/posts-en/nausea-friendly-pregnancy-meals-that-still-cover-key-nutrients-c58fd9.json";
+import nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsCd5a14 from "../../../content/blog/posts-en/nausea-friendly-pregnancy-meals-that-still-cover-key-nutrients-cd5a14.json";
 import nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsEc9732 from "../../../content/blog/posts-en/nausea-friendly-pregnancy-meals-that-still-cover-key-nutrients-ec9732.json";
 import nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrients from "../../../content/blog/posts-en/nausea-friendly-pregnancy-meals-that-still-cover-key-nutrients.json";
 import nghenNangAnUongVaDieuTri from "../../../content/blog/posts-en/nghen-nang-an-uong-va-dieu-tri.json";
@@ -230,6 +233,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   firstTrimesterNutritionChecklistFolateIronAndSaferFoods63fd02,
   firstTrimesterNutritionChecklistFolateIronAndSaferFoods7ff0d7,
   firstTrimesterNutritionChecklistFolateIronAndSaferFoods82093e,
+  firstTrimesterNutritionChecklistFolateIronAndSaferFoods8fdc45,
   firstTrimesterNutritionChecklistFolateIronAndSaferFoods92c70b,
   firstTrimesterNutritionChecklistFolateIronAndSaferFoodsA81ee3,
   firstTrimesterNutritionChecklistFolateIronAndSaferFoodsB06585,
@@ -282,6 +286,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   n7DayPregnancyMealPlanBalancedPlatesForBusyWeeksB984a0,
   n7DayPregnancyMealPlanBalancedPlatesForBusyWeeksC318d3,
   n7DayPregnancyMealPlanBalancedPlatesForBusyWeeksD00e1e,
+  n7DayPregnancyMealPlanBalancedPlatesForBusyWeeksD3f529,
   n7DayPregnancyMealPlanBalancedPlatesForBusyWeeksE35656,
   n7DayPregnancyMealPlanBalancedPlatesForBusyWeeksE3fbd4,
   n7DayPregnancyMealPlanBalancedPlatesForBusyWeeksEda476,
@@ -300,6 +305,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsBd43b6,
   nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsC2fe61,
   nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsC58fd9,
+  nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsCd5a14,
   nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsEc9732,
   nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrients,
   nghenNangAnUongVaDieuTri,
