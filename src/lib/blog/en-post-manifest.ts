@@ -54,12 +54,14 @@ import firstTrimesterNutritionChecklistFolateIronAndSaferFoodsCb63b7 from "../..
 import firstTrimesterNutritionChecklistFolateIronAndSaferFoodsCd6712 from "../../../content/blog/posts-en/first-trimester-nutrition-checklist-folate-iron-and-safer-foods-cd6712.json";
 import firstTrimesterNutritionChecklistFolateIronAndSaferFoodsD3326d from "../../../content/blog/posts-en/first-trimester-nutrition-checklist-folate-iron-and-safer-foods-d3326d.json";
 import firstTrimesterNutritionChecklistFolateIronAndSaferFoodsD94cef from "../../../content/blog/posts-en/first-trimester-nutrition-checklist-folate-iron-and-safer-foods-d94cef.json";
+import firstTrimesterNutritionChecklistFolateIronAndSaferFoodsFaf998 from "../../../content/blog/posts-en/first-trimester-nutrition-checklist-folate-iron-and-safer-foods-faf998.json";
 import firstTrimesterNutritionChecklistFolateIronAndSaferFoods from "../../../content/blog/posts-en/first-trimester-nutrition-checklist-folate-iron-and-safer-foods.json";
 import gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiber05d5b8 from "../../../content/blog/posts-en/gestational-diabetes-meal-ideas-balanced-carbs-protein-and-fiber-05d5b8.json";
 import gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiber26a70b from "../../../content/blog/posts-en/gestational-diabetes-meal-ideas-balanced-carbs-protein-and-fiber-26a70b.json";
 import gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiber4a2062 from "../../../content/blog/posts-en/gestational-diabetes-meal-ideas-balanced-carbs-protein-and-fiber-4a2062.json";
 import gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiber54e553 from "../../../content/blog/posts-en/gestational-diabetes-meal-ideas-balanced-carbs-protein-and-fiber-54e553.json";
 import gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiber79c9a0 from "../../../content/blog/posts-en/gestational-diabetes-meal-ideas-balanced-carbs-protein-and-fiber-79c9a0.json";
+import gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiber855cc8 from "../../../content/blog/posts-en/gestational-diabetes-meal-ideas-balanced-carbs-protein-and-fiber-855cc8.json";
 import gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiber from "../../../content/blog/posts-en/gestational-diabetes-meal-ideas-balanced-carbs-protein-and-fiber.json";
 import giacNguKhiMangThai from "../../../content/blog/posts-en/giac-ngu-khi-mang-thai.json";
 import giaiDapThacMacSauSinhAnDaDayLonDuocKhong from "../../../content/blog/posts-en/giai-dap-thac-mac-sau-sinh-an-da-day-lon-duoc-khong.json";
@@ -86,6 +88,7 @@ import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks16ec2f from "../../../con
 import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks2088bc from "../../../content/blog/posts-en/n-7-day-pregnancy-meal-plan-balanced-plates-for-busy-weeks-2088bc.json";
 import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks362648 from "../../../content/blog/posts-en/n-7-day-pregnancy-meal-plan-balanced-plates-for-busy-weeks-362648.json";
 import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks401269 from "../../../content/blog/posts-en/n-7-day-pregnancy-meal-plan-balanced-plates-for-busy-weeks-401269.json";
+import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks4c4002 from "../../../content/blog/posts-en/n-7-day-pregnancy-meal-plan-balanced-plates-for-busy-weeks-4c4002.json";
 import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks553284 from "../../../content/blog/posts-en/n-7-day-pregnancy-meal-plan-balanced-plates-for-busy-weeks-553284.json";
 import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks5b86b6 from "../../../content/blog/posts-en/n-7-day-pregnancy-meal-plan-balanced-plates-for-busy-weeks-5b86b6.json";
 import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks684b1f from "../../../content/blog/posts-en/n-7-day-pregnancy-meal-plan-balanced-plates-for-busy-weeks-684b1f.json";
@@ -125,6 +128,7 @@ import nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsC58fd9 from "../../
 import nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsCd5a14 from "../../../content/blog/posts-en/nausea-friendly-pregnancy-meals-that-still-cover-key-nutrients-cd5a14.json";
 import nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsEc9732 from "../../../content/blog/posts-en/nausea-friendly-pregnancy-meals-that-still-cover-key-nutrients-ec9732.json";
 import nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsFad36f from "../../../content/blog/posts-en/nausea-friendly-pregnancy-meals-that-still-cover-key-nutrients-fad36f.json";
+import nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsFbdc89 from "../../../content/blog/posts-en/nausea-friendly-pregnancy-meals-that-still-cover-key-nutrients-fbdc89.json";
 import nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrients from "../../../content/blog/posts-en/nausea-friendly-pregnancy-meals-that-still-cover-key-nutrients.json";
 import nghenNangAnUongVaDieuTri from "../../../content/blog/posts-en/nghen-nang-an-uong-va-dieu-tri.json";
 import nguyenNhanVaCachGiamDauXuongMuKhiMangThai73283 from "../../../content/blog/posts-en/nguyen-nhan-va-cach-giam-dau-xuong-mu-khi-mang-thai-73283.json";
@@ -252,12 +256,14 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   firstTrimesterNutritionChecklistFolateIronAndSaferFoodsCd6712,
   firstTrimesterNutritionChecklistFolateIronAndSaferFoodsD3326d,
   firstTrimesterNutritionChecklistFolateIronAndSaferFoodsD94cef,
+  firstTrimesterNutritionChecklistFolateIronAndSaferFoodsFaf998,
   firstTrimesterNutritionChecklistFolateIronAndSaferFoods,
   gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiber05d5b8,
   gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiber26a70b,
   gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiber4a2062,
   gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiber54e553,
   gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiber79c9a0,
+  gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiber855cc8,
   gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiber,
   giacNguKhiMangThai,
   giaiDapThacMacSauSinhAnDaDayLonDuocKhong,
@@ -284,6 +290,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks2088bc,
   n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks362648,
   n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks401269,
+  n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks4c4002,
   n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks553284,
   n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks5b86b6,
   n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks684b1f,
@@ -323,6 +330,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsCd5a14,
   nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsEc9732,
   nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsFad36f,
+  nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsFbdc89,
   nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrients,
   nghenNangAnUongVaDieuTri,
   nguyenNhanVaCachGiamDauXuongMuKhiMangThai73283,
