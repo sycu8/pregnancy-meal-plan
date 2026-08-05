@@ -1,0 +1,19 @@
+{
+  "id": "26778cc339dc5134",
+  "sourceName": "Pregnancy Meal Planner Editorial",
+  "title": "Foods to limit or cook thoroughly during pregnancy",
+  "titleVi": "Thực phẩm mẹ bầu nên hạn chế hoặc nấu chín kỹ",
+  "url": "https://pregnancymeal.tips/blog/foods-to-limit-in-pregnancy",
+  "snippet": "Food-safety guidance inspired by CDC/NHS/FDA themes: deli meats, unpasteurized dairy, high-mercury fish, and undercooked foods.",
+  "snippetVi": "Gợi ý an toàn thực phẩm: thịt nguội, sữa chưa tiệt trùng, cá thủy ngân cao và đồ sống/tái.",
+  "fetchedAt": "2026-08-05T03:35:43.464Z",
+  "status": "published",
+  "note": "Re-queue incomplete bilingual post for AI rewrite (EN+VI required).",
+  "editorial": true,
+  "categoryHint": "dinh-duong-ba-bau",
+  "tagsHint": [
+    "food-safety",
+    "pregnancy"
+  ],
+  "slug": "foods-to-limit-or-cook-thoroughly-during-pregnancy"
+}
