@@ -1,0 +1,19 @@
+{
+  "id": "59ebebe3a20a3274",
+  "sourceName": "Pregnancy Meal Planner Editorial",
+  "title": "Omega-3 and DHA in pregnancy: food sources and supplement cautions",
+  "titleVi": "Omega-3 và DHA khi mang thai: nguồn thực phẩm và lưu ý viên uống",
+  "url": "https://pregnancymeal.tips/blog/omega-3-dha-pregnancy",
+  "snippet": "Why DHA matters for fetal development, low-mercury fish options, and when to ask a clinician about supplements.",
+  "snippetVi": "Vai trò DHA, cá ít thủy ngân và khi nào cần hỏi bác sĩ trước khi dùng viên uống.",
+  "fetchedAt": "2026-08-07T00:18:52.720Z",
+  "status": "published",
+  "note": "Re-queue incomplete bilingual post for AI rewrite (EN+VI required).",
+  "editorial": true,
+  "categoryHint": "dinh-duong-ba-bau",
+  "tagsHint": [
+    "omega-3",
+    "dha"
+  ],
+  "slug": "omega-3-and-dha-in-pregnancy-food-sources-and-supplement-cautions"
+}
