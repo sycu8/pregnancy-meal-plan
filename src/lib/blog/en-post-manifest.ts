@@ -76,6 +76,7 @@ import foodsToLimitOrCookThoroughlyDuringPregnancy35b88a from "../../../content/
 import foodsToLimitOrCookThoroughlyDuringPregnancy36272e from "../../../content/blog/posts-en/foods-to-limit-or-cook-thoroughly-during-pregnancy-36272e.json";
 import foodsToLimitOrCookThoroughlyDuringPregnancy41580d from "../../../content/blog/posts-en/foods-to-limit-or-cook-thoroughly-during-pregnancy-41580d.json";
 import foodsToLimitOrCookThoroughlyDuringPregnancy58680d from "../../../content/blog/posts-en/foods-to-limit-or-cook-thoroughly-during-pregnancy-58680d.json";
+import foodsToLimitOrCookThoroughlyDuringPregnancy5bdaac from "../../../content/blog/posts-en/foods-to-limit-or-cook-thoroughly-during-pregnancy-5bdaac.json";
 import foodsToLimitOrCookThoroughlyDuringPregnancy929948 from "../../../content/blog/posts-en/foods-to-limit-or-cook-thoroughly-during-pregnancy-929948.json";
 import foodsToLimitOrCookThoroughlyDuringPregnancyCf1d5a from "../../../content/blog/posts-en/foods-to-limit-or-cook-thoroughly-during-pregnancy-cf1d5a.json";
 import foodsToLimitOrCookThoroughlyDuringPregnancyEc2ea4 from "../../../content/blog/posts-en/foods-to-limit-or-cook-thoroughly-during-pregnancy-ec2ea4.json";
@@ -98,6 +99,7 @@ import gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiber97a4e3 from "../.
 import gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiberA8433b from "../../../content/blog/posts-en/gestational-diabetes-meal-ideas-balanced-carbs-protein-and-fiber-a8433b.json";
 import gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiberB5f73f from "../../../content/blog/posts-en/gestational-diabetes-meal-ideas-balanced-carbs-protein-and-fiber-b5f73f.json";
 import gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiberBd37fc from "../../../content/blog/posts-en/gestational-diabetes-meal-ideas-balanced-carbs-protein-and-fiber-bd37fc.json";
+import gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiberC37cf1 from "../../../content/blog/posts-en/gestational-diabetes-meal-ideas-balanced-carbs-protein-and-fiber-c37cf1.json";
 import gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiberE5208d from "../../../content/blog/posts-en/gestational-diabetes-meal-ideas-balanced-carbs-protein-and-fiber-e5208d.json";
 import gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiberFc4e98 from "../../../content/blog/posts-en/gestational-diabetes-meal-ideas-balanced-carbs-protein-and-fiber-fc4e98.json";
 import gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiber from "../../../content/blog/posts-en/gestational-diabetes-meal-ideas-balanced-carbs-protein-and-fiber.json";
@@ -108,6 +110,7 @@ import hoiPhucSauSinhMo from "../../../content/blog/posts-en/hoi-phuc-sau-sinh-m
 import howToRelievePostpartumBackPain from "../../../content/blog/posts-en/how-to-relieve-postpartum-back-pain.json";
 import hutSuaMeDungCach from "../../../content/blog/posts-en/hut-sua-me-dung-cach.json";
 import iotVaMuoiIOtKhiMangThai from "../../../content/blog/posts-en/iot-va-muoi-i-ot-khi-mang-thai.json";
+import ironRichPregnancyMealsWithVitaminCPairingTips from "../../../content/blog/posts-en/iron-rich-pregnancy-meals-with-vitamin-c-pairing-tips.json";
 import keHoachMangThaiTruocKhiThuThai from "../../../content/blog/posts-en/ke-hoach-mang-thai-truoc-khi-thu-thai.json";
 import kemVaMagieKhiMangThai from "../../../content/blog/posts-en/kem-va-magie-khi-mang-thai.json";
 import khamThaiLanDauTuanBaoNhieu from "../../../content/blog/posts-en/kham-thai-lan-dau-tuan-bao-nhieu.json";
@@ -185,6 +188,7 @@ import nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsCd5a14 from "../../
 import nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsCd9769 from "../../../content/blog/posts-en/nausea-friendly-pregnancy-meals-that-still-cover-key-nutrients-cd9769.json";
 import nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsD2e265 from "../../../content/blog/posts-en/nausea-friendly-pregnancy-meals-that-still-cover-key-nutrients-d2e265.json";
 import nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsD9899c from "../../../content/blog/posts-en/nausea-friendly-pregnancy-meals-that-still-cover-key-nutrients-d9899c.json";
+import nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsE8438b from "../../../content/blog/posts-en/nausea-friendly-pregnancy-meals-that-still-cover-key-nutrients-e8438b.json";
 import nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsEc9732 from "../../../content/blog/posts-en/nausea-friendly-pregnancy-meals-that-still-cover-key-nutrients-ec9732.json";
 import nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsFad36f from "../../../content/blog/posts-en/nausea-friendly-pregnancy-meals-that-still-cover-key-nutrients-fad36f.json";
 import nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsFbdc89 from "../../../content/blog/posts-en/nausea-friendly-pregnancy-meals-that-still-cover-key-nutrients-fbdc89.json";
@@ -196,6 +200,7 @@ import nhungDieuCanBietKhiMangThaiLanDauDeCaMeVaBeCungKhoeManhVi from "../../../
 import oOngNongKhiMangThai from "../../../content/blog/posts-en/o-ong-nong-khi-mang-thai.json";
 import omega3AndDhaInPregnancyFoodSourcesAndSupplementCautions835ae1 from "../../../content/blog/posts-en/omega-3-and-dha-in-pregnancy-food-sources-and-supplement-cautions-835ae1.json";
 import omega3AndDhaInPregnancyFoodSourcesAndSupplementCautions9a9cba from "../../../content/blog/posts-en/omega-3-and-dha-in-pregnancy-food-sources-and-supplement-cautions-9a9cba.json";
+import omega3AndDhaInPregnancyFoodSourcesAndSupplementCautionsAf7430 from "../../../content/blog/posts-en/omega-3-and-dha-in-pregnancy-food-sources-and-supplement-cautions-af7430.json";
 import omega3AndDhaInPregnancyFoodSourcesAndSupplementCautionsB98d55 from "../../../content/blog/posts-en/omega-3-and-dha-in-pregnancy-food-sources-and-supplement-cautions-b98d55.json";
 import omega3AndDhaInPregnancyFoodSourcesAndSupplementCautionsD2f8d7 from "../../../content/blog/posts-en/omega-3-and-dha-in-pregnancy-food-sources-and-supplement-cautions-d2f8d7.json";
 import omega3AndDhaInPregnancyFoodSourcesAndSupplementCautions from "../../../content/blog/posts-en/omega-3-and-dha-in-pregnancy-food-sources-and-supplement-cautions.json";
@@ -342,6 +347,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   foodsToLimitOrCookThoroughlyDuringPregnancy36272e,
   foodsToLimitOrCookThoroughlyDuringPregnancy41580d,
   foodsToLimitOrCookThoroughlyDuringPregnancy58680d,
+  foodsToLimitOrCookThoroughlyDuringPregnancy5bdaac,
   foodsToLimitOrCookThoroughlyDuringPregnancy929948,
   foodsToLimitOrCookThoroughlyDuringPregnancyCf1d5a,
   foodsToLimitOrCookThoroughlyDuringPregnancyEc2ea4,
@@ -364,6 +370,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiberA8433b,
   gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiberB5f73f,
   gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiberBd37fc,
+  gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiberC37cf1,
   gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiberE5208d,
   gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiberFc4e98,
   gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiber,
@@ -374,6 +381,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   howToRelievePostpartumBackPain,
   hutSuaMeDungCach,
   iotVaMuoiIOtKhiMangThai,
+  ironRichPregnancyMealsWithVitaminCPairingTips,
   keHoachMangThaiTruocKhiThuThai,
   kemVaMagieKhiMangThai,
   khamThaiLanDauTuanBaoNhieu,
@@ -451,6 +459,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsCd9769,
   nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsD2e265,
   nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsD9899c,
+  nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsE8438b,
   nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsEc9732,
   nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsFad36f,
   nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsFbdc89,
@@ -462,6 +471,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   oOngNongKhiMangThai,
   omega3AndDhaInPregnancyFoodSourcesAndSupplementCautions835ae1,
   omega3AndDhaInPregnancyFoodSourcesAndSupplementCautions9a9cba,
+  omega3AndDhaInPregnancyFoodSourcesAndSupplementCautionsAf7430,
   omega3AndDhaInPregnancyFoodSourcesAndSupplementCautionsB98d55,
   omega3AndDhaInPregnancyFoodSourcesAndSupplementCautionsD2f8d7,
   omega3AndDhaInPregnancyFoodSourcesAndSupplementCautions,
