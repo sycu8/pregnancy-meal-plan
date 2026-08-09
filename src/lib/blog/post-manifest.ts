@@ -119,6 +119,7 @@ import hoiChungOngCoTayKhiMangThai from "../../../content/blog/posts/hoi-chung-o
 import hoiPhucSauSinhMo from "../../../content/blog/posts/hoi-phuc-sau-sinh-mo.json";
 import howToRelievePostpartumBackPain from "../../../content/blog/posts/how-to-relieve-postpartum-back-pain.json";
 import hutSuaMeDungCach from "../../../content/blog/posts/hut-sua-me-dung-cach.json";
+import internationalPantryStaplesForPregnancyNutrition5c67fd from "../../../content/blog/posts/international-pantry-staples-for-pregnancy-nutrition-5c67fd.json";
 import internationalPantryStaplesForPregnancyNutrition from "../../../content/blog/posts/international-pantry-staples-for-pregnancy-nutrition.json";
 import iotVaMuoiIOtKhiMangThai from "../../../content/blog/posts/iot-va-muoi-i-ot-khi-mang-thai.json";
 import ironRichPregnancyMealsWithVitaminCPairingTips705210 from "../../../content/blog/posts/iron-rich-pregnancy-meals-with-vitamin-c-pairing-tips-705210.json";
@@ -238,6 +239,7 @@ import postpartumBreastfeedingNutrition from "../../../content/blog/posts/postpa
 import pregnancyChildbirthNewborn29318b from "../../../content/blog/posts/pregnancy-childbirth-newborn-29318b.json";
 import pregnancyChildbirthNewborn from "../../../content/blog/posts/pregnancy-childbirth-newborn.json";
 import pregnancyFoodSafetyAnalysisSushiSaladsBbqAndCheeseBoards from "../../../content/blog/posts/pregnancy-food-safety-analysis-sushi-salads-bbq-and-cheese-boards.json";
+import pregnancyRecipesIronAndFolateBowlsYouCanCookIn30Minutes7167df from "../../../content/blog/posts/pregnancy-recipes-iron-and-folate-bowls-you-can-cook-in-30-minutes-7167df.json";
 import pregnancyRecipesIronAndFolateBowlsYouCanCookIn30Minutes from "../../../content/blog/posts/pregnancy-recipes-iron-and-folate-bowls-you-can-cook-in-30-minutes.json";
 import pregnancySnackIdeas from "../../../content/blog/posts/pregnancy-snack-ideas.json";
 import proteinVaCholineKhiMangThai from "../../../content/blog/posts/protein-va-choline-khi-mang-thai.json";
@@ -415,6 +417,7 @@ export const postManifest: BlogPost[] = [
   hoiPhucSauSinhMo,
   howToRelievePostpartumBackPain,
   hutSuaMeDungCach,
+  internationalPantryStaplesForPregnancyNutrition5c67fd,
   internationalPantryStaplesForPregnancyNutrition,
   iotVaMuoiIOtKhiMangThai,
   ironRichPregnancyMealsWithVitaminCPairingTips705210,
@@ -534,6 +537,7 @@ export const postManifest: BlogPost[] = [
   pregnancyChildbirthNewborn29318b,
   pregnancyChildbirthNewborn,
   pregnancyFoodSafetyAnalysisSushiSaladsBbqAndCheeseBoards,
+  pregnancyRecipesIronAndFolateBowlsYouCanCookIn30Minutes7167df,
   pregnancyRecipesIronAndFolateBowlsYouCanCookIn30Minutes,
   pregnancySnackIdeas,
   proteinVaCholineKhiMangThai,

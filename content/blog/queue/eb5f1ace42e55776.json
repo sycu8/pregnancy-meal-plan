@@ -1,0 +1,20 @@
+{
+  "id": "eb5f1ace42e55776",
+  "sourceName": "Pregnancy Meal Planner Editorial",
+  "title": "Pregnancy recipes: iron-and-folate bowls you can cook in 30 minutes",
+  "titleVi": "Công thức ngon cho mẹ bầu: tô cơm giàu sắt và folate trong 30 phút",
+  "url": "https://pregnancymeal.tips/blog/pregnancy-recipe-iron-folate-bowls",
+  "snippet": "Three tasty recipes pairing heme/non-heme iron with vitamin C — Vietnamese-inspired bowls with clear portions and food-safety notes.",
+  "snippetVi": "Ba công thức kết hợp sắt với vitamin C — tô cơm kiểu Việt, khẩu phần rõ ràng và lưu ý an toàn thực phẩm.",
+  "fetchedAt": "2026-08-09T14:59:21.338Z",
+  "status": "published",
+  "note": "Re-queue incomplete bilingual post for AI rewrite (EN+VI required).",
+  "editorial": true,
+  "categoryHint": "thuc-don-ba-bau",
+  "tagsHint": [
+    "recipes",
+    "iron",
+    "meal-plan"
+  ],
+  "slug": "pregnancy-recipes-iron-and-folate-bowls-you-can-cook-in-30-minutes-7167df"
+}
