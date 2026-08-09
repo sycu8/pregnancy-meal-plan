@@ -107,6 +107,14 @@ describe("blog markdown", () => {
     expect(html).toContain("<h2");
     expect(html).toContain("<strong>world</strong>");
     expect(html).toContain('href="https://www.who.int"');
+    expect(html).toContain('target="_blank"');
+  });
+
+  it("keeps internal site links in the same tab", () => {
+    const html = renderBlogMarkdown("See the [meal planner](/planner) and [WHO](https://www.who.int).");
+    expect(html).toContain('href="/planner"');
+    expect(html).not.toMatch(/href="\/planner"[^>]*target="_blank"/);
+    expect(html).toMatch(/href="https:\/\/www\.who\.int"[^>]*target="_blank"/);
   });
 });
 

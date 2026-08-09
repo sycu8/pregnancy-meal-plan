@@ -24,6 +24,7 @@ import {
   meetsMinWordCount,
   pickAuthoritativeSources
 } from "../src/lib/blog/synthesis/contentStandards.ts";
+import { ensureInternalLinks } from "../src/lib/blog/internalLinks.ts";
 import { isBlogAiEnabled, readAiGatewayConfig } from "../src/lib/cloudflare/aiGateway.ts";
 
 type QueueItem = {
@@ -274,6 +275,18 @@ async function main() {
         continue;
       }
       synthesized.en = enBlock;
+
+      // Diversified on-site backlinks (planner / premium / category / topics).
+      const linkCtxBase = {
+        slug,
+        category: item.categoryHint ?? synthesized.category,
+        tags: [...new Set([...(item.tagsHint ?? []), ...synthesized.tags])]
+      };
+      synthesized.content = ensureInternalLinks(synthesized.content, { ...linkCtxBase, locale: "vi" });
+      synthesized.en = {
+        ...synthesized.en,
+        content: ensureInternalLinks(synthesized.en.content, { ...linkCtxBase, locale: "en" })
+      };
 
       const content = synthesized.content;
       let ogImage: string | undefined;

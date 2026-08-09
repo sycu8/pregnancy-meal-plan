@@ -9,6 +9,7 @@ import {
   countWords,
   meetsMinWordCount
 } from "@/lib/blog/synthesis/contentStandards";
+import { ensureInternalLinks, internalLinkPromptRules } from "@/lib/blog/internalLinks";
 import type { BlogCategorySlug } from "@/types/blog";
 
 export type SynthesisInput = {
@@ -138,10 +139,23 @@ export function synthesizePost(input: SynthesisInput): SynthesisOutput {
     }
   ];
 
+  const contentViLinked = ensureInternalLinks(contentVi, {
+    slug: "draft",
+    category,
+    tags,
+    locale: "vi"
+  });
+  const contentEnLinked = ensureInternalLinks(contentEn, {
+    slug: "draft",
+    category,
+    tags,
+    locale: "en"
+  });
+
   return {
     title: topicVi,
     excerpt: snippetVi,
-    content: contentVi,
+    content: contentViLinked,
     category,
     tags,
     metaTitle: `${topicVi} | Pregnancy Meal Planner`.slice(0, 70),
@@ -151,7 +165,7 @@ export function synthesizePost(input: SynthesisInput): SynthesisOutput {
     en: {
       title: topicEn,
       excerpt: snippetEn,
-      content: contentEn,
+      content: contentEnLinked,
       metaTitle: `${topicEn} | Pregnancy Meal Planner`.slice(0, 70),
       metaDescription: clampMetaDescription(snippetEn, topicEn, "en"),
       faqs: faqsEn
@@ -206,7 +220,10 @@ HARD RULES:
 Both languages are required. Do not leave "en" empty.
 
 Authoritative sources you may cite by name/URL in the article body:
-${sourceCatalog}`;
+${sourceCatalog}
+
+${internalLinkPromptRules("vi")}
+Also produce English "en.content" with the same internal-link rules using English (unprefixed) paths.`;
 
   const user = `Topic: ${input.title}
 Vietnamese title hint: ${input.titleVi || "(derive natural Vietnamese title)"}
@@ -274,19 +291,33 @@ Length check: aim for VI ${TARGET_VI_WORDS.min}-${TARGET_VI_WORDS.max} words and
         continue;
       }
 
+      const finalTags = tags.length ? tags : fallback.tags;
+      const contentWithLinks = ensureInternalLinks(ensureSourceNoteVi(content, input), {
+        slug: "draft",
+        category,
+        tags: finalTags,
+        locale: "vi"
+      });
+      const enWithLinks = ensureInternalLinks(ensureSourceNoteEn(enParsed.content, input), {
+        slug: "draft",
+        category,
+        tags: finalTags,
+        locale: "en"
+      });
+
       return {
         title,
         excerpt,
-        content: ensureSourceNoteVi(content, input),
+        content: contentWithLinks,
         category,
-        tags: tags.length ? tags : fallback.tags,
+        tags: finalTags,
         metaTitle: String(parsed.metaTitle || `${title} | Pregnancy Meal Planner`).slice(0, 70),
         metaDescription: clampMetaDescription(String(parsed.metaDescription || excerpt), title, "vi"),
         imagePrompt: String(parsed.imagePrompt || buildImagePrompt(enParsed.title, category)).slice(0, 500),
         faqs,
         en: {
           ...enParsed,
-          content: ensureSourceNoteEn(enParsed.content, input)
+          content: enWithLinks
         },
         usedAi: true
       };

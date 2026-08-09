@@ -208,3 +208,20 @@ Mỗi lượt publish tối đa **2 bài** (`BLOG_AUTO_PUBLISH_MAX`) + tối đa
 - FAQ + Article JSON-LD, OG image từ R2 (`/api/blog/media/blog/images/...`)
 - [`/llms.txt`](https://pregnancymeal.tips/llms.txt) và [`/llms-full.txt`](https://pregnancymeal.tips/llms-full.txt) cho ChatGPT / Claude
 - Blog pages trả markdown khi `Accept: text/markdown`
+
+### Internal backlinks (blog → site pages)
+
+Mỗi bài blog được gắn **liên kết nội bộ đa dạng** tới các trang khác trên website (không chỉ nguồn ngoài):
+
+| Ưu tiên | Đích (EN / VI) | Khi nào |
+|--------|-----------------|--------|
+| 1 | `/planner` · `/vi/planner` (+ `?health=` / `?goal=` theo tag) | Mọi bài |
+| 2 | Category hub `/blog/{category}` | Theo `category` bài |
+| 3 | `/premium` · `/vi/premium` | Xoay vòng để phủ thương mại |
+| 4 | `/blog/topics` hoặc `/blog/topics/{cluster}` | Theo tag (nghén, GDM, ăn dặm…) |
+| 5 | Bài blog liên quan `/blog/{slug}` | Cụm chủ đề (vd. 6 bài nutritionist) |
+
+- Module: `src/lib/blog/internalLinks.ts` — chọn đích theo category/tag + hash slug (tránh mọi bài cùng trỏ 1 URL).
+- Pipeline publish/AI tự gọi `ensureInternalLinks` (EN + VI).
+- Backfill thủ công: `npm run links:blog:internal` (hoặc `BLOG_INTERNAL_LINK_SLUGS=a,b`).
+- Markdown: link nội bộ mở **cùng tab**; link ngoài vẫn `target="_blank"`.

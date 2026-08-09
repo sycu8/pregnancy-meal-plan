@@ -8,6 +8,11 @@ import {
   meetsMinWordCount,
   pickAuthoritativeSources
 } from "@/lib/blog/synthesis/contentStandards";
+import {
+  countInternalHrefs,
+  ensureInternalLinks,
+  pickInternalLinks
+} from "@/lib/blog/internalLinks";
 import { blogFaqJsonLd, blogPostJsonLd } from "@/lib/blog/seo";
 import { llmsTxt, llmsFullTxt, markdownForPath, robotsTxt } from "@/lib/agentDiscovery";
 import { renderBlogMarkdown } from "@/lib/blog/markdown";
@@ -83,6 +88,47 @@ describe("blog AI synthesis helpers", () => {
         "pregnancy-recipe-weeknight-menus"
       ])
     );
+  });
+
+  it("builds diversified internal backlinks to different site pages", () => {
+    const a = pickInternalLinks({
+      slug: "iron-meals",
+      category: "thuc-don-ba-bau",
+      tags: ["iron", "recipes"],
+      locale: "en",
+      relatedSlugs: ["vietnamese-foods-that-support-a-healthy-pregnancy-plate"],
+      relatedTitles: ["Vietnamese Foods that Support a Healthy Pregnancy Plate"]
+    });
+    const b = pickInternalLinks({
+      slug: "nausea-meals",
+      category: "dinh-duong-ba-bau",
+      tags: ["nausea"],
+      locale: "vi"
+    });
+    expect(a.some((l) => l.href.includes("/planner"))).toBe(true);
+    expect(a.some((l) => l.href.includes("/blog/thuc-don-ba-bau"))).toBe(true);
+    expect(a.some((l) => l.href.includes("/premium"))).toBe(true);
+    expect(a.map((l) => l.href.split("?")[0])).toContain(
+      "/blog/vietnamese-foods-that-support-a-healthy-pregnancy-plate"
+    );
+    expect(b.some((l) => l.href.startsWith("/vi/planner"))).toBe(true);
+    expect(b.some((l) => l.href.includes("/vi/blog/dinh-duong-ba-bau"))).toBe(true);
+
+    const withSection = ensureInternalLinks("## Hello\n\nBody text.\n", {
+      slug: "demo-internal",
+      category: "dinh-duong-ba-bau",
+      tags: ["food-safety"],
+      locale: "en"
+    });
+    expect(withSection).toContain("## Explore on Pregnancy Meal Planner");
+    expect(countInternalHrefs(withSection)).toBeGreaterThanOrEqual(3);
+    // Idempotent
+    expect(ensureInternalLinks(withSection, {
+      slug: "demo-internal",
+      category: "dinh-duong-ba-bau",
+      tags: ["food-safety"],
+      locale: "en"
+    }).match(/## Explore on Pregnancy Meal Planner/g)?.length).toBe(1);
   });
 
   it("enforces nutritionist content standards helpers", () => {
