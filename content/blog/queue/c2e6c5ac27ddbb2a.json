@@ -1,0 +1,20 @@
+{
+  "id": "c2e6c5ac27ddbb2a",
+  "sourceName": "Pregnancy Meal Planner Editorial",
+  "title": "Delicious weeknight pregnancy menus: 5 cook-once recipes",
+  "titleVi": "Thực đơn tối ngon cho mẹ bầu: 5 công thức nấu một lần",
+  "url": "https://pregnancymeal.tips/blog/pregnancy-recipe-weeknight-menus",
+  "snippet": "Five flavorful recipes for busy evenings — soup, stir-fry, egg dishes and yogurt parfaits — balanced for protein, fiber and calcium.",
+  "snippetVi": "Năm công thức tối bận rộn — canh, xào, món trứng và sữa chua — cân bằng đạm, chất xơ và canxi.",
+  "fetchedAt": "2026-08-08T23:55:21.031Z",
+  "status": "published",
+  "note": "Priority editorial seed — professional nutritionist voice, >=300 words, authoritative sources, Workers AI + Flux.",
+  "editorial": true,
+  "categoryHint": "thuc-don-ba-bau",
+  "tagsHint": [
+    "recipes",
+    "meal-plan",
+    "weeknight"
+  ],
+  "slug": "delicious-weeknight-pregnancy-menus-5-cook-once-recipes"
+}

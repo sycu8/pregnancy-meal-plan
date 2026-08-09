@@ -1,6 +1,18 @@
 import { describe, expect, it } from "vitest";
 import { buildImagePrompt, clampMetaDescription, synthesizePost } from "@/lib/blog/synthesis/synthesizePost";
 import { pickEditorialTopics, EDITORIAL_TOPICS } from "@/lib/blog/synthesis/editorialTopics";
+import {
+  AUTHORITATIVE_PREGNANCY_SOURCES,
+  MIN_BLOG_WORDS,
+  countWords,
+  meetsMinWordCount,
+  pickAuthoritativeSources
+} from "@/lib/blog/synthesis/contentStandards";
+import {
+  countInternalHrefs,
+  ensureInternalLinks,
+  pickInternalLinks
+} from "@/lib/blog/internalLinks";
 import { blogFaqJsonLd, blogPostJsonLd } from "@/lib/blog/seo";
 import { llmsTxt, llmsFullTxt, markdownForPath, robotsTxt } from "@/lib/agentDiscovery";
 import { renderBlogMarkdown } from "@/lib/blog/markdown";
@@ -62,6 +74,79 @@ describe("blog AI synthesis helpers", () => {
     expect(picked).toHaveLength(3);
     expect(picked[0]?.category).toMatch(/dinh-duong|thuc-don|sau-sinh|cham-con|truoc-sinh/);
     expect(picked.every((topic) => topic.titleVi && topic.snippetVi && topic.title && topic.snippet)).toBe(true);
+  });
+
+  it("includes dish-analysis, regional foods, and recipe editorial topics", () => {
+    const ids = EDITORIAL_TOPICS.map((t) => t.id);
+    expect(ids).toEqual(
+      expect.arrayContaining([
+        "common-vietnamese-dishes-pregnancy-analysis",
+        "international-dishes-pregnancy-analysis",
+        "vietnamese-foods-good-for-pregnancy",
+        "international-foods-good-for-pregnancy",
+        "pregnancy-recipe-iron-folate-bowls",
+        "pregnancy-recipe-weeknight-menus"
+      ])
+    );
+  });
+
+  it("builds diversified internal backlinks to different site pages", () => {
+    const a = pickInternalLinks({
+      slug: "iron-meals",
+      category: "thuc-don-ba-bau",
+      tags: ["iron", "recipes"],
+      locale: "en",
+      relatedSlugs: ["vietnamese-foods-that-support-a-healthy-pregnancy-plate"],
+      relatedTitles: ["Vietnamese Foods that Support a Healthy Pregnancy Plate"]
+    });
+    const b = pickInternalLinks({
+      slug: "nausea-meals",
+      category: "dinh-duong-ba-bau",
+      tags: ["nausea"],
+      locale: "vi"
+    });
+    expect(a.some((l) => l.href.includes("/planner"))).toBe(true);
+    expect(a.some((l) => l.href.includes("/blog/thuc-don-ba-bau"))).toBe(true);
+    expect(a.some((l) => l.href.includes("/premium"))).toBe(true);
+    expect(a.map((l) => l.href.split("?")[0])).toContain(
+      "/blog/vietnamese-foods-that-support-a-healthy-pregnancy-plate"
+    );
+    expect(b.some((l) => l.href.startsWith("/vi/planner"))).toBe(true);
+    expect(b.some((l) => l.href.includes("/vi/blog/dinh-duong-ba-bau"))).toBe(true);
+
+    const withSection = ensureInternalLinks("## Hello\n\nBody text.\n", {
+      slug: "demo-internal",
+      category: "dinh-duong-ba-bau",
+      tags: ["food-safety"],
+      locale: "en"
+    });
+    expect(withSection).toContain("## Explore on Pregnancy Meal Planner");
+    expect(countInternalHrefs(withSection)).toBeGreaterThanOrEqual(3);
+    // Idempotent
+    expect(ensureInternalLinks(withSection, {
+      slug: "demo-internal",
+      category: "dinh-duong-ba-bau",
+      tags: ["food-safety"],
+      locale: "en"
+    }).match(/## Explore on Pregnancy Meal Planner/g)?.length).toBe(1);
+  });
+
+  it("enforces nutritionist content standards helpers", () => {
+    expect(MIN_BLOG_WORDS).toBe(300);
+    expect(AUTHORITATIVE_PREGNANCY_SOURCES.length).toBeGreaterThanOrEqual(4);
+    expect(AUTHORITATIVE_PREGNANCY_SOURCES.every((s) => !s.url.includes("nutrition-pregnancy") || s.url.includes("counselling"))).toBe(
+      true
+    );
+    expect(AUTHORITATIVE_PREGNANCY_SOURCES.some((s) => s.url.includes("epa.gov"))).toBe(true);
+    expect(meetsMinWordCount("word ".repeat(300))).toBe(true);
+    expect(meetsMinWordCount("word ".repeat(50))).toBe(false);
+    expect(countWords("một hai ba")).toBe(3);
+    // Hyphenated tokens should count as one word, not two.
+    expect(countWords("food-safety food-safety")).toBe(2);
+    const sources = pickAuthoritativeSources("demo-slug", "2026-08-08", 4);
+    expect(sources).toHaveLength(4);
+    expect(sources.every((s) => s.url.startsWith("https://") && s.publisher && s.accessedAt)).toBe(true);
+    expect(new Set(sources.map((s) => s.publisher)).size).toBe(sources.length);
   });
 });
 

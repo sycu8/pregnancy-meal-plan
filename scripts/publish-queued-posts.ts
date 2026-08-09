@@ -18,6 +18,13 @@ import { isUsableEnglishTranslation } from "../src/lib/blog/enQuality.ts";
 import { synthesizePostWithAi } from "../src/lib/blog/synthesis/synthesizePost.ts";
 import { translatePostToEn } from "../src/lib/blog/synthesis/translatePostToEn.ts";
 import { generateAndUploadBlogImage } from "../src/lib/blog/synthesis/uploadBlogImage.ts";
+import {
+  MIN_BLOG_WORDS,
+  countWords,
+  meetsMinWordCount,
+  pickAuthoritativeSources
+} from "../src/lib/blog/synthesis/contentStandards.ts";
+import { ensureInternalLinks } from "../src/lib/blog/internalLinks.ts";
 import { isBlogAiEnabled, readAiGatewayConfig } from "../src/lib/cloudflare/aiGateway.ts";
 
 type QueueItem = {
@@ -139,7 +146,17 @@ async function main() {
   const limit = Number.isFinite(maxPerRun) && maxPerRun > 0 ? maxPerRun : 10;
   const withImages = process.env.BLOG_AI_IMAGES !== "false";
 
-  for (const { full, item } of drafts.slice(0, limit)) {
+  // Prefer editorial seeds first so crawl drafts cannot consume the whole daily budget.
+  // Iterate beyond `limit` so failed/skipped attempts do not permanently waste publish slots.
+  const orderedDrafts = [...drafts].sort((a, b) => {
+    const ae = a.item.editorial === true ? 0 : 1;
+    const be = b.item.editorial === true ? 0 : 1;
+    if (ae !== be) return ae - be;
+    return a.file.localeCompare(b.file);
+  });
+
+  for (const { full, item } of orderedDrafts) {
+    if (published >= limit) break;
     try {
       const relevance = reviewBlogSeedRelevance({
         title: item.titleVi || item.title,
@@ -187,8 +204,18 @@ async function main() {
             ? preferredSlug
             : ensureUniqueSlug(preferredSlug);
 
-      if (!synthesized.content || synthesized.content.length < 300) {
-        console.warn(`[publish] skip ${slug}: Vietnamese content too short — keeping queue as draft`);
+      const viWords = countWords(synthesized.content || "");
+      if (!synthesized.content || synthesized.content.length < 300 || !meetsMinWordCount(synthesized.content)) {
+        console.warn(
+          `[publish] skip ${slug}: Vietnamese content too short (words=${viWords}, min=${MIN_BLOG_WORDS}) — keeping queue as draft`
+        );
+        skipped++;
+        continue;
+      }
+
+      // Editorial nutrition posts must use AI long-form, not short bilingual templates.
+      if (item.editorial && aiEnabled && (!synthesized.usedAi || isTemplateViContent(synthesized.content))) {
+        console.warn(`[publish] skip ${slug}: editorial requires Workers AI long-form nutritionist content — keeping as draft`);
         skipped++;
         continue;
       }
@@ -239,7 +266,27 @@ async function main() {
         skipped++;
         continue;
       }
+      const enWords = countWords(enBlock.content || "");
+      if (!meetsMinWordCount(enBlock.content || "")) {
+        console.warn(
+          `[publish] skip ${slug}: English content too short (words=${enWords}, min=${MIN_BLOG_WORDS}) — keeping queue as draft`
+        );
+        skipped++;
+        continue;
+      }
       synthesized.en = enBlock;
+
+      // Diversified on-site backlinks (planner / premium / category / topics).
+      const linkCtxBase = {
+        slug,
+        category: item.categoryHint ?? synthesized.category,
+        tags: [...new Set([...(item.tagsHint ?? []), ...synthesized.tags])]
+      };
+      synthesized.content = ensureInternalLinks(synthesized.content, { ...linkCtxBase, locale: "vi" });
+      synthesized.en = {
+        ...synthesized.en,
+        content: ensureInternalLinks(synthesized.en.content, { ...linkCtxBase, locale: "en" })
+      };
 
       const content = synthesized.content;
       let ogImage: string | undefined;
@@ -258,7 +305,23 @@ async function main() {
 
       const publishedAt = item.publishedAt ?? item.fetchedAt ?? nowIso();
       const category = item.categoryHint ?? synthesized.category;
-      const tags = [...new Set([...(item.tagsHint ?? []), ...synthesized.tags])].slice(0, 6);
+      const bannedTags = new Set(["gestational-diabetes-meals", "pregnancy-meal-planner"]);
+      const tags = [...new Set([...(item.tagsHint ?? []), ...synthesized.tags])]
+        .map((t) => t.toLowerCase())
+        .filter((t) => !bannedTags.has(t))
+        .slice(0, 6);
+      const accessedAt = new Date().toISOString().slice(0, 10);
+      const sourceReferences = item.editorial
+        ? pickAuthoritativeSources(slug, accessedAt, 4)
+        : [
+            {
+              title: item.title.trim() || synthesized.en.title || "Source",
+              url: item.url,
+              publisher: item.sourceName,
+              accessedAt
+            },
+            ...pickAuthoritativeSources(slug, accessedAt, 3)
+          ].slice(0, 5);
 
       const viPost: BlogPost = {
         title: synthesized.title,
@@ -269,15 +332,10 @@ async function main() {
         tags,
         trimester: guessTrimester(synthesized.title, synthesized.excerpt),
         author: authorVi,
-        reviewer: item.editorial ? "Biên tập Pregnancy Meal Planner" : `Tham chiếu ${item.sourceName}`,
-        sourceReferences: [
-          {
-            title: item.title.trim() || synthesized.en.title || "Source",
-            url: item.url,
-            publisher: item.sourceName,
-            accessedAt: new Date().toISOString().slice(0, 10)
-          }
-        ],
+        reviewer: item.editorial
+          ? "Tư vấn dinh dưỡng Pregnancy Meal Planner (tham chiếu WHO/CDC/NHS/ACOG)"
+          : `Tham chiếu ${item.sourceName}`,
+        sourceReferences,
         publishedAt,
         updatedAt: nowIso(),
         readingTimeMinutes: estimateReadingTimeMinutes(content),
@@ -296,7 +354,9 @@ async function main() {
         metaTitle: synthesized.en.metaTitle,
         metaDescription: synthesized.en.metaDescription,
         author: authorEn,
-        reviewer: item.editorial ? "Pregnancy Meal Planner Editorial" : `References ${item.sourceName}`,
+        reviewer: item.editorial
+          ? "Pregnancy Meal Planner Nutrition Editorial (WHO/CDC/NHS/ACOG)"
+          : `References ${item.sourceName}`,
         ...(synthesized.en.faqs?.length ? { faqs: synthesized.en.faqs } : {})
       };
 
@@ -350,6 +410,16 @@ async function main() {
   }
 
   console.log(`Published ${published} bilingual posts from queue (skipped ${skipped}).`);
+  const editorialDrafts = drafts.filter((d) => d.item.editorial === true).length;
+  if (aiEnabled && published === 0 && drafts.length > 0) {
+    console.warn(
+      `[publish] WARNING: ${drafts.length} draft(s) available (${editorialDrafts} editorial) but 0 published (AI/quality gates). Daily minimum may be missed.`
+    );
+    // Only fail CI when editorial seeds were waiting — avoids red builds from stale crawl drafts alone.
+    if (process.env.BLOG_FAIL_ON_ZERO_PUBLISH === "true" && editorialDrafts > 0) {
+      process.exitCode = 1;
+    }
+  }
 }
 
 main().catch((e) => {

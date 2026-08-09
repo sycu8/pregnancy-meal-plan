@@ -166,12 +166,15 @@ corepack pnpm mobile:ios       # opens Xcode (macOS)
 
 Store listing copy, privacy questionnaire answers, and screenshot checklist: [`docs/STORE_SUBMISSION.md`](docs/STORE_SUBMISSION.md).
 
-## Blog: AI generate + lên lịch đăng mỗi 24 giờ
+## Blog: AI generate + lịch tối thiểu 2 bài/ngày
 
-Website tự bổ sung bài `/blog/` (VI) và `/en/blog/` (EN) qua GitHub Actions:
+Website tự bổ sung bài `/blog/` (EN) và `/vi/blog/` (VI) qua GitHub Actions:
 
-- **Lịch:** mỗi ngày lúc **09:15 (UTC+7)** — file `.github/workflows/auto-crawl-blog.yml`
-- **Nguồn cảm hứng:** WHO, CDC, Vinmec, Tâm Anh, Medlatec, Long Châu + editorial seeds SEO (dinh dưỡng / thực đơn mẹ bầu)
+- **Lịch:** **2 lần/ngày** lúc **09:15** và **21:15 (UTC+7)** — file `.github/workflows/auto-crawl-blog.yml`
+- **Sản lượng tối thiểu:** mỗi lần đăng **2 bài** editorial AI (`BLOG_AUTO_PUBLISH_MAX=2`, `BLOG_EDITORIAL_SEED_MAX=2`) → **≥2 bài/ngày**
+- **Chuẩn nội dung:** góc tư vấn dinh dưỡng chuyên nghiệp; ≥**300 từ**/bài (VI và EN); đính kèm nguồn chính thống (WHO, CDC, FDA, NHS, ACOG, NIH ODS)
+- **Chủ đề:** dinh dưỡng / thực đơn mẹ bầu + phân tích món thông dụng, thực phẩm Việt & quốc tế, công thức chế biến
+- **Nguồn cảm hứng crawl:** WHO, CDC, Vinmec, Tâm Anh, Medlatec, Long Châu + editorial seeds SEO
 - **Luồng:** crawl metadata → seed chủ đề editorial → **Workers AI qua AI Gateway** viết bài → **Flux** tạo ảnh → upload **R2** → sync manifest → deploy Cloudflare
 
 Chạy thủ công trên máy dev:
@@ -184,7 +187,7 @@ export FEATURE_BLOG_AI_ENABLED=true
 npm run publish:blog:auto
 ```
 
-Nếu thiếu token AI, pipeline vẫn publish bằng template fallback (không ảnh).
+Nếu thiếu token AI, pipeline vẫn có thể sinh template ngắn — nhưng bài editorial sẽ **không publish** khi thiếu Workers AI long-form (≥300 từ).
 
 ### Bật tự động trên GitHub
 
@@ -196,12 +199,29 @@ Nếu thiếu token AI, pipeline vẫn publish bằng template fallback (không 
    - `AI_GATEWAY_ID` = `default` hoặc tên gateway của bạn
    - `BLOG_AI_TEXT_MODEL` = `@cf/meta/llama-3.3-70b-instruct-fp8-fast`
    - `BLOG_AI_IMAGE_MODEL` = `@cf/black-forest-labs/flux-1-schnell`
-4. Vào **Actions → Auto crawl blog (every 24h) → Run workflow** để thử ngay.
+4. Vào **Actions → Auto crawl blog (min 2 posts/day) → Run workflow** để thử ngay.
 
-Mỗi lượt publish tối đa **10 bài** (`BLOG_AUTO_PUBLISH_MAX`) + tối đa **3** editorial seeds (`BLOG_EDITORIAL_SEED_MAX`).
+Mỗi lượt publish tối đa **2 bài** (`BLOG_AUTO_PUBLISH_MAX`) + tối đa **2** editorial seeds (`BLOG_EDITORIAL_SEED_MAX`).
 
 ### SEO / GEO
 
 - FAQ + Article JSON-LD, OG image từ R2 (`/api/blog/media/blog/images/...`)
 - [`/llms.txt`](https://pregnancymeal.tips/llms.txt) và [`/llms-full.txt`](https://pregnancymeal.tips/llms-full.txt) cho ChatGPT / Claude
 - Blog pages trả markdown khi `Accept: text/markdown`
+
+### Internal backlinks (blog → site pages)
+
+Mỗi bài blog được gắn **liên kết nội bộ đa dạng** tới các trang khác trên website (không chỉ nguồn ngoài):
+
+| Ưu tiên | Đích (EN / VI) | Khi nào |
+|--------|-----------------|--------|
+| 1 | `/planner` · `/vi/planner` (+ `?health=` / `?goal=` theo tag) | Mọi bài |
+| 2 | Category hub `/blog/{category}` | Theo `category` bài |
+| 3 | `/premium` · `/vi/premium` | Xoay vòng để phủ thương mại |
+| 4 | `/blog/topics` hoặc `/blog/topics/{cluster}` | Theo tag (nghén, GDM, ăn dặm…) |
+| 5 | Bài blog liên quan `/blog/{slug}` | Cụm chủ đề (vd. 6 bài nutritionist) |
+
+- Module: `src/lib/blog/internalLinks.ts` — chọn đích theo category/tag + hash slug (tránh mọi bài cùng trỏ 1 URL).
+- Pipeline publish/AI tự gọi `ensureInternalLinks` (EN + VI).
+- Backfill thủ công: `npm run links:blog:internal` (hoặc `BLOG_INTERNAL_LINK_SLUGS=a,b`).
+- Markdown: link nội bộ mở **cùng tab**; link ngoài vẫn `target="_blank"`.

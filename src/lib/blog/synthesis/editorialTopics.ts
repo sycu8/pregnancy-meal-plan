@@ -139,6 +139,75 @@ export const EDITORIAL_TOPICS: EditorialTopic[] = [
     snippetVi: "Chuyển dần khẩu phần gia đình, hạn chế đường muối và giữ khẩu phần phù hợp tuổi.",
     category: "cham-con-0-24-thang",
     tags: ["toddler", "nutrition"]
+  },
+  // --- Dish analysis: common meals good/bad for pregnancy ---
+  {
+    id: "common-vietnamese-dishes-pregnancy-analysis",
+    title: "Common Vietnamese dishes in pregnancy: what to keep, tweak, or skip",
+    snippet:
+      "Nutritionist-style analysis of phở, bún, cơm tấm, trứng ốp la and street snacks — safer prep, smart pairings, and what to leave out.",
+    titleVi: "Phân tích món Việt thông dụng khi mang thai: nên giữ, chỉnh hay bỏ?",
+    snippetVi:
+      "Góc nhìn tư vấn dinh dưỡng về phở, bún, cơm tấm, trứng và đồ ăn vặt — cách chế biến an toàn, kết hợp tốt và món nên hạn chế.",
+    category: "dinh-duong-ba-bau",
+    tags: ["food-analysis", "vietnamese-food", "food-safety"]
+  },
+  {
+    id: "international-dishes-pregnancy-analysis",
+    title: "Sushi, salads, BBQ and cheese boards: pregnancy food-safety analysis",
+    snippet:
+      "Which international favorites are usually fine when cooked/pasteurized, what to combine for nutrients, and what pregnant people should skip.",
+    titleVi: "Sushi, salad, BBQ và phô mai: phân tích an toàn cho mẹ bầu",
+    snippetVi:
+      "Món quốc tế nào ổn khi nấu chín/tiệt trùng, nên kết hợp gì để đủ chất, và món nào mẹ bầu nên tránh theo CDC/NHS/FDA.",
+    category: "dinh-duong-ba-bau",
+    tags: ["food-analysis", "food-safety", "international-food"]
+  },
+  // --- Vietnamese & international foods suitable in pregnancy ---
+  {
+    id: "vietnamese-foods-good-for-pregnancy",
+    title: "Vietnamese foods that support a healthy pregnancy plate",
+    snippet:
+      "Rau muống, cá đồng nấu chín, đậu phụ, trứng, sữa chua tiệt trùng và trái cây nhiệt đới — how to use them safely and often.",
+    titleVi: "Thực phẩm Việt Nam tốt và phù hợp cho bà bầu",
+    snippetVi:
+      "Rau xanh, cá nấu chín, đậu phụ, trứng, sữa chua tiệt trùng và trái cây — cách dùng an toàn, đủ chất theo hướng dẫn WHO/CDC/NHS.",
+    category: "dinh-duong-ba-bau",
+    tags: ["vietnamese-food", "prenatal-nutrition", "pregnancy"]
+  },
+  {
+    id: "international-foods-good-for-pregnancy",
+    title: "International pantry staples that fit pregnancy nutrition goals",
+    snippet:
+      "Oats, Greek yogurt, lentils, salmon (low-mercury), eggs, leafy greens and citrus — practical ways to build balanced plates.",
+    titleVi: "Thực phẩm quốc tế tốt và phù hợp với bà bầu",
+    snippetVi:
+      "Yến mạch, sữa chua Hy Lạp, đậu lăng, cá hồi ít thủy ngân, trứng, rau lá và cam quýt — cách xếp đĩa đủ chất cho thai kỳ.",
+    category: "dinh-duong-ba-bau",
+    tags: ["international-food", "prenatal-nutrition", "pregnancy"]
+  },
+  // --- Recipes / meal prep for pregnancy menus ---
+  {
+    id: "pregnancy-recipe-iron-folate-bowls",
+    title: "Pregnancy recipes: iron-and-folate bowls you can cook in 30 minutes",
+    snippet:
+      "Three tasty recipes pairing heme/non-heme iron with vitamin C — Vietnamese-inspired bowls with clear portions and food-safety notes.",
+    titleVi: "Công thức ngon cho mẹ bầu: tô cơm giàu sắt và folate trong 30 phút",
+    snippetVi:
+      "Ba công thức kết hợp sắt với vitamin C — tô cơm kiểu Việt, khẩu phần rõ ràng và lưu ý an toàn thực phẩm.",
+    category: "thuc-don-ba-bau",
+    tags: ["recipes", "iron", "meal-plan"]
+  },
+  {
+    id: "pregnancy-recipe-weeknight-menus",
+    title: "Delicious weeknight pregnancy menus: 5 cook-once recipes",
+    snippet:
+      "Five flavorful recipes for busy evenings — soup, stir-fry, egg dishes and yogurt parfaits — balanced for protein, fiber and calcium.",
+    titleVi: "Thực đơn tối ngon cho mẹ bầu: 5 công thức nấu một lần",
+    snippetVi:
+      "Năm công thức tối bận rộn — canh, xào, món trứng và sữa chua — cân bằng đạm, chất xơ và canxi.",
+    category: "thuc-don-ba-bau",
+    tags: ["recipes", "meal-plan", "weeknight"]
   }
 ];
 

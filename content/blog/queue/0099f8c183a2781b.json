@@ -1,0 +1,20 @@
+{
+  "id": "0099f8c183a2781b",
+  "sourceName": "Pregnancy Meal Planner Editorial",
+  "title": "Common Vietnamese dishes in pregnancy: what to keep, tweak, or skip",
+  "titleVi": "Phân tích món Việt thông dụng khi mang thai: nên giữ, chỉnh hay bỏ?",
+  "url": "https://pregnancymeal.tips/blog/common-vietnamese-dishes-pregnancy-analysis",
+  "snippet": "Nutritionist-style analysis of phở, bún, cơm tấm, trứng ốp la and street snacks — safer prep, smart pairings, and what to leave out.",
+  "snippetVi": "Góc nhìn tư vấn dinh dưỡng về phở, bún, cơm tấm, trứng và đồ ăn vặt — cách chế biến an toàn, kết hợp tốt và món nên hạn chế.",
+  "fetchedAt": "2026-08-08T23:55:21.030Z",
+  "status": "published",
+  "note": "Priority editorial seed — professional nutritionist voice, >=300 words, authoritative sources, Workers AI + Flux.",
+  "editorial": true,
+  "categoryHint": "dinh-duong-ba-bau",
+  "tagsHint": [
+    "food-analysis",
+    "vietnamese-food",
+    "food-safety"
+  ],
+  "slug": "common-vietnamese-dishes-in-pregnancy-what-to-keep-tweak-or-skip"
+}

@@ -1,0 +1,20 @@
+{
+  "id": "26d68499539126c3",
+  "sourceName": "Pregnancy Meal Planner Editorial",
+  "title": "Sushi, salads, BBQ and cheese boards: pregnancy food-safety analysis",
+  "titleVi": "Sushi, salad, BBQ và phô mai: phân tích an toàn cho mẹ bầu",
+  "url": "https://pregnancymeal.tips/blog/international-dishes-pregnancy-analysis",
+  "snippet": "Which international favorites are usually fine when cooked/pasteurized, what to combine for nutrients, and what pregnant people should skip.",
+  "snippetVi": "Món quốc tế nào ổn khi nấu chín/tiệt trùng, nên kết hợp gì để đủ chất, và món nào mẹ bầu nên tránh theo CDC/NHS/FDA.",
+  "fetchedAt": "2026-08-08T23:55:21.031Z",
+  "status": "published",
+  "note": "Priority editorial seed — professional nutritionist voice, >=300 words, authoritative sources, Workers AI + Flux.",
+  "editorial": true,
+  "categoryHint": "dinh-duong-ba-bau",
+  "tagsHint": [
+    "food-analysis",
+    "food-safety",
+    "international-food"
+  ],
+  "slug": "pregnancy-food-safety-analysis-sushi-salads-bbq-and-cheese-boards"
+}

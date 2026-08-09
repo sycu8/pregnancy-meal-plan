@@ -35,7 +35,9 @@
     "mobile:install": "cd mobile && npm install",
     "mobile:sync": "cd mobile && npm run sync",
     "mobile:android": "cd mobile && npm run open:android",
-    "mobile:ios": "cd mobile && npm run open:ios"
+    "mobile:ios": "cd mobile && npm run open:ios",
+    "seed:blog:topics": "tsx scripts/seed-specific-editorial.ts",
+    "links:blog:internal": "tsx scripts/apply-internal-links.ts"
   },
   "dependencies": {
     "@opennextjs/cloudflare": "^1.11.0",

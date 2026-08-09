@@ -1,10 +1,10 @@
-name: Auto crawl blog (every 6h)
+name: Auto crawl blog (min 2 posts/day)
 
 on:
   workflow_dispatch: {}
   schedule:
-    # Every 6 hours (UTC) for denser international SEO/GEO coverage
-    - cron: "15 0,6,12,18 * * *"
+    # Twice daily: 02:15 and 14:15 UTC (= 09:15 and 21:15 UTC+7) — at least 2 AI posts/day
+    - cron: "15 2,14 * * *"
 
 concurrency:
   group: auto-crawl-blog
@@ -18,9 +18,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     env:
-      BLOG_AUTO_PUBLISH_MAX: "14"
-      BLOG_AUTO_QUEUE_MAX: "18"
-      BLOG_EDITORIAL_SEED_MAX: "5"
+      # Target >=2 published posts/day (2 runs × up to 2 successful publishes; skips no longer consume slots)
+      BLOG_AUTO_PUBLISH_MAX: "2"
+      BLOG_AUTO_QUEUE_MAX: "8"
+      BLOG_EDITORIAL_SEED_MAX: "2"
+      BLOG_FAIL_ON_ZERO_PUBLISH: "true"
       FEATURE_BLOG_AI_ENABLED: "true"
       AI_PROVIDER: "workers-ai"
       AI_GATEWAY_ID: default

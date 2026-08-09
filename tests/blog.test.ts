@@ -5,6 +5,7 @@ import { dedupeFeedItems, topicMatches } from "@/lib/blog/ingestion/dedupe";
 import { renderBlogMarkdown } from "@/lib/blog/markdown";
 import { hasUsableEnglishTranslation } from "@/lib/blog/localize";
 import { getAllPosts, getPostBySlug, getPostsByCategory, listPostsMissingEnglish } from "@/lib/blog/posts";
+import { excludeFeatured, pickFeaturedPosts } from "@/lib/blog/featured";
 import { BLOG_PAGE_SIZE, filterPosts, paginatePosts, parseBlogListQuery } from "@/lib/blog/query";
 
 describe("blog posts", () => {
@@ -73,7 +74,9 @@ describe("blog query", () => {
     expect(filtered.every((p) => p.tags.includes("an-dam"))).toBe(true);
   });
 
-  it("paginates results", () => {
+  it("paginates results with a light page size (6–9)", () => {
+    expect(BLOG_PAGE_SIZE).toBeGreaterThanOrEqual(6);
+    expect(BLOG_PAGE_SIZE).toBeLessThanOrEqual(9);
     const posts = getAllPosts("en");
     const page1 = paginatePosts(posts, 1, BLOG_PAGE_SIZE);
     const page2 = paginatePosts(posts, 2, BLOG_PAGE_SIZE);
@@ -83,6 +86,18 @@ describe("blog query", () => {
       expect(page2.page).toBe(2);
       expect(page1.items[0]?.slug).not.toBe(page2.items[0]?.slug);
     }
+  });
+
+  it("puts curated hot posts first in the featured rail", () => {
+    const posts = getAllPosts("en");
+    const featured = pickFeaturedPosts(posts, 6);
+    expect(featured.length).toBe(6);
+    expect(featured[0]?.slug).toBe("pregnancy-food-safety-analysis-sushi-salads-bbq-and-cheese-boards");
+    expect(featured.map((p) => p.slug)).toContain("common-vietnamese-dishes-in-pregnancy-what-to-keep-tweak-or-skip");
+    const rest = excludeFeatured(posts, featured);
+    expect(rest.every((p) => !featured.some((f) => f.slug === p.slug))).toBe(true);
+    const page1 = paginatePosts(rest, 1, BLOG_PAGE_SIZE);
+    expect(page1.items.length).toBeLessThanOrEqual(9);
   });
 
   it("parses search params", () => {
@@ -107,6 +122,14 @@ describe("blog markdown", () => {
     expect(html).toContain("<h2");
     expect(html).toContain("<strong>world</strong>");
     expect(html).toContain('href="https://www.who.int"');
+    expect(html).toContain('target="_blank"');
+  });
+
+  it("keeps internal site links in the same tab", () => {
+    const html = renderBlogMarkdown("See the [meal planner](/planner) and [WHO](https://www.who.int).");
+    expect(html).toContain('href="/planner"');
+    expect(html).not.toMatch(/href="\/planner"[^>]*target="_blank"/);
+    expect(html).toMatch(/href="https:\/\/www\.who\.int"[^>]*target="_blank"/);
   });
 });
 

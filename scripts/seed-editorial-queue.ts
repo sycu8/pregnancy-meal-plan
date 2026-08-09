@@ -39,6 +39,25 @@ function existingSlugs() {
   );
 }
 
+function existingPublishedTitles() {
+  const titles = new Set<string>();
+  if (!fs.existsSync(postsDir)) return titles;
+  for (const file of fs.readdirSync(postsDir).filter((f) => f.endsWith(".json"))) {
+    try {
+      const vi = JSON.parse(fs.readFileSync(path.join(postsDir, file), "utf8")) as { title?: string };
+      if (vi.title) titles.add(vi.title.trim().toLowerCase());
+      const enFile = path.join(process.cwd(), "content/blog/posts-en", file);
+      if (fs.existsSync(enFile)) {
+        const en = JSON.parse(fs.readFileSync(enFile, "utf8")) as { title?: string };
+        if (en.title) titles.add(en.title.trim().toLowerCase());
+      }
+    } catch {
+      // ignore
+    }
+  }
+  return titles;
+}
+
 function isTemplateOnlyPost(slug: string) {
   const viFile = path.join(postsDir, `${slug}.json`);
   const enFile = path.join(process.cwd(), "content/blog/posts-en", `${slug}.json`);
@@ -83,12 +102,21 @@ function main() {
   const topics = pickEditorialTopics(limit * 2);
   const slugs = existingSlugs();
   const titles = existingQueueTitles();
+  const publishedTitles = existingPublishedTitles();
 
   let seeded = 0;
   for (const topic of topics) {
     if (seeded >= limit) break;
     const needsRewrite = isTemplateOnlyPost(topic.id);
     if (slugs.has(topic.id) && !needsRewrite) continue;
+    // Published posts often use English title slugs, not topic.id — also match titles.
+    if (
+      !needsRewrite &&
+      (publishedTitles.has(topic.title.trim().toLowerCase()) ||
+        publishedTitles.has(topic.titleVi.trim().toLowerCase()))
+    ) {
+      continue;
+    }
     if (!needsRewrite && titles.has(topic.title.trim().toLowerCase())) continue;
 
     const id = hashValue(`editorial:${topic.id}`);
