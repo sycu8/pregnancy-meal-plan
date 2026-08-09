@@ -213,9 +213,10 @@ Vietnamese title hint: ${input.titleVi || "(derive natural Vietnamese title)"}
 Short description: ${input.snippet || "(none)"}
 Vietnamese snippet hint: ${input.snippetVi || "(derive natural Vietnamese excerpt)"}
 Inspiration source (do not copy): ${input.sourceName} — ${input.url}
-SEO keywords EN: pregnancy meal planner, prenatal nutrition, gestational diabetes meals, postpartum diet, baby weaning, pregnancy recipes, vietnamese pregnancy foods
-SEO keywords VI: thực đơn mẹ bầu, dinh dưỡng thai kỳ, tiểu đường thai kỳ, sau sinh, ăn dặm, công thức món mẹ bầu, thực phẩm bà bầu
-Length check: count words carefully — reject short stubs; each locale body must exceed ${MIN_BLOG_WORDS} words.`;
+SEO keywords EN: pregnancy meal planner, prenatal nutrition, pregnancy recipes, vietnamese pregnancy foods, food safety pregnancy
+SEO keywords VI: thực đơn mẹ bầu, dinh dưỡng thai kỳ, công thức món mẹ bầu, thực phẩm bà bầu, an toàn thực phẩm thai kỳ
+Tags: use only topic-relevant kebab-case tags (do NOT add unrelated tags like gestational-diabetes-meals unless the article is actually about GDM).
+Length check: aim for VI ${TARGET_VI_WORDS.min}-${TARGET_VI_WORDS.max} words and EN ${TARGET_EN_WORDS.min}-${TARGET_EN_WORDS.max} words; HARD minimum ${MIN_BLOG_WORDS} each.`;
 
   const attempts = 2;
   for (let attempt = 1; attempt <= attempts; attempt++) {

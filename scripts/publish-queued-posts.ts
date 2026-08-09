@@ -145,7 +145,17 @@ async function main() {
   const limit = Number.isFinite(maxPerRun) && maxPerRun > 0 ? maxPerRun : 10;
   const withImages = process.env.BLOG_AI_IMAGES !== "false";
 
-  for (const { full, item } of drafts.slice(0, limit)) {
+  // Prefer editorial seeds first so crawl drafts cannot consume the whole daily budget.
+  // Iterate beyond `limit` so failed/skipped attempts do not permanently waste publish slots.
+  const orderedDrafts = [...drafts].sort((a, b) => {
+    const ae = a.item.editorial === true ? 0 : 1;
+    const be = b.item.editorial === true ? 0 : 1;
+    if (ae !== be) return ae - be;
+    return a.file.localeCompare(b.file);
+  });
+
+  for (const { full, item } of orderedDrafts) {
+    if (published >= limit) break;
     try {
       const relevance = reviewBlogSeedRelevance({
         title: item.titleVi || item.title,
@@ -282,7 +292,11 @@ async function main() {
 
       const publishedAt = item.publishedAt ?? item.fetchedAt ?? nowIso();
       const category = item.categoryHint ?? synthesized.category;
-      const tags = [...new Set([...(item.tagsHint ?? []), ...synthesized.tags])].slice(0, 6);
+      const bannedTags = new Set(["gestational-diabetes-meals", "pregnancy-meal-planner"]);
+      const tags = [...new Set([...(item.tagsHint ?? []), ...synthesized.tags])]
+        .map((t) => t.toLowerCase())
+        .filter((t) => !bannedTags.has(t))
+        .slice(0, 6);
       const accessedAt = new Date().toISOString().slice(0, 10);
       const sourceReferences = item.editorial
         ? pickAuthoritativeSources(slug, accessedAt, 4)
@@ -383,6 +397,16 @@ async function main() {
   }
 
   console.log(`Published ${published} bilingual posts from queue (skipped ${skipped}).`);
+  const editorialDrafts = drafts.filter((d) => d.item.editorial === true).length;
+  if (aiEnabled && published === 0 && drafts.length > 0) {
+    console.warn(
+      `[publish] WARNING: ${drafts.length} draft(s) available (${editorialDrafts} editorial) but 0 published (AI/quality gates). Daily minimum may be missed.`
+    );
+    // Only fail CI when editorial seeds were waiting — avoids red builds from stale crawl drafts alone.
+    if (process.env.BLOG_FAIL_ON_ZERO_PUBLISH === "true" && editorialDrafts > 0) {
+      process.exitCode = 1;
+    }
+  }
 }
 
 main().catch((e) => {

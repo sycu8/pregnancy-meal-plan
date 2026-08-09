@@ -10,11 +10,12 @@ export const TARGET_EN_WORDS = { min: 700, max: 1200 } as const;
 /**
  * Official / medical sources the nutritionist voice must lean on.
  * Prefer linking these over generic editorial URLs.
+ * URLs verified as live (or established CDC paths used site-wide).
  */
 export const AUTHORITATIVE_PREGNANCY_SOURCES: SourceReference[] = [
   {
-    title: "Healthy diet during pregnancy",
-    url: "https://www.who.int/tools/elena/interventions/nutrition-pregnancy",
+    title: "Nutrition counselling during pregnancy",
+    url: "https://www.who.int/tools/elena/interventions/nutrition-counselling-pregnancy",
     publisher: "WHO"
   },
   {
@@ -28,9 +29,9 @@ export const AUTHORITATIVE_PREGNANCY_SOURCES: SourceReference[] = [
     publisher: "CDC"
   },
   {
-    title: "Advice about Eating Fish",
-    url: "https://www.fda.gov/food/consumers/advice-about-eating-fish",
-    publisher: "FDA"
+    title: "EPA-FDA Advice about Eating Fish and Shellfish",
+    url: "https://www.epa.gov/fish-tech/epa-fda-advice-about-eating-fish-and-shellfish",
+    publisher: "EPA/FDA"
   },
   {
     title: "Foods to avoid in pregnancy",
@@ -58,7 +59,9 @@ export function countWords(text: string): number {
   return text
     .trim()
     .replace(/```[\s\S]*?```/g, " ")
-    .replace(/[#>*_`\[\]()!-]/g, " ")
+    .replace(/!\[[^\]]*]\([^)]*\)/g, " ")
+    .replace(/\[[^\]]*]\([^)]*\)/g, " ")
+    .replace(/[#>*_`]/g, " ")
     .split(/\s+/)
     .filter(Boolean).length;
 }
@@ -90,7 +93,6 @@ export function pickAuthoritativeSources(
     seenPublishers.add(src.publisher);
     picked.push({ ...src, accessedAt });
   }
-  // Fill remaining slots if unique publishers run out.
   for (const src of rotated) {
     if (picked.length >= count) break;
     if (picked.some((p) => p.url === src.url)) continue;
@@ -102,11 +104,16 @@ export function pickAuthoritativeSources(
 export const NUTRITIONIST_VOICE_RULES = `
 VOICE & ACCURACY (professional pregnancy nutrition consultant):
 - Write as a credentialed maternal nutrition consultant: clear, calm, evidence-informed, never sensational.
-- Prefer guidance aligned with WHO, CDC, FDA, NHS, ACOG, NIH ODS. Do not invent studies, dosages, or statistics.
-- When citing a fact (food safety, mercury fish, folic acid, iron, listeria risk), name the authority in prose (e.g. "theo CDC…", "NHS recommends…").
+- Prefer guidance aligned with WHO, CDC, EPA/FDA, NHS, ACOG, NIH ODS. Do not invent studies, dosages, or statistics.
+- When citing a fact (food safety, mercury fish, folic acid, iron, listeria risk), name the authority in prose.
 - Do NOT diagnose, prescribe drug doses, or replace obstetric care. Include a short clinician-consult reminder.
-- Avoid absolute bans unless food-safety guidance clearly supports them; distinguish "avoid", "limit", and "cook thoroughly".
-- Practical Vietnamese/international meal context is welcome when accurate (phở, canh, eggs, yogurt, leafy greens, etc.).
+- FOOD-SAFETY HARD RULES (do not contradict):
+  * Advise AGAINST raw fish/sushi/sashimi, raw shellfish, undercooked meat/eggs, unpasteurized soft cheese, and cold deli meats unless reheated until steaming hot (CDC/NHS themes).
+  * Never say raw sushi or sashimi "can be safe" in pregnancy — even low-mercury fish.
+  * Hot, thoroughly cooked dishes (e.g. boiling-hot phở with cooked meat) are generally fine; do not claim cooked pork broth is a listeria risk like cold deli meat.
+  * Use realistic cooked protein portions (about 90–120g per serving), never tiny novelty amounts like 30g chicken breast.
+- Distinguish "avoid", "limit", and "cook thoroughly".
+- Practical Vietnamese/international meal context is welcome when accurate.
 - Each article MUST be at least ${MIN_BLOG_WORDS} words in BOTH Vietnamese and English (prefer VI ${TARGET_VI_WORDS.min}-${TARGET_VI_WORDS.max}, EN ${TARGET_EN_WORDS.min}-${TARGET_EN_WORDS.max}).
 - Structure with ## headings: overview, nutrient/food analysis, what to combine or skip, practical tips, when to seek care, and a short sources note.
 `.trim();

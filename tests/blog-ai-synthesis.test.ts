@@ -88,12 +88,19 @@ describe("blog AI synthesis helpers", () => {
   it("enforces nutritionist content standards helpers", () => {
     expect(MIN_BLOG_WORDS).toBe(300);
     expect(AUTHORITATIVE_PREGNANCY_SOURCES.length).toBeGreaterThanOrEqual(4);
+    expect(AUTHORITATIVE_PREGNANCY_SOURCES.every((s) => !s.url.includes("nutrition-pregnancy") || s.url.includes("counselling"))).toBe(
+      true
+    );
+    expect(AUTHORITATIVE_PREGNANCY_SOURCES.some((s) => s.url.includes("epa.gov"))).toBe(true);
     expect(meetsMinWordCount("word ".repeat(300))).toBe(true);
     expect(meetsMinWordCount("word ".repeat(50))).toBe(false);
     expect(countWords("một hai ba")).toBe(3);
+    // Hyphenated tokens should count as one word, not two.
+    expect(countWords("food-safety food-safety")).toBe(2);
     const sources = pickAuthoritativeSources("demo-slug", "2026-08-08", 4);
     expect(sources).toHaveLength(4);
     expect(sources.every((s) => s.url.startsWith("https://") && s.publisher && s.accessedAt)).toBe(true);
+    expect(new Set(sources.map((s) => s.publisher)).size).toBe(sources.length);
   });
 });
 
