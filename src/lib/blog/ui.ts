@@ -44,6 +44,11 @@ export const blogUi = {
     accessed: (d: string) => `Truy cập ${d}`,
     referencesPrefix: "Tham chiếu",
     postListAria: "Danh sách bài viết",
+    featuredTitle: "Bài nổi bật",
+    featuredIntro: "Chọn lọc bài cuốn hút — an toàn thực phẩm, thực đơn và dinh dưỡng mẹ bầu.",
+    featuredBadge: "Nổi bật",
+    featuredReadMore: "Đọc bài",
+    moreArticles: "Bài viết mới nhất",
     breadcrumbBlog: "Blog",
     home: "Trang chủ"
   },
@@ -85,6 +90,11 @@ export const blogUi = {
     accessed: (d: string) => `Accessed ${d}`,
     referencesPrefix: "References",
     postListAria: "Article list",
+    featuredTitle: "Featured posts",
+    featuredIntro: "Hand-picked hot reads — food safety, meal plans, and prenatal nutrition.",
+    featuredBadge: "Featured",
+    featuredReadMore: "Read article",
+    moreArticles: "Latest articles",
     breadcrumbBlog: "Blog",
     home: "Home"
   }

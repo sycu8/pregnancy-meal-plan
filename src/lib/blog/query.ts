@@ -2,7 +2,8 @@ import type { BlogCategorySlug, BlogLocale, BlogPost } from "@/types/blog";
 import { keywordLabel } from "@/lib/blog/keywords";
 import { getAllPosts } from "@/lib/blog/posts";
 
-export const BLOG_PAGE_SIZE = 12;
+/** Keep listing pages light: 3×3 grid on desktop. */
+export const BLOG_PAGE_SIZE = 9;
 
 export type BlogListQuery = {
   q?: string;
@@ -107,7 +108,7 @@ function pickString(value: string | string[] | undefined): string | undefined {
 export function searchBlogPosts(locale: BlogLocale, query: { q?: string; page?: number; pageSize?: number }) {
   const posts = filterPosts(getAllPosts(locale), { q: query.q });
   const page = query.page ?? 1;
-  const pageSize = query.pageSize ?? 12;
+  const pageSize = query.pageSize ?? BLOG_PAGE_SIZE;
   const { items, total, totalPages } = paginatePosts(posts, page, pageSize);
   return { posts: items, total, totalPages, page };
 }
