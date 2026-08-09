@@ -16,10 +16,12 @@ import checklistChuanBiSinh4TuanCuoi from "../../../content/blog/posts/checklist
 import chiSoBetaHcgHaiTuanDau from "../../../content/blog/posts/chi-so-beta-hcg-hai-tuan-dau.json";
 import choConBuKhoKhan from "../../../content/blog/posts/cho-con-bu-kho-khan.json";
 import chuotRutChanKhiMangThai from "../../../content/blog/posts/chuot-rut-chan-khi-mang-thai.json";
+import commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkip from "../../../content/blog/posts/common-vietnamese-dishes-in-pregnancy-what-to-keep-tweak-or-skip.json";
 import daiThaoDuongThaiKyMoiBanTamCuaMeBauVi from "../../../content/blog/posts/dai-thao-duong-thai-ky-moi-ban-tam-cua-me-bau-vi.json";
 import dauHieuSayThaiCanLamGi from "../../../content/blog/posts/dau-hieu-say-thai-can-lam-gi.json";
 import dauHieuTienSanGiatSom from "../../../content/blog/posts/dau-hieu-tien-san-giat-som.json";
 import dauLungSauSinh from "../../../content/blog/posts/dau-lung-sau-sinh.json";
+import deliciousWeeknightPregnancyMenus5CookOnceRecipes from "../../../content/blog/posts/delicious-weeknight-pregnancy-menus-5-cook-once-recipes.json";
 import diUngThucPhamTreNho from "../../../content/blog/posts/di-ung-thuc-pham-tre-nho.json";
 import dinhDuong3ThangCuoiThaiKy from "../../../content/blog/posts/dinh-duong-3-thang-cuoi-thai-ky.json";
 import dinhDuong3ThangDauThaiKy from "../../../content/blog/posts/dinh-duong-3-thang-dau-thai-ky.json";
@@ -115,6 +117,7 @@ import hoiChungOngCoTayKhiMangThai from "../../../content/blog/posts/hoi-chung-o
 import hoiPhucSauSinhMo from "../../../content/blog/posts/hoi-phuc-sau-sinh-mo.json";
 import howToRelievePostpartumBackPain from "../../../content/blog/posts/how-to-relieve-postpartum-back-pain.json";
 import hutSuaMeDungCach from "../../../content/blog/posts/hut-sua-me-dung-cach.json";
+import internationalPantryStaplesForPregnancyNutrition from "../../../content/blog/posts/international-pantry-staples-for-pregnancy-nutrition.json";
 import iotVaMuoiIOtKhiMangThai from "../../../content/blog/posts/iot-va-muoi-i-ot-khi-mang-thai.json";
 import ironRichPregnancyMealsWithVitaminCPairingTips705210 from "../../../content/blog/posts/iron-rich-pregnancy-meals-with-vitamin-c-pairing-tips-705210.json";
 import ironRichPregnancyMealsWithVitaminCPairingTipsCbec2e from "../../../content/blog/posts/iron-rich-pregnancy-meals-with-vitamin-c-pairing-tips-cbec2e.json";
@@ -230,6 +233,8 @@ import picaKhiMangThai from "../../../content/blog/posts/pica-khi-mang-thai.json
 import postpartumBreastfeedingNutrition from "../../../content/blog/posts/postpartum-breastfeeding-nutrition.json";
 import pregnancyChildbirthNewborn29318b from "../../../content/blog/posts/pregnancy-childbirth-newborn-29318b.json";
 import pregnancyChildbirthNewborn from "../../../content/blog/posts/pregnancy-childbirth-newborn.json";
+import pregnancyFoodSafetyAnalysisSushiSaladsBbqAndCheeseBoards from "../../../content/blog/posts/pregnancy-food-safety-analysis-sushi-salads-bbq-and-cheese-boards.json";
+import pregnancyRecipesIronAndFolateBowlsYouCanCookIn30Minutes from "../../../content/blog/posts/pregnancy-recipes-iron-and-folate-bowls-you-can-cook-in-30-minutes.json";
 import pregnancySnackIdeas from "../../../content/blog/posts/pregnancy-snack-ideas.json";
 import proteinVaCholineKhiMangThai from "../../../content/blog/posts/protein-va-choline-khi-mang-thai.json";
 import quaTrinhHinhThanhRauThaiVi from "../../../content/blog/posts/qua-trinh-hinh-thanh-rau-thai-vi.json";
@@ -278,6 +283,7 @@ import treTaoBonKhiAnDam from "../../../content/blog/posts/tre-tao-bon-khi-an-da
 import uongNuocKhiMangThai from "../../../content/blog/posts/uong-nuoc-khi-mang-thai.json";
 import vanDongAnToanKhiMangThai from "../../../content/blog/posts/van-dong-an-toan-khi-mang-thai.json";
 import vangDaSoSinhVaChoConBu from "../../../content/blog/posts/vang-da-so-sinh-va-cho-con-bu.json";
+import vietnameseFoodsThatSupportAHealthyPregnancyPlate from "../../../content/blog/posts/vietnamese-foods-that-support-a-healthy-pregnancy-plate.json";
 import vitaminATrongThaiKy from "../../../content/blog/posts/vitamin-a-trong-thai-ky.json";
 import vitaminB12KhiMangThai from "../../../content/blog/posts/vitamin-b12-khi-mang-thai.json";
 import vitaminTongHopTruocMangThai from "../../../content/blog/posts/vitamin-tong-hop-truoc-mang-thai.json";
@@ -302,10 +308,12 @@ export const postManifest: BlogPost[] = [
   chiSoBetaHcgHaiTuanDau,
   choConBuKhoKhan,
   chuotRutChanKhiMangThai,
+  commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkip,
   daiThaoDuongThaiKyMoiBanTamCuaMeBauVi,
   dauHieuSayThaiCanLamGi,
   dauHieuTienSanGiatSom,
   dauLungSauSinh,
+  deliciousWeeknightPregnancyMenus5CookOnceRecipes,
   diUngThucPhamTreNho,
   dinhDuong3ThangCuoiThaiKy,
   dinhDuong3ThangDauThaiKy,
@@ -401,6 +409,7 @@ export const postManifest: BlogPost[] = [
   hoiPhucSauSinhMo,
   howToRelievePostpartumBackPain,
   hutSuaMeDungCach,
+  internationalPantryStaplesForPregnancyNutrition,
   iotVaMuoiIOtKhiMangThai,
   ironRichPregnancyMealsWithVitaminCPairingTips705210,
   ironRichPregnancyMealsWithVitaminCPairingTipsCbec2e,
@@ -516,6 +525,8 @@ export const postManifest: BlogPost[] = [
   postpartumBreastfeedingNutrition,
   pregnancyChildbirthNewborn29318b,
   pregnancyChildbirthNewborn,
+  pregnancyFoodSafetyAnalysisSushiSaladsBbqAndCheeseBoards,
+  pregnancyRecipesIronAndFolateBowlsYouCanCookIn30Minutes,
   pregnancySnackIdeas,
   proteinVaCholineKhiMangThai,
   quaTrinhHinhThanhRauThaiVi,
@@ -564,6 +575,7 @@ export const postManifest: BlogPost[] = [
   uongNuocKhiMangThai,
   vanDongAnToanKhiMangThai,
   vangDaSoSinhVaChoConBu,
+  vietnameseFoodsThatSupportAHealthyPregnancyPlate,
   vitaminATrongThaiKy,
   vitaminB12KhiMangThai,
   vitaminTongHopTruocMangThai,

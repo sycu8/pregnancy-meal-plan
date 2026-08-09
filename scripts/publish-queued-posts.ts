@@ -18,6 +18,12 @@ import { isUsableEnglishTranslation } from "../src/lib/blog/enQuality.ts";
 import { synthesizePostWithAi } from "../src/lib/blog/synthesis/synthesizePost.ts";
 import { translatePostToEn } from "../src/lib/blog/synthesis/translatePostToEn.ts";
 import { generateAndUploadBlogImage } from "../src/lib/blog/synthesis/uploadBlogImage.ts";
+import {
+  MIN_BLOG_WORDS,
+  countWords,
+  meetsMinWordCount,
+  pickAuthoritativeSources
+} from "../src/lib/blog/synthesis/contentStandards.ts";
 import { isBlogAiEnabled, readAiGatewayConfig } from "../src/lib/cloudflare/aiGateway.ts";
 
 type QueueItem = {
@@ -187,8 +193,18 @@ async function main() {
             ? preferredSlug
             : ensureUniqueSlug(preferredSlug);
 
-      if (!synthesized.content || synthesized.content.length < 300) {
-        console.warn(`[publish] skip ${slug}: Vietnamese content too short — keeping queue as draft`);
+      const viWords = countWords(synthesized.content || "");
+      if (!synthesized.content || synthesized.content.length < 300 || !meetsMinWordCount(synthesized.content)) {
+        console.warn(
+          `[publish] skip ${slug}: Vietnamese content too short (words=${viWords}, min=${MIN_BLOG_WORDS}) — keeping queue as draft`
+        );
+        skipped++;
+        continue;
+      }
+
+      // Editorial nutrition posts must use AI long-form, not short bilingual templates.
+      if (item.editorial && aiEnabled && (!synthesized.usedAi || isTemplateViContent(synthesized.content))) {
+        console.warn(`[publish] skip ${slug}: editorial requires Workers AI long-form nutritionist content — keeping as draft`);
         skipped++;
         continue;
       }
@@ -239,6 +255,14 @@ async function main() {
         skipped++;
         continue;
       }
+      const enWords = countWords(enBlock.content || "");
+      if (!meetsMinWordCount(enBlock.content || "")) {
+        console.warn(
+          `[publish] skip ${slug}: English content too short (words=${enWords}, min=${MIN_BLOG_WORDS}) — keeping queue as draft`
+        );
+        skipped++;
+        continue;
+      }
       synthesized.en = enBlock;
 
       const content = synthesized.content;
@@ -259,6 +283,18 @@ async function main() {
       const publishedAt = item.publishedAt ?? item.fetchedAt ?? nowIso();
       const category = item.categoryHint ?? synthesized.category;
       const tags = [...new Set([...(item.tagsHint ?? []), ...synthesized.tags])].slice(0, 6);
+      const accessedAt = new Date().toISOString().slice(0, 10);
+      const sourceReferences = item.editorial
+        ? pickAuthoritativeSources(slug, accessedAt, 4)
+        : [
+            {
+              title: item.title.trim() || synthesized.en.title || "Source",
+              url: item.url,
+              publisher: item.sourceName,
+              accessedAt
+            },
+            ...pickAuthoritativeSources(slug, accessedAt, 3)
+          ].slice(0, 5);
 
       const viPost: BlogPost = {
         title: synthesized.title,
@@ -269,15 +305,10 @@ async function main() {
         tags,
         trimester: guessTrimester(synthesized.title, synthesized.excerpt),
         author: authorVi,
-        reviewer: item.editorial ? "Biên tập Pregnancy Meal Planner" : `Tham chiếu ${item.sourceName}`,
-        sourceReferences: [
-          {
-            title: item.title.trim() || synthesized.en.title || "Source",
-            url: item.url,
-            publisher: item.sourceName,
-            accessedAt: new Date().toISOString().slice(0, 10)
-          }
-        ],
+        reviewer: item.editorial
+          ? "Tư vấn dinh dưỡng Pregnancy Meal Planner (tham chiếu WHO/CDC/NHS/ACOG)"
+          : `Tham chiếu ${item.sourceName}`,
+        sourceReferences,
         publishedAt,
         updatedAt: nowIso(),
         readingTimeMinutes: estimateReadingTimeMinutes(content),
@@ -296,7 +327,9 @@ async function main() {
         metaTitle: synthesized.en.metaTitle,
         metaDescription: synthesized.en.metaDescription,
         author: authorEn,
-        reviewer: item.editorial ? "Pregnancy Meal Planner Editorial" : `References ${item.sourceName}`,
+        reviewer: item.editorial
+          ? "Pregnancy Meal Planner Nutrition Editorial (WHO/CDC/NHS/ACOG)"
+          : `References ${item.sourceName}`,
         ...(synthesized.en.faqs?.length ? { faqs: synthesized.en.faqs } : {})
       };
 

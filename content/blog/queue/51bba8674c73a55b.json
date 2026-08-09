@@ -1,0 +1,20 @@
+{
+  "id": "51bba8674c73a55b",
+  "sourceName": "Pregnancy Meal Planner Editorial",
+  "title": "International pantry staples that fit pregnancy nutrition goals",
+  "titleVi": "Thực phẩm quốc tế tốt và phù hợp với bà bầu",
+  "url": "https://pregnancymeal.tips/blog/international-foods-good-for-pregnancy",
+  "snippet": "Oats, Greek yogurt, lentils, salmon (low-mercury), eggs, leafy greens and citrus — practical ways to build balanced plates.",
+  "snippetVi": "Yến mạch, sữa chua Hy Lạp, đậu lăng, cá hồi ít thủy ngân, trứng, rau lá và cam quýt — cách xếp đĩa đủ chất cho thai kỳ.",
+  "fetchedAt": "2026-08-08T23:55:21.031Z",
+  "status": "published",
+  "note": "Priority editorial seed — professional nutritionist voice, >=300 words, authoritative sources, Workers AI + Flux.",
+  "editorial": true,
+  "categoryHint": "dinh-duong-ba-bau",
+  "tagsHint": [
+    "international-food",
+    "prenatal-nutrition",
+    "pregnancy"
+  ],
+  "slug": "international-pantry-staples-for-pregnancy-nutrition"
+}

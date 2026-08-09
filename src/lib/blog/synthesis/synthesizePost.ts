@@ -1,5 +1,14 @@
 import { gatewayChatCompletion, isBlogAiEnabled, type AiGatewayConfig } from "@/lib/cloudflare/aiGateway";
 import { looksVietnamese, looksVietnameseTitle } from "@/lib/blog/localize";
+import {
+  AUTHORITATIVE_PREGNANCY_SOURCES,
+  MIN_BLOG_WORDS,
+  NUTRITIONIST_VOICE_RULES,
+  TARGET_EN_WORDS,
+  TARGET_VI_WORDS,
+  countWords,
+  meetsMinWordCount
+} from "@/lib/blog/synthesis/contentStandards";
 import type { BlogCategorySlug } from "@/types/blog";
 
 export type SynthesisInput = {
@@ -158,18 +167,27 @@ export async function synthesizePostWithAi(
   const fallback = synthesizePost(input);
   if (!isBlogAiEnabled() && !options.config) return fallback;
 
-  const system = `You are a bilingual maternal–child health editor for Pregnancy Meal Planner (pregnancymeal.tips).
+  const sourceCatalog = AUTHORITATIVE_PREGNANCY_SOURCES.map(
+    (s) => `- ${s.publisher}: ${s.title} — ${s.url}`
+  ).join("\n");
+
+  const system = `You are a bilingual pregnancy nutrition consultant writing for Pregnancy Meal Planner (pregnancymeal.tips).
 Write EVERY post in BOTH English and Vietnamese. The website shows English on /blog and Vietnamese on /vi/blog.
+
+${NUTRITIONIST_VOICE_RULES}
+
 HARD RULES:
 - Do NOT copy source articles verbatim; use only the title + short snippet as inspiration.
-- Do not diagnose or prescribe; remind readers to consult a clinician when needed.
-- Prioritize actionable guidance: meal ideas, nutrient groups, food safety, red-flag symptoms.
+- Do not invent clinical claims. Ground food-safety and nutrient advice in WHO/CDC/FDA/NHS/ACOG/NIH themes listed below.
+- Prioritize actionable guidance: meal ideas, recipes when relevant, nutrient groups, food safety, pairings to keep/skip, red-flag symptoms.
 - Vietnamese fields must be natural Vietnamese. English fields must be natural English (no Vietnamese diacritics in English titles).
+- VI content: ${TARGET_VI_WORDS.min}-${TARGET_VI_WORDS.max} words (HARD minimum ${MIN_BLOG_WORDS} words).
+- EN content: ${TARGET_EN_WORDS.min}-${TARGET_EN_WORDS.max} words (HARD minimum ${MIN_BLOG_WORDS} words).
 - Return EXACTLY one JSON object (no markdown fences), schema:
 {
   "title": string (Vietnamese title),
   "excerpt": string (<=220 chars, Vietnamese),
-  "content": string (Vietnamese markdown with ## headings; 500-900 words),
+  "content": string (Vietnamese markdown with ## headings; >=${MIN_BLOG_WORDS} words),
   "category": one of ${CATEGORY_SLUGS.join("|")},
   "tags": string[] (3-6 English kebab-case SEO tags, e.g. pregnancy-meal-plan, prenatal-nutrition, postpartum),
   "metaTitle": string (<=60 chars, Vietnamese),
@@ -179,80 +197,105 @@ HARD RULES:
   "en": {
     "title": string (English SEO title),
     "excerpt": string (<=220 chars, English),
-    "content": string (English markdown, 700-1200 words),
+    "content": string (English markdown, >=${MIN_BLOG_WORDS} words),
     "metaTitle": string (<=60 chars, English),
     "metaDescription": string (100-155 chars, English),
     "faqs": [{"question": string, "answer": string}] (3 English FAQ items)
   }
 }
-Both languages are required. Do not leave "en" empty.`;
+Both languages are required. Do not leave "en" empty.
+
+Authoritative sources you may cite by name/URL in the article body:
+${sourceCatalog}`;
 
   const user = `Topic: ${input.title}
 Vietnamese title hint: ${input.titleVi || "(derive natural Vietnamese title)"}
 Short description: ${input.snippet || "(none)"}
 Vietnamese snippet hint: ${input.snippetVi || "(derive natural Vietnamese excerpt)"}
 Inspiration source (do not copy): ${input.sourceName} — ${input.url}
-SEO keywords EN: pregnancy meal planner, prenatal nutrition, gestational diabetes meals, postpartum diet, baby weaning
-SEO keywords VI: thực đơn mẹ bầu, dinh dưỡng thai kỳ, tiểu đường thai kỳ, sau sinh, ăn dặm`;
+SEO keywords EN: pregnancy meal planner, prenatal nutrition, gestational diabetes meals, postpartum diet, baby weaning, pregnancy recipes, vietnamese pregnancy foods
+SEO keywords VI: thực đơn mẹ bầu, dinh dưỡng thai kỳ, tiểu đường thai kỳ, sau sinh, ăn dặm, công thức món mẹ bầu, thực phẩm bà bầu
+Length check: count words carefully — reject short stubs; each locale body must exceed ${MIN_BLOG_WORDS} words.`;
 
-  try {
-    const raw = await gatewayChatCompletion(
-      [
-        { role: "system", content: system },
-        { role: "user", content: user }
-      ],
-      { config: options.config, temperature: 0.4, maxTokens: 5500 }
-    );
-    if (!raw) {
-      console.warn("[synthesize] empty AI response — using bilingual template fallback");
-      return fallback;
+  const attempts = 2;
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    try {
+      const raw = await gatewayChatCompletion(
+        [
+          { role: "system", content: system },
+          {
+            role: "user",
+            content:
+              attempt === 1
+                ? user
+                : `${user}\n\nRETRY: Previous draft was under ${MIN_BLOG_WORDS} words. Expand both VI and EN bodies with more practical meal guidance, food-safety detail, and named authority citations. Keep valid JSON.`
+          }
+        ],
+        { config: options.config, temperature: attempt === 1 ? 0.35 : 0.45, maxTokens: 8000 }
+      );
+      if (!raw) {
+        console.warn(`[synthesize] empty AI response (attempt ${attempt}/${attempts})`);
+        continue;
+      }
+
+      const parsed = parseJsonObject(raw);
+      if (!parsed) {
+        console.warn(`[synthesize] JSON parse failed (attempt ${attempt}/${attempts}). raw head: ${raw.slice(0, 220)}`);
+        continue;
+      }
+
+      const category = normalizeCategory(parsed.category) ?? fallback.category;
+      const tags = Array.isArray(parsed.tags)
+        ? parsed.tags.map((t) => String(t).toLowerCase().replace(/\s+/g, "-")).filter(Boolean).slice(0, 6)
+        : fallback.tags;
+
+      const title = String(parsed.title || fallback.title).trim();
+      const excerpt = String(parsed.excerpt || fallback.excerpt).trim().slice(0, 220);
+      const content = String(parsed.content || "").trim();
+      const viWords = countWords(content);
+      if (!meetsMinWordCount(content) || content.length < 400) {
+        console.warn(
+          `[synthesize] VI too short (attempt ${attempt}/${attempts}, words=${viWords}, chars=${content.length}, minWords=${MIN_BLOG_WORDS})`
+        );
+        continue;
+      }
+
+      const faqs = normalizeFaqs(parsed.faqs) ?? fallback.faqs;
+      const enParsed = normalizeEn(parsed.en);
+      if (!enParsed) {
+        console.warn(`[synthesize] EN block missing/weak (attempt ${attempt}/${attempts})`);
+        continue;
+      }
+      if (!meetsMinWordCount(enParsed.content)) {
+        console.warn(
+          `[synthesize] EN below ${MIN_BLOG_WORDS} words (attempt ${attempt}/${attempts}, words=${countWords(enParsed.content)})`
+        );
+        continue;
+      }
+
+      return {
+        title,
+        excerpt,
+        content: ensureSourceNoteVi(content, input),
+        category,
+        tags: tags.length ? tags : fallback.tags,
+        metaTitle: String(parsed.metaTitle || `${title} | Pregnancy Meal Planner`).slice(0, 70),
+        metaDescription: clampMetaDescription(String(parsed.metaDescription || excerpt), title, "vi"),
+        imagePrompt: String(parsed.imagePrompt || buildImagePrompt(enParsed.title, category)).slice(0, 500),
+        faqs,
+        en: {
+          ...enParsed,
+          content: ensureSourceNoteEn(enParsed.content, input)
+        },
+        usedAi: true
+      };
+    } catch (error) {
+      console.warn(`[synthesize] AI failed (attempt ${attempt}/${attempts}):`, error);
     }
-
-    const parsed = parseJsonObject(raw);
-    if (!parsed) {
-      console.warn(`[synthesize] JSON parse failed — using bilingual template. raw head: ${raw.slice(0, 220)}`);
-      return fallback;
-    }
-
-    const category = normalizeCategory(parsed.category) ?? fallback.category;
-    const tags = Array.isArray(parsed.tags)
-      ? parsed.tags.map((t) => String(t).toLowerCase().replace(/\s+/g, "-")).filter(Boolean).slice(0, 6)
-      : fallback.tags;
-
-    const title = String(parsed.title || fallback.title).trim();
-    const excerpt = String(parsed.excerpt || fallback.excerpt).trim().slice(0, 220);
-    const content = String(parsed.content || "").trim();
-    if (content.length < 400) {
-      console.warn(`[synthesize] VI content too short (${content.length}) — using bilingual template fallback`);
-      return fallback;
-    }
-
-    const faqs = normalizeFaqs(parsed.faqs) ?? fallback.faqs;
-    const en = normalizeEn(parsed.en) ?? fallback.en;
-    if (!normalizeEn(parsed.en)) {
-      console.warn("[synthesize] EN block missing/weak — filled from bilingual template EN");
-    }
-
-    return {
-      title,
-      excerpt,
-      content: ensureSourceNoteVi(content, input),
-      category,
-      tags: tags.length ? tags : fallback.tags,
-      metaTitle: String(parsed.metaTitle || `${title} | Pregnancy Meal Planner`).slice(0, 70),
-      metaDescription: clampMetaDescription(String(parsed.metaDescription || excerpt), title, "vi"),
-      imagePrompt: String(parsed.imagePrompt || buildImagePrompt(en.title, category)).slice(0, 500),
-      faqs,
-      en: {
-        ...en,
-        content: ensureSourceNoteEn(en.content, input)
-      },
-      usedAi: true
-    };
-  } catch (error) {
-    console.warn("[synthesize] AI failed, using bilingual template:", error);
-    return fallback;
   }
+
+  console.warn("[synthesize] all AI attempts failed — using bilingual template fallback");
+  return fallback;
 }
 
 export function buildImagePrompt(title: string, category: BlogCategorySlug): string {
@@ -296,11 +339,62 @@ function parseJsonObject(raw: string): Record<string, unknown> | null {
   const start = candidate.indexOf("{");
   const end = candidate.lastIndexOf("}");
   if (start < 0 || end <= start) return null;
-  try {
-    return JSON.parse(candidate.slice(start, end + 1)) as Record<string, unknown>;
-  } catch {
-    return null;
+  const slice = candidate.slice(start, end + 1);
+  for (const text of [slice, repairLooseJson(slice)]) {
+    try {
+      return JSON.parse(text) as Record<string, unknown>;
+    } catch {
+      // try next repair
+    }
   }
+  return null;
+}
+
+/** Escape raw newlines/tabs inside JSON strings — common Workers AI drift. */
+function repairLooseJson(input: string): string {
+  let out = "";
+  let inString = false;
+  let escaped = false;
+  for (let i = 0; i < input.length; i++) {
+    const ch = input[i]!;
+    if (inString) {
+      if (escaped) {
+        out += ch;
+        escaped = false;
+        continue;
+      }
+      if (ch === "\\") {
+        out += ch;
+        escaped = true;
+        continue;
+      }
+      if (ch === '"') {
+        inString = false;
+        out += ch;
+        continue;
+      }
+      if (ch === "\n") {
+        out += "\\n";
+        continue;
+      }
+      if (ch === "\r") {
+        out += "\\r";
+        continue;
+      }
+      if (ch === "\t") {
+        out += "\\t";
+        continue;
+      }
+      // Strip other control chars that break JSON.parse
+      if (ch.charCodeAt(0) < 0x20) continue;
+      out += ch;
+      continue;
+    }
+    if (ch === '"') inString = true;
+    out += ch;
+  }
+  // Remove trailing commas before } or ]
+  return out.replace(/,\s*([}\]])/g, "$1");
 }
 
 function normalizeCategory(value: unknown): BlogCategorySlug | null {

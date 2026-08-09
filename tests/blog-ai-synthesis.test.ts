@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { buildImagePrompt, clampMetaDescription, synthesizePost } from "@/lib/blog/synthesis/synthesizePost";
 import { pickEditorialTopics, EDITORIAL_TOPICS } from "@/lib/blog/synthesis/editorialTopics";
+import {
+  AUTHORITATIVE_PREGNANCY_SOURCES,
+  MIN_BLOG_WORDS,
+  countWords,
+  meetsMinWordCount,
+  pickAuthoritativeSources
+} from "@/lib/blog/synthesis/contentStandards";
 import { blogFaqJsonLd, blogPostJsonLd } from "@/lib/blog/seo";
 import { llmsTxt, llmsFullTxt, markdownForPath, robotsTxt } from "@/lib/agentDiscovery";
 import { renderBlogMarkdown } from "@/lib/blog/markdown";
@@ -62,6 +69,31 @@ describe("blog AI synthesis helpers", () => {
     expect(picked).toHaveLength(3);
     expect(picked[0]?.category).toMatch(/dinh-duong|thuc-don|sau-sinh|cham-con|truoc-sinh/);
     expect(picked.every((topic) => topic.titleVi && topic.snippetVi && topic.title && topic.snippet)).toBe(true);
+  });
+
+  it("includes dish-analysis, regional foods, and recipe editorial topics", () => {
+    const ids = EDITORIAL_TOPICS.map((t) => t.id);
+    expect(ids).toEqual(
+      expect.arrayContaining([
+        "common-vietnamese-dishes-pregnancy-analysis",
+        "international-dishes-pregnancy-analysis",
+        "vietnamese-foods-good-for-pregnancy",
+        "international-foods-good-for-pregnancy",
+        "pregnancy-recipe-iron-folate-bowls",
+        "pregnancy-recipe-weeknight-menus"
+      ])
+    );
+  });
+
+  it("enforces nutritionist content standards helpers", () => {
+    expect(MIN_BLOG_WORDS).toBe(300);
+    expect(AUTHORITATIVE_PREGNANCY_SOURCES.length).toBeGreaterThanOrEqual(4);
+    expect(meetsMinWordCount("word ".repeat(300))).toBe(true);
+    expect(meetsMinWordCount("word ".repeat(50))).toBe(false);
+    expect(countWords("một hai ba")).toBe(3);
+    const sources = pickAuthoritativeSources("demo-slug", "2026-08-08", 4);
+    expect(sources).toHaveLength(4);
+    expect(sources.every((s) => s.url.startsWith("https://") && s.publisher && s.accessedAt)).toBe(true);
   });
 });
 
