@@ -69,6 +69,7 @@ import firstTrimesterNutritionChecklistFolateIronAndSaferFoodsCb63b7 from "../..
 import firstTrimesterNutritionChecklistFolateIronAndSaferFoodsCd6712 from "../../../content/blog/posts-en/first-trimester-nutrition-checklist-folate-iron-and-safer-foods-cd6712.json";
 import firstTrimesterNutritionChecklistFolateIronAndSaferFoodsD3326d from "../../../content/blog/posts-en/first-trimester-nutrition-checklist-folate-iron-and-safer-foods-d3326d.json";
 import firstTrimesterNutritionChecklistFolateIronAndSaferFoodsD94cef from "../../../content/blog/posts-en/first-trimester-nutrition-checklist-folate-iron-and-safer-foods-d94cef.json";
+import firstTrimesterNutritionChecklistFolateIronAndSaferFoodsDabff8 from "../../../content/blog/posts-en/first-trimester-nutrition-checklist-folate-iron-and-safer-foods-dabff8.json";
 import firstTrimesterNutritionChecklistFolateIronAndSaferFoodsDd4b93 from "../../../content/blog/posts-en/first-trimester-nutrition-checklist-folate-iron-and-safer-foods-dd4b93.json";
 import firstTrimesterNutritionChecklistFolateIronAndSaferFoodsFaf998 from "../../../content/blog/posts-en/first-trimester-nutrition-checklist-folate-iron-and-safer-foods-faf998.json";
 import firstTrimesterNutritionChecklistFolateIronAndSaferFoods from "../../../content/blog/posts-en/first-trimester-nutrition-checklist-folate-iron-and-safer-foods.json";
@@ -208,6 +209,7 @@ import nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsCd5a14 from "../../
 import nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsCd9769 from "../../../content/blog/posts-en/nausea-friendly-pregnancy-meals-that-still-cover-key-nutrients-cd9769.json";
 import nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsD2e265 from "../../../content/blog/posts-en/nausea-friendly-pregnancy-meals-that-still-cover-key-nutrients-d2e265.json";
 import nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsD9899c from "../../../content/blog/posts-en/nausea-friendly-pregnancy-meals-that-still-cover-key-nutrients-d9899c.json";
+import nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsE435ac from "../../../content/blog/posts-en/nausea-friendly-pregnancy-meals-that-still-cover-key-nutrients-e435ac.json";
 import nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsE8438b from "../../../content/blog/posts-en/nausea-friendly-pregnancy-meals-that-still-cover-key-nutrients-e8438b.json";
 import nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsEc9732 from "../../../content/blog/posts-en/nausea-friendly-pregnancy-meals-that-still-cover-key-nutrients-ec9732.json";
 import nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsF7a788 from "../../../content/blog/posts-en/nausea-friendly-pregnancy-meals-that-still-cover-key-nutrients-f7a788.json";
@@ -369,6 +371,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   firstTrimesterNutritionChecklistFolateIronAndSaferFoodsCd6712,
   firstTrimesterNutritionChecklistFolateIronAndSaferFoodsD3326d,
   firstTrimesterNutritionChecklistFolateIronAndSaferFoodsD94cef,
+  firstTrimesterNutritionChecklistFolateIronAndSaferFoodsDabff8,
   firstTrimesterNutritionChecklistFolateIronAndSaferFoodsDd4b93,
   firstTrimesterNutritionChecklistFolateIronAndSaferFoodsFaf998,
   firstTrimesterNutritionChecklistFolateIronAndSaferFoods,
@@ -508,6 +511,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsCd9769,
   nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsD2e265,
   nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsD9899c,
+  nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsE435ac,
   nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsE8438b,
   nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsEc9732,
   nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrientsF7a788,
