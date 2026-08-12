@@ -86,6 +86,7 @@ import foodsToLimitOrCookThoroughlyDuringPregnancy58680d from "../../../content/
 import foodsToLimitOrCookThoroughlyDuringPregnancy5bdaac from "../../../content/blog/posts-en/foods-to-limit-or-cook-thoroughly-during-pregnancy-5bdaac.json";
 import foodsToLimitOrCookThoroughlyDuringPregnancy8467db from "../../../content/blog/posts-en/foods-to-limit-or-cook-thoroughly-during-pregnancy-8467db.json";
 import foodsToLimitOrCookThoroughlyDuringPregnancy929948 from "../../../content/blog/posts-en/foods-to-limit-or-cook-thoroughly-during-pregnancy-929948.json";
+import foodsToLimitOrCookThoroughlyDuringPregnancy97f4ee from "../../../content/blog/posts-en/foods-to-limit-or-cook-thoroughly-during-pregnancy-97f4ee.json";
 import foodsToLimitOrCookThoroughlyDuringPregnancyA95e77 from "../../../content/blog/posts-en/foods-to-limit-or-cook-thoroughly-during-pregnancy-a95e77.json";
 import foodsToLimitOrCookThoroughlyDuringPregnancyCf1d5a from "../../../content/blog/posts-en/foods-to-limit-or-cook-thoroughly-during-pregnancy-cf1d5a.json";
 import foodsToLimitOrCookThoroughlyDuringPregnancyEc2ea4 from "../../../content/blog/posts-en/foods-to-limit-or-cook-thoroughly-during-pregnancy-ec2ea4.json";
@@ -394,6 +395,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   foodsToLimitOrCookThoroughlyDuringPregnancy5bdaac,
   foodsToLimitOrCookThoroughlyDuringPregnancy8467db,
   foodsToLimitOrCookThoroughlyDuringPregnancy929948,
+  foodsToLimitOrCookThoroughlyDuringPregnancy97f4ee,
   foodsToLimitOrCookThoroughlyDuringPregnancyA95e77,
   foodsToLimitOrCookThoroughlyDuringPregnancyCf1d5a,
   foodsToLimitOrCookThoroughlyDuringPregnancyEc2ea4,
