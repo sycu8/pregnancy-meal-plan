@@ -16,6 +16,7 @@ import checklistChuanBiSinh4TuanCuoi from "../../../content/blog/posts/checklist
 import chiSoBetaHcgHaiTuanDau from "../../../content/blog/posts/chi-so-beta-hcg-hai-tuan-dau.json";
 import choConBuKhoKhan from "../../../content/blog/posts/cho-con-bu-kho-khan.json";
 import chuotRutChanKhiMangThai from "../../../content/blog/posts/chuot-rut-chan-khi-mang-thai.json";
+import commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkip0472be from "../../../content/blog/posts/common-vietnamese-dishes-in-pregnancy-what-to-keep-tweak-or-skip-0472be.json";
 import commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkip from "../../../content/blog/posts/common-vietnamese-dishes-in-pregnancy-what-to-keep-tweak-or-skip.json";
 import daiThaoDuongThaiKyMoiBanTamCuaMeBauVi from "../../../content/blog/posts/dai-thao-duong-thai-ky-moi-ban-tam-cua-me-bau-vi.json";
 import dauHieuSayThaiCanLamGi from "../../../content/blog/posts/dau-hieu-say-thai-can-lam-gi.json";
@@ -335,6 +336,7 @@ export const postManifest: BlogPost[] = [
   chiSoBetaHcgHaiTuanDau,
   choConBuKhoKhan,
   chuotRutChanKhiMangThai,
+  commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkip0472be,
   commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkip,
   daiThaoDuongThaiKyMoiBanTamCuaMeBauVi,
   dauHieuSayThaiCanLamGi,
