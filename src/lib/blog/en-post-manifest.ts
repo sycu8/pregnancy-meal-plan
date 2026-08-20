@@ -133,6 +133,7 @@ import hoiChungOngCoTayKhiMangThai from "../../../content/blog/posts-en/hoi-chun
 import hoiPhucSauSinhMo from "../../../content/blog/posts-en/hoi-phuc-sau-sinh-mo.json";
 import howToRelievePostpartumBackPain from "../../../content/blog/posts-en/how-to-relieve-postpartum-back-pain.json";
 import hutSuaMeDungCach from "../../../content/blog/posts-en/hut-sua-me-dung-cach.json";
+import internationalPantryStaplesForPregnancyNutrition10bda5 from "../../../content/blog/posts-en/international-pantry-staples-for-pregnancy-nutrition-10bda5.json";
 import internationalPantryStaplesForPregnancyNutrition43644e from "../../../content/blog/posts-en/international-pantry-staples-for-pregnancy-nutrition-43644e.json";
 import internationalPantryStaplesForPregnancyNutrition5c67fd from "../../../content/blog/posts-en/international-pantry-staples-for-pregnancy-nutrition-5c67fd.json";
 import internationalPantryStaplesForPregnancyNutrition from "../../../content/blog/posts-en/international-pantry-staples-for-pregnancy-nutrition.json";
@@ -317,6 +318,7 @@ import treTaoBonKhiAnDam from "../../../content/blog/posts-en/tre-tao-bon-khi-an
 import uongNuocKhiMangThai from "../../../content/blog/posts-en/uong-nuoc-khi-mang-thai.json";
 import vanDongAnToanKhiMangThai from "../../../content/blog/posts-en/van-dong-an-toan-khi-mang-thai.json";
 import vangDaSoSinhVaChoConBu from "../../../content/blog/posts-en/vang-da-so-sinh-va-cho-con-bu.json";
+import vietnameseFoodsThatSupportAHealthyPregnancyPlateAd7e9b from "../../../content/blog/posts-en/vietnamese-foods-that-support-a-healthy-pregnancy-plate-ad7e9b.json";
 import vietnameseFoodsThatSupportAHealthyPregnancyPlateE7e8d0 from "../../../content/blog/posts-en/vietnamese-foods-that-support-a-healthy-pregnancy-plate-e7e8d0.json";
 import vietnameseFoodsThatSupportAHealthyPregnancyPlate from "../../../content/blog/posts-en/vietnamese-foods-that-support-a-healthy-pregnancy-plate.json";
 import vitaminATrongThaiKy from "../../../content/blog/posts-en/vitamin-a-trong-thai-ky.json";
@@ -460,6 +462,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   hoiPhucSauSinhMo,
   howToRelievePostpartumBackPain,
   hutSuaMeDungCach,
+  internationalPantryStaplesForPregnancyNutrition10bda5,
   internationalPantryStaplesForPregnancyNutrition43644e,
   internationalPantryStaplesForPregnancyNutrition5c67fd,
   internationalPantryStaplesForPregnancyNutrition,
@@ -644,6 +647,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   uongNuocKhiMangThai,
   vanDongAnToanKhiMangThai,
   vangDaSoSinhVaChoConBu,
+  vietnameseFoodsThatSupportAHealthyPregnancyPlateAd7e9b,
   vietnameseFoodsThatSupportAHealthyPregnancyPlateE7e8d0,
   vietnameseFoodsThatSupportAHealthyPregnancyPlate,
   vitaminATrongThaiKy,
