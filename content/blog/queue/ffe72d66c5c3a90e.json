@@ -1,0 +1,20 @@
+{
+  "id": "ffe72d66c5c3a90e",
+  "sourceName": "Pregnancy Meal Planner Editorial",
+  "title": "Vietnamese foods that support a healthy pregnancy plate",
+  "titleVi": "Thực phẩm Việt Nam tốt và phù hợp cho bà bầu",
+  "url": "https://pregnancymeal.tips/blog/vietnamese-foods-good-for-pregnancy",
+  "snippet": "Rau muống, cá đồng nấu chín, đậu phụ, trứng, sữa chua tiệt trùng và trái cây nhiệt đới — how to use them safely and often.",
+  "snippetVi": "Rau xanh, cá nấu chín, đậu phụ, trứng, sữa chua tiệt trùng và trái cây — cách dùng an toàn, đủ chất theo hướng dẫn WHO/CDC/NHS.",
+  "fetchedAt": "2026-08-20T03:16:05.577Z",
+  "status": "published",
+  "note": "Re-queue incomplete bilingual post for AI rewrite (EN+VI required).",
+  "editorial": true,
+  "categoryHint": "dinh-duong-ba-bau",
+  "tagsHint": [
+    "vietnamese-food",
+    "prenatal-nutrition",
+    "pregnancy"
+  ],
+  "slug": "vietnamese-foods-that-support-a-healthy-pregnancy-plate-e7e8d0"
+}
