@@ -136,6 +136,7 @@ import hutSuaMeDungCach from "../../../content/blog/posts/hut-sua-me-dung-cach.j
 import internationalPantryStaplesForPregnancyNutrition10bda5 from "../../../content/blog/posts/international-pantry-staples-for-pregnancy-nutrition-10bda5.json";
 import internationalPantryStaplesForPregnancyNutrition43644e from "../../../content/blog/posts/international-pantry-staples-for-pregnancy-nutrition-43644e.json";
 import internationalPantryStaplesForPregnancyNutrition5c67fd from "../../../content/blog/posts/international-pantry-staples-for-pregnancy-nutrition-5c67fd.json";
+import internationalPantryStaplesForPregnancyNutrition60133d from "../../../content/blog/posts/international-pantry-staples-for-pregnancy-nutrition-60133d.json";
 import internationalPantryStaplesForPregnancyNutrition from "../../../content/blog/posts/international-pantry-staples-for-pregnancy-nutrition.json";
 import iotVaMuoiIOtKhiMangThai from "../../../content/blog/posts/iot-va-muoi-i-ot-khi-mang-thai.json";
 import ironRichPregnancyMealsWithVitaminCPairingTips15b2a9 from "../../../content/blog/posts/iron-rich-pregnancy-meals-with-vitamin-c-pairing-tips-15b2a9.json";
@@ -267,6 +268,7 @@ import pregnancyChildbirthNewborn29318b from "../../../content/blog/posts/pregna
 import pregnancyChildbirthNewborn from "../../../content/blog/posts/pregnancy-childbirth-newborn.json";
 import pregnancyFoodSafetyAnalysisSushiSaladsBbqAndCheeseBoards from "../../../content/blog/posts/pregnancy-food-safety-analysis-sushi-salads-bbq-and-cheese-boards.json";
 import pregnancyRecipesIronAndFolateBowlsYouCanCookIn30Minutes7167df from "../../../content/blog/posts/pregnancy-recipes-iron-and-folate-bowls-you-can-cook-in-30-minutes-7167df.json";
+import pregnancyRecipesIronAndFolateBowlsYouCanCookIn30MinutesC1b8f4 from "../../../content/blog/posts/pregnancy-recipes-iron-and-folate-bowls-you-can-cook-in-30-minutes-c1b8f4.json";
 import pregnancyRecipesIronAndFolateBowlsYouCanCookIn30Minutes from "../../../content/blog/posts/pregnancy-recipes-iron-and-folate-bowls-you-can-cook-in-30-minutes.json";
 import pregnancySnackIdeas from "../../../content/blog/posts/pregnancy-snack-ideas.json";
 import proteinVaCholineKhiMangThai from "../../../content/blog/posts/protein-va-choline-khi-mang-thai.json";
@@ -465,6 +467,7 @@ export const postManifest: BlogPost[] = [
   internationalPantryStaplesForPregnancyNutrition10bda5,
   internationalPantryStaplesForPregnancyNutrition43644e,
   internationalPantryStaplesForPregnancyNutrition5c67fd,
+  internationalPantryStaplesForPregnancyNutrition60133d,
   internationalPantryStaplesForPregnancyNutrition,
   iotVaMuoiIOtKhiMangThai,
   ironRichPregnancyMealsWithVitaminCPairingTips15b2a9,
@@ -596,6 +599,7 @@ export const postManifest: BlogPost[] = [
   pregnancyChildbirthNewborn,
   pregnancyFoodSafetyAnalysisSushiSaladsBbqAndCheeseBoards,
   pregnancyRecipesIronAndFolateBowlsYouCanCookIn30Minutes7167df,
+  pregnancyRecipesIronAndFolateBowlsYouCanCookIn30MinutesC1b8f4,
   pregnancyRecipesIronAndFolateBowlsYouCanCookIn30Minutes,
   pregnancySnackIdeas,
   proteinVaCholineKhiMangThai,
