@@ -25,6 +25,7 @@ import daiThaoDuongThaiKyMoiBanTamCuaMeBauVi from "../../../content/blog/posts-e
 import dauHieuSayThaiCanLamGi from "../../../content/blog/posts-en/dau-hieu-say-thai-can-lam-gi.json";
 import dauHieuTienSanGiatSom from "../../../content/blog/posts-en/dau-hieu-tien-san-giat-som.json";
 import dauLungSauSinh from "../../../content/blog/posts-en/dau-lung-sau-sinh.json";
+import deliciousWeeknightPregnancyMenus5CookOnceRecipes2aca69 from "../../../content/blog/posts-en/delicious-weeknight-pregnancy-menus-5-cook-once-recipes-2aca69.json";
 import deliciousWeeknightPregnancyMenus5CookOnceRecipes8adaae from "../../../content/blog/posts-en/delicious-weeknight-pregnancy-menus-5-cook-once-recipes-8adaae.json";
 import deliciousWeeknightPregnancyMenus5CookOnceRecipes from "../../../content/blog/posts-en/delicious-weeknight-pregnancy-menus-5-cook-once-recipes.json";
 import diUngThucPhamTreNho from "../../../content/blog/posts-en/di-ung-thuc-pham-tre-nho.json";
@@ -271,6 +272,7 @@ import pregnancyChildbirthNewborn from "../../../content/blog/posts-en/pregnancy
 import pregnancyFoodSafetyAnalysisSushiSaladsBbqAndCheeseBoards from "../../../content/blog/posts-en/pregnancy-food-safety-analysis-sushi-salads-bbq-and-cheese-boards.json";
 import pregnancyRecipesIronAndFolateBowlsYouCanCookIn30Minutes398912 from "../../../content/blog/posts-en/pregnancy-recipes-iron-and-folate-bowls-you-can-cook-in-30-minutes-398912.json";
 import pregnancyRecipesIronAndFolateBowlsYouCanCookIn30Minutes7167df from "../../../content/blog/posts-en/pregnancy-recipes-iron-and-folate-bowls-you-can-cook-in-30-minutes-7167df.json";
+import pregnancyRecipesIronAndFolateBowlsYouCanCookIn30Minutes9b6f6a from "../../../content/blog/posts-en/pregnancy-recipes-iron-and-folate-bowls-you-can-cook-in-30-minutes-9b6f6a.json";
 import pregnancyRecipesIronAndFolateBowlsYouCanCookIn30MinutesC1b8f4 from "../../../content/blog/posts-en/pregnancy-recipes-iron-and-folate-bowls-you-can-cook-in-30-minutes-c1b8f4.json";
 import pregnancyRecipesIronAndFolateBowlsYouCanCookIn30MinutesEc6349 from "../../../content/blog/posts-en/pregnancy-recipes-iron-and-folate-bowls-you-can-cook-in-30-minutes-ec6349.json";
 import pregnancyRecipesIronAndFolateBowlsYouCanCookIn30Minutes from "../../../content/blog/posts-en/pregnancy-recipes-iron-and-folate-bowls-you-can-cook-in-30-minutes.json";
@@ -360,6 +362,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   dauHieuSayThaiCanLamGi,
   dauHieuTienSanGiatSom,
   dauLungSauSinh,
+  deliciousWeeknightPregnancyMenus5CookOnceRecipes2aca69,
   deliciousWeeknightPregnancyMenus5CookOnceRecipes8adaae,
   deliciousWeeknightPregnancyMenus5CookOnceRecipes,
   diUngThucPhamTreNho,
@@ -606,6 +609,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   pregnancyFoodSafetyAnalysisSushiSaladsBbqAndCheeseBoards,
   pregnancyRecipesIronAndFolateBowlsYouCanCookIn30Minutes398912,
   pregnancyRecipesIronAndFolateBowlsYouCanCookIn30Minutes7167df,
+  pregnancyRecipesIronAndFolateBowlsYouCanCookIn30Minutes9b6f6a,
   pregnancyRecipesIronAndFolateBowlsYouCanCookIn30MinutesC1b8f4,
   pregnancyRecipesIronAndFolateBowlsYouCanCookIn30MinutesEc6349,
   pregnancyRecipesIronAndFolateBowlsYouCanCookIn30Minutes,
