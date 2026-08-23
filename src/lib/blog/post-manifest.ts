@@ -25,6 +25,7 @@ import daiThaoDuongThaiKyMoiBanTamCuaMeBauVi from "../../../content/blog/posts/d
 import dauHieuSayThaiCanLamGi from "../../../content/blog/posts/dau-hieu-say-thai-can-lam-gi.json";
 import dauHieuTienSanGiatSom from "../../../content/blog/posts/dau-hieu-tien-san-giat-som.json";
 import dauLungSauSinh from "../../../content/blog/posts/dau-lung-sau-sinh.json";
+import deliciousWeeknightPregnancyMenus5CookOnceRecipes284bab from "../../../content/blog/posts/delicious-weeknight-pregnancy-menus-5-cook-once-recipes-284bab.json";
 import deliciousWeeknightPregnancyMenus5CookOnceRecipes2aca69 from "../../../content/blog/posts/delicious-weeknight-pregnancy-menus-5-cook-once-recipes-2aca69.json";
 import deliciousWeeknightPregnancyMenus5CookOnceRecipes8adaae from "../../../content/blog/posts/delicious-weeknight-pregnancy-menus-5-cook-once-recipes-8adaae.json";
 import deliciousWeeknightPregnancyMenus5CookOnceRecipes from "../../../content/blog/posts/delicious-weeknight-pregnancy-menus-5-cook-once-recipes.json";
@@ -162,6 +163,7 @@ import messageFromTheMinisterOfMentalHealthAndAddictionsAndAssociateMinisterC6d7
 import messageFromTheMinisterOfMentalHealthAndAddictionsAndAssociateMinister from "../../../content/blog/posts/message-from-the-minister-of-mental-health-and-addictions-and-associate-minister.json";
 import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks00e23a from "../../../content/blog/posts/n-7-day-pregnancy-meal-plan-balanced-plates-for-busy-weeks-00e23a.json";
 import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks03c4c6 from "../../../content/blog/posts/n-7-day-pregnancy-meal-plan-balanced-plates-for-busy-weeks-03c4c6.json";
+import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks046a1f from "../../../content/blog/posts/n-7-day-pregnancy-meal-plan-balanced-plates-for-busy-weeks-046a1f.json";
 import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks05888c from "../../../content/blog/posts/n-7-day-pregnancy-meal-plan-balanced-plates-for-busy-weeks-05888c.json";
 import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks101bfe from "../../../content/blog/posts/n-7-day-pregnancy-meal-plan-balanced-plates-for-busy-weeks-101bfe.json";
 import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks139ac0 from "../../../content/blog/posts/n-7-day-pregnancy-meal-plan-balanced-plates-for-busy-weeks-139ac0.json";
@@ -362,6 +364,7 @@ export const postManifest: BlogPost[] = [
   dauHieuSayThaiCanLamGi,
   dauHieuTienSanGiatSom,
   dauLungSauSinh,
+  deliciousWeeknightPregnancyMenus5CookOnceRecipes284bab,
   deliciousWeeknightPregnancyMenus5CookOnceRecipes2aca69,
   deliciousWeeknightPregnancyMenus5CookOnceRecipes8adaae,
   deliciousWeeknightPregnancyMenus5CookOnceRecipes,
@@ -499,6 +502,7 @@ export const postManifest: BlogPost[] = [
   messageFromTheMinisterOfMentalHealthAndAddictionsAndAssociateMinister,
   n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks00e23a,
   n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks03c4c6,
+  n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks046a1f,
   n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks05888c,
   n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks101bfe,
   n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks139ac0,
