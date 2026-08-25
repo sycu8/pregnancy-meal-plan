@@ -7,6 +7,7 @@ import batMiPhuNuSauSinhAnMuopDuocKhongVaNhungCongDungTuMuopChoSanPhu from "../.
 import biTieuDuongThaiKyAnBanhMiDuocKhongNenAnLoaiNao73207 from "../../../content/blog/posts-en/bi-tieu-duong-thai-ky-an-banh-mi-duoc-khong-nen-an-loai-nao-73207.json";
 import boSungDhaOmega3 from "../../../content/blog/posts-en/bo-sung-dha-omega3.json";
 import caffeineKhiMangThai from "../../../content/blog/posts-en/caffeine-khi-mang-thai.json";
+import canIEatRipeJackfruitAfterGivingBirthBenefitsAndRisks from "../../../content/blog/posts-en/can-i-eat-ripe-jackfruit-after-giving-birth-benefits-and-risks.json";
 import canNangThaiNhiTieuChuan from "../../../content/blog/posts-en/can-nang-thai-nhi-tieu-chuan.json";
 import canxiVaVitaminDKhiMangThai from "../../../content/blog/posts-en/canxi-va-vitamin-d-khi-mang-thai.json";
 import chamSocRangMiengTrongThaiKyVi from "../../../content/blog/posts-en/cham-soc-rang-mieng-trong-thai-ky-vi.json";
@@ -41,6 +42,7 @@ import dungNhauDongLanhSauSinh from "../../../content/blog/posts-en/dung-nhau-do
 import firstTrimesterNutritionChecklistFolateIronAndSaferFoods04932f from "../../../content/blog/posts-en/first-trimester-nutrition-checklist-folate-iron-and-safer-foods-04932f.json";
 import firstTrimesterNutritionChecklistFolateIronAndSaferFoods0ba5d6 from "../../../content/blog/posts-en/first-trimester-nutrition-checklist-folate-iron-and-safer-foods-0ba5d6.json";
 import firstTrimesterNutritionChecklistFolateIronAndSaferFoods1ea0ee from "../../../content/blog/posts-en/first-trimester-nutrition-checklist-folate-iron-and-safer-foods-1ea0ee.json";
+import firstTrimesterNutritionChecklistFolateIronAndSaferFoods1ea39c from "../../../content/blog/posts-en/first-trimester-nutrition-checklist-folate-iron-and-safer-foods-1ea39c.json";
 import firstTrimesterNutritionChecklistFolateIronAndSaferFoods22a3c7 from "../../../content/blog/posts-en/first-trimester-nutrition-checklist-folate-iron-and-safer-foods-22a3c7.json";
 import firstTrimesterNutritionChecklistFolateIronAndSaferFoods235d6e from "../../../content/blog/posts-en/first-trimester-nutrition-checklist-folate-iron-and-safer-foods-235d6e.json";
 import firstTrimesterNutritionChecklistFolateIronAndSaferFoods241c38 from "../../../content/blog/posts-en/first-trimester-nutrition-checklist-folate-iron-and-safer-foods-241c38.json";
@@ -352,6 +354,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   biTieuDuongThaiKyAnBanhMiDuocKhongNenAnLoaiNao73207,
   boSungDhaOmega3,
   caffeineKhiMangThai,
+  canIEatRipeJackfruitAfterGivingBirthBenefitsAndRisks,
   canNangThaiNhiTieuChuan,
   canxiVaVitaminDKhiMangThai,
   chamSocRangMiengTrongThaiKyVi,
@@ -386,6 +389,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   firstTrimesterNutritionChecklistFolateIronAndSaferFoods04932f,
   firstTrimesterNutritionChecklistFolateIronAndSaferFoods0ba5d6,
   firstTrimesterNutritionChecklistFolateIronAndSaferFoods1ea0ee,
+  firstTrimesterNutritionChecklistFolateIronAndSaferFoods1ea39c,
   firstTrimesterNutritionChecklistFolateIronAndSaferFoods22a3c7,
   firstTrimesterNutritionChecklistFolateIronAndSaferFoods235d6e,
   firstTrimesterNutritionChecklistFolateIronAndSaferFoods241c38,
