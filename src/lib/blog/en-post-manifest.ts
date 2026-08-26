@@ -116,6 +116,7 @@ import gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiber26c083 from "../.
 import gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiber2d85bd from "../../../content/blog/posts-en/gestational-diabetes-meal-ideas-balanced-carbs-protein-and-fiber-2d85bd.json";
 import gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiber3da1ef from "../../../content/blog/posts-en/gestational-diabetes-meal-ideas-balanced-carbs-protein-and-fiber-3da1ef.json";
 import gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiber3ef9d4 from "../../../content/blog/posts-en/gestational-diabetes-meal-ideas-balanced-carbs-protein-and-fiber-3ef9d4.json";
+import gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiber459380 from "../../../content/blog/posts-en/gestational-diabetes-meal-ideas-balanced-carbs-protein-and-fiber-459380.json";
 import gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiber4a2062 from "../../../content/blog/posts-en/gestational-diabetes-meal-ideas-balanced-carbs-protein-and-fiber-4a2062.json";
 import gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiber51023e from "../../../content/blog/posts-en/gestational-diabetes-meal-ideas-balanced-carbs-protein-and-fiber-51023e.json";
 import gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiber54e553 from "../../../content/blog/posts-en/gestational-diabetes-meal-ideas-balanced-carbs-protein-and-fiber-54e553.json";
@@ -225,6 +226,7 @@ import nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrients1ddde4 from "../../
 import nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrients3ae6b1 from "../../../content/blog/posts-en/nausea-friendly-pregnancy-meals-that-still-cover-key-nutrients-3ae6b1.json";
 import nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrients411b53 from "../../../content/blog/posts-en/nausea-friendly-pregnancy-meals-that-still-cover-key-nutrients-411b53.json";
 import nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrients48c065 from "../../../content/blog/posts-en/nausea-friendly-pregnancy-meals-that-still-cover-key-nutrients-48c065.json";
+import nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrients571b4e from "../../../content/blog/posts-en/nausea-friendly-pregnancy-meals-that-still-cover-key-nutrients-571b4e.json";
 import nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrients5a48c7 from "../../../content/blog/posts-en/nausea-friendly-pregnancy-meals-that-still-cover-key-nutrients-5a48c7.json";
 import nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrients664555 from "../../../content/blog/posts-en/nausea-friendly-pregnancy-meals-that-still-cover-key-nutrients-664555.json";
 import nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrients689e11 from "../../../content/blog/posts-en/nausea-friendly-pregnancy-meals-that-still-cover-key-nutrients-689e11.json";
@@ -465,6 +467,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiber2d85bd,
   gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiber3da1ef,
   gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiber3ef9d4,
+  gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiber459380,
   gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiber4a2062,
   gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiber51023e,
   gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiber54e553,
@@ -574,6 +577,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrients3ae6b1,
   nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrients411b53,
   nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrients48c065,
+  nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrients571b4e,
   nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrients5a48c7,
   nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrients664555,
   nauseaFriendlyPregnancyMealsThatStillCoverKeyNutrients689e11,
