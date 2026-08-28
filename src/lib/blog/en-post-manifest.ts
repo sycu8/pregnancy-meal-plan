@@ -88,6 +88,7 @@ import firstTrimesterNutritionChecklistFolateIronAndSaferFoodsFaf998 from "../..
 import firstTrimesterNutritionChecklistFolateIronAndSaferFoods from "../../../content/blog/posts-en/first-trimester-nutrition-checklist-folate-iron-and-safer-foods.json";
 import foodsToLimitOrCookThoroughlyDuringPregnancy03df7f from "../../../content/blog/posts-en/foods-to-limit-or-cook-thoroughly-during-pregnancy-03df7f.json";
 import foodsToLimitOrCookThoroughlyDuringPregnancy04a34a from "../../../content/blog/posts-en/foods-to-limit-or-cook-thoroughly-during-pregnancy-04a34a.json";
+import foodsToLimitOrCookThoroughlyDuringPregnancy0796c1 from "../../../content/blog/posts-en/foods-to-limit-or-cook-thoroughly-during-pregnancy-0796c1.json";
 import foodsToLimitOrCookThoroughlyDuringPregnancy1f6b38 from "../../../content/blog/posts-en/foods-to-limit-or-cook-thoroughly-during-pregnancy-1f6b38.json";
 import foodsToLimitOrCookThoroughlyDuringPregnancy228620 from "../../../content/blog/posts-en/foods-to-limit-or-cook-thoroughly-during-pregnancy-228620.json";
 import foodsToLimitOrCookThoroughlyDuringPregnancy26739d from "../../../content/blog/posts-en/foods-to-limit-or-cook-thoroughly-during-pregnancy-26739d.json";
@@ -277,6 +278,7 @@ import omega3AndDhaInPregnancyFoodSourcesAndSupplementCautionsAf7430 from "../..
 import omega3AndDhaInPregnancyFoodSourcesAndSupplementCautionsB98d55 from "../../../content/blog/posts-en/omega-3-and-dha-in-pregnancy-food-sources-and-supplement-cautions-b98d55.json";
 import omega3AndDhaInPregnancyFoodSourcesAndSupplementCautionsD2f8d7 from "../../../content/blog/posts-en/omega-3-and-dha-in-pregnancy-food-sources-and-supplement-cautions-d2f8d7.json";
 import omega3AndDhaInPregnancyFoodSourcesAndSupplementCautionsE5eec6 from "../../../content/blog/posts-en/omega-3-and-dha-in-pregnancy-food-sources-and-supplement-cautions-e5eec6.json";
+import omega3AndDhaInPregnancyFoodSourcesAndSupplementCautionsFa0dbc from "../../../content/blog/posts-en/omega-3-and-dha-in-pregnancy-food-sources-and-supplement-cautions-fa0dbc.json";
 import omega3AndDhaInPregnancyFoodSourcesAndSupplementCautions from "../../../content/blog/posts-en/omega-3-and-dha-in-pregnancy-food-sources-and-supplement-cautions.json";
 import omega3DhaChoMeBau from "../../../content/blog/posts-en/omega-3-dha-cho-me-bau.json";
 import phoMemVaSuaChuaTietTrungKhiMangThai from "../../../content/blog/posts-en/pho-mem-va-sua-chua-tiet-trung-khi-mang-thai.json";
@@ -445,6 +447,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   firstTrimesterNutritionChecklistFolateIronAndSaferFoods,
   foodsToLimitOrCookThoroughlyDuringPregnancy03df7f,
   foodsToLimitOrCookThoroughlyDuringPregnancy04a34a,
+  foodsToLimitOrCookThoroughlyDuringPregnancy0796c1,
   foodsToLimitOrCookThoroughlyDuringPregnancy1f6b38,
   foodsToLimitOrCookThoroughlyDuringPregnancy228620,
   foodsToLimitOrCookThoroughlyDuringPregnancy26739d,
@@ -634,6 +637,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   omega3AndDhaInPregnancyFoodSourcesAndSupplementCautionsB98d55,
   omega3AndDhaInPregnancyFoodSourcesAndSupplementCautionsD2f8d7,
   omega3AndDhaInPregnancyFoodSourcesAndSupplementCautionsE5eec6,
+  omega3AndDhaInPregnancyFoodSourcesAndSupplementCautionsFa0dbc,
   omega3AndDhaInPregnancyFoodSourcesAndSupplementCautions,
   omega3DhaChoMeBau,
   phoMemVaSuaChuaTietTrungKhiMangThai,
