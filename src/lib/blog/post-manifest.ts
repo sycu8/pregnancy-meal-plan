@@ -20,6 +20,7 @@ import chuotRutChanKhiMangThai from "../../../content/blog/posts/chuot-rut-chan-
 import commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkip0472be from "../../../content/blog/posts/common-vietnamese-dishes-in-pregnancy-what-to-keep-tweak-or-skip-0472be.json";
 import commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkip1358e2 from "../../../content/blog/posts/common-vietnamese-dishes-in-pregnancy-what-to-keep-tweak-or-skip-1358e2.json";
 import commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkip4aa870 from "../../../content/blog/posts/common-vietnamese-dishes-in-pregnancy-what-to-keep-tweak-or-skip-4aa870.json";
+import commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkipC4890f from "../../../content/blog/posts/common-vietnamese-dishes-in-pregnancy-what-to-keep-tweak-or-skip-c4890f.json";
 import commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkipDec982 from "../../../content/blog/posts/common-vietnamese-dishes-in-pregnancy-what-to-keep-tweak-or-skip-dec982.json";
 import commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkip from "../../../content/blog/posts/common-vietnamese-dishes-in-pregnancy-what-to-keep-tweak-or-skip.json";
 import daiThaoDuongThaiKyMoiBanTamCuaMeBauVi from "../../../content/blog/posts/dai-thao-duong-thai-ky-moi-ban-tam-cua-me-bau-vi.json";
@@ -296,6 +297,7 @@ import postpartumBreastfeedingNutrition from "../../../content/blog/posts/postpa
 import pregnancyChildbirthNewborn29318b from "../../../content/blog/posts/pregnancy-childbirth-newborn-29318b.json";
 import pregnancyChildbirthNewborn from "../../../content/blog/posts/pregnancy-childbirth-newborn.json";
 import pregnancyFoodSafetyAnalysisSushiSaladsBbqAndCheeseBoards from "../../../content/blog/posts/pregnancy-food-safety-analysis-sushi-salads-bbq-and-cheese-boards.json";
+import pregnancyNutritionNutsToAvoidDuringPregnancy from "../../../content/blog/posts/pregnancy-nutrition-nuts-to-avoid-during-pregnancy.json";
 import pregnancyRecipesIronAndFolateBowlsYouCanCookIn30Minutes398912 from "../../../content/blog/posts/pregnancy-recipes-iron-and-folate-bowls-you-can-cook-in-30-minutes-398912.json";
 import pregnancyRecipesIronAndFolateBowlsYouCanCookIn30Minutes7167df from "../../../content/blog/posts/pregnancy-recipes-iron-and-folate-bowls-you-can-cook-in-30-minutes-7167df.json";
 import pregnancyRecipesIronAndFolateBowlsYouCanCookIn30Minutes9b6f6a from "../../../content/blog/posts/pregnancy-recipes-iron-and-folate-bowls-you-can-cook-in-30-minutes-9b6f6a.json";
@@ -383,6 +385,7 @@ export const postManifest: BlogPost[] = [
   commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkip0472be,
   commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkip1358e2,
   commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkip4aa870,
+  commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkipC4890f,
   commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkipDec982,
   commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkip,
   daiThaoDuongThaiKyMoiBanTamCuaMeBauVi,
@@ -659,6 +662,7 @@ export const postManifest: BlogPost[] = [
   pregnancyChildbirthNewborn29318b,
   pregnancyChildbirthNewborn,
   pregnancyFoodSafetyAnalysisSushiSaladsBbqAndCheeseBoards,
+  pregnancyNutritionNutsToAvoidDuringPregnancy,
   pregnancyRecipesIronAndFolateBowlsYouCanCookIn30Minutes398912,
   pregnancyRecipesIronAndFolateBowlsYouCanCookIn30Minutes7167df,
   pregnancyRecipesIronAndFolateBowlsYouCanCookIn30Minutes9b6f6a,
