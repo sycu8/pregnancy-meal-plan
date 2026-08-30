@@ -7,6 +7,7 @@
   "fetchedAt": "2026-08-23T03:22:19.808Z",
   "titleHash": "034384fa7b599268",
   "urlHash": "8c330132f311a589",
-  "status": "draft",
-  "note": "Metadata-only queue item. Requires editorial synthesis before publish — do not copy source text."
+  "status": "published",
+  "note": "Metadata-only queue item. Requires editorial synthesis before publish — do not copy source text.",
+  "slug": "can-women-eat-strawberries-after-giving-birth"
 }

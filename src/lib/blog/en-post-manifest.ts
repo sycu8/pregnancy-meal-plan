@@ -9,6 +9,7 @@ import boSungDhaOmega3 from "../../../content/blog/posts-en/bo-sung-dha-omega3.j
 import caffeineKhiMangThai from "../../../content/blog/posts-en/caffeine-khi-mang-thai.json";
 import canIEatRipeJackfruitAfterGivingBirthBenefitsAndRisks from "../../../content/blog/posts-en/can-i-eat-ripe-jackfruit-after-giving-birth-benefits-and-risks.json";
 import canNangThaiNhiTieuChuan from "../../../content/blog/posts-en/can-nang-thai-nhi-tieu-chuan.json";
+import canWomenEatStrawberriesAfterGivingBirth from "../../../content/blog/posts-en/can-women-eat-strawberries-after-giving-birth.json";
 import canxiVaVitaminDKhiMangThai from "../../../content/blog/posts-en/canxi-va-vitamin-d-khi-mang-thai.json";
 import chamSocRangMiengTrongThaiKyVi from "../../../content/blog/posts-en/cham-soc-rang-mieng-trong-thai-ky-vi.json";
 import chamSocTreSoSinh03Thang from "../../../content/blog/posts-en/cham-soc-tre-so-sinh-0-3-thang.json";
@@ -18,6 +19,7 @@ import chiSoBetaHcgHaiTuanDau from "../../../content/blog/posts-en/chi-so-beta-h
 import choConBuKhoKhan from "../../../content/blog/posts-en/cho-con-bu-kho-khan.json";
 import chuotRutChanKhiMangThai from "../../../content/blog/posts-en/chuot-rut-chan-khi-mang-thai.json";
 import commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkip0472be from "../../../content/blog/posts-en/common-vietnamese-dishes-in-pregnancy-what-to-keep-tweak-or-skip-0472be.json";
+import commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkip1304e6 from "../../../content/blog/posts-en/common-vietnamese-dishes-in-pregnancy-what-to-keep-tweak-or-skip-1304e6.json";
 import commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkip1358e2 from "../../../content/blog/posts-en/common-vietnamese-dishes-in-pregnancy-what-to-keep-tweak-or-skip-1358e2.json";
 import commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkip4aa870 from "../../../content/blog/posts-en/common-vietnamese-dishes-in-pregnancy-what-to-keep-tweak-or-skip-4aa870.json";
 import commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkipC4890f from "../../../content/blog/posts-en/common-vietnamese-dishes-in-pregnancy-what-to-keep-tweak-or-skip-c4890f.json";
@@ -374,6 +376,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   caffeineKhiMangThai,
   canIEatRipeJackfruitAfterGivingBirthBenefitsAndRisks,
   canNangThaiNhiTieuChuan,
+  canWomenEatStrawberriesAfterGivingBirth,
   canxiVaVitaminDKhiMangThai,
   chamSocRangMiengTrongThaiKyVi,
   chamSocTreSoSinh03Thang,
@@ -383,6 +386,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   choConBuKhoKhan,
   chuotRutChanKhiMangThai,
   commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkip0472be,
+  commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkip1304e6,
   commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkip1358e2,
   commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkip4aa870,
   commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkipC4890f,
