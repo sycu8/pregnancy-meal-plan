@@ -7,6 +7,7 @@
   "fetchedAt": "2026-08-23T03:22:19.808Z",
   "titleHash": "17356b39b9827a42",
   "urlHash": "841c7c810a707027",
-  "status": "draft",
-  "note": "Metadata-only queue item. Requires editorial synthesis before publish — do not copy source text."
+  "status": "published",
+  "note": "Metadata-only queue item. Requires editorial synthesis before publish — do not copy source text.",
+  "slug": "morning-sickness-during-pregnancy-when-does-it-start"
 }

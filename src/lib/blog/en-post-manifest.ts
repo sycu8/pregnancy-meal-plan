@@ -181,6 +181,7 @@ import mangThaiLanDauCanBiet from "../../../content/blog/posts-en/mang-thai-lan-
 import mangThaiMuaHeNong from "../../../content/blog/posts-en/mang-thai-mua-he-nong.json";
 import messageFromTheMinisterOfMentalHealthAndAddictionsAndAssociateMinisterC6d7ff from "../../../content/blog/posts-en/message-from-the-minister-of-mental-health-and-addictions-and-associate-minister-c6d7ff.json";
 import messageFromTheMinisterOfMentalHealthAndAddictionsAndAssociateMinister from "../../../content/blog/posts-en/message-from-the-minister-of-mental-health-and-addictions-and-associate-minister.json";
+import morningSicknessDuringPregnancyWhenDoesItStart from "../../../content/blog/posts-en/morning-sickness-during-pregnancy-when-does-it-start.json";
 import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks00e23a from "../../../content/blog/posts-en/n-7-day-pregnancy-meal-plan-balanced-plates-for-busy-weeks-00e23a.json";
 import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks03c4c6 from "../../../content/blog/posts-en/n-7-day-pregnancy-meal-plan-balanced-plates-for-busy-weeks-03c4c6.json";
 import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks046a1f from "../../../content/blog/posts-en/n-7-day-pregnancy-meal-plan-balanced-plates-for-busy-weeks-046a1f.json";
@@ -552,6 +553,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   mangThaiMuaHeNong,
   messageFromTheMinisterOfMentalHealthAndAddictionsAndAssociateMinisterC6d7ff,
   messageFromTheMinisterOfMentalHealthAndAddictionsAndAssociateMinister,
+  morningSicknessDuringPregnancyWhenDoesItStart,
   n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks00e23a,
   n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks03c4c6,
   n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks046a1f,
