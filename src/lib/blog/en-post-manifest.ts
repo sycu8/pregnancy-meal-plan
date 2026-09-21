@@ -51,6 +51,7 @@ import deliciousWeeknightPregnancyMenus5CookOnceRecipes684b5b from "../../../con
 import deliciousWeeknightPregnancyMenus5CookOnceRecipes76f768 from "../../../content/blog/posts-en/delicious-weeknight-pregnancy-menus-5-cook-once-recipes-76f768.json";
 import deliciousWeeknightPregnancyMenus5CookOnceRecipes8adaae from "../../../content/blog/posts-en/delicious-weeknight-pregnancy-menus-5-cook-once-recipes-8adaae.json";
 import deliciousWeeknightPregnancyMenus5CookOnceRecipesB39da9 from "../../../content/blog/posts-en/delicious-weeknight-pregnancy-menus-5-cook-once-recipes-b39da9.json";
+import deliciousWeeknightPregnancyMenus5CookOnceRecipesCef71c from "../../../content/blog/posts-en/delicious-weeknight-pregnancy-menus-5-cook-once-recipes-cef71c.json";
 import deliciousWeeknightPregnancyMenus5CookOnceRecipes from "../../../content/blog/posts-en/delicious-weeknight-pregnancy-menus-5-cook-once-recipes.json";
 import diUngThucPhamTreNho from "../../../content/blog/posts-en/di-ung-thuc-pham-tre-nho.json";
 import dinhDuong3ThangCuoiThaiKy from "../../../content/blog/posts-en/dinh-duong-3-thang-cuoi-thai-ky.json";
@@ -358,6 +359,7 @@ import pregnancyRecipesIronAndFolateBowlsYouCanCookIn30MinutesA19c08 from "../..
 import pregnancyRecipesIronAndFolateBowlsYouCanCookIn30MinutesA70db8 from "../../../content/blog/posts-en/pregnancy-recipes-iron-and-folate-bowls-you-can-cook-in-30-minutes-a70db8.json";
 import pregnancyRecipesIronAndFolateBowlsYouCanCookIn30MinutesAbc97b from "../../../content/blog/posts-en/pregnancy-recipes-iron-and-folate-bowls-you-can-cook-in-30-minutes-abc97b.json";
 import pregnancyRecipesIronAndFolateBowlsYouCanCookIn30MinutesC1b8f4 from "../../../content/blog/posts-en/pregnancy-recipes-iron-and-folate-bowls-you-can-cook-in-30-minutes-c1b8f4.json";
+import pregnancyRecipesIronAndFolateBowlsYouCanCookIn30MinutesD5fd10 from "../../../content/blog/posts-en/pregnancy-recipes-iron-and-folate-bowls-you-can-cook-in-30-minutes-d5fd10.json";
 import pregnancyRecipesIronAndFolateBowlsYouCanCookIn30MinutesEc6349 from "../../../content/blog/posts-en/pregnancy-recipes-iron-and-folate-bowls-you-can-cook-in-30-minutes-ec6349.json";
 import pregnancyRecipesIronAndFolateBowlsYouCanCookIn30MinutesFdac68 from "../../../content/blog/posts-en/pregnancy-recipes-iron-and-folate-bowls-you-can-cook-in-30-minutes-fdac68.json";
 import pregnancyRecipesIronAndFolateBowlsYouCanCookIn30Minutes from "../../../content/blog/posts-en/pregnancy-recipes-iron-and-folate-bowls-you-can-cook-in-30-minutes.json";
@@ -485,6 +487,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   deliciousWeeknightPregnancyMenus5CookOnceRecipes76f768,
   deliciousWeeknightPregnancyMenus5CookOnceRecipes8adaae,
   deliciousWeeknightPregnancyMenus5CookOnceRecipesB39da9,
+  deliciousWeeknightPregnancyMenus5CookOnceRecipesCef71c,
   deliciousWeeknightPregnancyMenus5CookOnceRecipes,
   diUngThucPhamTreNho,
   dinhDuong3ThangCuoiThaiKy,
@@ -792,6 +795,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   pregnancyRecipesIronAndFolateBowlsYouCanCookIn30MinutesA70db8,
   pregnancyRecipesIronAndFolateBowlsYouCanCookIn30MinutesAbc97b,
   pregnancyRecipesIronAndFolateBowlsYouCanCookIn30MinutesC1b8f4,
+  pregnancyRecipesIronAndFolateBowlsYouCanCookIn30MinutesD5fd10,
   pregnancyRecipesIronAndFolateBowlsYouCanCookIn30MinutesEc6349,
   pregnancyRecipesIronAndFolateBowlsYouCanCookIn30MinutesFdac68,
   pregnancyRecipesIronAndFolateBowlsYouCanCookIn30Minutes,
