@@ -155,6 +155,7 @@ import gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiber3da1ef from "../.
 import gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiber3ef9d4 from "../../../content/blog/posts/gestational-diabetes-meal-ideas-balanced-carbs-protein-and-fiber-3ef9d4.json";
 import gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiber459380 from "../../../content/blog/posts/gestational-diabetes-meal-ideas-balanced-carbs-protein-and-fiber-459380.json";
 import gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiber4a2062 from "../../../content/blog/posts/gestational-diabetes-meal-ideas-balanced-carbs-protein-and-fiber-4a2062.json";
+import gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiber4b287d from "../../../content/blog/posts/gestational-diabetes-meal-ideas-balanced-carbs-protein-and-fiber-4b287d.json";
 import gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiber51023e from "../../../content/blog/posts/gestational-diabetes-meal-ideas-balanced-carbs-protein-and-fiber-51023e.json";
 import gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiber54e553 from "../../../content/blog/posts/gestational-diabetes-meal-ideas-balanced-carbs-protein-and-fiber-54e553.json";
 import gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiber5b1839 from "../../../content/blog/posts/gestational-diabetes-meal-ideas-balanced-carbs-protein-and-fiber-5b1839.json";
@@ -607,6 +608,7 @@ export const postManifest: BlogPost[] = [
   gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiber3ef9d4,
   gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiber459380,
   gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiber4a2062,
+  gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiber4b287d,
   gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiber51023e,
   gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiber54e553,
   gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiber5b1839,
