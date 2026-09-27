@@ -7,12 +7,13 @@
   "snippet": "Smaller meals, gentler textures, and nutrient-dense snacks when morning sickness makes eating hard.",
   "snippetVi": "Chia nhỏ bữa, chọn món dễ tiêu và bữa phụ giàu dinh dưỡng khi nghén nặng.",
   "fetchedAt": "2026-09-25T18:44:24.591Z",
-  "status": "draft",
+  "status": "published",
   "note": "Re-queue incomplete bilingual post for AI rewrite (EN+VI required).",
   "editorial": true,
   "categoryHint": "thuc-don-ba-bau",
   "tagsHint": [
     "nausea",
     "meal-plan"
-  ]
+  ],
+  "slug": "nausea-friendly-pregnancy-meals-easy-to-eat-and-nutritious-42ae7f"
 }
