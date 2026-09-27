@@ -132,6 +132,7 @@ import foodsToLimitOrCookThoroughlyDuringPregnancy45a157 from "../../../content/
 import foodsToLimitOrCookThoroughlyDuringPregnancy50fce4 from "../../../content/blog/posts-en/foods-to-limit-or-cook-thoroughly-during-pregnancy-50fce4.json";
 import foodsToLimitOrCookThoroughlyDuringPregnancy58680d from "../../../content/blog/posts-en/foods-to-limit-or-cook-thoroughly-during-pregnancy-58680d.json";
 import foodsToLimitOrCookThoroughlyDuringPregnancy5bdaac from "../../../content/blog/posts-en/foods-to-limit-or-cook-thoroughly-during-pregnancy-5bdaac.json";
+import foodsToLimitOrCookThoroughlyDuringPregnancy5d230f from "../../../content/blog/posts-en/foods-to-limit-or-cook-thoroughly-during-pregnancy-5d230f.json";
 import foodsToLimitOrCookThoroughlyDuringPregnancy7053df from "../../../content/blog/posts-en/foods-to-limit-or-cook-thoroughly-during-pregnancy-7053df.json";
 import foodsToLimitOrCookThoroughlyDuringPregnancy721dca from "../../../content/blog/posts-en/foods-to-limit-or-cook-thoroughly-during-pregnancy-721dca.json";
 import foodsToLimitOrCookThoroughlyDuringPregnancy8467db from "../../../content/blog/posts-en/foods-to-limit-or-cook-thoroughly-during-pregnancy-8467db.json";
@@ -348,6 +349,7 @@ import omega3AndDhaInPregnancyFoodSourcesAndSupplementCautions93d2c8 from "../..
 import omega3AndDhaInPregnancyFoodSourcesAndSupplementCautions9a9cba from "../../../content/blog/posts-en/omega-3-and-dha-in-pregnancy-food-sources-and-supplement-cautions-9a9cba.json";
 import omega3AndDhaInPregnancyFoodSourcesAndSupplementCautionsAf7430 from "../../../content/blog/posts-en/omega-3-and-dha-in-pregnancy-food-sources-and-supplement-cautions-af7430.json";
 import omega3AndDhaInPregnancyFoodSourcesAndSupplementCautionsB98d55 from "../../../content/blog/posts-en/omega-3-and-dha-in-pregnancy-food-sources-and-supplement-cautions-b98d55.json";
+import omega3AndDhaInPregnancyFoodSourcesAndSupplementCautionsC3742d from "../../../content/blog/posts-en/omega-3-and-dha-in-pregnancy-food-sources-and-supplement-cautions-c3742d.json";
 import omega3AndDhaInPregnancyFoodSourcesAndSupplementCautionsD2f8d7 from "../../../content/blog/posts-en/omega-3-and-dha-in-pregnancy-food-sources-and-supplement-cautions-d2f8d7.json";
 import omega3AndDhaInPregnancyFoodSourcesAndSupplementCautionsD7f799 from "../../../content/blog/posts-en/omega-3-and-dha-in-pregnancy-food-sources-and-supplement-cautions-d7f799.json";
 import omega3AndDhaInPregnancyFoodSourcesAndSupplementCautionsE42060 from "../../../content/blog/posts-en/omega-3-and-dha-in-pregnancy-food-sources-and-supplement-cautions-e42060.json";
@@ -591,6 +593,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   foodsToLimitOrCookThoroughlyDuringPregnancy50fce4,
   foodsToLimitOrCookThoroughlyDuringPregnancy58680d,
   foodsToLimitOrCookThoroughlyDuringPregnancy5bdaac,
+  foodsToLimitOrCookThoroughlyDuringPregnancy5d230f,
   foodsToLimitOrCookThoroughlyDuringPregnancy7053df,
   foodsToLimitOrCookThoroughlyDuringPregnancy721dca,
   foodsToLimitOrCookThoroughlyDuringPregnancy8467db,
@@ -807,6 +810,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   omega3AndDhaInPregnancyFoodSourcesAndSupplementCautions9a9cba,
   omega3AndDhaInPregnancyFoodSourcesAndSupplementCautionsAf7430,
   omega3AndDhaInPregnancyFoodSourcesAndSupplementCautionsB98d55,
+  omega3AndDhaInPregnancyFoodSourcesAndSupplementCautionsC3742d,
   omega3AndDhaInPregnancyFoodSourcesAndSupplementCautionsD2f8d7,
   omega3AndDhaInPregnancyFoodSourcesAndSupplementCautionsD7f799,
   omega3AndDhaInPregnancyFoodSourcesAndSupplementCautionsE42060,
