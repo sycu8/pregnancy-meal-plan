@@ -213,6 +213,7 @@ import ironRichPregnancyMealsWithVitaminCPairingTips26818d from "../../../conten
 import ironRichPregnancyMealsWithVitaminCPairingTips705210 from "../../../content/blog/posts-en/iron-rich-pregnancy-meals-with-vitamin-c-pairing-tips-705210.json";
 import ironRichPregnancyMealsWithVitaminCPairingTips7ef85e from "../../../content/blog/posts-en/iron-rich-pregnancy-meals-with-vitamin-c-pairing-tips-7ef85e.json";
 import ironRichPregnancyMealsWithVitaminCPairingTips8613e9 from "../../../content/blog/posts-en/iron-rich-pregnancy-meals-with-vitamin-c-pairing-tips-8613e9.json";
+import ironRichPregnancyMealsWithVitaminCPairingTips8f70e6 from "../../../content/blog/posts-en/iron-rich-pregnancy-meals-with-vitamin-c-pairing-tips-8f70e6.json";
 import ironRichPregnancyMealsWithVitaminCPairingTips95d02b from "../../../content/blog/posts-en/iron-rich-pregnancy-meals-with-vitamin-c-pairing-tips-95d02b.json";
 import ironRichPregnancyMealsWithVitaminCPairingTips9741d2 from "../../../content/blog/posts-en/iron-rich-pregnancy-meals-with-vitamin-c-pairing-tips-9741d2.json";
 import ironRichPregnancyMealsWithVitaminCPairingTips995a5d from "../../../content/blog/posts-en/iron-rich-pregnancy-meals-with-vitamin-c-pairing-tips-995a5d.json";
@@ -679,6 +680,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   ironRichPregnancyMealsWithVitaminCPairingTips705210,
   ironRichPregnancyMealsWithVitaminCPairingTips7ef85e,
   ironRichPregnancyMealsWithVitaminCPairingTips8613e9,
+  ironRichPregnancyMealsWithVitaminCPairingTips8f70e6,
   ironRichPregnancyMealsWithVitaminCPairingTips95d02b,
   ironRichPregnancyMealsWithVitaminCPairingTips9741d2,
   ironRichPregnancyMealsWithVitaminCPairingTips995a5d,
