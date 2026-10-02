@@ -205,6 +205,7 @@ import internationalPantryStaplesForPregnancyNutrition43644e from "../../../cont
 import internationalPantryStaplesForPregnancyNutrition5c67fd from "../../../content/blog/posts-en/international-pantry-staples-for-pregnancy-nutrition-5c67fd.json";
 import internationalPantryStaplesForPregnancyNutrition60133d from "../../../content/blog/posts-en/international-pantry-staples-for-pregnancy-nutrition-60133d.json";
 import internationalPantryStaplesForPregnancyNutrition8d1bea from "../../../content/blog/posts-en/international-pantry-staples-for-pregnancy-nutrition-8d1bea.json";
+import internationalPantryStaplesForPregnancyNutrition8db038 from "../../../content/blog/posts-en/international-pantry-staples-for-pregnancy-nutrition-8db038.json";
 import internationalPantryStaplesForPregnancyNutritionCb1bbe from "../../../content/blog/posts-en/international-pantry-staples-for-pregnancy-nutrition-cb1bbe.json";
 import internationalPantryStaplesForPregnancyNutritionE2f8c0 from "../../../content/blog/posts-en/international-pantry-staples-for-pregnancy-nutrition-e2f8c0.json";
 import internationalPantryStaplesForPregnancyNutritionF6a6a8 from "../../../content/blog/posts-en/international-pantry-staples-for-pregnancy-nutrition-f6a6a8.json";
@@ -427,6 +428,7 @@ import sushiSaladsBbqAndCheeseBoardsPregnancyFoodSafetyAnalysisB7e4a7 from "../.
 import sushiSaladsBbqAndCheeseBoardsPregnancyFoodSafetyAnalysisB7f663 from "../../../content/blog/posts-en/sushi-salads-bbq-and-cheese-boards-pregnancy-food-safety-analysis-b7f663.json";
 import sushiSaladsBbqAndCheeseBoardsPregnancyFoodSafetyAnalysisBdb0f2 from "../../../content/blog/posts-en/sushi-salads-bbq-and-cheese-boards-pregnancy-food-safety-analysis-bdb0f2.json";
 import sushiSaladsBbqAndCheeseBoardsPregnancyFoodSafetyAnalysisDb9e7f from "../../../content/blog/posts-en/sushi-salads-bbq-and-cheese-boards-pregnancy-food-safety-analysis-db9e7f.json";
+import sushiSaladsBbqAndCheeseBoardsPregnancyFoodSafetyAnalysisDcc1db from "../../../content/blog/posts-en/sushi-salads-bbq-and-cheese-boards-pregnancy-food-safety-analysis-dcc1db.json";
 import sushiSaladsBbqAndCheeseBoardsPregnancyFoodSafetyAnalysisEdeac4 from "../../../content/blog/posts-en/sushi-salads-bbq-and-cheese-boards-pregnancy-food-safety-analysis-edeac4.json";
 import sushiSaladsBbqAndCheeseBoardsPregnancyFoodSafetyAnalysis from "../../../content/blog/posts-en/sushi-salads-bbq-and-cheese-boards-pregnancy-food-safety-analysis.json";
 import tamQuanTrongCuaVitaminTrongThaiKiVi from "../../../content/blog/posts-en/tam-quan-trong-cua-vitamin-trong-thai-ki-vi.json";
@@ -680,6 +682,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   internationalPantryStaplesForPregnancyNutrition5c67fd,
   internationalPantryStaplesForPregnancyNutrition60133d,
   internationalPantryStaplesForPregnancyNutrition8d1bea,
+  internationalPantryStaplesForPregnancyNutrition8db038,
   internationalPantryStaplesForPregnancyNutritionCb1bbe,
   internationalPantryStaplesForPregnancyNutritionE2f8c0,
   internationalPantryStaplesForPregnancyNutritionF6a6a8,
@@ -902,6 +905,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   sushiSaladsBbqAndCheeseBoardsPregnancyFoodSafetyAnalysisB7f663,
   sushiSaladsBbqAndCheeseBoardsPregnancyFoodSafetyAnalysisBdb0f2,
   sushiSaladsBbqAndCheeseBoardsPregnancyFoodSafetyAnalysisDb9e7f,
+  sushiSaladsBbqAndCheeseBoardsPregnancyFoodSafetyAnalysisDcc1db,
   sushiSaladsBbqAndCheeseBoardsPregnancyFoodSafetyAnalysisEdeac4,
   sushiSaladsBbqAndCheeseBoardsPregnancyFoodSafetyAnalysis,
   tamQuanTrongCuaVitaminTrongThaiKiVi,
