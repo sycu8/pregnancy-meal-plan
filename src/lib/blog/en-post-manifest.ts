@@ -208,6 +208,7 @@ import internationalPantryStaplesForPregnancyNutrition8d1bea from "../../../cont
 import internationalPantryStaplesForPregnancyNutrition8db038 from "../../../content/blog/posts-en/international-pantry-staples-for-pregnancy-nutrition-8db038.json";
 import internationalPantryStaplesForPregnancyNutritionA7e51d from "../../../content/blog/posts-en/international-pantry-staples-for-pregnancy-nutrition-a7e51d.json";
 import internationalPantryStaplesForPregnancyNutritionCb1bbe from "../../../content/blog/posts-en/international-pantry-staples-for-pregnancy-nutrition-cb1bbe.json";
+import internationalPantryStaplesForPregnancyNutritionD53818 from "../../../content/blog/posts-en/international-pantry-staples-for-pregnancy-nutrition-d53818.json";
 import internationalPantryStaplesForPregnancyNutritionE2f8c0 from "../../../content/blog/posts-en/international-pantry-staples-for-pregnancy-nutrition-e2f8c0.json";
 import internationalPantryStaplesForPregnancyNutritionF6a6a8 from "../../../content/blog/posts-en/international-pantry-staples-for-pregnancy-nutrition-f6a6a8.json";
 import internationalPantryStaplesForPregnancyNutritionF79eca from "../../../content/blog/posts-en/international-pantry-staples-for-pregnancy-nutrition-f79eca.json";
@@ -385,6 +386,7 @@ import pregnancyFoodSafetyAnalysisSushiSaladsBbqAndCheeseBoardsE1bc84 from "../.
 import pregnancyFoodSafetyAnalysisSushiSaladsBbqAndCheeseBoardsF1eadb from "../../../content/blog/posts-en/pregnancy-food-safety-analysis-sushi-salads-bbq-and-cheese-boards-f1eadb.json";
 import pregnancyFoodSafetyAnalysisSushiSaladsBbqAndCheeseBoards from "../../../content/blog/posts-en/pregnancy-food-safety-analysis-sushi-salads-bbq-and-cheese-boards.json";
 import pregnancyNutritionNutsToAvoidDuringPregnancy from "../../../content/blog/posts-en/pregnancy-nutrition-nuts-to-avoid-during-pregnancy.json";
+import pregnancyRecipesIronAndFolateBowlsYouCanCookIn30Minutes0e5800 from "../../../content/blog/posts-en/pregnancy-recipes-iron-and-folate-bowls-you-can-cook-in-30-minutes-0e5800.json";
 import pregnancyRecipesIronAndFolateBowlsYouCanCookIn30Minutes28f238 from "../../../content/blog/posts-en/pregnancy-recipes-iron-and-folate-bowls-you-can-cook-in-30-minutes-28f238.json";
 import pregnancyRecipesIronAndFolateBowlsYouCanCookIn30Minutes398912 from "../../../content/blog/posts-en/pregnancy-recipes-iron-and-folate-bowls-you-can-cook-in-30-minutes-398912.json";
 import pregnancyRecipesIronAndFolateBowlsYouCanCookIn30Minutes6d3b08 from "../../../content/blog/posts-en/pregnancy-recipes-iron-and-folate-bowls-you-can-cook-in-30-minutes-6d3b08.json";
@@ -687,6 +689,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   internationalPantryStaplesForPregnancyNutrition8db038,
   internationalPantryStaplesForPregnancyNutritionA7e51d,
   internationalPantryStaplesForPregnancyNutritionCb1bbe,
+  internationalPantryStaplesForPregnancyNutritionD53818,
   internationalPantryStaplesForPregnancyNutritionE2f8c0,
   internationalPantryStaplesForPregnancyNutritionF6a6a8,
   internationalPantryStaplesForPregnancyNutritionF79eca,
@@ -864,6 +867,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   pregnancyFoodSafetyAnalysisSushiSaladsBbqAndCheeseBoardsF1eadb,
   pregnancyFoodSafetyAnalysisSushiSaladsBbqAndCheeseBoards,
   pregnancyNutritionNutsToAvoidDuringPregnancy,
+  pregnancyRecipesIronAndFolateBowlsYouCanCookIn30Minutes0e5800,
   pregnancyRecipesIronAndFolateBowlsYouCanCookIn30Minutes28f238,
   pregnancyRecipesIronAndFolateBowlsYouCanCookIn30Minutes398912,
   pregnancyRecipesIronAndFolateBowlsYouCanCookIn30Minutes6d3b08,
