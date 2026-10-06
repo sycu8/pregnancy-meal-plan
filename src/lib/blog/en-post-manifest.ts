@@ -50,6 +50,7 @@ import dauHieuSayThaiCanLamGi from "../../../content/blog/posts-en/dau-hieu-say-
 import dauHieuTienSanGiatSom from "../../../content/blog/posts-en/dau-hieu-tien-san-giat-som.json";
 import dauLungSauSinh from "../../../content/blog/posts-en/dau-lung-sau-sinh.json";
 import deliciousWeeknightPregnancyMenus5CookOnceRecipes091d89 from "../../../content/blog/posts-en/delicious-weeknight-pregnancy-menus-5-cook-once-recipes-091d89.json";
+import deliciousWeeknightPregnancyMenus5CookOnceRecipes1b2ad7 from "../../../content/blog/posts-en/delicious-weeknight-pregnancy-menus-5-cook-once-recipes-1b2ad7.json";
 import deliciousWeeknightPregnancyMenus5CookOnceRecipes1f6097 from "../../../content/blog/posts-en/delicious-weeknight-pregnancy-menus-5-cook-once-recipes-1f6097.json";
 import deliciousWeeknightPregnancyMenus5CookOnceRecipes284bab from "../../../content/blog/posts-en/delicious-weeknight-pregnancy-menus-5-cook-once-recipes-284bab.json";
 import deliciousWeeknightPregnancyMenus5CookOnceRecipes2a4108 from "../../../content/blog/posts-en/delicious-weeknight-pregnancy-menus-5-cook-once-recipes-2a4108.json";
@@ -283,6 +284,7 @@ import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks965412 from "../../../con
 import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks9660a3 from "../../../content/blog/posts-en/n-7-day-pregnancy-meal-plan-balanced-plates-for-busy-weeks-9660a3.json";
 import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeksA50f09 from "../../../content/blog/posts-en/n-7-day-pregnancy-meal-plan-balanced-plates-for-busy-weeks-a50f09.json";
 import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeksA55f4c from "../../../content/blog/posts-en/n-7-day-pregnancy-meal-plan-balanced-plates-for-busy-weeks-a55f4c.json";
+import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeksA6e6ec from "../../../content/blog/posts-en/n-7-day-pregnancy-meal-plan-balanced-plates-for-busy-weeks-a6e6ec.json";
 import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeksB7bf92 from "../../../content/blog/posts-en/n-7-day-pregnancy-meal-plan-balanced-plates-for-busy-weeks-b7bf92.json";
 import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeksB94195 from "../../../content/blog/posts-en/n-7-day-pregnancy-meal-plan-balanced-plates-for-busy-weeks-b94195.json";
 import n7DayPregnancyMealPlanBalancedPlatesForBusyWeeksB984a0 from "../../../content/blog/posts-en/n-7-day-pregnancy-meal-plan-balanced-plates-for-busy-weeks-b984a0.json";
@@ -543,6 +545,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   dauHieuTienSanGiatSom,
   dauLungSauSinh,
   deliciousWeeknightPregnancyMenus5CookOnceRecipes091d89,
+  deliciousWeeknightPregnancyMenus5CookOnceRecipes1b2ad7,
   deliciousWeeknightPregnancyMenus5CookOnceRecipes1f6097,
   deliciousWeeknightPregnancyMenus5CookOnceRecipes284bab,
   deliciousWeeknightPregnancyMenus5CookOnceRecipes2a4108,
@@ -776,6 +779,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   n7DayPregnancyMealPlanBalancedPlatesForBusyWeeks9660a3,
   n7DayPregnancyMealPlanBalancedPlatesForBusyWeeksA50f09,
   n7DayPregnancyMealPlanBalancedPlatesForBusyWeeksA55f4c,
+  n7DayPregnancyMealPlanBalancedPlatesForBusyWeeksA6e6ec,
   n7DayPregnancyMealPlanBalancedPlatesForBusyWeeksB7bf92,
   n7DayPregnancyMealPlanBalancedPlatesForBusyWeeksB94195,
   n7DayPregnancyMealPlanBalancedPlatesForBusyWeeksB984a0,
