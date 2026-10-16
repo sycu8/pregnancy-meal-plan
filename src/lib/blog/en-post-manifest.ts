@@ -41,6 +41,7 @@ import commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkip7a50a2 from "../../
 import commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkip8edf97 from "../../../content/blog/posts-en/common-vietnamese-dishes-in-pregnancy-what-to-keep-tweak-or-skip-8edf97.json";
 import commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkip8f157f from "../../../content/blog/posts-en/common-vietnamese-dishes-in-pregnancy-what-to-keep-tweak-or-skip-8f157f.json";
 import commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkip9fad71 from "../../../content/blog/posts-en/common-vietnamese-dishes-in-pregnancy-what-to-keep-tweak-or-skip-9fad71.json";
+import commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkipA3bb7e from "../../../content/blog/posts-en/common-vietnamese-dishes-in-pregnancy-what-to-keep-tweak-or-skip-a3bb7e.json";
 import commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkipA57426 from "../../../content/blog/posts-en/common-vietnamese-dishes-in-pregnancy-what-to-keep-tweak-or-skip-a57426.json";
 import commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkipAe76e3 from "../../../content/blog/posts-en/common-vietnamese-dishes-in-pregnancy-what-to-keep-tweak-or-skip-ae76e3.json";
 import commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkipB4e776 from "../../../content/blog/posts-en/common-vietnamese-dishes-in-pregnancy-what-to-keep-tweak-or-skip-b4e776.json";
@@ -411,6 +412,7 @@ import pregnancyChildbirthNewborn29318b from "../../../content/blog/posts-en/pre
 import pregnancyChildbirthNewborn from "../../../content/blog/posts-en/pregnancy-childbirth-newborn.json";
 import pregnancyFoodSafetyAnalysisSushiSaladsBbqAndCheeseBoards2e176b from "../../../content/blog/posts-en/pregnancy-food-safety-analysis-sushi-salads-bbq-and-cheese-boards-2e176b.json";
 import pregnancyFoodSafetyAnalysisSushiSaladsBbqAndCheeseBoards4fc542 from "../../../content/blog/posts-en/pregnancy-food-safety-analysis-sushi-salads-bbq-and-cheese-boards-4fc542.json";
+import pregnancyFoodSafetyAnalysisSushiSaladsBbqAndCheeseBoards5adc30 from "../../../content/blog/posts-en/pregnancy-food-safety-analysis-sushi-salads-bbq-and-cheese-boards-5adc30.json";
 import pregnancyFoodSafetyAnalysisSushiSaladsBbqAndCheeseBoards6e166d from "../../../content/blog/posts-en/pregnancy-food-safety-analysis-sushi-salads-bbq-and-cheese-boards-6e166d.json";
 import pregnancyFoodSafetyAnalysisSushiSaladsBbqAndCheeseBoards97ac93 from "../../../content/blog/posts-en/pregnancy-food-safety-analysis-sushi-salads-bbq-and-cheese-boards-97ac93.json";
 import pregnancyFoodSafetyAnalysisSushiSaladsBbqAndCheeseBoards9b86d2 from "../../../content/blog/posts-en/pregnancy-food-safety-analysis-sushi-salads-bbq-and-cheese-boards-9b86d2.json";
@@ -560,6 +562,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkip8edf97,
   commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkip8f157f,
   commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkip9fad71,
+  commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkipA3bb7e,
   commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkipA57426,
   commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkipAe76e3,
   commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkipB4e776,
@@ -930,6 +933,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   pregnancyChildbirthNewborn,
   pregnancyFoodSafetyAnalysisSushiSaladsBbqAndCheeseBoards2e176b,
   pregnancyFoodSafetyAnalysisSushiSaladsBbqAndCheeseBoards4fc542,
+  pregnancyFoodSafetyAnalysisSushiSaladsBbqAndCheeseBoards5adc30,
   pregnancyFoodSafetyAnalysisSushiSaladsBbqAndCheeseBoards6e166d,
   pregnancyFoodSafetyAnalysisSushiSaladsBbqAndCheeseBoards97ac93,
   pregnancyFoodSafetyAnalysisSushiSaladsBbqAndCheeseBoards9b86d2,
