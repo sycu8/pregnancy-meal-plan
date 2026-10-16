@@ -22,6 +22,7 @@ import commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkip0472be from "../../
 import commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkip06563a from "../../../content/blog/posts-en/common-vietnamese-dishes-in-pregnancy-what-to-keep-tweak-or-skip-06563a.json";
 import commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkip1304e6 from "../../../content/blog/posts-en/common-vietnamese-dishes-in-pregnancy-what-to-keep-tweak-or-skip-1304e6.json";
 import commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkip1358e2 from "../../../content/blog/posts-en/common-vietnamese-dishes-in-pregnancy-what-to-keep-tweak-or-skip-1358e2.json";
+import commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkip1430c0 from "../../../content/blog/posts-en/common-vietnamese-dishes-in-pregnancy-what-to-keep-tweak-or-skip-1430c0.json";
 import commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkip153c98 from "../../../content/blog/posts-en/common-vietnamese-dishes-in-pregnancy-what-to-keep-tweak-or-skip-153c98.json";
 import commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkip21a1ac from "../../../content/blog/posts-en/common-vietnamese-dishes-in-pregnancy-what-to-keep-tweak-or-skip-21a1ac.json";
 import commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkip2c9fed from "../../../content/blog/posts-en/common-vietnamese-dishes-in-pregnancy-what-to-keep-tweak-or-skip-2c9fed.json";
@@ -543,6 +544,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkip06563a,
   commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkip1304e6,
   commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkip1358e2,
+  commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkip1430c0,
   commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkip153c98,
   commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkip21a1ac,
   commonVietnameseDishesInPregnancyWhatToKeepTweakOrSkip2c9fed,
