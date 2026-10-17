@@ -219,6 +219,7 @@ import hutSuaMeDungCach from "../../../content/blog/posts-en/hut-sua-me-dung-cac
 import internationalPantryStaplesForPregnancyNutrition10bda5 from "../../../content/blog/posts-en/international-pantry-staples-for-pregnancy-nutrition-10bda5.json";
 import internationalPantryStaplesForPregnancyNutrition287bbd from "../../../content/blog/posts-en/international-pantry-staples-for-pregnancy-nutrition-287bbd.json";
 import internationalPantryStaplesForPregnancyNutrition3fffe7 from "../../../content/blog/posts-en/international-pantry-staples-for-pregnancy-nutrition-3fffe7.json";
+import internationalPantryStaplesForPregnancyNutrition40cc16 from "../../../content/blog/posts-en/international-pantry-staples-for-pregnancy-nutrition-40cc16.json";
 import internationalPantryStaplesForPregnancyNutrition43644e from "../../../content/blog/posts-en/international-pantry-staples-for-pregnancy-nutrition-43644e.json";
 import internationalPantryStaplesForPregnancyNutrition456460 from "../../../content/blog/posts-en/international-pantry-staples-for-pregnancy-nutrition-456460.json";
 import internationalPantryStaplesForPregnancyNutrition5c67fd from "../../../content/blog/posts-en/international-pantry-staples-for-pregnancy-nutrition-5c67fd.json";
@@ -457,6 +458,7 @@ import startingSolids6Months from "../../../content/blog/posts-en/starting-solid
 import statementFromTheChiefPublicHealthOfficerOfCanadaImportanceOfCovid19 from "../../../content/blog/posts-en/statement-from-the-chief-public-health-officer-of-canada-importance-of-covid-19-.json";
 import suaCongThucKhiCan from "../../../content/blog/posts-en/sua-cong-thuc-khi-can.json";
 import sucKhoeRangMiengKhiMangThai from "../../../content/blog/posts-en/suc-khoe-rang-mieng-khi-mang-thai.json";
+import sushiSaladsBbqAndCheeseBoardsPregnancyFoodSafetyAnalysis1181e0 from "../../../content/blog/posts-en/sushi-salads-bbq-and-cheese-boards-pregnancy-food-safety-analysis-1181e0.json";
 import sushiSaladsBbqAndCheeseBoardsPregnancyFoodSafetyAnalysis24d4b0 from "../../../content/blog/posts-en/sushi-salads-bbq-and-cheese-boards-pregnancy-food-safety-analysis-24d4b0.json";
 import sushiSaladsBbqAndCheeseBoardsPregnancyFoodSafetyAnalysis36e4a4 from "../../../content/blog/posts-en/sushi-salads-bbq-and-cheese-boards-pregnancy-food-safety-analysis-36e4a4.json";
 import sushiSaladsBbqAndCheeseBoardsPregnancyFoodSafetyAnalysis51ef55 from "../../../content/blog/posts-en/sushi-salads-bbq-and-cheese-boards-pregnancy-food-safety-analysis-51ef55.json";
@@ -741,6 +743,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   internationalPantryStaplesForPregnancyNutrition10bda5,
   internationalPantryStaplesForPregnancyNutrition287bbd,
   internationalPantryStaplesForPregnancyNutrition3fffe7,
+  internationalPantryStaplesForPregnancyNutrition40cc16,
   internationalPantryStaplesForPregnancyNutrition43644e,
   internationalPantryStaplesForPregnancyNutrition456460,
   internationalPantryStaplesForPregnancyNutrition5c67fd,
@@ -979,6 +982,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   statementFromTheChiefPublicHealthOfficerOfCanadaImportanceOfCovid19,
   suaCongThucKhiCan,
   sucKhoeRangMiengKhiMangThai,
+  sushiSaladsBbqAndCheeseBoardsPregnancyFoodSafetyAnalysis1181e0,
   sushiSaladsBbqAndCheeseBoardsPregnancyFoodSafetyAnalysis24d4b0,
   sushiSaladsBbqAndCheeseBoardsPregnancyFoodSafetyAnalysis36e4a4,
   sushiSaladsBbqAndCheeseBoardsPregnancyFoodSafetyAnalysis51ef55,
