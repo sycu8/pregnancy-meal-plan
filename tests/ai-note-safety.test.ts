@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { parseModelPayload } from "@/lib/cloudflare/aiClient";
-import { filterEchoedAiNotes, filterSafeAiNotes, pregnancyNoteHardRules } from "@/lib/nutrition/aiNoteSafety";
+import { filterEchoedAiNotes, filterSafeAiNotes } from "@/lib/nutrition/aiNoteSafety";
 import { buildMealPlanPrompt } from "@/lib/nutrition/aiPromptBuilder";
 import { notesPanelKind } from "@/lib/nutrition/notesPanel";
 import { getConditionSpecificWarnings, getGeneralPregnancyFoodWarnings } from "@/lib/nutrition/safetyRules";
@@ -34,32 +34,17 @@ const gdm: PregnancyProfile = {
 const TRUNCATED_SPECIAL_NOTES_JSON =
   '{"specialNotes":["Nên ăn nhiều trái cây.","Thử phở hoặc cơm tấm.","Uống nước ép mỗi ngày."]';
 
-describe("condition hard rules", () => {
-  it("puts each selected condition warning into the prompt after the profile", () => {
+describe("meal-plan prompt", () => {
+  it("asks for structured notes and does not paste warnings the model would restate", () => {
     const prompt = buildMealPlanPrompt(gdm, "vi");
-    const profileAt = prompt.indexOf('"healthConditions"');
-    expect(profileAt).toBeGreaterThan(-1);
-    for (const warning of getConditionSpecificWarnings(gdm, "vi")) {
-      expect(prompt.indexOf(warning)).toBeGreaterThan(profileAt);
-    }
-    expect(pregnancyNoteHardRules(gdm, "en")).toContain(getConditionSpecificWarnings(gdm, "en")[0]);
-  });
-
-  it("adds pregnancy food-safety rules to the prompt", () => {
-    for (const locale of ["en", "vi"] as const) {
-      const prompt = buildMealPlanPrompt(gdm, locale);
-      for (const rule of getGeneralPregnancyFoodWarnings(locale).slice(0, 3)) {
-        expect(prompt).toContain(rule);
-      }
-    }
-    const english = buildMealPlanPrompt(profile, "en");
-    expect(english).toMatch(/cook meat, fish, eggs and seafood thoroughly/i);
-    expect(english).toMatch(/high-mercury fish/i);
-    expect(english).toMatch(/unpasteuri[sz]ed/i);
-    expect(english).toMatch(/do not recommend pickled foods/i);
-    expect(english).toMatch(/do not say to avoid overcooking/i);
-    expect(english).toMatch(/low-mercury fish/i);
-    expect(english).toMatch(/do not repeat them as notes/i);
+    expect(prompt).toContain('"kind":"portion|swap|timing|prep|other"');
+    expect(prompt).toMatch(/3 to 5 items in Vietnamese only/);
+    expect(prompt).toMatch(/do not restate/i);
+    expect(prompt).not.toContain(getConditionSpecificWarnings(gdm, "vi")[0]);
+    expect(prompt).not.toContain(getGeneralPregnancyFoodWarnings("vi")[0]);
+    expect(prompt).not.toMatch(/chọn cá ít thủy ngân và nấu chín kỹ/i);
+    expect(buildMealPlanPrompt(profile, "en")).not.toContain(getConditionSpecificWarnings(profile, "en")[0]);
+    expect(buildMealPlanPrompt(profile, "en")).not.toMatch(/low-mercury fish and cook it thoroughly/i);
   });
 });
 
@@ -94,7 +79,14 @@ const gdmContradictions = [
   "Prioritize slow-digesting carbohydrates like whole grains, fruits, and vegetables.",
   "Try pho or com tam for lunch.",
   "Eat plenty of fruit.",
-  "Drink fruit juice."
+  "Drink fruit juice.",
+  "Drink sugary drinks in moderation.",
+  "Chọn thực phẩm giàu chất xơ như rau, củ, quả để hỗ trợ tiêu hóa.",
+  "Ăn sầu riêng sau bữa tối.",
+  "Ăn nhãn và vải.",
+  "Ăn dưa hấu.",
+  "An mit moi ngay.",
+  "An nhieu hoa qua va mit."
 ];
 
 const gdmSafe = [
@@ -104,7 +96,16 @@ const gdmSafe = [
   "Một phần nhỏ trái cây sau bữa.",
   "Eat a small serving of fruit.",
   "Drink water between meals.",
-  "Ưu tiên ngũ cốc nguyên hạt và rau."
+  "Ưu tiên ngũ cốc nguyên hạt và rau.",
+  "Choose brown rice over white rice.",
+  "Hạn chế đồ ngọt.",
+  "Han che do ngot.",
+  "Limit mango to one small piece.",
+  "Have one small apple with nuts instead of juice.",
+  "Ưu tiên phô mai tiệt trùng.",
+  "Cá phổ biến nên nấu chín.",
+  "Giữ chuỗi bữa nhỏ trong ngày.",
+  "Chọn món ít chế biến sẵn."
 ];
 
 const unsafeFoods = [
@@ -124,7 +125,12 @@ const unsafeFoods = [
   "Avoid processed food and enjoy raw salads.",
   "Avoid overcooking vegetables.",
   "Đừng nấu quá chín.",
-  "Try pickled vegetables."
+  "Try pickled vegetables.",
+  "Ăn kim chi mỗi ngày.",
+  "An kim chi moi ngay.",
+  "Have a soft-boiled egg.",
+  "Lòng đỏ còn chảy vẫn dùng được.",
+  "Ăn cá sống kiểu Nhật."
 ];
 
 const safeFoods = [
@@ -136,7 +142,8 @@ const safeFoods = [
   "Không ăn dưa muối.",
   "Nấu chín cá, thịt và trứng.",
   "Chọn cá ít thủy ngân và nấu chín kỹ.",
-  "Tránh trà gần bữa chính."
+  "Tránh trà gần bữa chính.",
+  "Không ăn gỏi cá, nem chua hay đồ tái sống."
 ];
 
 describe("per-condition deny list", () => {
@@ -227,12 +234,101 @@ describe("echoed safety notes", () => {
         "Do not recommend pickled foods.",
         "Do not say to avoid overcooking.",
         "Không ăn đồ muối chua hoặc dưa muối.",
-        "Chia nhỏ bữa và uống nước lọc."
+        "Uống thêm nước lọc giữa các bữa.",
+        "Nấu chín kỹ thịt, cá, trứng và hải sản.",
+        "Chọn cá ít thủy ngân và nấu chín kỹ.",
+        "Hãy hỏi bác sĩ về lượng tinh bột phù hợp.",
+        "Ưu tiên tinh bột chậm và chia nhỏ bữa.",
+        "Quy tắc: không nhắc lại cảnh báo an toàn."
       ],
       gdm,
       "vi"
     );
-    expect(kept).toEqual(["Chia nhỏ bữa và uống nước lọc."]);
+    expect(kept).toEqual(["Không ăn đồ muối chua hoặc dưa muối.", "Uống thêm nước lọc giữa các bữa."]);
+  });
+
+  it("drops English paraphrases of the safety panel and the GDM warning", () => {
+    const kept = filterEchoedAiNotes(
+      [
+        "Cook meat, fish, eggs, and seafood thoroughly.",
+        "Choose low-mercury fish and cook it thoroughly.",
+        "Select pasteurized milk and cheese.",
+        "Prioritize slow-digesting carbohydrates and split meals into smaller portions.",
+        "Ask your clinician about the right carbohydrate amount.",
+        "Avoid sugary drinks and juice.",
+        "Drink water between meals."
+      ],
+      gdm,
+      "en"
+    );
+    expect(kept).toEqual(["Drink water between meals."]);
+  });
+});
+
+describe("authored GDM plans", () => {
+  const gdmOnly: PregnancyProfile = {
+    ...profile,
+    healthConditions: ["gestational_diabetes"],
+    goals: ["blood_sugar_control"]
+  };
+  const plans: { locale: "vi" | "en"; text: string; block: boolean }[] = [
+    { locale: "vi", text: "Chọn thực phẩm giàu chất xơ như rau, củ, quả để hỗ trợ tiêu hóa.", block: true },
+    { locale: "vi", text: "Nấu chín kỹ thịt, cá, trứng và hải sản.", block: true },
+    { locale: "vi", text: "Chọn cá ít thủy ngân và nấu chín kỹ.", block: true },
+    { locale: "vi", text: "Ăn một phần nhỏ táo sau bữa trưa.", block: false },
+    { locale: "vi", text: "Đổi cơm trắng sang cơm gạo lứt vào bữa trưa.", block: false },
+    { locale: "vi", text: "Hạn chế đồ ngọt.", block: false },
+    { locale: "vi", text: "Hạn chế đồ ngọt và nước ngọt có ga.", block: true },
+    { locale: "vi", text: "Ăn sầu riêng sau bữa tối.", block: true },
+    { locale: "vi", text: "Uống thêm nước lọc giữa các bữa.", block: false },
+    { locale: "vi", text: "Hãy hỏi bác sĩ về lượng tinh bột phù hợp.", block: true },
+    { locale: "vi", text: "Quy tắc: không nhắc lại cảnh báo an toàn.", block: true },
+    { locale: "vi", text: "Ưu tiên tinh bột chậm và chia nhỏ bữa.", block: true },
+    { locale: "vi", text: "Tránh nước ép và nước ngọt.", block: true },
+    { locale: "vi", text: "Chọn sữa và phô mai đã tiệt trùng.", block: true },
+    { locale: "vi", text: "Ăn nhãn và vải mỗi ngày.", block: true },
+    { locale: "vi", text: "An mit moi ngay.", block: true },
+    { locale: "en", text: "Prioritize slow-digesting carbohydrates and split meals into smaller portions.", block: true },
+    { locale: "en", text: "Choose brown rice over white rice.", block: false },
+    { locale: "en", text: "Drink sugary drinks in moderation.", block: true },
+    { locale: "en", text: "Cook meat, fish, eggs, and seafood thoroughly.", block: true },
+    { locale: "en", text: "Choose low-mercury fish and cook it thoroughly.", block: true },
+    { locale: "en", text: "Select pasteurized milk and cheese.", block: true },
+    { locale: "en", text: "Have one small apple with nuts instead of juice.", block: false },
+    { locale: "en", text: "Eat plenty of watermelon and mango.", block: true },
+    { locale: "en", text: "Drink water between meals.", block: false },
+    { locale: "en", text: "Ask your clinician about the right carbohydrate amount.", block: true },
+    { locale: "en", text: "Avoid sugary drinks and juice.", block: true },
+    { locale: "en", text: "Eat two small snacks at 10:00 and 15:00.", block: false },
+    { locale: "en", text: "Have a soft-boiled egg with rice.", block: true },
+    { locale: "en", text: "Enjoy kim chi with dinner.", block: true },
+    { locale: "en", text: "Limit mango to one small piece.", block: false }
+  ];
+
+  it("keeps only new notes on 3 Vietnamese and 3 English plans", () => {
+    let shouldBlock = 0;
+    let blockedHits = 0;
+    let shouldKeep = 0;
+    let keptHits = 0;
+    const misses: string[] = [];
+    for (const item of plans) {
+      const kept = filterEchoedAiNotes(filterSafeAiNotes([item.text], gdmOnly), gdmOnly, item.locale);
+      const blocked = kept.length === 0;
+      if (item.block) {
+        shouldBlock += 1;
+        if (blocked) blockedHits += 1;
+        else misses.push(`kept: ${item.text}`);
+      } else {
+        shouldKeep += 1;
+        if (!blocked) keptHits += 1;
+        else misses.push(`dropped: ${item.text}`);
+      }
+    }
+    const predictedBlock = blockedHits + (shouldKeep - keptHits);
+    const precision = predictedBlock === 0 ? 0 : blockedHits / predictedBlock;
+    const recall = blockedHits / shouldBlock;
+    expect({ precision, recall, misses }).toEqual({ precision: 1, recall: 1, misses: [] });
+    expect(shouldBlock + shouldKeep).toBe(plans.length);
   });
 });
 

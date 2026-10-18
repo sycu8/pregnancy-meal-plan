@@ -13,13 +13,21 @@ import {
 export const MAX_SPECIAL_NOTES = 8;
 export const MAX_SPECIAL_NOTE_CHARS = 240;
 
+function textOfNote(note: unknown): string | null {
+  if (typeof note === "string") return note;
+  if (!note || typeof note !== "object") return null;
+  const text = (note as { text?: unknown }).text;
+  return typeof text === "string" ? text : null;
+}
+
 /** Keep only short strings so a model payload cannot crash the result page. */
 export function sanitizeSpecialNotes(notes: unknown): string[] {
   if (!Array.isArray(notes)) return [];
   const clean: string[] = [];
   for (const note of notes) {
-    if (typeof note !== "string") continue;
-    const text = note.trim().replace(/\s+/g, " ").slice(0, MAX_SPECIAL_NOTE_CHARS);
+    const raw = textOfNote(note);
+    if (!raw) continue;
+    const text = raw.trim().replace(/\s+/g, " ").slice(0, MAX_SPECIAL_NOTE_CHARS);
     if (!text) continue;
     clean.push(text);
     if (clean.length >= MAX_SPECIAL_NOTES) break;

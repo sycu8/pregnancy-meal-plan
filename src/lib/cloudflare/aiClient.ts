@@ -1,7 +1,7 @@
 import type { Locale } from "@/lib/i18n";
 import { getBindings, readFeatureFlag } from "@/lib/cloudflare/bindings";
 import { getOptionalAiEnv } from "@/lib/cloudflare/env";
-import { filterEchoedAiNotes, filterSafeAiNotes, pregnancyNoteHardRules } from "@/lib/nutrition/aiNoteSafety";
+import { filterEchoedAiNotes, filterSafeAiNotes } from "@/lib/nutrition/aiNoteSafety";
 import { buildMealPlanPrompt } from "@/lib/nutrition/aiPromptBuilder";
 import { ruleBasedMealPlanner } from "@/lib/nutrition/mealPlanner";
 import { filterNotesForLocale, localizeMealPlanForLocale, sanitizeSpecialNotes } from "@/lib/nutrition/localizeMealPlan";
@@ -461,7 +461,7 @@ function workersAiFailureDetail(result: unknown): string | null {
 }
 
 const NOTES_SYSTEM_PROMPT =
-  'Return exactly one JSON object {"specialNotes":["..."]} with 3 to 5 short notes in the requested language. Do not write a meal plan.';
+  'Return exactly one JSON object {"specialNotes":[{"text":"...","kind":"portion|swap|timing|prep|other","foods":["..."]}]} with 3 to 5 new notes in the requested language. Do not restate safety rules. Do not write a meal plan.';
 
 async function callOpenAi(prompt: string, apiKey: string, gatewayUrl: string | undefined, signal: AbortSignal): Promise<string> {
   const url = gatewayUrl ? `${gatewayUrl.replace(/\/$/, "")}/chat/completions` : "https://api.openai.com/v1/chat/completions";
@@ -562,16 +562,15 @@ function mealPlanPrompt(input: PregnancyProfile, locale: Locale): string {
   return buildMealPlanPrompt(input, locale);
 }
 
-function translateNotesPrompt(notes: readonly string[], profile: PregnancyProfile, locale: Locale): string {
+function translateNotesPrompt(notes: readonly string[], locale: Locale): string {
   const language = locale === "vi" ? "Vietnamese" : "English";
   const listed = notes.map((note) => `- ${note}`).join("\n");
   return [
     "Do not write a meal plan.",
     `The previous specialNotes were not in ${language}.`,
     `Translate only these notes into ${language}.`,
-    `Return exactly one JSON object and nothing else: {"specialNotes":["..."]}.`,
-    `specialNotes must contain 3 to 5 short sentences in ${language} only.`,
-    pregnancyNoteHardRules(profile, locale),
+    'Return exactly one JSON object and nothing else: {"specialNotes":[{"text":"...","kind":"portion|swap|timing|prep|other","foods":["..."]}]}.',
+    `Translate only the text into ${language}. Do not add safety rules, condition warnings, or fish rules.`,
     listed
   ].join("\n");
 }
@@ -638,7 +637,7 @@ export function createAIClient(): AIClient {
 
         let notes = first.notes;
         if (filterNotesForLocale(notes, locale).length === 0) {
-          const retry = parseNotes(await callModel(translateNotesPrompt(notes, input, locale)));
+          const retry = parseNotes(await callModel(translateNotesPrompt(notes, locale)));
           const retryNotes = retry.ok ? filterNotesForLocale(retry.notes, locale) : [];
           if (retryNotes.length === 0) {
             logMealPlanFallback({ reason: "locale_filtered", provider, detail: "wrong_language" });

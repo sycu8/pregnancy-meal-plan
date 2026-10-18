@@ -147,11 +147,12 @@ describe("failed AI calls", () => {
 
     const prompt = buildMealPlanPrompt(profile, "en");
     expect(prompt).toMatch(/Do not write a meal plan/);
-    expect(prompt).toMatch(/3 to 5 short sentences in English only/);
-    expect(prompt).toContain('{"specialNotes":["..."]}');
+    expect(prompt).toMatch(/3 to 5 items in English only/);
+    expect(prompt).toContain('"kind":"portion|swap|timing|prep|other"');
+    expect(prompt).toMatch(/do not restate/i);
     expect(prompt).not.toMatch(/7-day/i);
     expect(prompt).not.toMatch(/draft english/i);
-    expect(buildMealPlanPrompt(profile, "vi")).toMatch(/3 to 5 short sentences in Vietnamese only/);
+    expect(buildMealPlanPrompt(profile, "vi")).toMatch(/3 to 5 items in Vietnamese only/);
 
     const plan = await createAIClient().generateMealPlan(profile, "en");
 
@@ -411,8 +412,9 @@ describe("failed AI calls", () => {
     expect(aiRun).toHaveBeenCalledTimes(2);
     const retryPrompt = String(aiRun.mock.calls[1]?.[1] && JSON.stringify(aiRun.mock.calls[1][1]));
     expect(retryPrompt).toMatch(/Vietnamese/);
-    expect(retryPrompt).toContain("Thiếu máu/thiếu sắt: tăng thực phẩm giàu sắt kèm vitamin C, tránh trà/cà phê gần bữa chính.");
-    expect(retryPrompt).toContain("Không ăn đồ sống/tái; nấu chín kỹ thịt, cá, trứng và hải sản.");
+    expect(retryPrompt).toMatch(/do not add safety rules/i);
+    expect(retryPrompt).not.toContain("Thiếu máu/thiếu sắt");
+    expect(retryPrompt).not.toContain("Không ăn đồ sống/tái");
     expect(plan.specialNotes.join(" ")).toContain("Uống đủ nước trong ngày.");
     expect(plan.specialNotes.join(" ")).not.toContain("Drink water");
     expect(mealPlanServedAi(plan)).toBe(true);
@@ -602,13 +604,13 @@ describe("failed AI calls", () => {
     const gdm: PregnancyProfile = { ...profile, healthConditions: ["gestational_diabetes"], goals: ["balanced"] };
     aiRun.mockResolvedValue({
       response: JSON.stringify({
-        specialNotes: ["Nên ăn nhiều trái cây.", "Chia nhỏ bữa và ưu tiên tinh bột chậm."]
+        specialNotes: ["Nên ăn nhiều trái cây.", "Uống thêm nước lọc giữa các bữa."]
       })
     });
 
     const plan = await createAIClient().generateMealPlan(gdm, "vi");
     const notes = plan.specialNotes.join(" ");
-    expect(notes).toContain("Chia nhỏ bữa và ưu tiên tinh bột chậm.");
+    expect(notes).toContain("Uống thêm nước lọc giữa các bữa.");
     expect(notes).not.toContain("Nên ăn nhiều trái cây");
     expect(notes).toContain("Tiểu đường thai kỳ");
     expect(mealPlanServedAi(plan)).toBe(true);
@@ -682,8 +684,7 @@ describe("failed AI calls", () => {
         specialNotes: [
           "Tiểu đường thai kỳ: ưu tiên tinh bột chậm, chia nhỏ bữa, tránh nước ép/nước ngọt và hỏi bác sĩ về lượng tinh bột phù hợp.",
           "Không ăn đồ sống/tái; nấu chín kỹ thịt, cá, trứng và hải sản.",
-          "Không khuyên đồ muối chua hoặc dưa muối.",
-          "Không ăn đồ muối chua hoặc dưa muối."
+          "Không khuyên đồ muối chua hoặc dưa muối."
         ]
       })
     });
@@ -692,7 +693,6 @@ describe("failed AI calls", () => {
     expect(echoed.specialNotes.join(" ")).toContain("Tiểu đường thai kỳ");
     expect(echoed.specialNotes.join(" ")).not.toContain("Không khuyên");
     expect(echoed.specialNotes.join(" ")).not.toContain("Không ăn đồ sống");
-    expect(echoed.specialNotes.join(" ")).not.toContain("đồ muối chua");
     expect(mealPlanServedAi(echoed)).toBe(false);
     expect(loggedFallbacks(errorSpy)).toContainEqual(expect.objectContaining({ detail: "echo_filtered" }));
 
@@ -700,12 +700,12 @@ describe("failed AI calls", () => {
       response: JSON.stringify({
         specialNotes: [
           "Không khuyên đồ muối chua hoặc dưa muối.",
-          "Chia nhỏ bữa và uống nước lọc."
+          "Uống thêm nước lọc giữa các bữa."
         ]
       })
     });
     const mixed = await createAIClient().generateMealPlan(gdm, "vi");
-    expect(mixed.specialNotes.join(" ")).toContain("Chia nhỏ bữa và uống nước lọc.");
+    expect(mixed.specialNotes.join(" ")).toContain("Uống thêm nước lọc giữa các bữa.");
     expect(mixed.specialNotes.join(" ")).not.toContain("Không khuyên");
     expect(mealPlanServedAi(mixed)).toBe(true);
     const ok = logSpy.mock.calls.map((call) => JSON.parse(String(call[0])) as { event?: string; noteCount?: number });
@@ -714,19 +714,55 @@ describe("failed AI calls", () => {
     logSpy.mockRestore();
   });
 
-  it("drops omega-3 fish advice that has no low-mercury caveat and keeps cooked fish", async () => {
+  it("drops omega-3 fish advice and does not keep a restatement of the fish rule", async () => {
     aiRun.mockResolvedValue({
       response: JSON.stringify({
-        specialNotes: ["Ăn cá hồi giàu omega-3.", "Chọn cá ít thủy ngân, nấu chín kỹ.", "Nấu chín cá, thịt và trứng."]
+        specialNotes: [
+          "Ăn cá hồi giàu omega-3.",
+          "Chọn cá ít thủy ngân, nấu chín kỹ.",
+          "Nấu chín cá, thịt và trứng.",
+          "Ăn một nắm hạt điều vào bữa xế."
+        ]
       })
     });
 
     const plan = await createAIClient().generateMealPlan(profile, "vi");
     const notes = plan.specialNotes.join(" ");
-    expect(notes).not.toMatch(/omega-3|cá hồi/);
-    expect(notes).toContain("Chọn cá ít thủy ngân, nấu chín kỹ.");
-    expect(notes).toContain("Nấu chín cá, thịt và trứng.");
+    expect(notes).not.toMatch(/omega-3|cá hồi|thủy ngân|Nấu chín cá/);
+    expect(notes).toContain("Ăn một nắm hạt điều vào bữa xế.");
     expect(mealPlanServedAi(plan)).toBe(true);
+  });
+
+  it("reads structured notes and does not spend a plan credit on echoed warnings", async () => {
+    aiRun.mockResolvedValueOnce({
+      response: JSON.stringify({
+        specialNotes: [{ text: "Uống thêm nước lọc giữa các bữa.", kind: "timing", foods: ["water"] }]
+      })
+    });
+    const served = await POST(planRequest("203.0.113.77"));
+    const servedBody = (await served.json()) as { plan: { specialNotes: string[] }; usage: { aiPlansUsed: number } };
+    expect(served.status).toBe(200);
+    expect(servedBody.plan.specialNotes.join(" ")).toContain("Uống thêm nước lọc giữa các bữa.");
+    expect(servedBody.usage.aiPlansUsed).toBe(1);
+
+    aiRun.mockResolvedValueOnce({
+      response: JSON.stringify({
+        specialNotes: [
+          { text: "Nấu chín kỹ thịt, cá, trứng và hải sản.", kind: "prep", foods: ["meat", "fish"] },
+          { text: "Chọn cá ít thủy ngân và nấu chín kỹ.", kind: "prep", foods: ["fish"] },
+          { text: "Hãy hỏi bác sĩ về lượng tinh bột phù hợp.", kind: "other", foods: [] }
+        ]
+      })
+    });
+    const echoed = await POST(
+      planRequest("203.0.113.78", undefined, {
+        profile: { ...profile, healthConditions: ["gestational_diabetes"], goals: ["blood_sugar_control"] },
+        locale: "vi"
+      })
+    );
+    const echoedBody = (await echoed.json()) as { usage: { aiPlansUsed: number } };
+    expect(echoed.status).toBe(200);
+    expect(echoedBody.usage.aiPlansUsed).toBe(0);
   });
 });
 
