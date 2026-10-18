@@ -8,6 +8,7 @@ import { checkUsage, incrementUsage, usageLimitMessage } from "@/lib/premium/ser
 import type { Locale } from "@/lib/i18n";
 import { regenerateMealInPlan } from "@/lib/nutrition/mealPlanner";
 import { localizeMealPlanForLocale } from "@/lib/nutrition/localizeMealPlan";
+import { AI_UNAVAILABLE_CODE, aiUnavailableMessage } from "@/lib/nutrition/aiUnavailable";
 import { pregnancyProfileSchema, validationErrorToLocale, validationErrorToVietnamese } from "@/lib/nutrition/validation";
 import type { MealPlan } from "@/types/mealPlan";
 
@@ -105,7 +106,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ plan });
   } catch (error) {
     if (error instanceof AiProviderError) {
-      return NextResponse.json({ error: error.message }, { status: 502 });
+      console.error("[meal-plan] AI provider failed");
+      return NextResponse.json(
+        { error: aiUnavailableMessage(locale), code: AI_UNAVAILABLE_CODE },
+        { status: 502 }
+      );
     }
     const message = locale === "en" ? validationErrorToLocale(error, "en") : validationErrorToVietnamese(error);
     return NextResponse.json({ error: message }, { status: 400 });

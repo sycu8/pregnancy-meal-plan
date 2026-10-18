@@ -10,6 +10,7 @@ import {
 } from "@/lib/nutrition/safetyRules";
 import { ruleBasedMealPlanner } from "@/lib/nutrition/mealPlanner";
 import { localizeMealPlanForLocale } from "@/lib/nutrition/localizeMealPlan";
+import { pregnancyProfileSchema, validationErrorToLocale } from "@/lib/nutrition/validation";
 import type { PregnancyProfile } from "@/types/pregnancy";
 
 const baseProfile: PregnancyProfile = {
@@ -152,5 +153,27 @@ describe("rule-based meal planner", () => {
     expect(breakfast.nutrients.join(" ")).toMatch(/đạm|rau|tinh bột|canxi|chất|sắt|omega|vitamin|năng lượng|kali|nước|probiotic|choline|folate|kẽm|iodine|beta/i);
     expect(vietnamesePlan.shoppingList.proteins.join(" ")).toMatch(/[àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ]/i);
     expect(vietnamesePlan.costEstimate.note).toContain("ước tính");
+  });
+});
+
+describe("profile free-text limits", () => {
+  it("caps allergies and disliked foods at 200 characters", () => {
+    expect(pregnancyProfileSchema.safeParse({ ...baseProfile, allergies: "tôm", dislikedFoods: "mỡ" }).success).toBe(true);
+
+    const tooLong = "a".repeat(201);
+    const allergies = pregnancyProfileSchema.safeParse({ ...baseProfile, allergies: tooLong });
+    expect(allergies.success).toBe(false);
+    if (!allergies.success) {
+      expect(allergies.error.issues[0]?.message).toBe("Dị ứng thực phẩm tối đa 200 ký tự.");
+      expect(validationErrorToLocale(allergies.error, "en")).toBe("Food allergies must be 200 characters or fewer.");
+      expect(validationErrorToLocale(allergies.error, "vi")).toBe("Dị ứng thực phẩm tối đa 200 ký tự.");
+    }
+
+    const disliked = pregnancyProfileSchema.safeParse({ ...baseProfile, dislikedFoods: tooLong });
+    expect(disliked.success).toBe(false);
+    if (!disliked.success) {
+      expect(disliked.error.issues[0]?.message).toBe("Món không thích tối đa 200 ký tự.");
+      expect(validationErrorToLocale(disliked.error, "en")).toBe("Disliked foods must be 200 characters or fewer.");
+    }
   });
 });

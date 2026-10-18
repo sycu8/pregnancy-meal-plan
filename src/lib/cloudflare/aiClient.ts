@@ -23,11 +23,21 @@ export type AIClient = {
 export const WORKERS_AI_MODEL = "@cf/meta/llama-3.1-8b-instruct-fp8";
 
 /**
- * Workers AI defaults `max_tokens` to 256, which truncates a meal plan.
- * A localized 7-day plan is about 22k characters. 16384 covers that JSON
- * and stays inside this model's 32k context window with the short prompt.
+ * The call only asks for `{ specialNotes: string[] }`. Size the budget to that
+ * JSON. Workers AI otherwise defaults max_tokens to 256 and cuts the notes off.
+ * Vietnamese text is estimated at 2 characters per token.
  */
-export const WORKERS_AI_MAX_TOKENS = 16384;
+const MEAL_PLAN_AI_OUTPUT = {
+  specialNotes: [
+    "Uống đủ nước trong ngày và chia nhỏ bữa nếu buồn nôn.",
+    "Ưu tiên thực phẩm giàu sắt, ăn kèm trái cây giàu vitamin C.",
+    "Hạn chế đồ ngọt, đồ chiên và nước ngọt; chọn tinh bột chậm.",
+    "Ăn đủ đạm nạc, sữa tiệt trùng và rau xanh luộc chín.",
+    "Đổi món dị ứng hoặc món không thích bằng nguyên liệu tương đương, nấu chín kỹ."
+  ]
+};
+
+export const WORKERS_AI_MAX_TOKENS = Math.max(512, Math.ceil(JSON.stringify(MEAL_PLAN_AI_OUTPUT).length / 2));
 
 /**
  * Model ids Cloudflare retired on 2026-05-30, plus later catalog removals
