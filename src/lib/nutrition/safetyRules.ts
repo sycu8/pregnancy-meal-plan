@@ -3832,15 +3832,34 @@ function splitScopeClauses(note: string): string[] {
   return clauses.length > 0 ? clauses : [note];
 }
 
-/** «last time» or a previous pregnancy. «today» / «now» keeps a current symptom. */
+/**
+ * Text outside «history of» / «no history of».
+ * «but» starts a separate claim, so «no history of bleeding but I have vaginal bleeding»
+ * still carries the current bleed.
+ */
+function clauseOutsideHistory(clause: string): string {
+  const match = /\b(?:no\s+)?history\s+of\b/i.exec(clause);
+  if (!match || match.index === undefined) return clause;
+  const rest = clause.slice(match.index + match[0].length);
+  const stopper = /\b(?:but|however|although|yet)\b/i.exec(rest);
+  const before = clause.slice(0, match.index);
+  const after = stopper ? rest.slice(stopper.index + stopper[0].length) : "";
+  return `${before} ${after}`.trim();
+}
+
+/** «last time», a previous pregnancy, or «history of» / «no history of». «today» / «now» keeps a current symptom. */
 function isEnglishHistoryClause(clause: string): boolean {
   const lower = clause.toLowerCase();
-  const history =
+  if (/\b(?:now|today|tonight|currently|right now|this morning|this pregnancy)\b/.test(lower)) return false;
+  const previous =
     /\b(?:previous|prior|last|past)\s+pregnancy\b/.test(lower) ||
     /\blast time\b/.test(lower) ||
     /\bwhen i was pregnant before\b/.test(lower);
-  if (!history) return false;
-  return !/\b(?:now|today|tonight|currently|right now|this morning|this pregnancy)\b/.test(lower);
+  if (previous) return true;
+  if (!/\b(?:no\s+)?history\s+of\b/i.test(clause)) return false;
+  const outside = clauseOutsideHistory(clause);
+  if (!outside.trim()) return true;
+  return !clauseCarriesRedFlag(outside);
 }
 
 /** «the scan said movement is normal». A stop or decrease in the same clause still counts. */

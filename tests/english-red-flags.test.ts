@@ -152,6 +152,17 @@ describe("PMP42-FA-01 English history, normal findings, and gum bleeding", () =>
     expect(warningsFor("my gums bleed when I brush")).toEqual([]);
     expect(warningsFor("bleeding gums from flossing")).toEqual([]);
     expect(warningsFor("gums bleeding after brushing my teeth")).toEqual([]);
+    expect(warningsFor("no history of bleeding")).toEqual([]);
+    expect(warningsFor("no history of vaginal bleeding")).toEqual([]);
+    expect(warningsFor("history of bleeding")).toEqual([]);
+    expect(warningsFor("history of vaginal bleeding")).toEqual([]);
+    expect(warningsFor("history of reduced movement")).toEqual([]);
+    expect(warningsFor("no history of reduced fetal movement")).toEqual([]);
+    expect(warningsFor("no history of high blood pressure")).toEqual([]);
+    expect(warningsFor("the scan was normal")).toEqual([]);
+    expect(warningsFor("normal scan finding")).toEqual([]);
+    expect(warningsFor("ultrasound was normal")).toEqual([]);
+    expect(warningsFor("the scan looks normal")).toEqual([]);
   });
 
   it("still alerts for current reduced or stopped movement and for vaginal bleeding", () => {
