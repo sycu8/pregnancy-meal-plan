@@ -12,7 +12,11 @@ const locales = [
     submit: "Tạo thực đơn miễn phí",
     basic: "Dùng thực đơn cơ bản",
     heading: "Thực đơn tuần thai",
-    meal: "Bữa sáng"
+    meal: "Bữa sáng",
+    week: "Tuần thai hiện tại",
+    again: "Tạo lại",
+    edit: "Quay lại chỉnh thông tin",
+    header: "Tạo thực đơn"
   },
   {
     id: "en",
@@ -22,7 +26,11 @@ const locales = [
     submit: "Create a free plan",
     basic: "Use basic plan",
     heading: "Meal plan for pregnancy week",
-    meal: "Breakfast"
+    meal: "Breakfast",
+    week: "Current pregnancy week",
+    again: "Create again",
+    edit: "Edit information",
+    header: "Create plan"
   }
 ];
 
@@ -113,12 +121,119 @@ async function englishSwapTryAgain(browser) {
   return { swapAttempts };
 }
 
+async function showInlinePlan(page, locale) {
+  await walkToSubmit(page, locale);
+  await page.getByRole("button", { name: locale.submit }).click();
+  await page.getByRole("button", { name: locale.basic }).click();
+  await page.getByRole("heading", { name: locale.heading }).waitFor({ timeout: 8000 });
+}
+
+async function expectPlannerForm(page, locale) {
+  await page.getByText(locale.step(1)).waitFor({ timeout: 8000 });
+  const url = page.url();
+  if (url.includes("/result")) throw new Error(`${locale.id} navigated to ${url}`);
+  if (!url.includes(locale.path)) throw new Error(`${locale.id} left the planner at ${url}`);
+  const text = await page.locator("body").innerText();
+  if (/ERR_INTERNET_DISCONNECTED/i.test(text)) throw new Error(`${locale.id} showed the browser offline error`);
+  if (text.includes(locale.heading)) throw new Error(`${locale.id} still showed the in-place plan`);
+  let week = "";
+  for (let attempt = 0; attempt < 25; attempt += 1) {
+    week = await page.getByLabel(locale.week).inputValue();
+    if (week === "33") break;
+    await page.waitForTimeout(100);
+  }
+  if (week !== "33") throw new Error(`${locale.id} did not keep pregnancy week 33 (saw ${week || "empty"})`);
+}
+
+async function returnFromInlinePlan(browser, locale, offline) {
+  const context = await browser.newContext();
+  const page = await context.newPage();
+  if (!offline) {
+    await page.route("**/api/generate-meal-plan", async (route) =>
+      route.fulfill({
+        status: 502,
+        contentType: "application/json",
+        body: JSON.stringify({ error: "unavailable", code: "ai_unavailable" })
+      })
+    );
+  }
+  await page.goto(`${base}${locale.path}`, { waitUntil: "load" });
+  await page.getByText(locale.step(1)).waitFor();
+  await page.getByLabel(locale.week).fill("33");
+  if (offline) await context.setOffline(true);
+
+  const controls = [
+    { id: "edit", role: "button", name: locale.edit },
+    { id: "again", role: "button", name: locale.again },
+    { id: "header", role: "link", name: locale.header }
+  ];
+  for (const control of controls) {
+    await showInlinePlan(page, locale);
+    await page.getByRole(control.role, { name: control.name, exact: true }).click({ force: true });
+    await expectPlannerForm(page, locale);
+  }
+
+  if (!offline) {
+    await page.reload({ waitUntil: "load" });
+    await expectPlannerForm(page, locale);
+  }
+
+  await context.close();
+  return { locale: locale.id, offline, controls: controls.map((control) => control.id) };
+}
+
+async function englishDailyLimitTryAgain(browser) {
+  const context = await browser.newContext();
+  const page = await context.newPage();
+  const limit = "Daily meal-swap limit reached. Try again tomorrow or unlock Premium Lifetime.";
+  await page.route("**/api/generate-meal-plan", async (route) => {
+    const body = route.request().postDataJSON();
+    if (body?.regenerate) {
+      return route.fulfill({
+        status: 429,
+        contentType: "application/json",
+        body: JSON.stringify({
+          error: limit,
+          usage: { mealSwapsUsed: 2, mealSwapsLimit: 2 }
+        })
+      });
+    }
+    return route.fulfill({
+      status: 502,
+      contentType: "application/json",
+      body: JSON.stringify({ error: "unavailable", code: "ai_unavailable" })
+    });
+  });
+  const locale = locales[1];
+  await page.goto(`${base}${locale.path}`, { waitUntil: "load" });
+  await walkToSubmit(page, locale);
+  await page.getByRole("button", { name: locale.submit }).click();
+  await page.getByRole("button", { name: locale.basic }).click();
+  await page.getByRole("heading", { name: locale.heading }).waitFor({ timeout: 8000 });
+  await page.getByRole("button", { name: "Swap meal" }).first().click();
+  await page.getByText(limit).waitFor({ timeout: 8000 });
+  const tryAgain = page.getByRole("button", { name: "Try again" });
+  if (await tryAgain.isEnabled()) throw new Error("daily-limit Try again stayed enabled");
+  await tryAgain.click({ force: true });
+  await page.getByText(limit).waitFor();
+  const text = await page.locator("body").innerText();
+  if (/@cf\/|<html|too many requests/i.test(text)) throw new Error("daily limit leaked provider text");
+  await context.close();
+  return { limitShown: true, tryAgainEnabled: false };
+}
+
 const browser = await launch();
 try {
   const offline = [];
   for (const locale of locales) offline.push(await renderBasicPlanOffline(browser, locale));
+  const returned = [];
+  for (const locale of locales) {
+    returned.push(await returnFromInlinePlan(browser, locale, true));
+    returned.push(await returnFromInlinePlan(browser, locale, false));
+  }
   const swap = await englishSwapTryAgain(browser);
-  console.log(JSON.stringify({ offline, swap }, null, 2));
+  const dailyLimit = await englishDailyLimitTryAgain(browser);
+  console.log(JSON.stringify({ offline, returned, swap, dailyLimit }, null, 2));
 } finally {
   await browser.close();
 }

@@ -14,8 +14,8 @@ import { fetchMealPlan, createLocalMealPlan, MealPlanRequestError, PremiumLimitE
 import { MealPlanResult } from "@/components/result/MealPlanResult";
 import { isAbortError, leaksProviderDetail, mealPlanErrorMessage, type MealPlanErrorAction } from "@/lib/nutrition/aiUnavailable";
 import { pregnancyProfileSchema, validationErrorToLocale } from "@/lib/nutrition/validation";
-import { saveMealPlan, saveProfile, getProfile } from "@/lib/storage/localStorage";
-import { cacheOfflineSnapshot, incrementPlanCount } from "@/lib/storage/offlineCache";
+import { getCurrentMealPlan, getProfile, saveMealPlan, saveProfile } from "@/lib/storage/localStorage";
+import { cacheOfflineSnapshot, getOfflineProfile, incrementPlanCount } from "@/lib/storage/offlineCache";
 import { localizedPath, type Locale } from "@/lib/i18n";
 import type { CuisinePreference, HealthCondition, NutritionGoal, PregnancyProfile, ResidenceCountryCode } from "@/types/pregnancy";
 import { residenceCountries } from "@/lib/nutrition/countries";
@@ -148,12 +148,19 @@ export function PlannerForm({ mode = "planner", locale = "vi" }: { mode?: "plann
   const [planUpsellReason, setPlanUpsellReason] = useState<PremiumUpsellReason>("ai-limit");
   const [errorAction, setErrorAction] = useState<MealPlanErrorAction | "none">("none");
   const [inlinePlan, setInlinePlan] = useState(false);
+  const [profileHydrated, setProfileHydrated] = useState(false);
   const isProfileMode = mode === "profile";
 
   useEffect(() => {
-    const stored = getProfile();
+    const stored = getProfile() ?? getOfflineProfile() ?? getCurrentMealPlan()?.profileSnapshot ?? null;
     if (stored) setProfile({ ...defaultProfile, ...stored });
+    setProfileHydrated(true);
   }, []);
+
+  useEffect(() => {
+    if (!profileHydrated) return;
+    saveProfile(profile);
+  }, [profile, profileHydrated]);
 
   useEffect(() => {
     if (isProfileMode) return;
@@ -194,6 +201,7 @@ export function PlannerForm({ mode = "planner", locale = "vi" }: { mode?: "plann
     try {
       const validProfile = pregnancyProfileSchema.parse(profile);
       const plan = createLocalMealPlan(validProfile, locale);
+      saveProfile(validProfile);
       saveMealPlan(plan);
       cacheOfflineSnapshot(validProfile, plan);
       incrementPlanCount();
@@ -203,6 +211,44 @@ export function PlannerForm({ mode = "planner", locale = "vi" }: { mode?: "plann
       setError(validationErrorToLocale(caught, locale));
     }
   }
+
+  function returnToForm() {
+    saveProfile(profile);
+    setError("");
+    setErrorAction("none");
+    setIsLoading(false);
+    setStep(0);
+    setInlinePlan(false);
+  }
+
+  useEffect(() => {
+    if (!inlinePlan) return;
+    const plannerPath = localizedPath(locale, "/planner");
+
+    function onPlannerLinkClick(event: MouseEvent) {
+      if (event.defaultPrevented || event.button !== 0) return;
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      const anchor = target.closest("a");
+      if (!anchor) return;
+      const rawHref = anchor.getAttribute("href");
+      if (!rawHref || rawHref.startsWith("#")) return;
+      let pathname = "";
+      try {
+        pathname = new URL(anchor.href, window.location.href).pathname;
+      } catch {
+        return;
+      }
+      if (pathname !== plannerPath || window.location.pathname !== plannerPath) return;
+      event.preventDefault();
+      event.stopPropagation();
+      returnToForm();
+    }
+
+    document.addEventListener("click", onPlannerLinkClick, true);
+    return () => document.removeEventListener("click", onPlannerLinkClick, true);
+  }, [inlinePlan, locale, profile]);
 
   function recheckForm() {
     setError("");
@@ -275,7 +321,7 @@ export function PlannerForm({ mode = "planner", locale = "vi" }: { mode?: "plann
   }
 
   if (inlinePlan) {
-    return <MealPlanResult locale={locale} />;
+    return <MealPlanResult locale={locale} onReturnToForm={returnToForm} />;
   }
 
   return (
