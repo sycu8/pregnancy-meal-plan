@@ -9,6 +9,7 @@ import {
   countWords,
   meetsMinWordCount
 } from "@/lib/blog/synthesis/contentStandards";
+import { EMERGENCY_NOW_EN, EMERGENCY_NOW_VI, SEEK_CARE_SOON_EN, SEEK_CARE_SOON_VI } from "@/lib/blog/emergencyCopy";
 import { ensureInternalLinks, internalLinkPromptRules } from "@/lib/blog/internalLinks";
 import type { BlogCategorySlug } from "@/types/blog";
 
@@ -84,9 +85,9 @@ export function synthesizePost(input: SynthesisInput): SynthesisOutput {
     `- Chia nhỏ bữa ăn nếu nghén hoặc khó ăn no; uống đủ nước trong ngày.`,
     `- Theo dõi phản ứng cơ thể và hỏi bác sĩ sản khoa trước khi thay đổi lớn về dinh dưỡng hoặc thuốc bổ.`,
     ``,
-    `## Khi nào cần gặp bác sĩ`,
+    `**${EMERGENCY_NOW_VI}**`,
     ``,
-    `Nếu có chảy máu, sốt cao, đau bụng dữ dội, giảm cử động thai hoặc triệu chứng bất thường kéo dài, hãy đến cơ sở y tế ngay.`,
+    `**${SEEK_CARE_SOON_VI}**`,
     ``,
     `> Nội dung được tổng hợp tham khảo từ tiêu đề/chủ đề nguồn [${input.sourceName}](${input.url}), không sao chép nguyên văn bài gốc.`
   ].join("\n");
@@ -102,9 +103,9 @@ export function synthesizePost(input: SynthesisInput): SynthesisOutput {
     `- Eat smaller meals if nausea makes large portions hard; stay hydrated through the day.`,
     `- Track how you feel and ask your obstetrician or midwife before major diet or supplement changes.`,
     ``,
-    `## Seek care urgently if`,
+    `**${EMERGENCY_NOW_EN}**`,
     ``,
-    `Heavy bleeding, high fever, severe abdominal pain, reduced fetal movement, or symptoms that worsen quickly need prompt medical care.`,
+    `**${SEEK_CARE_SOON_EN}**`,
     ``,
     `> Educational overview inspired by the topic from [${input.sourceName}](${input.url}). Not a copy of the source article.`
   ].join("\n");
@@ -120,7 +121,7 @@ export function synthesizePost(input: SynthesisInput): SynthesisOutput {
     },
     {
       question: "Khi nào nên đi khám?",
-      answer: "Khi có chảy máu, sốt cao, đau dữ dội, giảm cử động thai hoặc triệu chứng bất thường kéo dài."
+      answer: `${EMERGENCY_NOW_VI} ${SEEK_CARE_SOON_VI}`
     }
   ];
 
@@ -135,7 +136,7 @@ export function synthesizePost(input: SynthesisInput): SynthesisOutput {
     },
     {
       question: "When should I seek care?",
-      answer: "Seek care for heavy bleeding, high fever, severe pain, reduced fetal movement, or symptoms that worsen quickly."
+      answer: `${EMERGENCY_NOW_EN} ${SEEK_CARE_SOON_EN}`
     }
   ];
 
