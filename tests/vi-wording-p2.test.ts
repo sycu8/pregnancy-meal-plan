@@ -84,5 +84,17 @@ describe("P2/P3 Vietnamese wording", () => {
     expect(post("iot-va-muoi-i-ot-khi-mang-thai").content).toContain("sự phát triển trí não của thai nhi");
     expect(post("tao-bon-khi-mang-thai").content).toContain("Đau bụng dữ dội, đi ngoài ra máu");
     expect(getPostBySlug("vitamin-a-trong-thai-ky", "vi")?.slug).toBe("vitamin-a-trong-thai-ky");
+    expect(post("tieu-duong-thai-ky-an-uong-the-nao").metaDescription).toContain(
+      "không thay thế tư vấn của bác sĩ"
+    );
+    expect(post("tieu-duong-thai-ky-an-uong-the-nao").metaDescription).not.toContain("không thay thế bác sĩ.");
+    const planner = fs.readFileSync("src/components/planner/PlannerForm.tsx", "utf8");
+    expect(planner).toContain(
+      "Chế độ tiểu đường thai kỳ nghiêm ngặt: chỉ món có chỉ số đường huyết (GI) thấp"
+    );
+    expect(planner).not.toContain("nghiêm ngặt (chỉ món có chỉ số đường huyết (GI) thấp)");
+    const drafts = fs.readFileSync("src/lib/marketing/drafts.ts", "utf8");
+    expect(drafts).toContain("không thay thế tư vấn của bác sĩ");
+    expect(drafts).not.toContain("không thay thế bác sĩ.");
   });
 });

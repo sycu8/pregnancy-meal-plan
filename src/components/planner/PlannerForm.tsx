@@ -80,7 +80,7 @@ const copy = {
     pregnancyStage: "Đang mang thai",
     postpartumStage: "Sau sinh (0–24 tháng)",
     babyAgeMonths: "Tuổi bé (tháng)",
-    strictGd: "Chế độ tiểu đường thai kỳ nghiêm ngặt (chỉ món có chỉ số đường huyết (GI) thấp)"
+    strictGd: "Chế độ tiểu đường thai kỳ nghiêm ngặt: chỉ món có chỉ số đường huyết (GI) thấp"
   },
   en: {
     steps: ["Pregnancy", "About you", "Health", "Taste", "Budget"],
