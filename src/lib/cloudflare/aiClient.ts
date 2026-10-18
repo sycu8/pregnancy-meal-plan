@@ -1,7 +1,7 @@
 import type { Locale } from "@/lib/i18n";
 import { getBindings, readFeatureFlag } from "@/lib/cloudflare/bindings";
 import { getOptionalAiEnv } from "@/lib/cloudflare/env";
-import { filterEchoedAiNotes, filterSafeAiNotes } from "@/lib/nutrition/aiNoteSafety";
+import { filterEchoedAiNotes, filterSafeAiNotes, noteIsComplete } from "@/lib/nutrition/aiNoteSafety";
 import { buildMealPlanPrompt } from "@/lib/nutrition/aiPromptBuilder";
 import { ruleBasedMealPlanner } from "@/lib/nutrition/mealPlanner";
 import { filterNotesForLocale, localizeMealPlanForLocale, sanitizeSpecialNotes } from "@/lib/nutrition/localizeMealPlan";
@@ -24,21 +24,10 @@ export type AIClient = {
 export const WORKERS_AI_MODEL = "@cf/meta/llama-3.1-8b-instruct-fp8";
 
 /**
- * The call asks only for 3–5 short notes, not a 7-day plan. Keep the budget
- * small so a model that ignores the instruction cannot spend ~28s filling 512 tokens.
- * Vietnamese text is estimated at 2 characters per token.
+ * Ceiling for 2 or 3 short notes, not a 7-day plan. 192 cut the last note off;
+ * the prompt tells the model to stop well before this budget.
  */
-const MEAL_PLAN_AI_OUTPUT = {
-  specialNotes: [
-    "Uống đủ nước và chia nhỏ bữa nếu buồn nôn.",
-    "Ưu tiên thực phẩm giàu sắt, ăn kèm trái cây giàu vitamin C.",
-    "Hạn chế đồ chiên, đồ ngọt và nước ngọt.",
-    "Ăn đạm nạc, sữa tiệt trùng và rau xanh chín.",
-    "Đổi món dị ứng bằng nguyên liệu tương đương, nấu chín."
-  ]
-};
-
-export const WORKERS_AI_MAX_TOKENS = Math.min(256, Math.max(192, Math.ceil(JSON.stringify(MEAL_PLAN_AI_OUTPUT).length / 2)));
+export const WORKERS_AI_MAX_TOKENS = 256;
 
 /**
  * FP8 accepts response_format type json_object and rejects json_schema.
@@ -461,7 +450,7 @@ function workersAiFailureDetail(result: unknown): string | null {
 }
 
 const NOTES_SYSTEM_PROMPT =
-  'Return exactly one JSON object {"specialNotes":[{"text":"...","kind":"portion|swap|timing|prep|other","foods":["..."]}]} with 3 to 5 new notes in the requested language. Do not restate safety rules. Do not write a meal plan.';
+  'Return exactly one JSON object {"specialNotes":[{"text":"...","kind":"portion|swap|timing|prep|other","foods":["..."]}]} with 2 or 3 notes of at most 12 words, each ending with a period, in the requested language. Do not restate safety rules. Do not write a meal plan.';
 
 async function callOpenAi(prompt: string, apiKey: string, gatewayUrl: string | undefined, signal: AbortSignal): Promise<string> {
   const url = gatewayUrl ? `${gatewayUrl.replace(/\/$/, "")}/chat/completions` : "https://api.openai.com/v1/chat/completions";
@@ -582,7 +571,7 @@ type ParsedNotes =
 function parseNotes(raw: string): ParsedNotes {
   if (!raw.trim()) return { ok: false, reason: "empty_output" };
   try {
-    const notes = sanitizeSpecialNotes(parseModelPayload(raw).specialNotes);
+    const notes = sanitizeSpecialNotes(parseModelPayload(raw).specialNotes).filter(noteIsComplete);
     if (notes.length === 0) return { ok: false, reason: "empty_output", detail: "no_special_notes" };
     return { ok: true, notes };
   } catch {

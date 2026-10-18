@@ -147,17 +147,17 @@ describe("failed AI calls", () => {
 
     const prompt = buildMealPlanPrompt(profile, "en");
     expect(prompt).toMatch(/Do not write a meal plan/);
-    expect(prompt).toMatch(/3 to 5 items in English only/);
+    expect(prompt).toMatch(/2 or 3 items in English only/);
     expect(prompt).toContain('"kind":"portion|swap|timing|prep|other"');
     expect(prompt).toMatch(/do not restate/i);
     expect(prompt).not.toMatch(/7-day/i);
     expect(prompt).not.toMatch(/draft english/i);
-    expect(buildMealPlanPrompt(profile, "vi")).toMatch(/3 to 5 items in Vietnamese only/);
+    expect(buildMealPlanPrompt(profile, "vi")).toMatch(/2 or 3 items in Vietnamese only/);
+    expect(prompt).toMatch(/at most 12 words/);
 
     const plan = await createAIClient().generateMealPlan(profile, "en");
 
-    expect(WORKERS_AI_MAX_TOKENS).toBeGreaterThanOrEqual(192);
-    expect(WORKERS_AI_MAX_TOKENS).toBeLessThanOrEqual(256);
+    expect(WORKERS_AI_MAX_TOKENS).toBe(256);
     expect(aiRun).toHaveBeenCalledWith(
       WORKERS_AI_MODEL,
       expect.objectContaining({
@@ -176,7 +176,7 @@ describe("failed AI calls", () => {
   });
 
   it("drops non-string specialNotes and caps count and length", async () => {
-    const long = `B${"e".repeat(500)}`;
+    const long = `B${"e".repeat(238)}.${"e".repeat(300)}`;
     aiRun.mockResolvedValue({
       response: JSON.stringify({
         specialNotes: [
@@ -613,6 +613,21 @@ describe("failed AI calls", () => {
     expect(notes).toContain("Uống thêm nước lọc giữa các bữa.");
     expect(notes).not.toContain("Nên ăn nhiều trái cây");
     expect(notes).toContain("Tiểu đường thai kỳ");
+    expect(mealPlanServedAi(plan)).toBe(true);
+  });
+
+  it("does not render a cut-off note fragment", async () => {
+    aiRun.mockResolvedValue({
+      response: JSON.stringify({
+        specialNotes: ["Uống đủ nước", "Uống thêm nước lọc giữa các bữa.", "Drink water and"]
+      })
+    });
+
+    const plan = await createAIClient().generateMealPlan(profile, "vi");
+    const notes = plan.specialNotes.join(" ");
+    expect(notes).toContain("Uống thêm nước lọc giữa các bữa.");
+    expect(notes).not.toContain("Uống đủ nước");
+    expect(notes).not.toContain("Drink water and");
     expect(mealPlanServedAi(plan)).toBe(true);
   });
 

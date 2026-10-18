@@ -10,8 +10,8 @@ export function buildMealPlanPrompt(profile: PregnancyProfile, locale: Locale = 
   return [
     "You write short pregnancy nutrition notes. Do not write a meal plan, a menu, recipes, or a day-by-day schedule.",
     'Return exactly one JSON object and nothing else: {"specialNotes":[{"text":"...","kind":"portion|swap|timing|prep|other","foods":["..."]}]}.',
-    `specialNotes must contain 3 to 5 items in ${language} only.`,
-    "Each text is one new practical sentence: a portion, a swap, a time of day, or a prep step.",
+    `specialNotes must contain 2 or 3 items in ${language} only.`,
+    "Each text is at most 12 words, ends with a period, and is one new practical sentence: a portion, a swap, a time of day, or a prep step.",
     "Do not restate food-safety rules, condition warnings, mercury or fish rules, or anything the app already tells the user.",
     "If you have no new practical note, return {\"specialNotes\":[]}.",
     "Do not provide medical diagnoses and do not tell the user to ask a clinician.",

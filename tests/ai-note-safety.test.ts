@@ -38,7 +38,8 @@ describe("meal-plan prompt", () => {
   it("asks for structured notes and does not paste warnings the model would restate", () => {
     const prompt = buildMealPlanPrompt(gdm, "vi");
     expect(prompt).toContain('"kind":"portion|swap|timing|prep|other"');
-    expect(prompt).toMatch(/3 to 5 items in Vietnamese only/);
+    expect(prompt).toMatch(/2 or 3 items in Vietnamese only/);
+    expect(prompt).toMatch(/at most 12 words/);
     expect(prompt).toMatch(/do not restate/i);
     expect(prompt).not.toContain(getConditionSpecificWarnings(gdm, "vi")[0]);
     expect(prompt).not.toContain(getGeneralPregnancyFoodWarnings("vi")[0]);
@@ -86,7 +87,18 @@ const gdmContradictions = [
   "Ăn nhãn và vải.",
   "Ăn dưa hấu.",
   "An mit moi ngay.",
-  "An nhieu hoa qua va mit."
+  "An nhieu hoa qua va mit.",
+  "Ăn mit với sữa chua.",
+  "Một phần nhỏ sầu riêng.",
+  "Eat durian, one small piece.",
+  "không cần hạn chế xoài.",
+  "Don't limit mango.",
+  "Ko cần hạn chế mít.",
+  "Milk tea after lunch.",
+  "Bubble tea is a snack.",
+  "Uống trà sữa.",
+  "Ăn nhãn tươi mỗi ngày.",
+  "Thử phở cho bữa trưa."
 ];
 
 const gdmSafe = [
@@ -101,7 +113,17 @@ const gdmSafe = [
   "Hạn chế đồ ngọt.",
   "Han che do ngot.",
   "Limit mango to one small piece.",
+  "Eat mango, one small piece.",
   "Have one small apple with nuts instead of juice.",
+  "Replace white rice with brown rice.",
+  "Swap white rice for brown rice.",
+  "Try pho for lunch.",
+  "No mango.",
+  "Ko an mit.",
+  "Đọc nhãn dinh dưỡng trước khi mua.",
+  "Have a kiwi or an apple.",
+  "Ăn ổi và táo.",
+  "Không ăn sầu riêng.",
   "Ưu tiên phô mai tiệt trùng.",
   "Cá phổ biến nên nấu chín.",
   "Giữ chuỗi bữa nhỏ trong ngày.",
@@ -130,7 +152,20 @@ const unsafeFoods = [
   "An kim chi moi ngay.",
   "Have a soft-boiled egg.",
   "Lòng đỏ còn chảy vẫn dùng được.",
-  "Ăn cá sống kiểu Nhật."
+  "Ăn cá sống kiểu Nhật.",
+  "Pâté lạnh trên bánh mì.",
+  "Ăn giò lụa nguội.",
+  "Thịt nguội và xúc xích.",
+  "A ham and salami sandwich.",
+  "Sausage for breakfast.",
+  "Một ly bia sau bữa tối.",
+  "A glass of wine.",
+  "Try a cocktail tonight.",
+  "Soju with dinner.",
+  "Giá sống trong món gỏi.",
+  "Raw sprouts on the salad.",
+  "Một phần nhỏ gan mỗi tuần.",
+  "Ăn xúc xích chưa làm nóng."
 ];
 
 const safeFoods = [
@@ -143,7 +178,15 @@ const safeFoods = [
   "Nấu chín cá, thịt và trứng.",
   "Chọn cá ít thủy ngân và nấu chín kỹ.",
   "Tránh trà gần bữa chính.",
-  "Không ăn gỏi cá, nem chua hay đồ tái sống."
+  "Không ăn gỏi cá, nem chua hay đồ tái sống.",
+  "Cooked salmon for dinner.",
+  "Cá hồi nấu chín cho bữa tối.",
+  "Một phần nhỏ gan gà nấu chín mỗi tuần.",
+  "Reheat deli meat until steaming hot.",
+  "Hâm nóng xúc xích trước khi ăn.",
+  "Don't drink wine.",
+  "No alcohol tonight.",
+  "Đeo trang sức vàng."
 ];
 
 describe("per-condition deny list", () => {
@@ -302,7 +345,39 @@ describe("authored GDM plans", () => {
     { locale: "en", text: "Eat two small snacks at 10:00 and 15:00.", block: false },
     { locale: "en", text: "Have a soft-boiled egg with rice.", block: true },
     { locale: "en", text: "Enjoy kim chi with dinner.", block: true },
-    { locale: "en", text: "Limit mango to one small piece.", block: false }
+    { locale: "en", text: "Limit mango to one small piece.", block: false },
+    { locale: "vi", text: "Ăn mit với sữa chua.", block: true },
+    { locale: "vi", text: "Một phần nhỏ sầu riêng.", block: true },
+    { locale: "en", text: "Eat durian, one small piece.", block: true },
+    { locale: "vi", text: "không cần hạn chế xoài.", block: true },
+    { locale: "en", text: "Don't limit mango.", block: true },
+    { locale: "vi", text: "Pâté lạnh trên bánh mì.", block: true },
+    { locale: "vi", text: "Ăn giò lụa nguội.", block: true },
+    { locale: "en", text: "A ham and salami sandwich.", block: true },
+    { locale: "vi", text: "Một ly bia sau bữa tối.", block: true },
+    { locale: "en", text: "A glass of wine.", block: true },
+    { locale: "en", text: "Try a cocktail tonight.", block: true },
+    { locale: "en", text: "Soju with dinner.", block: true },
+    { locale: "vi", text: "Giá sống trong món gỏi.", block: true },
+    { locale: "en", text: "Milk tea after lunch.", block: true },
+    { locale: "en", text: "Bubble tea is a snack.", block: true },
+    { locale: "vi", text: "Ăn nhãn tươi mỗi ngày.", block: true },
+    { locale: "vi", text: "Thử phở cho bữa trưa.".normalize("NFD"), block: true },
+    { locale: "vi", text: "Ăn chè.".normalize("NFD"), block: true },
+    { locale: "en", text: "Eat mango, one small piece.", block: false },
+    { locale: "en", text: "Replace white rice with brown rice.", block: false },
+    { locale: "en", text: "Cooked salmon for dinner.", block: false },
+    { locale: "vi", text: "Cá hồi nấu chín cho bữa tối.", block: false },
+    { locale: "vi", text: "Đọc nhãn dinh dưỡng trước khi mua.", block: false },
+    { locale: "en", text: "No mango.", block: false },
+    { locale: "vi", text: "Ko an mit.", block: false },
+    { locale: "vi", text: "Một phần nhỏ gan gà nấu chín mỗi tuần.", block: false },
+    { locale: "en", text: "Try pho for lunch.", block: false },
+    { locale: "en", text: "Have a kiwi or an apple.", block: false },
+    { locale: "vi", text: "Ăn ổi và táo.", block: false },
+    { locale: "vi", text: "Không ăn sầu riêng.", block: false },
+    { locale: "en", text: "Reheat deli meat until steaming hot.", block: true },
+    { locale: "en", text: "Eat animal liver once a week.", block: true }
   ];
 
   it("keeps only new notes on 3 Vietnamese and 3 English plans", () => {
@@ -329,6 +404,15 @@ describe("authored GDM plans", () => {
     const recall = blockedHits / shouldBlock;
     expect({ precision, recall, misses }).toEqual({ precision: 1, recall: 1, misses: [] });
     expect(shouldBlock + shouldKeep).toBe(plans.length);
+  });
+});
+
+describe("class probe extras", () => {
+  it("treats NFD phở like NFC phở and still allows English pho", () => {
+    const nfd = "Thử phở cho bữa trưa.".normalize("NFD");
+    expect(nfd.normalize("NFC")).not.toBe(nfd);
+    expect(filterSafeAiNotes([nfd], gdm)).toEqual([]);
+    expect(filterSafeAiNotes(["Try pho for lunch."], gdm)).toEqual(["Try pho for lunch."]);
   });
 });
 
