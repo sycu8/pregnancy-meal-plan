@@ -20,6 +20,8 @@ describe("P1 Vietnamese wording", () => {
   it("uses the reviewed phở, menu, sushi, drug, and heat wording", () => {
     expect(pho.content).toContain("tránh đồ sống/tái trong suốt thai kỳ");
     expect(pho.content).toContain("gọi phở chín, nạm, gầu hoặc bò viên");
+    expect(pho.content).toContain("đến khi thịt chín đều, không còn màu hồng");
+    expect(pho.content).not.toContain("chuyển màu nâu hoàn toàn");
     expect(pho.content).not.toContain("chọn quán uy tín");
     expect(menu.content).toContain("Phở bò chín (nạm/gầu)");
     expect(menu.content).not.toContain("Phở bò tái");
@@ -34,9 +36,14 @@ describe("P1 Vietnamese wording", () => {
     expect(drugs.tags).toEqual(["thuốc khi mang thai", "sảy thai"]);
     expect(heat.content).toContain("Dùng điều hòa hoặc quạt nếu có.");
     expect(heat.content).toContain("Gọi 115 ngay");
-    expect(heat.metaDescription.startsWith("Mẹo chống nóng mùa hè cho mẹ bầu")).toBe(true);
+    expect(heat.metaDescription).toBe(
+      "Mẹo chống nóng mùa hè cho mẹ bầu theo CDC, NHS: uống đủ nước, ăn nhẹ và nhận biết dấu hiệu cần cấp cứu."
+    );
     expect(minister.status).toBe("draft");
-    expect(minister.content).toContain("Mất thai là nỗi đau rất lớn.");
+    expect(minister.content).toContain(
+      "Mất con là một nỗi đau rất lớn, và mọi cảm xúc của bạn lúc này đều chính đáng. Nếu cần chia sẻ, hãy nói với bác sĩ, người thân hoặc tìm nhóm hỗ trợ."
+    );
+    expect(minister.content).not.toContain("Mất thai là nỗi đau rất lớn.");
   });
 
   it("removes leaked CJK and the Vinmec pipeline note from Vietnamese posts", () => {
@@ -46,6 +53,8 @@ describe("P1 Vietnamese wording", () => {
       const raw = fs.readFileSync(path.join(dir, name), "utf8");
       expect(raw, name).not.toContain("内部");
       expect(raw, name).not.toContain("tổng hợp dựa trên tiêu đề và mô tả công khai từ nguồn");
+      expect(raw, name).not.toMatch(/1800|1900/);
+      expect(raw, name).not.toContain("cần xác minh số hiện hành");
     }
   });
 });
