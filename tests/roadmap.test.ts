@@ -1,9 +1,25 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import type { Locale } from "@/lib/i18n";
+import type { PregnancyProfile } from "@/types/pregnancy";
+
+vi.mock("@/lib/cloudflare/aiClient", async () => {
+  const actual = await vi.importActual<typeof import("@/lib/cloudflare/aiClient")>("@/lib/cloudflare/aiClient");
+  return {
+    ...actual,
+    createAIClient: () => ({
+      async generateMealPlan(input: PregnancyProfile, locale: Locale = "vi") {
+        const { ruleBasedMealPlanner } = await import("@/lib/nutrition/mealPlanner");
+        const { localizeMealPlanForLocale } = await import("@/lib/nutrition/localizeMealPlan");
+        return localizeMealPlanForLocale(ruleBasedMealPlanner(input, locale), locale);
+      }
+    })
+  };
+});
+
 import { POST } from "@/app/api/generate-meal-plan/route";
 import { buildBlogRssFeed } from "@/lib/blog/rssFeed";
 import { synthesizePost } from "@/lib/blog/synthesis/synthesizePost";
 import { regenerateMealInPlan, ruleBasedMealPlanner } from "@/lib/nutrition/mealPlanner";
-import type { PregnancyProfile } from "@/types/pregnancy";
 
 const sampleProfile: PregnancyProfile = {
   pregnancyWeek: 24,
@@ -20,7 +36,27 @@ const sampleProfile: PregnancyProfile = {
 };
 
 describe("generate meal plan API", () => {
-  it("returns a 7-day plan for valid profile", async () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+  });
+
+  it("returns a 7-day plan without calling OpenAI when a key is set", async () => {
+    vi.stubEnv("OPENAI_API_KEY", "test-openai-key");
+    vi.stubEnv("AI_PROVIDER", "openai");
+    delete process.env.TURNSTILE_SECRET_KEY;
+
+    const urls: string[] = [];
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input instanceof Request ? input.url : input);
+      urls.push(url);
+      if (/openai\.com|api\.openai/i.test(url)) {
+        throw new Error(`unexpected OpenAI call: ${url}`);
+      }
+      return new Response("{}", { status: 200 });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
     const request = new Request("http://localhost/api/generate-meal-plan", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -31,6 +67,8 @@ describe("generate meal plan API", () => {
     expect(response.status).toBe(200);
     const json = (await response.json()) as { plan: { days: unknown[] } };
     expect(json.plan.days).toHaveLength(7);
+    expect(urls.join("\n")).not.toMatch(/openai/i);
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });
 

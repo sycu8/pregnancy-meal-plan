@@ -2,12 +2,13 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { checkRateLimit } from "@/lib/cloudflare/rateLimit";
 import { validateB2BApiKey } from "@/lib/b2b/apiKey";
-import { createAIClient } from "@/lib/cloudflare/aiClient";
+import { AiProviderError, createAIClient } from "@/lib/cloudflare/aiClient";
 import { verifyTurnstileToken } from "@/lib/cloudflare/turnstile";
 import { checkUsage, incrementUsage, usageLimitMessage } from "@/lib/premium/serverUsage";
 import type { Locale } from "@/lib/i18n";
 import { regenerateMealInPlan } from "@/lib/nutrition/mealPlanner";
 import { localizeMealPlanForLocale } from "@/lib/nutrition/localizeMealPlan";
+import { AI_UNAVAILABLE_CODE, aiUnavailableMessage } from "@/lib/nutrition/aiUnavailable";
 import { pregnancyProfileSchema, validationErrorToLocale, validationErrorToVietnamese } from "@/lib/nutrition/validation";
 import type { MealPlan } from "@/types/mealPlan";
 
@@ -104,6 +105,13 @@ export async function POST(request: Request) {
     const plan = await createAIClient().generateMealPlan(parsed.profile, locale);
     return NextResponse.json({ plan });
   } catch (error) {
+    if (error instanceof AiProviderError) {
+      console.error("[meal-plan] AI provider failed");
+      return NextResponse.json(
+        { error: aiUnavailableMessage(locale), code: AI_UNAVAILABLE_CODE },
+        { status: 502 }
+      );
+    }
     const message = locale === "en" ? validationErrorToLocale(error, "en") : validationErrorToVietnamese(error);
     return NextResponse.json({ error: message }, { status: 400 });
   }

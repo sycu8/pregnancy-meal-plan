@@ -39,8 +39,8 @@ export const pregnancyProfileSchema = z.object({
   cuisinePreferences: z.array(
     z.enum(["vietnamese_rice", "northern", "central", "southern", "vegetarian", "no_fish", "no_beef", "no_seafood"])
   ),
-  dislikedFoods: z.string().optional(),
-  allergies: z.string().optional(),
+  dislikedFoods: z.string().max(200, "Món không thích tối đa 200 ký tự.").optional(),
+  allergies: z.string().max(200, "Dị ứng thực phẩm tối đa 200 ký tự.").optional(),
   residenceCountry: z
     .enum(["VN", "US", "JP", "KR", "SG", "AU", "GB", "CA", "DE", "FR", "TH", "MY", "TW"])
     .optional()
@@ -76,6 +76,8 @@ export function validationErrorToLocale(error: unknown, locale: Locale) {
         if (field === "heightCm") return "Height must be between 120 and 220 cm.";
         if (field === "prePregnancyWeightKg") return "Pre-pregnancy weight must be between 30 and 200 kg.";
         if (field === "currentWeightKg") return "Current weight must be between 30 and 220 kg.";
+        if (field === "allergies") return "Food allergies must be 200 characters or fewer.";
+        if (field === "dislikedFoods") return "Disliked foods must be 200 characters or fewer.";
         return "Some information is invalid. Please review the form.";
       })
       .join(" ");

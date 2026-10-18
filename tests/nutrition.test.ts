@@ -9,7 +9,8 @@ import {
   getConditionSpecificWarnings
 } from "@/lib/nutrition/safetyRules";
 import { ruleBasedMealPlanner } from "@/lib/nutrition/mealPlanner";
-import { localizeMealPlanForLocale } from "@/lib/nutrition/localizeMealPlan";
+import { localizeMealPlanForLocale, sanitizeSpecialNotes, MAX_SPECIAL_NOTE_CHARS, MAX_SPECIAL_NOTES } from "@/lib/nutrition/localizeMealPlan";
+import { pregnancyProfileSchema, validationErrorToLocale } from "@/lib/nutrition/validation";
 import type { PregnancyProfile } from "@/types/pregnancy";
 
 const baseProfile: PregnancyProfile = {
@@ -152,5 +153,67 @@ describe("rule-based meal planner", () => {
     expect(breakfast.nutrients.join(" ")).toMatch(/đạm|rau|tinh bột|canxi|chất|sắt|omega|vitamin|năng lượng|kali|nước|probiotic|choline|folate|kẽm|iodine|beta/i);
     expect(vietnamesePlan.shoppingList.proteins.join(" ")).toMatch(/[àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ]/i);
     expect(vietnamesePlan.costEstimate.note).toContain("ước tính");
+  });
+});
+
+describe("profile free-text limits", () => {
+  it("caps allergies and disliked foods at 200 characters", () => {
+    expect(pregnancyProfileSchema.safeParse({ ...baseProfile, allergies: "tôm", dislikedFoods: "mỡ" }).success).toBe(true);
+
+    const tooLong = "a".repeat(201);
+    const allergies = pregnancyProfileSchema.safeParse({ ...baseProfile, allergies: tooLong });
+    expect(allergies.success).toBe(false);
+    if (!allergies.success) {
+      expect(allergies.error.issues[0]?.message).toBe("Dị ứng thực phẩm tối đa 200 ký tự.");
+      expect(validationErrorToLocale(allergies.error, "en")).toBe("Food allergies must be 200 characters or fewer.");
+      expect(validationErrorToLocale(allergies.error, "vi")).toBe("Dị ứng thực phẩm tối đa 200 ký tự.");
+    }
+
+    const disliked = pregnancyProfileSchema.safeParse({ ...baseProfile, dislikedFoods: tooLong });
+    expect(disliked.success).toBe(false);
+    if (!disliked.success) {
+      expect(disliked.error.issues[0]?.message).toBe("Món không thích tối đa 200 ký tự.");
+      expect(validationErrorToLocale(disliked.error, "en")).toBe("Disliked foods must be 200 characters or fewer.");
+    }
+  });
+});
+
+describe("special notes", () => {
+  it("accepts only short strings so a non-string cannot reach the result list", () => {
+    expect(sanitizeSpecialNotes("not-an-array")).toEqual([]);
+    expect(sanitizeSpecialNotes({ note: "nope" })).toEqual([]);
+
+    const long = "Ă".repeat(500);
+    const notes = sanitizeSpecialNotes([
+      "  Uống   đủ nước.  ",
+      1,
+      { bad: true },
+      null,
+      "",
+      "   ",
+      long,
+      ...Array.from({ length: 20 }, (_, index) => `Ghi chú số ${index} về bữa ăn.`)
+    ]);
+
+    expect(notes.every((note) => typeof note === "string")).toBe(true);
+    expect(notes).toHaveLength(MAX_SPECIAL_NOTES);
+    expect(notes.every((note) => note.length <= MAX_SPECIAL_NOTE_CHARS)).toBe(true);
+    expect(notes[0]).toBe("Uống đủ nước.");
+    expect(notes[1]).toHaveLength(MAX_SPECIAL_NOTE_CHARS);
+    expect(notes.join(" ")).not.toContain("[object Object]");
+
+    const plan = ruleBasedMealPlanner(baseProfile, "vi");
+    const localized = localizeMealPlanForLocale(
+      {
+        ...plan,
+        specialNotes: ["Uống đủ nước.", 1, { bad: true }, null, long] as unknown as string[]
+      },
+      "vi"
+    );
+    expect(localized.specialNotes.every((note) => typeof note === "string")).toBe(true);
+    expect(localized.specialNotes.length).toBeLessThanOrEqual(MAX_SPECIAL_NOTES);
+    expect(localized.specialNotes.every((note) => note.length <= MAX_SPECIAL_NOTE_CHARS)).toBe(true);
+    expect(localized.specialNotes.join(" ")).not.toContain("[object Object]");
+    expect(localized.specialNotes.join(" ")).toContain("Uống đủ nước.");
   });
 });

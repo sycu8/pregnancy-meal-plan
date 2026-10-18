@@ -10,7 +10,8 @@ import { PremiumUpsell } from "@/components/premium/PremiumUpsell";
 import { canCreateAiPlan } from "@/lib/premium/usage";
 import { getPremiumTier } from "@/lib/premium/tier";
 import { getNutritionLabels } from "@/lib/nutrition/labels";
-import { fetchMealPlan, createLocalMealPlan, PremiumLimitError } from "@/lib/nutrition/fetchMealPlan";
+import { fetchMealPlan, createLocalMealPlan, MealPlanRequestError, PremiumLimitError } from "@/lib/nutrition/fetchMealPlan";
+import { isAbortError, mealPlanErrorMessage, type MealPlanErrorAction } from "@/lib/nutrition/aiUnavailable";
 import { pregnancyProfileSchema, validationErrorToLocale } from "@/lib/nutrition/validation";
 import { saveMealPlan, saveProfile, getProfile } from "@/lib/storage/localStorage";
 import { cacheOfflineSnapshot, incrementPlanCount } from "@/lib/storage/offlineCache";
@@ -71,6 +72,9 @@ const copy = {
     loading: "Đang tạo thực đơn...",
     saveProfile: "Lưu hồ sơ",
     submit: "Tạo thực đơn miễn phí",
+    tryAgain: "Thử lại",
+    recheck: "Kiểm tra lại",
+    useBasicPlan: "Dùng thực đơn cơ bản",
     planLimit: "Đã hết lượt tạo thực đơn AI hôm nay. Đang dùng thực đơn rule-based (miễn phí).",
     lifeStage: "Giai đoạn",
     pregnancyStage: "Đang mang thai",
@@ -111,6 +115,9 @@ const copy = {
     loading: "Creating meal plan...",
     saveProfile: "Save profile",
     submit: "Create a free plan",
+    tryAgain: "Try again",
+    recheck: "Check again",
+    useBasicPlan: "Use basic plan",
     planLimit: "Daily AI limit reached. Using the free rule-based meal plan instead.",
     lifeStage: "Life stage",
     pregnancyStage: "Pregnancy",
@@ -130,6 +137,7 @@ export function PlannerForm({ mode = "planner", locale = "vi" }: { mode?: "plann
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
   const [showPlanUpsell, setShowPlanUpsell] = useState(false);
+  const [errorAction, setErrorAction] = useState<MealPlanErrorAction | "none">("none");
   const isProfileMode = mode === "profile";
 
   useEffect(() => {
@@ -172,8 +180,29 @@ export function PlannerForm({ mode = "planner", locale = "vi" }: { mode?: "plann
     update(key, next as never);
   }
 
+  function finishWithBasicPlan() {
+    try {
+      const validProfile = pregnancyProfileSchema.parse(profile);
+      const plan = createLocalMealPlan(validProfile, locale);
+      saveMealPlan(plan);
+      cacheOfflineSnapshot(validProfile, plan);
+      incrementPlanCount();
+      router.push(localizedPath(locale, "/result"));
+    } catch (caught) {
+      setErrorAction("none");
+      setError(validationErrorToLocale(caught, locale));
+    }
+  }
+
+  function recheckForm() {
+    setError("");
+    setErrorAction("none");
+    setStep(0);
+  }
+
   async function handleSubmit() {
     setError("");
+    setErrorAction("none");
     setIsLoading(true);
     await new Promise((resolve) => setTimeout(resolve, 250));
 
@@ -214,7 +243,16 @@ export function PlannerForm({ mode = "planner", locale = "vi" }: { mode?: "plann
       incrementPlanCount();
       router.push(localizedPath(locale, "/result"));
     } catch (caught) {
-      setError(validationErrorToLocale(caught, locale));
+      if (caught instanceof MealPlanRequestError) {
+        setErrorAction(caught.action);
+        setError(mealPlanErrorMessage(locale, caught.kind));
+      } else if (isAbortError(caught)) {
+        setErrorAction("retry");
+        setError(mealPlanErrorMessage(locale, "aborted"));
+      } else {
+        setErrorAction("none");
+        setError(validationErrorToLocale(caught, locale));
+      }
     } finally {
       setIsLoading(false);
     }
@@ -317,8 +355,8 @@ export function PlannerForm({ mode = "planner", locale = "vi" }: { mode?: "plann
               selected={profile.cuisinePreferences}
               onToggle={(value) => toggleArrayValue("cuisinePreferences", value as CuisinePreference)}
             />
-            <TextField label={t.allergies} value={profile.allergies ?? ""} onChange={(event) => update("allergies", event.target.value)} />
-            <TextField label={t.dislikedFoods} value={profile.dislikedFoods ?? ""} onChange={(event) => update("dislikedFoods", event.target.value)} />
+            <TextField label={t.allergies} value={profile.allergies ?? ""} maxLength={200} onChange={(event) => update("allergies", event.target.value)} />
+            <TextField label={t.dislikedFoods} value={profile.dislikedFoods ?? ""} maxLength={200} onChange={(event) => update("dislikedFoods", event.target.value)} />
           </Step>
         )}
 
@@ -339,7 +377,35 @@ export function PlannerForm({ mode = "planner", locale = "vi" }: { mode?: "plann
           </Step>
         )}
 
-        {error && <p className="mt-4 rounded-md bg-red-50 p-3 text-sm text-red-700">{error}</p>}
+        {error && (
+          <div className="mt-4 rounded-md bg-red-50 p-3 text-sm text-red-700" role="alert">
+            <p>{error}</p>
+            {errorAction === "ai" && (
+              <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+                <Button type="button" onClick={handleSubmit} disabled={isLoading}>
+                  {t.tryAgain}
+                </Button>
+                <Button type="button" variant="secondary" onClick={finishWithBasicPlan} disabled={isLoading}>
+                  {t.useBasicPlan}
+                </Button>
+              </div>
+            )}
+            {errorAction === "retry" && (
+              <div className="mt-3">
+                <Button type="button" onClick={handleSubmit} disabled={isLoading}>
+                  {t.tryAgain}
+                </Button>
+              </div>
+            )}
+            {errorAction === "recheck" && (
+              <div className="mt-3">
+                <Button type="button" variant="secondary" onClick={recheckForm} disabled={isLoading}>
+                  {t.recheck}
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
         {saved && <p className="mt-4 rounded-md bg-emerald-50 p-3 text-sm text-emerald-800">{t.saved}</p>}
         {!isProfileMode && step === t.steps.length - 1 && (
           <div className="mt-4 space-y-3">
@@ -393,11 +459,16 @@ function NumberField(props: { label: string; value: number | string; min?: numbe
   );
 }
 
-function TextField(props: { label: string; value: string; onChange: (event: ChangeEvent<HTMLInputElement>) => void }) {
+function TextField(props: {
+  label: string;
+  value: string;
+  maxLength?: number;
+  onChange: (event: ChangeEvent<HTMLInputElement>) => void;
+}) {
   return (
     <label className="block text-sm font-medium">
       {props.label}
-      <input value={props.value} onChange={props.onChange} className={baseInputClass()} />
+      <input value={props.value} maxLength={props.maxLength} onChange={props.onChange} className={baseInputClass()} />
     </label>
   );
 }
