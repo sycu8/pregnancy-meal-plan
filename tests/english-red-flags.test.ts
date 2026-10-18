@@ -131,4 +131,39 @@ describe("PMP42-EN-01 English movement hold-outs", () => {
     expect(warningsFor("fewer kicks, but still moving")).toEqual([EN_BANNER]);
     expect(warningsFor("baby not moving, kicking normally")).toEqual([EN_BANNER]);
   });
+
+  it("alerts when an English stop verb is on fetal movement", () => {
+    // FK4's exact prior string was not in the repo or the delta notes.
+    expect(warningsFor("kicking stopped")).toEqual([EN_BANNER]);
+    expect(warningsFor("movement has stopped")).toEqual([EN_BANNER]);
+    expect(warningsFor("the baby was kicking but now it stopped")).toEqual([EN_BANNER]);
+  });
+});
+
+describe("PMP42-FA-01 English history, normal findings, and gum bleeding", () => {
+  it("stays silent for a previous pregnancy, last time, a normal finding, and gum bleeding from brushing or flossing", () => {
+    expect(warningsFor("I had bleeding in a previous pregnancy")).toEqual([]);
+    expect(warningsFor("reduced movement in my last pregnancy")).toEqual([]);
+    expect(warningsFor("last time the baby stopped kicking")).toEqual([]);
+    expect(warningsFor("last time I had no fetal movement")).toEqual([]);
+    expect(warningsFor("the scan said movement is normal")).toEqual([]);
+    expect(warningsFor("the doctor said fetal movement is normal")).toEqual([]);
+    expect(warningsFor("ultrasound showed movement normal")).toEqual([]);
+    expect(warningsFor("my gums bleed when I brush")).toEqual([]);
+    expect(warningsFor("bleeding gums from flossing")).toEqual([]);
+    expect(warningsFor("gums bleeding after brushing my teeth")).toEqual([]);
+  });
+
+  it("still alerts for current reduced or stopped movement and for vaginal bleeding", () => {
+    expect(warningsFor("the baby is not moving")).toEqual([EN_BANNER]);
+    expect(warningsFor("kicking stopped")).toEqual([EN_BANNER]);
+    expect(warningsFor("movement has stopped")).toEqual([EN_BANNER]);
+    expect(warningsFor("reduced fetal movement")).toEqual([EN_BANNER]);
+    expect(warningsFor("vaginal bleeding")).toEqual([EN_BANNER]);
+    expect(warningsFor("I have vaginal bleeding")).toEqual([EN_BANNER]);
+    expect(warningsFor("last time was fine, but the baby is not moving today")).toEqual([EN_BANNER]);
+    expect(warningsFor("the scan said movement is normal, but kicking stopped")).toEqual([EN_BANNER]);
+    expect(warningsFor("my gums bleed when I floss, and I have vaginal bleeding")).toEqual([EN_BANNER]);
+    expect(warningsFor("the doctor said movement has stopped")).toEqual([EN_BANNER]);
+  });
 });

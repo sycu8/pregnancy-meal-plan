@@ -3824,6 +3824,69 @@ function noteMatchesEnglishClinical(note: string): boolean {
   return matchesEnglishSymptom(tokens);
 }
 
+function splitScopeClauses(note: string): string[] {
+  const clauses = note
+    .split(/[,，;；.!?？…\n\r]+/u)
+    .map((part) => part.trim())
+    .filter((part) => part !== "");
+  return clauses.length > 0 ? clauses : [note];
+}
+
+/** «last time» or a previous pregnancy. «today» / «now» keeps a current symptom. */
+function isEnglishHistoryClause(clause: string): boolean {
+  const lower = clause.toLowerCase();
+  const history =
+    /\b(?:previous|prior|last|past)\s+pregnancy\b/.test(lower) ||
+    /\blast time\b/.test(lower) ||
+    /\bwhen i was pregnant before\b/.test(lower);
+  if (!history) return false;
+  return !/\b(?:now|today|tonight|currently|right now|this morning|this pregnancy)\b/.test(lower);
+}
+
+/** «the scan said movement is normal». A stop or decrease in the same clause still counts. */
+function isEnglishNormalFindingClause(clause: string): boolean {
+  const lower = clause.toLowerCase();
+  const reporter = /\b(?:scan|ultrasound|sono|doctor|midwife|ob|clinician)\b/.test(lower);
+  const said = /\b(?:said|says|told|showed|shows|reported)\b/.test(lower);
+  if (!reporter || !said || !/\bnormal\b/.test(lower)) return false;
+  return !/\b(?:stopped|stops|stopping|decreased|reduced|fewer|not moving|no movement|no longer)\b/.test(lower);
+}
+
+/** Gum bleeding from brushing or flossing. Vaginal bleeding is not this. */
+function isMinorGumBleedingClause(clause: string): boolean {
+  const lower = clause.toLowerCase();
+  if (!/\bgums?\b/.test(lower)) return false;
+  if (!/\b(?:brush(?:ing)?|floss(?:ing)?|toothbrush)\b/.test(lower)) return false;
+  return !/\bvaginal\b/.test(lower);
+}
+
+function englishClauseSuppressed(clause: string): boolean {
+  return isEnglishHistoryClause(clause) || isEnglishNormalFindingClause(clause) || isMinorGumBleedingClause(clause);
+}
+
+function clauseCarriesRedFlag(clause: string): boolean {
+  const note = assertiveNote(clause);
+  if (noteMatchesEnglishClinical(clause)) return true;
+  if (!note.trim()) return false;
+  return (
+    URGENT_DOCTOR_NOTE_KEYWORDS.some((keyword) => noteMatchesUrgentKeyword(note, keyword)) ||
+    noteMatchesReducedFetalMovement(note) ||
+    noteMatchesFaceOrHandSwelling(note) ||
+    noteMatchesCannotBreathe(note)
+  );
+}
+
+/**
+ * History, a normal scan or doctor finding, and gum bleeding from brushing or
+ * flossing do not raise the banner. A current stop, a current decrease, and
+ * vaginal bleeding still do.
+ */
+function englishScopeSilences(note: string): boolean {
+  const flagged = splitScopeClauses(note).filter(clauseCarriesRedFlag);
+  if (flagged.length === 0) return false;
+  return flagged.every(englishClauseSuppressed);
+}
+
 export function detectUrgentWarnings(profile: PregnancyProfile, locale: Locale = "vi"): string[] {
   const original = profile.doctorNote ?? "";
   const note = assertiveNote(original);
@@ -3838,6 +3901,7 @@ export function detectUrgentWarnings(profile: PregnancyProfile, locale: Locale =
         noteMatchesFaceOrHandSwelling(note) ||
         noteMatchesCannotBreathe(note)))
   ) {
+    if (englishScopeSilences(original)) return [];
     return [locale === "vi" ? URGENT_NOTE_BANNER.vi : URGENT_NOTE_BANNER.en];
   }
 
