@@ -1,13 +1,13 @@
 import fs from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { BLOG_WEIGHT_LEXICON, findWeightLexiconHits, foldLexiconText } from "@/lib/nutrition/weightLexicon";
+import { WEIGHT_LEXICON, findWeightLexiconHits, foldLexiconText } from "@/lib/nutrition/weightLexicon";
 
 /**
  * PMP-WL-02: published blog prose must not promote weight loss, weight control, or satiety.
  * Matching lives in the shared lexicon (NFC plus an accent-folded copy).
  * Clinical red-flag wording that is not advice is allowlisted by exact context.
- * Blog posts use the blog phrase list, not the planner stems for fetal weight or appetite.
+ * The scan uses the full shared list, including the stems the earlier subset skipped.
  */
 
 /** Exact contexts that are symptoms or care warnings, not weight or satiety advice. */
@@ -22,7 +22,33 @@ const ALLOWED_CONTEXTS = [
 ];
 
 const CONTENT_DIRS = ["content/blog/posts", "content/blog/posts-en"];
-const PLANNER_FILES = ["src/lib/nutrition/mealLocales.ts", "src/lib/nutrition/nutrientGuidance.ts"];
+const PLANNER_FILES = [
+  "src/lib/nutrition/mealLocales.ts",
+  "src/lib/nutrition/nutrientGuidance.ts",
+  "src/lib/nutrition/mealDatabase.ts"
+];
+const GENERATOR_FILES = [
+  "scripts/build-blog-en.mjs",
+  "scripts/blog-en-bodies.mjs",
+  "scripts/blog-en-translations-data.mjs",
+  "scripts/fix-new-blog-accuracy.ts",
+  "scripts/add-blog-seeds.ts"
+];
+
+/** Stems the #43 scan missed and the shared lexicon already names. */
+const FULL_LIST_PHRASES = [
+  "hearty",
+  "satisfying",
+  "satisfied",
+  "satiated",
+  "no ăn lâu",
+  "smaller plate",
+  "bữa nhỏ",
+  "lượng nhỏ",
+  "ăn ít",
+  "eat less",
+  "thèm ăn"
+];
 
 const UNACCENTED_PHRASES = ["giam can", "lay lai voc dang", "eo thon", "no lau", "chac bung", "do doi"];
 const NFD_PHRASES = ["giảm cân", "lấy lại vóc dáng", "eo thon", "no lâu", "chắc bụng", "đỡ đói"];
@@ -41,7 +67,7 @@ type Hit = { file: string; field: string; name: string; snippet: string };
 
 export function findLexiconHits(text: string, field = "text"): Hit[] {
   const folded = foldLexiconText(text);
-  return findWeightLexiconHits(text, BLOG_WEIGHT_LEXICON, ALLOWED_CONTEXTS).map((hit) => {
+  return findWeightLexiconHits(text, WEIGHT_LEXICON, ALLOWED_CONTEXTS).map((hit) => {
     const start = Math.max(0, hit.index - 40);
     const end = Math.min(folded.length, hit.index + hit.length + 40);
     return {
@@ -86,6 +112,17 @@ describe("blog weight-loss lexicon", () => {
     expect(findLexiconHits("weight-loss advice").map((hit) => hit.name)).toContain("weight loss");
     expect(findLexiconHits("a fulfilling plate of rice").length).toBe(0);
     expect(findLexiconHits("muslim communities and family meals").length).toBe(0);
+    expect(findLexiconHits("keeps you full").map((hit) => hit.name)).toContain("full(er)");
+    expect(findLexiconHits("full thaw in the fridge").length).toBe(0);
+    expect(findLexiconHits("nó lâu rồi mới nói").length).toBe(0);
+    expect(findLexiconHits("no lâu hơn").map((hit) => hit.name)).toContain("no lâu");
+    expect(findLexiconHits("ăn ít nhất 2 phần").length).toBe(0);
+    expect(findLexiconHits("ăn ít muối khi tăng huyết áp").length).toBe(0);
+    expect(findLexiconHits("kiểm soát đường huyết theo bác sĩ").length).toBe(0);
+    expect(findLexiconHits("healthy weight gain in pregnancy").length).toBe(0);
+    expect(findLexiconHits("a cooked protein portion of 100 g").length).toBe(0);
+    expect(findLexiconHits("một lượng nhỏ omega-3").length).toBe(0);
+    expect(findLexiconHits("thèm ăn đất, bột sắn").length).toBe(0);
     expect(findLexiconHits("Unable to keep fluids 24 hours, weight loss, or dizziness").length).toBe(0);
     expect(findLexiconHits("you may feel full quickly").length).toBe(0);
     expect(findLexiconHits("mang theo thông tin thực phẩm đã dùng").length).toBe(0);
@@ -119,6 +156,15 @@ describe("blog weight-loss lexicon", () => {
     expect(findLexiconHits("an uong can bang, du dam, rau, va tinh bot.").length).toBe(0);
   });
 
+  it("scans the full shared lexicon, including the stems the subset skipped", () => {
+    const names = WEIGHT_LEXICON.map((phrase) => phrase.name);
+    for (const name of FULL_LIST_PHRASES) {
+      expect(names, name).toContain(name);
+      expect(findLexiconHits(`Advice: ${name} now.`).some((hit) => hit.name === name), name).toBe(true);
+    }
+    expect(findLexiconHits("Advice: keeps you full now.").some((hit) => hit.name === "full(er)")).toBe(true);
+  });
+
   it("keeps weight-loss and satiety wording out of blog posts", () => {
     const hits: Hit[] = [];
     for (const file of blogJsonFiles()) {
@@ -135,9 +181,21 @@ describe("blog weight-loss lexicon", () => {
     expect(hits, hits.map((hit) => `${hit.file} [${hit.name}] ${hit.snippet}`).join("\n")).toEqual([]);
   });
 
-  it("keeps the lexicon out of planner locale copy", () => {
+  it("keeps the lexicon out of planner locale copy and meal reasons", () => {
     const hits: Hit[] = [];
     for (const file of PLANNER_FILES) {
+      const text = fs.readFileSync(file, "utf8");
+      for (const hit of findLexiconHits(text, "source")) {
+        hits.push({ ...hit, file });
+      }
+    }
+
+    expect(hits, hits.map((hit) => `${hit.file} [${hit.name}] ${hit.snippet}`).join("\n")).toEqual([]);
+  });
+
+  it("keeps a regenerate from restoring removed promoting lines", () => {
+    const hits: Hit[] = [];
+    for (const file of GENERATOR_FILES) {
       const text = fs.readFileSync(file, "utf8");
       for (const hit of findLexiconHits(text, "source")) {
         hits.push({ ...hit, file });

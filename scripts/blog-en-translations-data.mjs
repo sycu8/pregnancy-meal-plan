@@ -1054,13 +1054,13 @@ Facial swelling, fever, or severe tooth pain with infection risk — seek urgent
   },
   {
     slug: "tang-can-hop-ly-theo-bmi-khi-mang-thai",
-    title: "Pregnancy weight gain by pre-pregnancy BMI",
-    excerpt: "Why tracking weight matters, BMI basics, IOM/ACOG reference ranges, trimester patterns, and when to personalize with your clinician.",
-    metaTitle: "Pregnancy weight gain by BMI | Bầu Ăn Gì? Blog",
+    title: "BMI in pregnancy",
+    excerpt: "What BMI means in pregnancy, IOM/ACOG reference gain ranges, and when to personalize with your clinician.",
+    metaTitle: "BMI in pregnancy | Bầu Ăn Gì? Blog",
     metaDescription: "Recommended pregnancy weight gain ranges by pre-pregnancy BMI — ACOG and IOM references.",
     author: "Bầu Ăn Gì? Team",
     reviewer: "References ACOG, IOM",
-    content: `## Why track weight?
+    content: `## Why BMI is part of prenatal care
 
 Gaining too little or too much can relate to risks such as preterm birth, macrosomia, gestational diabetes, and hypertension. The U.S. Institute of Medicine (IOM), cited by ACOG, gives reference ranges by **pre-pregnancy BMI**.
 
@@ -1082,13 +1082,9 @@ Twins or triplets have separate targets — your clinician will advise.
 - **First trimester:** modest gain (~0.5–2 kg for many).
 - **Second and third:** steadier weekly gain (~0.4–0.5 kg/week depending on BMI).
 
-## If weight rises quickly
+## When gain is outside the reference range
 
-Focus on **quality**: more vegetables and lean protein, fewer sugary drinks. Gentle activity if approved (walking, prenatal yoga).
-
-## If weight gain is slow
-
-Do not force excess junk food; check nausea, stress, or medical issues. Prenatal visits screen for fetal growth concerns.
+These ranges are a comparison point at prenatal visits. Swelling, nausea, twins, or gestational diabetes change the pattern. Bring your measurements to your clinician for a personal plan.
 
 ## Note
 
@@ -1486,7 +1482,7 @@ Glucose intolerance first recognized in pregnancy, often in the second or third 
 1. **Split meals:** 3 mains + 2–3 snacks to avoid glucose spikes.
 2. **Complex carbs:** brown rice, oats, sweet potato — pair with protein and vegetables in the same meal.
 3. **Limit sweets**, industrial juices, and sugary drinks.
-4. **Vegetables and fiber** for fullness and digestion.
+4. **Vegetables and fiber** to support digestion.
 5. **Do not skip meals** unless medically instructed.
 
 ## Sample plate (illustration)

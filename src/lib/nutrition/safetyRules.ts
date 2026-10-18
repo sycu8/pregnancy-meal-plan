@@ -94,7 +94,7 @@ export function getConditionSpecificWarnings(profile: PregnancyProfile, locale: 
   if (conditions.has("reflux")) {
     notes.push(
       locale === "vi"
-        ? "Trào ngược: ăn lượng nhỏ, tránh nằm ngay sau ăn, hạn chế món nhiều dầu, cay hoặc quá chua nếu làm khó chịu."
+        ? "Trào ngược: ăn vừa miệng, tránh nằm ngay sau ăn, hạn chế món nhiều dầu, cay hoặc quá chua nếu làm khó chịu."
         : "Reflux: eat smaller portions, avoid lying down right after meals, and limit oily, spicy or very sour foods if they trigger discomfort."
     );
   }
