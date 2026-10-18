@@ -193,7 +193,9 @@ describe("failed AI calls", () => {
 
     expect(plan.specialNotes.every((note) => typeof note === "string")).toBe(true);
     expect(plan.specialNotes.some((note) => note.startsWith("Anemia or low iron"))).toBe(true);
-    expect(plan.specialNotes.filter((note) => !note.startsWith("Anemia or low iron"))).toHaveLength(8);
+    expect(plan.specialNotes.filter((note) => !note.startsWith("Anemia or low iron"))).toEqual([
+      "Drink water through the day."
+    ]);
     expect(plan.specialNotes.every((note) => note.length <= 240)).toBe(true);
     expect(plan.specialNotes.join(" ")).toContain("Drink water through the day.");
     expect(plan.specialNotes.join(" ")).not.toContain("[object Object]");
