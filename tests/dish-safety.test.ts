@@ -70,6 +70,14 @@ describe("dish and swap safety", () => {
     expect(mealBlocked({ name: "White bread", ingredients: { grains: ["white bread"] } }, gdm)).toBe(true);
     expect(mealBlocked({ name: "Macaroni", ingredients: { grains: ["macaroni"] } }, gdm)).toBe(true);
     expect(mealBlocked({ name: "Pasta", ingredients: { grains: ["pasta"] } }, gdm)).toBe(true);
+    expect(mealBlocked({ name: "Bread", ingredients: { grains: ["bread"] } }, gdm)).toBe(true);
+    expect(mealBlocked({ name: "Bread", ingredients: { grains: ["bread"] } }, profile)).toBe(false);
+    expect(mealBlocked({ name: "Bột mì", ingredients: { grains: ["bột mì"] } }, gdm)).toBe(true);
+    expect(mealBlocked({ name: "Mì gói", ingredients: { grains: ["mì gói"] } }, gdm)).toBe(true);
+    expect(mealBlocked({ name: "Mì Ý", ingredients: { grains: ["mì Ý"] } }, gdm)).toBe(true);
+    expect(mealBlocked({ name: "Mi y", ingredients: { grains: ["mi y"] } }, gdm)).toBe(true);
+    expect(mealBlocked({ name: "Whole wheat bread", ingredients: { grains: ["whole wheat bread"] } }, gdm)).toBe(false);
+    expect(mealBlocked({ name: "Bánh quy nguyên cám", ingredients: { grains: ["bánh quy nguyên cám"] } }, gdm)).toBe(false);
     expect(mealBlocked(findMealRecordByName("Bánh mì nguyên cám phô mai tiệt trùng")!, gdm)).toBe(false);
     expect(mealBlocked({ name: "Whole-grain pasta", ingredients: { grains: ["whole wheat pasta"] } }, gdm)).toBe(false);
     expect(mealBlocked(findMealRecordByName("Cơm gạo lứt trứng rau luộc")!, gdm)).toBe(false);

@@ -73,7 +73,7 @@ export const NOTE_LIBRARY: readonly LibraryNote[] = [
 
   { id: "safety-cook-protein", topic: "food-safety", vi: "Nấu thịt, cá và hải sản cho đến khi chín đều.", en: "Cook meat, fish, and shellfish until done all the way through." },
   { id: "safety-eggs", topic: "food-safety", vi: "Trứng dùng cho mẹ bầu nên chín hoàn toàn.", en: "Eggs for pregnancy should be cooked all the way through." },
-  { id: "safety-leftovers", topic: "food-safety", vi: "Thịt hoặc cá đã nấu chín giữ được nếu vào tủ lạnh trong 2 giờ và ăn trong 24 giờ, hâm lại đến khi bốc hơi nóng đều. Nếu không, ăn trong ngày.", en: "Cooked meat or fish keeps if refrigerated within 2 hours and eaten within 24 hours, reheated until steaming hot all the way through. Otherwise, eat it the same day." },
+  { id: "safety-leftovers", topic: "food-safety", vi: "Thịt hoặc cá đã nấu chín. Cất tủ lạnh trong vòng 2 giờ, dùng trong 24 giờ, hâm nóng kỹ đến khi bốc hơi.", en: "Cooked meat or fish: refrigerate within 2 hours, eat within 24 hours, and reheat until steaming hot." },
   { id: "safety-wash", topic: "food-safety", vi: "Rửa rau và trái cây dưới nước sạch trước khi ăn.", en: "Rinse vegetables and fruit under clean water before eating." },
   { id: "safety-milk", topic: "food-safety", vi: "Chọn sữa và phô mai đã tiệt trùng.", en: "Choose pasteurized milk and cheese." },
   { id: "safety-separate", topic: "food-safety", vi: "Để thớt thịt sống riêng với rau đã rửa.", en: "Keep the raw-meat board separate from washed vegetables." },

@@ -216,4 +216,46 @@ describe("special notes", () => {
     expect(localized.specialNotes.join(" ")).not.toContain("[object Object]");
     expect(localized.specialNotes.join(" ")).toContain("Uống đủ nước.");
   });
+
+  it("renders morning sickness with weight control as one consistent meal line", () => {
+    const cases: PregnancyProfile[] = [
+      { ...baseProfile, healthConditions: ["morning_sickness"], goals: ["weight_control"] },
+      { ...baseProfile, healthConditions: ["morning_sickness", "fast_weight_gain"], goals: ["balanced"] },
+      { ...baseProfile, healthConditions: ["morning_sickness", "reflux", "fast_weight_gain"], goals: ["weight_control"] }
+    ];
+    for (const profile of cases) {
+      for (const locale of ["vi", "en"] as const) {
+        const plan = ruleBasedMealPlanner(profile, locale);
+        const localized = localizeMealPlanForLocale(plan, locale);
+        for (const rendered of [plan.safetyWarnings.join(" "), plan.specialNotes.join(" "), localized.specialNotes.join(" ")]) {
+          expect(rendered, locale).not.toMatch(/chia nhỏ bữa|smaller meals|small meals/i);
+          expect(rendered).toMatch(locale === "vi" ? /Chia bữa đều trong ngày/ : /Spread meals across the day/);
+        }
+      }
+    }
+
+    const combined = ruleBasedMealPlanner(
+      { ...baseProfile, healthConditions: ["morning_sickness", "reflux"], goals: ["weight_control"] },
+      "vi"
+    );
+    const spacing = combined.specialNotes.filter((note) => /chia bữa|nhỏ bữa|bữa nhỏ/i.test(note));
+    expect(spacing).toHaveLength(1);
+    expect(spacing[0]).toContain("Chia bữa đều trong ngày, ăn chậm, không nằm ngay sau ăn.");
+    expect(spacing[0]).not.toMatch(/chia nhỏ bữa/);
+  });
+
+  it("renders whole-grain options for morning sickness with gestational diabetes", () => {
+    const profile: PregnancyProfile = {
+      ...baseProfile,
+      healthConditions: ["gestational_diabetes", "morning_sickness"],
+      goals: ["blood_sugar_control"]
+    };
+    const vietnamese = ruleBasedMealPlanner(profile, "vi").specialNotes.join(" ");
+    const english = ruleBasedMealPlanner(profile, "en").specialNotes.join(" ");
+    expect(vietnamese).toContain("cháo yến mạch");
+    expect(vietnamese).toContain("bánh nguyên cám");
+    expect(vietnamese).not.toMatch(/bánh mì|white bread|cháo(?! yến mạch)/);
+    expect(english).toContain("whole-grain bread or crackers, oat porridge");
+    expect(english).not.toMatch(/white bread|(?<!whole-grain )bread|(?<!oat )porridge/i);
+  });
 });

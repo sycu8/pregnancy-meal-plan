@@ -89,6 +89,9 @@ function visibleCopy(): string[] {
     sampleProfile,
     { ...sampleProfile, healthConditions: ["reflux"] },
     { ...sampleProfile, healthConditions: ["morning_sickness"], goals: ["reduce_nausea"] },
+    { ...sampleProfile, healthConditions: ["morning_sickness"], goals: ["weight_control"] },
+    { ...sampleProfile, healthConditions: ["morning_sickness", "fast_weight_gain"], goals: ["balanced"] },
+    { ...sampleProfile, healthConditions: ["morning_sickness", "reflux"], goals: ["weight_control"] },
     { ...sampleProfile, healthConditions: ["fast_weight_gain"], goals: ["weight_control"] },
     { ...sampleProfile, healthConditions: ["gestational_diabetes"], goals: ["blood_sugar_control"] }
   ];
@@ -168,6 +171,12 @@ describe("static weight-control copy", () => {
     expect(findWeightLexiconHits("a fulfilling plate").map((hit) => hit.name)).not.toContain("filling");
     expect(findWeightLexiconHits("w-full")).toEqual([]);
     expect(findWeightLexiconHits("fully cooked")).toEqual([]);
+    expect(findWeightLexiconHits("give them an apple")).toEqual([]);
+    expect(findWeightLexiconHits("how to use them and the plan")).toEqual([]);
+    expect(findWeightLexiconHits("Thèm ăn táo").map((hit) => hit.name)).toContain("thèm ăn");
+    expect(findWeightLexiconHits("Kiểm soát đường huyết")).toEqual([]);
+    expect(findWeightLexiconHits("kiem soat duong huyet")).toEqual([]);
+    expect(findWeightLexiconHits("kiểm soát cân nặng").map((hit) => hit.name)).toContain("kiểm soát cân");
   });
 
   it("scans static Vietnamese and English strings for weight-control phrasing", () => {
@@ -181,6 +190,8 @@ describe("static weight-control copy", () => {
   });
 
   it("keeps the reflux note as comfort copy and keeps several small meals out of the library", () => {
+    expect(getConditionSpecificWarnings({ ...sampleProfile, healthConditions: ["morning_sickness"] }, "vi").join(" ")).toContain("chia nhỏ bữa");
+    expect(getConditionSpecificWarnings({ ...sampleProfile, healthConditions: ["morning_sickness"] }, "en").join(" ")).toContain("eat smaller meals");
     expect(getConditionSpecificWarnings({ ...sampleProfile, healthConditions: ["reflux"] }, "vi")).toEqual([
       "Chia nhỏ bữa ăn, ăn chậm, không nằm ngay sau ăn."
     ]);
@@ -198,6 +209,56 @@ describe("static weight-control copy", () => {
     );
     expect(getConditionSpecificWarnings(refluxAndWeight, "en").join(" ")).not.toMatch(/small meals/i);
     expect(getConditionSpecificWarnings(refluxAndWeight, "vi").join(" ")).not.toMatch(/bữa nhỏ|nhỏ bữa/);
+    const morningAndWeight: PregnancyProfile = {
+      ...sampleProfile,
+      healthConditions: ["morning_sickness"],
+      goals: ["weight_control"]
+    };
+    const morningAndFast: PregnancyProfile = {
+      ...sampleProfile,
+      healthConditions: ["morning_sickness", "fast_weight_gain"],
+      goals: ["balanced"]
+    };
+    const morningRefluxWeight: PregnancyProfile = {
+      ...sampleProfile,
+      healthConditions: ["morning_sickness", "reflux", "fast_weight_gain"],
+      goals: ["weight_control"]
+    };
+    for (const profile of [morningAndWeight, morningAndFast, morningRefluxWeight]) {
+      for (const locale of ["vi", "en"] as const) {
+        const rendered = getConditionSpecificWarnings(profile, locale);
+        const joined = rendered.join(" ");
+        expect(joined, locale).not.toMatch(/chia nhỏ bữa|nhỏ bữa|bữa nhỏ|smaller meals|small meals/i);
+        if (locale === "vi") expect(joined).toContain("Chia bữa đều trong ngày");
+        else expect(joined).toContain("Spread meals across the day");
+      }
+    }
+    const morningRefluxVi = getConditionSpecificWarnings(morningRefluxWeight, "vi");
+    const morningRefluxEn = getConditionSpecificWarnings(morningRefluxWeight, "en");
+    expect(morningRefluxVi.filter((note) => /chia bữa|nhỏ bữa|bữa nhỏ/i.test(note))).toEqual([
+      "Chia bữa đều trong ngày, ăn chậm, không nằm ngay sau ăn. Chọn món ít mùi, mềm, dễ tiêu; có thể thử bánh mì, cháo, khoai hoặc trái cây ít chua."
+    ]);
+    expect(morningRefluxEn.filter((note) => /spread meals|smaller meals|small meals/i.test(note))).toEqual([
+      "Spread meals across the day, eat slowly, and don't lie down right after eating. Choose mild-smelling, soft, easy-to-digest foods such as bread, porridge, potatoes or less acidic fruit."
+    ]);
+    const gdmNausea = getConditionSpecificWarnings(
+      { ...sampleProfile, healthConditions: ["gestational_diabetes", "morning_sickness"], goals: ["blood_sugar_control"] },
+      "vi"
+    ).join(" ");
+    expect(gdmNausea).toContain("bánh nguyên cám hoặc bánh quy nguyên cám, cháo yến mạch");
+    expect(gdmNausea).not.toMatch(/bánh mì|cháo(?! yến mạch)/);
+    expect(
+      getConditionSpecificWarnings(
+        { ...sampleProfile, healthConditions: ["gestational_diabetes", "morning_sickness"], goals: ["blood_sugar_control"] },
+        "en"
+      ).join(" ")
+    ).toContain("whole-grain bread or crackers, oat porridge");
+    expect(
+      getConditionSpecificWarnings(
+        { ...sampleProfile, healthConditions: ["gestational_diabetes", "morning_sickness"], goals: ["blood_sugar_control"] },
+        "en"
+      ).join(" ")
+    ).not.toMatch(/white bread|(?<!whole-grain )bread|(?<!oat )porridge/i);
     const gdm = getConditionSpecificWarnings({ ...sampleProfile, healthConditions: ["gestational_diabetes"] }, "vi");
     expect(gdm.join(" ")).toContain("chia bữa đều trong ngày");
     expect(gdm.join(" ")).not.toMatch(/chia nhỏ bữa/);
@@ -214,9 +275,11 @@ describe("static weight-control copy", () => {
       expect(note.en.toLowerCase()).toContain("well cooked");
     }
     const leftovers = NOTE_LIBRARY.find((note) => note.id === "safety-leftovers");
-    expect(leftovers?.vi).toContain("2 giờ");
-    expect(leftovers?.vi).toContain("24 giờ");
-    expect(leftovers?.en.toLowerCase()).toContain("steaming hot all the way through");
-    expect(leftovers?.en.toLowerCase()).toContain("same day");
+    expect(leftovers?.vi).toContain("Cất tủ lạnh trong vòng 2 giờ, dùng trong 24 giờ, hâm nóng kỹ đến khi bốc hơi");
+    expect(leftovers?.vi.toLowerCase()).not.toContain("ăn trong ngày");
+    expect(leftovers?.en.toLowerCase()).toContain("refrigerate within 2 hours");
+    expect(leftovers?.en.toLowerCase()).toContain("within 24 hours");
+    expect(leftovers?.en.toLowerCase()).toContain("reheat until steaming hot");
+    expect(leftovers?.en.toLowerCase()).not.toContain("same day");
   });
 });

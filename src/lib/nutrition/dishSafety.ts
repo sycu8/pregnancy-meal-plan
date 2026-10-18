@@ -216,14 +216,14 @@ function isWholeGrainStarch(text: string): boolean {
   return /nguyen cam|nguyen hat|whole grain|whole-grain|whole wheat|wholewheat/.test(folded);
 }
 
-/** White bread and refined-flour pasta. Whole-grain bread stays. */
+/** White bread, flour, instant noodles, and refined pasta. Whole-grain bread stays. */
 function mentionsRefinedFlour(text: string): boolean {
   if (isWholeGrainStarch(text)) return false;
   const nfc = text.normalize("NFC").toLowerCase();
   const folded = foldNote(text);
-  const accented = ["bánh mì trắng", "bánh mì", "mì ống", "nui"];
+  const accented = ["bánh mì trắng", "bánh mì", "bột mì", "mì ống", "mì gói", "mì ý", "nui"];
   if (accented.some((item) => phrase(nfc, escapePhrase(item)))) return true;
-  const plain = ["banh mi trang", "banh mi", "white bread", "macaroni", "pasta", "spaghetti", "mi ong", "nui"];
+  const plain = ["banh mi trang", "banh mi", "bot mi", "white bread", "bread", "macaroni", "pasta", "spaghetti", "mi ong", "mi goi", "mi y", "nui"];
   return plain.some((item) => phrase(folded, escapePhrase(item)));
 }
 

@@ -19,7 +19,6 @@ export const WEIGHT_LEXICON: readonly WeightLexiconPhrase[] = [
   { name: "giảm béo", source: "giam beo" },
   { name: "đốt mỡ", source: "dot mo" },
   { name: "thon gọn", source: "thon gon" },
-  { name: "kiểm soát", source: "kiem soat" },
   { name: "kiểm soát cân", source: "kiem soat can" },
   { name: "khẩu phần", source: "khau phan" },
   { name: "no lâu", source: "no lau" },
@@ -135,6 +134,18 @@ function phrasePattern(source: string): RegExp {
   return new RegExp(`(?<!${EDGE})(?:${source})(?!${EDGE})`, "gu");
 }
 
+/**
+ * "thèm ăn" is the craving phrase. Accented and NFD forms match, and so does the
+ * unaccented full phrase. English "them an <word>" does not.
+ * Folding starts from NFC, and these letters stay one-to-one, so indexes align.
+ */
+function isCravingThemAn(text: string, index: number, length: number): boolean {
+  const nfc = text.normalize("NFC");
+  const slice = nfc.slice(index, index + length).toLowerCase();
+  if (slice.includes("thèm")) return true;
+  return !/^\s+\p{L}/u.test(nfc.slice(index + length));
+}
+
 function insideAllowed(folded: string, index: number, length: number, allowedContexts: readonly string[]): boolean {
   return allowedContexts.some((context) => {
     const foldedContext = foldLexiconText(context);
@@ -168,6 +179,7 @@ export function findWeightLexiconHits(
         pattern.lastIndex += 1;
         continue;
       }
+      if (phrase.name === "thèm ăn" && !isCravingThemAn(text, match.index, match[0].length)) continue;
       if (!insideAllowed(folded, match.index, match[0].length, allowedContexts)) {
         hits.push({ name: phrase.name, index: match.index, length: match[0].length });
       }
