@@ -315,7 +315,7 @@ describe("special notes", () => {
       ]
     };
     const warnings = getConditionSpecificWarnings(profile, "vi");
-    expect(warnings.length).toBeGreaterThanOrEqual(MAX_SPECIAL_NOTES);
+    expect(warnings.length).toBe(MAX_SPECIAL_NOTES);
 
     const modelNotes = Array.from({ length: MAX_SPECIAL_NOTES }, (_, index) => `Ghi chú AI số ${index} cho mẹ bầu.`);
     const plan = ruleBasedMealPlanner(profile, "vi");
