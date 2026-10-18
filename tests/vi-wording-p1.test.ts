@@ -51,7 +51,10 @@ describe("P1 Vietnamese wording", () => {
     for (const name of fs.readdirSync(dir)) {
       if (!name.endsWith(".json")) continue;
       const raw = fs.readFileSync(path.join(dir, name), "utf8");
-      expect(raw, name).not.toContain("内部");
+      expect(raw, name).not.toMatch(/[\u4e00-\u9fff]/);
+      expect(raw, name).not.toContain("nhiệt độ nội bộ");
+      expect(raw, name).not.toContain("chưa tiệt trùng");
+      expect(raw, name).not.toContain("chưa được tiệt trùng");
       expect(raw, name).not.toContain("tổng hợp dựa trên tiêu đề và mô tả công khai từ nguồn");
       expect(raw, name).not.toMatch(/1800|1900/);
       expect(raw, name).not.toContain("cần xác minh số hiện hành");

@@ -28,7 +28,7 @@ export function getGeneralPregnancyFoodWarnings(locale: Locale = "vi"): string[]
   return [
     "Không ăn đồ sống/tái; nấu chín kỹ thịt, cá, trứng và hải sản.",
     "Tránh cá thủy ngân cao như cá kiếm, cá mập, cá thu vua; ưu tiên cá ít thủy ngân và dùng lượng vừa phải.",
-    "Tránh sữa hoặc phô mai chưa tiệt trùng.",
+    "Tránh sữa hoặc phô mai chưa thanh trùng.",
     "Tránh pate lạnh, thịt nguội hoặc xúc xích chưa làm nóng kỹ.",
     "Không dùng rượu bia.",
     "Hạn chế caffeine; hỏi bác sĩ nếu bạn đang uống cà phê, trà đặc hoặc nước tăng lực hằng ngày.",

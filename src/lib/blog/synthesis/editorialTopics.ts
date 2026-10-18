@@ -66,7 +66,7 @@ export const EDITORIAL_TOPICS: EditorialTopic[] = [
       "Food-safety guidance inspired by CDC/NHS/FDA themes: deli meats, unpasteurized dairy, high-mercury fish, and undercooked foods.",
     titleVi: "Thực phẩm mẹ bầu nên hạn chế hoặc nấu chín kỹ",
     snippetVi:
-      "Gợi ý an toàn thực phẩm: thịt nguội, sữa chưa tiệt trùng, cá thủy ngân cao và đồ sống/tái.",
+      "Gợi ý an toàn thực phẩm: thịt nguội, sữa chưa thanh trùng, cá thủy ngân cao và đồ sống/tái.",
     category: "dinh-duong-ba-bau",
     tags: ["food-safety", "pregnancy"]
   },
