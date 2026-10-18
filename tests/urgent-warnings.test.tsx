@@ -1222,22 +1222,128 @@ describe("PMP-D13 verbatim notes", () => {
   });
 });
 
-describe("PMP-D13 shared negator property", () => {
+describe("PMP-D15 shared negator property", () => {
+  const pinnedNegators = [
+    "không",
+    "hổng",
+    "hông",
+    "chả",
+    "chẳng",
+    "chưa",
+    "not",
+    "didn't",
+    "haven't",
+    "hasn't",
+    "don't"
+  ] as const;
   const perceptions = ["thấy", "cảm thấy", "notice"] as const;
   const decreases = ["giảm", "ít đi", "less"] as const;
+  const movements = ["đạp", "máy", "cử động", "move", "kick"] as const;
 
-  it("stays silent for every shared negator with perception, movement, and a decrease", () => {
+  it("pins the negator set and leaves unaccented cha out", () => {
+    expect([...SHARED_NEGATORS].sort()).toEqual([...pinnedNegators].sort());
+    expect(new Set(SHARED_NEGATORS)).toEqual(new Set(pinnedNegators));
+    expect(SHARED_NEGATORS).not.toContain("cha");
+    expect(pinnedNegators).not.toContain("cha");
+  });
+
+  it("stays silent for negator, perception, movement, and a decrease", () => {
     let count = 0;
-    for (const negator of SHARED_NEGATORS) {
+    for (const negator of pinnedNegators) {
       for (const perception of perceptions) {
-        for (const decrease of decreases) {
-          count += 1;
-          const sentence = `${negator} ${perception} bé đạp ${decrease}`;
-          expect(warningsFor(sentence), sentence).toEqual([]);
+        for (const movement of movements) {
+          for (const decrease of decreases) {
+            count += 1;
+            const sentence = `${negator} ${perception} bé ${movement} ${decrease}`;
+            expect(warningsFor(sentence), sentence).toEqual([]);
+          }
         }
       }
     }
-    expect(SHARED_NEGATORS.length).toBeGreaterThan(8);
-    expect(count).toBe(SHARED_NEGATORS.length * perceptions.length * decreases.length);
+    expect(count).toBe(
+      pinnedNegators.length * perceptions.length * movements.length * decreases.length
+    );
+  });
+
+  it("alerts for negator, perception, and movement with no decrease word", () => {
+    let count = 0;
+    for (const negator of pinnedNegators) {
+      for (const perception of perceptions) {
+        for (const movement of movements) {
+          count += 1;
+          const sentence = `${negator} ${perception} bé ${movement}`;
+          expect(warningsFor(sentence), sentence).toEqual([URGENT_NOTE_BANNER.vi]);
+        }
+      }
+    }
+    expect(count).toBe(pinnedNegators.length * perceptions.length * movements.length);
+    expect(warningsFor("chưa thấy máy")).toEqual([URGENT_NOTE_BANNER.vi]);
+  });
+
+  it("keeps father cha and hip đau hông silent", () => {
+    expect(warningsFor("cha thấy con đạp")).toEqual([]);
+    expect(warningsFor("cha cảm thấy bé máy")).toEqual([]);
+    expect(warningsFor("cha thay con dap")).toEqual([]);
+    expect(warningsFor("cha cam thay be may")).toEqual([]);
+    expect(warningsFor("đau hông")).toEqual([]);
+    expect(warningsFor("mẹ đau hông")).toEqual([]);
+    expect(warningsFor("dau hong")).toEqual([]);
+    expect(warningsFor("me dau hong")).toEqual([]);
+    expect(warningsFor("đau hông thấy bé đạp")).toEqual([]);
+    for (const perception of perceptions) {
+      for (const movement of movements) {
+        const father = `cha ${perception} con ${movement}`;
+        expect(warningsFor(father), father).toEqual([]);
+      }
+    }
+  });
+});
+
+describe("PMP-D15 reduced movement without giảm", () => {
+  const alerts: Array<[string, string]> = [
+    ["P1-YEN", "bé hôm nay yên hơn mọi ngày"],
+    ["P1-YEN-PLAIN", "be hom nay yen hon moi ngay"],
+    ["P1-IT", "con ít hoạt động hơn hôm qua"],
+    ["P1-IT-PLAIN", "con it hoat dong hon hom qua"],
+    ["P1-KHONG-CON", "bé không còn đạp nhiều như trước"],
+    ["P1-KHONG-CON-PLAIN", "be khong con dap nhieu nhu truoc"],
+    ["P1-LUOI", "bé lười đạp quá"],
+    ["P1-LUOI-PLAIN", "be luoi dap qua"],
+    ["P1-NAM-IM", "thấy con nằm im cả buổi"],
+    ["P1-NAM-IM-PLAIN", "thay con nam im ca buoi"],
+    ["P1-QUIETER", "baby is much quieter than usual today"],
+    ["P1-ACTIVE", "baby has not been as active as yesterday"],
+    ["P1-YEN-HOM-QUA", "con yên hơn hôm qua"],
+    ["P1-YEN-HOM-QUA-PLAIN", "con yen hon hom qua"],
+    ["P1-LUOI-MAY", "bé lười máy"],
+    ["P1-LUOI-MAY-PLAIN", "be luoi may"],
+    ["P1-NAM-SANG", "con nằm im từ sáng"],
+    ["P1-NAM-SANG-PLAIN", "con nam im tu sang"],
+    ["P1-QUIETER-BEFORE", "kicks are quieter than before"],
+    ["P1-STILLER", "the baby is stiller than usual today"],
+    ["P1-NOT-ACTIVE-USUAL", "baby has not been as active as usual"],
+    ["P1-NOT-MUCH", "not moving as much as yesterday"],
+    ["P1-IM-HON", "bé im hơn mọi ngày"],
+    ["P1-IM-HON-PLAIN", "be im hon moi ngay"]
+  ];
+
+  it.each(alerts)("%s alerts", (_id, text) => {
+    expect(warningsFor(text), text).toEqual([URGENT_NOTE_BANNER.vi]);
+  });
+
+  const silent: Array<[string, string]> = [
+    ["P1-ME-NAM", "mẹ nằm im cả buổi"],
+    ["P1-ME-NAM-PLAIN", "me nam im ca buoi"],
+    ["P1-ME-YEN", "mẹ yên hơn mọi ngày"],
+    ["P1-ME-ACTIVE", "I have not been as active as yesterday"],
+    ["P1-HOUSE", "the house is quieter than usual"],
+    ["P1-LUOI-AN", "bé lười ăn"],
+    ["P1-DAP-XE", "lười đạp xe"],
+    ["P1-YEN-TONE", "yến hơn mọi ngày"],
+    ["P1-NAM-TONE", "con năm im"]
+  ];
+
+  it.each(silent)("%s stays silent", (_id, text) => {
+    expect(warningsFor(text), text).toEqual([]);
   });
 });
