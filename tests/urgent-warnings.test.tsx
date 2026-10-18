@@ -1012,6 +1012,20 @@ describe("PMP40-R11 delta-11", () => {
     expect(warningsFor("không thấy cử động giảm, bé vẫn đạp")).toEqual([]);
   });
 
+  it("M03 alerts a reduced-movement concept by class, not one literal phrase", () => {
+    // The hold-out sentence is not in this repo. The class is a reduction lemma
+    // near a movement lemma: either order, with words between, including
+    // diminished / decline and «suy giảm». GE2 stays in the English class below.
+    expect(warningsFor("cử động của thai nhi giảm")).toEqual([URGENT_NOTE_BANNER.vi]);
+    expect(warningsFor("suy giảm cử động")).toEqual([URGENT_NOTE_BANNER.vi]);
+    expect(warningsFor("mất cử động")).toEqual([URGENT_NOTE_BANNER.vi]);
+    expect(warningsFor("mất máy")).toEqual([URGENT_NOTE_BANNER.vi]);
+    expect(warningsFor("diminished fetal movement")).toEqual([URGENT_NOTE_BANNER.vi]);
+    expect(warningsFor("movement has declined")).toEqual([URGENT_NOTE_BANNER.vi]);
+    expect(warningsFor("there is a decline in movement")).toEqual([URGENT_NOTE_BANNER.vi]);
+    expect(warningsFor("decrease in movement")).toEqual([URGENT_NOTE_BANNER.vi]);
+  });
+
   it("FK3 alerts for a movement noun plus a stop verb and no perception verb", () => {
     expect(warningsFor("cử động thì ngừng")).toEqual([URGENT_NOTE_BANNER.vi]);
     expect(warningsFor("cu dong thi ngung")).toEqual([URGENT_NOTE_BANNER.vi]);
@@ -1129,5 +1143,42 @@ describe("PMP40-R11 delta-11", () => {
     expect(warningsFor("the scan was normal")).toEqual([]);
     expect(warningsFor("ultrasound showed normal movement")).toEqual([]);
     expect(warningsFor("the scan looks normal")).toEqual([]);
+  });
+});
+
+describe("PMP-D12 verbatim notes", () => {
+  const cases: Array<[string, string, "alert" | "silent"]> = [
+    ["FWO1", "không thấy thai máy giảm", "silent"],
+    ["FWO2", "không cảm thấy cử động giảm", "silent"],
+    ["HB8", "không thấy bé đạp ít đi", "silent"],
+    ["GQ2", "chả cảm nhận được một cú đạp nào", "alert"],
+    ["HQ5", "từ trưa mới có một lần máy", "alert"],
+    ["HE2", "felt just one kick since breakfast", "alert"],
+    ["KZ5", "only one movement the whole afternoon", "alert"],
+    ["KZ3", "từ 6 giờ sáng tới giờ chỉ có 1 cú đạp", "alert"],
+    ["HS4", "bé thôi đạp từ tối qua", "alert"],
+    ["KS4", "con thoi may tu trua", "alert"],
+    ["FK3", "cử động không giảm dần mà ngưng hẳn từ sáng, bình thường con đạp nhiều", "alert"],
+    ["HG2", "con đạp làm mẹ mất ngủ", "silent"],
+    ["JG2", "tu lan kham truoc be dap nhieu hon han", "silent"],
+    ["JG12", "sau lần siêu âm bé máy đều", "silent"],
+    ["HV1", "thấy vài cú đạp rất mạnh, bé hiếu động", "silent"],
+    ["JV1", "có vài lần máy nhẹ, con vẫn khỏe", "silent"],
+    ["JV2", "a couple of kicks this evening, very lively", "silent"],
+    ["JV3", "mấy cú đạp liền, bé quậy lắm", "silent"],
+    ["KV1", "vài cú đạp nhẹ, bé vẫn hiếu động", "silent"],
+    ["KV3", "dăm ba cú đạp mạnh, con quậy lắm", "silent"],
+    ["JN2", "bé đạp suốt, không bao giờ ngừng", "silent"],
+    ["KN2", "be dap suot khong bao gio ngung", "silent"],
+    ["ENW5", "amniotic fluid level normal on ultrasound", "silent"]
+  ];
+
+  it.each(cases)("%s is %s", (id, text, expected) => {
+    const warnings = warningsFor(text);
+    if (expected === "alert") {
+      expect(warnings, id).toEqual([URGENT_NOTE_BANNER.vi]);
+    } else {
+      expect(warnings, id).toEqual([]);
+    }
   });
 });
