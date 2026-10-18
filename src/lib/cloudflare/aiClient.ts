@@ -1,6 +1,7 @@
 import type { Locale } from "@/lib/i18n";
 import { getBindings, readFeatureFlag } from "@/lib/cloudflare/bindings";
 import { getOptionalAiEnv } from "@/lib/cloudflare/env";
+import { filterSafeAiNotes, pregnancyNoteHardRules } from "@/lib/nutrition/aiNoteSafety";
 import { buildMealPlanPrompt } from "@/lib/nutrition/aiPromptBuilder";
 import { ruleBasedMealPlanner } from "@/lib/nutrition/mealPlanner";
 import { filterNotesForLocale, localizeMealPlanForLocale, sanitizeSpecialNotes } from "@/lib/nutrition/localizeMealPlan";
@@ -191,12 +192,27 @@ function sanitiseLogMessage(value: string): string {
     .slice(0, LOG_DETAIL_MAX);
 }
 
+/** A provider status such as 5016. IP octets are removed first so they are not treated as codes. */
+function providerErrorCode(message: string): string | undefined {
+  const withoutNetwork = message.replace(/\b(?:\d{1,3}\.){3}\d{1,3}\b/g, " ");
+  return withoutNetwork.match(/\b\d{3,5}\b/)?.[0];
+}
+
 function fallbackDetail(error: unknown): string {
   const name = error instanceof Error && error.name.trim() ? error.name.trim() : "Error";
   if (!(error instanceof Error) || !error.message.trim()) return name.slice(0, LOG_DETAIL_MAX);
+  const code = providerErrorCode(error.message);
   const model = error.message.match(/@(?:cf|hf)\/[A-Za-z0-9._/-]+/)?.[0];
-  const safe = sanitiseLogMessage(model ? error.message.replace(model, " ") : error.message);
-  return [name, model, safe].filter((part) => part && part.trim()).join(": ").slice(0, LOG_DETAIL_MAX);
+  const prefix = [name, code, model].filter((part): part is string => Boolean(part && part.trim())).join(": ");
+  if (prefix.length >= LOG_DETAIL_MAX) return prefix.slice(0, LOG_DETAIL_MAX);
+
+  let remainder = error.message;
+  if (model) remainder = remainder.replace(model, " ");
+  if (code) remainder = remainder.replace(new RegExp(`\\b${code}\\b`), " ");
+  const safe = sanitiseLogMessage(remainder);
+  const room = LOG_DETAIL_MAX - prefix.length - 2;
+  if (room <= 8 || !safe) return prefix;
+  return `${prefix}: ${safe}`.slice(0, LOG_DETAIL_MAX);
 }
 
 function logMealPlanOk(details: { provider: MealPlanProvider; locale: Locale; noteCount: number; durationMs: number }): void {
@@ -329,7 +345,27 @@ function stripJsonFence(text: string): string {
   return (fenced ? fenced[1] : text).trim();
 }
 
-function parseModelPayload(raw: string): { specialNotes?: unknown } {
+/**
+ * The model sometimes closes the notes array and then stops, dropping the
+ * final `}`. Append the missing braces only when specialNotes is present and
+ * the text already ends at that array.
+ */
+function repairTruncatedSpecialNotes(text: string): string | null {
+  const start = text.indexOf("{");
+  if (start < 0) return null;
+  const body = text.slice(start).trim();
+  if (!/"specialNotes"\s*:/.test(body)) return null;
+  let opens = 0;
+  let closes = 0;
+  for (const char of body) {
+    if (char === "{") opens += 1;
+    else if (char === "}") closes += 1;
+  }
+  if (opens <= closes || !/\]\s*$/.test(body)) return null;
+  return `${body}${"}".repeat(opens - closes)}`;
+}
+
+export function parseModelPayload(raw: string): { specialNotes?: unknown } {
   const stripped = stripJsonFence(raw);
   const read = (text: string) => {
     const parsed = JSON.parse(text) as unknown;
@@ -339,11 +375,28 @@ function parseModelPayload(raw: string): { specialNotes?: unknown } {
   try {
     return read(stripped);
   } catch {
-    const start = stripped.indexOf("{");
-    const end = stripped.lastIndexOf("}");
-    if (start >= 0 && end > start) return read(stripped.slice(start, end + 1));
-    throw new SyntaxError("unparseable_json");
+    // Try a complete object embedded in extra text, then a missing final brace.
   }
+
+  const start = stripped.indexOf("{");
+  const end = stripped.lastIndexOf("}");
+  if (start >= 0 && end > start) {
+    try {
+      return read(stripped.slice(start, end + 1));
+    } catch {
+      // The slice was not valid JSON. Repair a truncated notes object next.
+    }
+  }
+
+  const repaired = repairTruncatedSpecialNotes(stripped);
+  if (repaired) {
+    try {
+      return read(repaired);
+    } catch {
+      // Still not JSON.
+    }
+  }
+  throw new SyntaxError("unparseable_json");
 }
 
 /**
@@ -479,7 +532,7 @@ function mealPlanPrompt(input: PregnancyProfile, locale: Locale): string {
   return buildMealPlanPrompt(input, locale);
 }
 
-function translateNotesPrompt(notes: readonly string[], locale: Locale): string {
+function translateNotesPrompt(notes: readonly string[], profile: PregnancyProfile, locale: Locale): string {
   const language = locale === "vi" ? "Vietnamese" : "English";
   const listed = notes.map((note) => `- ${note}`).join("\n");
   return [
@@ -488,6 +541,7 @@ function translateNotesPrompt(notes: readonly string[], locale: Locale): string 
     `Translate only these notes into ${language}.`,
     `Return exactly one JSON object and nothing else: {"specialNotes":["..."]}.`,
     `specialNotes must contain 3 to 5 short sentences in ${language} only.`,
+    pregnancyNoteHardRules(profile, locale),
     listed
   ].join("\n");
 }
@@ -554,7 +608,7 @@ export function createAIClient(): AIClient {
 
         let notes = first.notes;
         if (filterNotesForLocale(notes, locale).length === 0) {
-          const retry = parseNotes(await callModel(translateNotesPrompt(notes, locale)));
+          const retry = parseNotes(await callModel(translateNotesPrompt(notes, input, locale)));
           const retryNotes = retry.ok ? filterNotesForLocale(retry.notes, locale) : [];
           if (retryNotes.length === 0) {
             logMealPlanFallback({ reason: "locale_filtered", provider, detail: "wrong_language" });
@@ -563,7 +617,13 @@ export function createAIClient(): AIClient {
           notes = retryNotes;
         }
 
-        const served = planWithAiNotes(baseline, notes, locale);
+        const safeNotes = filterSafeAiNotes(filterNotesForLocale(notes, locale), input);
+        if (safeNotes.length === 0) {
+          logMealPlanFallback({ reason: "bad_output", provider, detail: "safety_filtered" });
+          return baseline;
+        }
+
+        const served = planWithAiNotes(baseline, safeNotes, locale);
         if (served.shown > 0) {
           logMealPlanOk({
             provider,

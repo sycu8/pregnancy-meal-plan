@@ -25,6 +25,7 @@ import { buildPlanExportText } from "@/lib/export/planExport";
 import { fetchMealPlan, PremiumLimitError } from "@/lib/nutrition/fetchMealPlan";
 import { regenerateMealInPlan, type MealSlot } from "@/lib/nutrition/mealPlanner";
 import { localizeMealPlanForLocale } from "@/lib/nutrition/localizeMealPlan";
+import { notesPanelKind } from "@/lib/nutrition/notesPanel";
 import { batchEstimatedCost, mealEstimatedCost } from "@/lib/nutrition/costHelpers";
 import { formatMoney, getCountryPricing } from "@/lib/nutrition/countries";
 import { localizedPath, type Locale } from "@/lib/i18n";
@@ -106,6 +107,7 @@ const copy = {
     sourcePrefix: "Nguồn giá tham khảo",
     safety: "Cảnh báo an toàn",
     specialNotes: "Ghi chú theo tình trạng đặc biệt",
+    nutritionNotes: "Ghi chú dinh dưỡng",
     noSpecial: "Chưa có tình trạng đặc biệt được chọn.",
     edit: "Quay lại chỉnh thông tin",
     mainGroup: "Nhóm chính",
@@ -166,6 +168,7 @@ const copy = {
     sourcePrefix: "Reference price sources",
     safety: "Food-safety warnings",
     specialNotes: "Notes for selected conditions",
+    nutritionNotes: "Nutrition notes",
     noSpecial: "No special condition was selected.",
     edit: "Edit information",
     mainGroup: "Main nutrients",
@@ -591,7 +594,10 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
 
       <section className="grid gap-5 md:grid-cols-2">
         <ListPanel title={t.safety} items={displayPlan.safetyWarnings} />
-        <ListPanel title={t.specialNotes} items={displayPlan.specialNotes.length ? displayPlan.specialNotes : [t.noSpecial]} />
+        <ListPanel
+          title={notesPanelKind(displayPlan.profileSnapshot, displayPlan.specialNotes.length) === "general" ? t.nutritionNotes : t.specialNotes}
+          items={displayPlan.specialNotes.length ? displayPlan.specialNotes : [t.noSpecial]}
+        />
       </section>
 
       <TrustedSources locale={locale} />

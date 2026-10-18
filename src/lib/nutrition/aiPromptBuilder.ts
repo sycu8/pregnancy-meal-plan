@@ -1,4 +1,5 @@
 import type { Locale } from "@/lib/i18n";
+import { pregnancyNoteHardRules } from "@/lib/nutrition/aiNoteSafety";
 import type { PregnancyProfile } from "@/types/pregnancy";
 
 /**
@@ -25,6 +26,7 @@ export function buildMealPlanPrompt(profile: PregnancyProfile, locale: Locale = 
       goals: profile.goals,
       allergies: profile.allergies,
       dislikedFoods: profile.dislikedFoods
-    })
+    }),
+    pregnancyNoteHardRules(profile, locale)
   ].join("\n");
 }

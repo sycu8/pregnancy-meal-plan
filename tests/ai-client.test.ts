@@ -27,7 +27,8 @@ import {
   WORKERS_AI_MODEL,
   assertSupportedWorkersAiModel,
   createAIClient,
-  mealPlanServedAi
+  mealPlanServedAi,
+  parseModelPayload
 } from "@/lib/cloudflare/aiClient";
 import { aiUnavailableMessage } from "@/lib/nutrition/aiUnavailable";
 import { buildMealPlanPrompt } from "@/lib/nutrition/aiPromptBuilder";
@@ -108,6 +109,13 @@ describe("failed AI calls", () => {
       provider: "workers-ai",
       message: `Workers AI request failed for ${WORKERS_AI_MODEL}: 5016: No such model @cf/meta/llama-3.1-8b-instruct`
     });
+    const providerLog = loggedFallbacks(errorSpy).find((event) => (event as { reason?: string }).reason === "provider_error") as {
+      detail?: string;
+    };
+    expect(providerLog.detail).toContain("5016");
+    expect(providerLog.detail).toContain(WORKERS_AI_MODEL);
+    expect(providerLog.detail).toMatch(/^AiProviderError: 5016:/);
+    expect((providerLog.detail ?? "").length).toBeLessThanOrEqual(80);
     expect(loggedFallbacks(errorSpy)).toContainEqual(
       expect.objectContaining({
         event: "meal-plan-ai-fallback",
@@ -392,7 +400,10 @@ describe("failed AI calls", () => {
     const plan = await createAIClient().generateMealPlan(profile, "vi");
 
     expect(aiRun).toHaveBeenCalledTimes(2);
-    expect(String(aiRun.mock.calls[1]?.[1] && JSON.stringify(aiRun.mock.calls[1][1]))).toMatch(/Vietnamese/);
+    const retryPrompt = String(aiRun.mock.calls[1]?.[1] && JSON.stringify(aiRun.mock.calls[1][1]));
+    expect(retryPrompt).toMatch(/Vietnamese/);
+    expect(retryPrompt).toContain("Thiếu máu/thiếu sắt: tăng thực phẩm giàu sắt kèm vitamin C, tránh trà/cà phê gần bữa chính.");
+    expect(retryPrompt).toContain("Không ăn đồ sống/tái; nấu chín kỹ thịt, cá, trứng và hải sản.");
     expect(plan.specialNotes.join(" ")).toContain("Uống đủ nước trong ngày.");
     expect(plan.specialNotes.join(" ")).not.toContain("Drink water");
     expect(mealPlanServedAi(plan)).toBe(true);
@@ -538,7 +549,121 @@ describe("failed AI calls", () => {
     expect(blockedBody.usage.aiPlansLimit).toBe(30);
     expect(aiRun).not.toHaveBeenCalled();
   });
+
+  it("repairs a specialNotes object that is missing its closing brace", async () => {
+    aiRun.mockResolvedValue({ response: TRUNCATED_SPECIAL_NOTES_JSON });
+
+    const parsed = parseModelPayload(TRUNCATED_SPECIAL_NOTES_JSON);
+    expect(parsed.specialNotes).toEqual([
+      "Uống đủ nước lọc trong ngày.",
+      "Chia nhỏ bữa nếu buồn nôn.",
+      "Nấu chín thịt, cá và trứng."
+    ]);
+
+    const plan = await createAIClient().generateMealPlan(profile, "vi");
+    expect(plan.specialNotes.join(" ")).toContain("Uống đủ nước lọc trong ngày.");
+    expect(mealPlanServedAi(plan)).toBe(true);
+  });
+
+  it("drops GDM notes that contradict the condition warning and serves none when nothing safe remains", async () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const gdm: PregnancyProfile = { ...profile, healthConditions: ["gestational_diabetes"], goals: ["blood_sugar_control"] };
+    aiRun.mockResolvedValue({
+      response: JSON.stringify({
+        specialNotes: ["Nên ăn nhiều trái cây.", "Thử phở hoặc cơm tấm cho bữa trưa.", "Uống nước ép trái cây."]
+      })
+    });
+
+    const plan = await createAIClient().generateMealPlan(gdm, "vi");
+    const notes = plan.specialNotes.join(" ");
+
+    expect(notes).not.toContain("Nên ăn nhiều trái cây");
+    expect(notes).not.toMatch(/phở|cơm tấm|nước ép trái cây/);
+    expect(notes).toContain("Tiểu đường thai kỳ");
+    expect(mealPlanServedAi(plan)).toBe(false);
+    expect(loggedFallbacks(errorSpy)).toContainEqual(
+      expect.objectContaining({ reason: "bad_output", detail: "safety_filtered" })
+    );
+    expect(JSON.stringify(loggedFallbacks(errorSpy))).not.toContain("trái cây");
+    expect(JSON.stringify(loggedFallbacks(errorSpy))).not.toContain("phở");
+    errorSpy.mockRestore();
+  });
+
+  it("keeps a safe GDM note after dropping contradictory ones", async () => {
+    const gdm: PregnancyProfile = { ...profile, healthConditions: ["gestational_diabetes"], goals: ["balanced"] };
+    aiRun.mockResolvedValue({
+      response: JSON.stringify({
+        specialNotes: ["Nên ăn nhiều trái cây.", "Chia nhỏ bữa và ưu tiên tinh bột chậm."]
+      })
+    });
+
+    const plan = await createAIClient().generateMealPlan(gdm, "vi");
+    const notes = plan.specialNotes.join(" ");
+    expect(notes).toContain("Chia nhỏ bữa và ưu tiên tinh bột chậm.");
+    expect(notes).not.toContain("Nên ăn nhiều trái cây");
+    expect(notes).toContain("Tiểu đường thai kỳ");
+    expect(mealPlanServedAi(plan)).toBe(true);
+  });
+
+  it("drops English pho, com tam, and plenty-of-fruit notes for gestational diabetes", async () => {
+    const gdm: PregnancyProfile = { ...profile, healthConditions: ["gestational_diabetes"], goals: ["balanced"] };
+    aiRun.mockResolvedValue({
+      response: JSON.stringify({
+        specialNotes: ["Try pho or com tam for lunch.", "Eat plenty of fruit.", "Drink water between meals."]
+      })
+    });
+
+    const plan = await createAIClient().generateMealPlan(gdm, "en");
+    const notes = plan.specialNotes.join(" ");
+    expect(notes).toContain("Drink water between meals.");
+    expect(notes).not.toMatch(/\bpho\b|com tam|plenty of fruit/i);
+    expect(notes).toContain("Gestational diabetes");
+    expect(mealPlanServedAi(plan)).toBe(true);
+  });
+
+  it("does not deny pho when gestational diabetes is not selected", async () => {
+    aiRun.mockResolvedValue({
+      response: JSON.stringify({ specialNotes: ["Phở gà nấu chín là bữa dễ ăn."] })
+    });
+
+    const plan = await createAIClient().generateMealPlan(profile, "vi");
+    expect(plan.specialNotes.join(" ")).toContain("Phở gà nấu chín là bữa dễ ăn.");
+    expect(mealPlanServedAi(plan)).toBe(true);
+  });
+
+  it("drops notes that say to avoid overcooking or that suggest pickled food", async () => {
+    aiRun.mockResolvedValue({
+      response: JSON.stringify({
+        specialNotes: ["Avoid overcooking vegetables.", "Try pickled vegetables as a snack.", "Drink water through the day."]
+      })
+    });
+
+    const plan = await createAIClient().generateMealPlan(profile, "en");
+    const notes = plan.specialNotes.join(" ");
+    expect(notes).not.toMatch(/overcooking|pickled/i);
+    expect(notes).toContain("Drink water through the day.");
+    expect(mealPlanServedAi(plan)).toBe(true);
+  });
+
+  it("drops omega-3 fish advice that has no low-mercury caveat and keeps cooked fish", async () => {
+    aiRun.mockResolvedValue({
+      response: JSON.stringify({
+        specialNotes: ["Ăn cá hồi giàu omega-3.", "Chọn cá ít thủy ngân, nấu chín kỹ.", "Nấu chín cá, thịt và trứng."]
+      })
+    });
+
+    const plan = await createAIClient().generateMealPlan(profile, "vi");
+    const notes = plan.specialNotes.join(" ");
+    expect(notes).not.toMatch(/omega-3|cá hồi/);
+    expect(notes).toContain("Chọn cá ít thủy ngân, nấu chín kỹ.");
+    expect(notes).toContain("Nấu chín cá, thịt và trứng.");
+    expect(mealPlanServedAi(plan)).toBe(true);
+  });
 });
+
+/** Closed notes array with the object's final brace missing. */
+const TRUNCATED_SPECIAL_NOTES_JSON =
+  '{"specialNotes":["Uống đủ nước lọc trong ngày.","Chia nhỏ bữa nếu buồn nôn.","Nấu chín thịt, cá và trứng."]';
 
 function plantedProfile(): PregnancyProfile {
   return {
