@@ -38,6 +38,27 @@ describe("note library", () => {
     expect(rejected).toEqual({ ok: true, notes: ["Uống đủ nước trong ngày."] });
   });
 
+  it("keeps a food slot only when the plan has a food allowed for that topic", () => {
+    const iron = selectLibraryNotes({ notes: [{ id: "iron-with-food", food: "thịt bò" }] }, ["bún", "thịt bò"], "vi");
+    expect(iron.ok).toBe(true);
+    if (iron.ok) expect(iron.notes[0]).toContain("thịt bò");
+
+    expect(selectLibraryNotes({ notes: [{ id: "iron-with-food", food: "bún" }] }, ["bún", "thịt bò"], "vi")).toEqual({
+      ok: false,
+      detail: "no_valid_notes"
+    });
+    expect(selectLibraryNotes({ notes: [{ id: "iron-with-food", food: "bún" }, { id: "hydration-steady" }] }, ["bún"], "vi")).toEqual({
+      ok: true,
+      notes: ["Uống đủ nước trong ngày."]
+    });
+    expect(selectLibraryNotes({ notes: [{ id: "gdm-pair-food", food: "bún" }] }, ["bún", "yến mạch"], "vi")).toEqual({
+      ok: false,
+      detail: "no_valid_notes"
+    });
+    const paired = selectLibraryNotes({ notes: [{ id: "gdm-pair-food", food: "yến mạch" }] }, ["bún", "yến mạch"], "vi");
+    expect(paired.ok).toBe(true);
+  });
+
   it("treats two foods or free text as no note", () => {
     expect(selectLibraryNotes({ notes: [{ id: "protein-with-food", food: "trứng" }, { id: "iron-with-food", food: "rau cải" }] }, ["trứng", "rau cải"], "vi")).toEqual({
       ok: false,

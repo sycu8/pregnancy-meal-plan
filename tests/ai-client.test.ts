@@ -248,6 +248,41 @@ describe("failed AI calls", () => {
     expect(body.error).toMatch(/thực đơn cơ bản/);
   });
 
+  it("backs off on Workers AI 3021 and then returns the plan with no note", async () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    aiRun.mockResolvedValue({ errors: [{ code: 3021, message: "Rate limit exceeded" }] });
+
+    const response = await POST(
+      new Request("http://localhost/api/generate-meal-plan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept-Language": "vi" },
+        body: JSON.stringify({ profile, locale: "vi" })
+      })
+    );
+    const body = (await response.json()) as { error?: string; plan?: { specialNotes?: string[] } };
+
+    expect(response.status).toBe(200);
+    expect(body.error).toBeUndefined();
+    expect(body.plan?.specialNotes?.join(" ")).not.toContain("Uống đủ nước trong ngày.");
+    expect(aiRun).toHaveBeenCalledTimes(3);
+    const logged = JSON.stringify(loggedFallbacks(errorSpy));
+    expect(logged).toContain("3021");
+    expect(logged).not.toContain("Uống đủ nước");
+    errorSpy.mockRestore();
+  });
+
+  it("serves a library note when a Workers AI 3021 retry succeeds", async () => {
+    aiRun
+      .mockRejectedValueOnce(new Error("3021: Rate limit exceeded"))
+      .mockResolvedValueOnce({ response: JSON.stringify({ notes: [{ id: "hydration-steady" }] }) });
+
+    const plan = await createAIClient().generateMealPlan(profile, "vi");
+
+    expect(aiRun).toHaveBeenCalledTimes(2);
+    expect(plan.specialNotes.join(" ")).toContain("Uống đủ nước trong ngày.");
+    expect(mealPlanServedAi(plan)).toBe(true);
+  });
+
   it("calls Workers AI from the AI binding when AI_PROVIDER is unset", async () => {
     delete process.env.AI_PROVIDER;
     aiRun.mockResolvedValue({ response: JSON.stringify({ notes: [{ id: "hydration-steady" }] }) });

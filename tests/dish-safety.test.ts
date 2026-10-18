@@ -28,14 +28,24 @@ const gdm: PregnancyProfile = {
 const slots = ["breakfast", "morningSnack", "lunch", "afternoonSnack", "dinner"] as const;
 
 describe("dish and swap safety", () => {
-  it("denies mugwort, raw sprouts, and green papaya, and keeps bare gia and cooked sprouts", () => {
+  it("denies mugwort, raw or blanched sprouts, and green papaya, and keeps sprouts only when cooked through", () => {
     expect(mealBlocked({ name: "Canh ngải cứu", ingredients: { vegetables: ["ngải cứu"] } }, profile)).toBe(true);
     expect(mealBlocked({ name: "Canh ngai cuu", ingredients: {} }, profile)).toBe(true);
     expect(mealBlocked({ name: "Salad giá đỗ", ingredients: { vegetables: ["giá đỗ"] } }, profile)).toBe(true);
+    expect(mealBlocked({ name: "Giá", ingredients: { vegetables: ["giá"] } }, profile)).toBe(true);
+    expect(mealBlocked({ name: "Giá sống", ingredients: { vegetables: ["giá sống"] } }, profile)).toBe(true);
+    expect(mealBlocked({ name: "Bean sprouts", ingredients: { vegetables: ["bean sprouts"] } }, profile)).toBe(true);
+    expect(mealBlocked({ name: "Sprouts", ingredients: {} }, profile)).toBe(true);
+    expect(mealBlocked({ name: "Giá trụng", ingredients: { vegetables: ["giá"] } }, profile)).toBe(true);
+    expect(mealBlocked({ name: "Blanched bean sprouts", ingredients: {} }, profile)).toBe(true);
     expect(mealBlocked({ name: "Giá đỗ xào", ingredients: { vegetables: ["giá đỗ"] } }, profile)).toBe(false);
+    expect(mealBlocked({ name: "Well cooked bean sprouts", ingredients: {} }, profile)).toBe(false);
+    expect(mealBlocked({ name: "Alfalfa xào", ingredients: { vegetables: ["alfalfa"] } }, profile)).toBe(true);
     expect(mealBlocked({ name: "Đu đủ xanh", ingredients: { fruits: ["đu đủ xanh"] } }, profile)).toBe(true);
     expect(mealBlocked({ name: "Sữa bò sống", ingredients: { dairy: ["sữa bò sống"] } }, profile)).toBe(true);
-    expect(mealBlocked(findMealRecordByName("Bánh cuốn thịt nạc")!, profile)).toBe(false);
+    const rolls = findMealRecordByName("Bánh cuốn thịt nạc");
+    expect(rolls && Object.values(rolls.ingredients).flat()).not.toContain("giá");
+    expect(mealBlocked(rolls!, profile)).toBe(false);
     expect(mealBlocked(findMealRecordByName("Sữa tươi tiệt trùng")!, profile)).toBe(false);
   });
 
@@ -46,6 +56,13 @@ describe("dish and swap safety", () => {
     expect(mealBlocked(findMealRecordByName("Chè đậu đỏ ít đường")!, gdm)).toBe(true);
     expect(mealBlocked(findMealRecordByName("Sinh tố bơ sữa tiệt trùng không đường")!, gdm)).toBe(true);
     expect(mealBlocked(findMealRecordByName("Gà luộc cơm rau luộc")!, gdm)).toBe(true);
+    expect(mealBlocked(findMealRecordByName("Bún gà rau xanh")!, gdm)).toBe(true);
+    expect(mealBlocked(findMealRecordByName("Bún gà rau xanh")!, profile)).toBe(false);
+    expect(mealBlocked(findMealRecordByName("Miến gà nấm")!, gdm)).toBe(true);
+    expect(mealBlocked(findMealRecordByName("Bánh cuốn thịt nạc")!, gdm)).toBe(true);
+    expect(mealBlocked(findMealRecordByName("Bánh đa cua chay đậu hũ")!, gdm)).toBe(true);
+    expect(mealBlocked({ name: "Noodles", ingredients: { grains: ["bánh phở"] } }, gdm)).toBe(true);
+    expect(mealBlocked({ name: "Pho noodles", ingredients: {} }, gdm)).toBe(true);
     expect(mealBlocked(findMealRecordByName("Cơm gạo lứt trứng rau luộc")!, gdm)).toBe(false);
     expect(mealBlocked(findMealRecordByName("Yến mạch sữa tươi tiệt trùng")!, gdm)).toBe(false);
     expect(mealBlocked(findMealRecordByName("Ổi")!, gdm)).toBe(false);

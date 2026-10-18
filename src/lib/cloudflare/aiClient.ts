@@ -433,20 +433,35 @@ async function resolveMealPlanProvider(env: ReturnType<typeof getOptionalAiEnv>)
   return "none";
 }
 
+const WORKERS_AI_RATE_LIMIT_CODE = "3021";
+const WORKERS_AI_RATE_LIMIT_BACKOFF_MS = [300, 900];
+
+function workersAiErrorText(item: { message?: unknown; code?: unknown }): string {
+  const code = typeof item.code === "number" || (typeof item.code === "string" && item.code.trim()) ? String(item.code).trim() : "";
+  const message = typeof item.message === "string" ? item.message.trim() : "";
+  return [code, message].filter(Boolean).join(": ");
+}
+
 function workersAiFailureDetail(result: unknown): string | null {
   if (!result || typeof result !== "object") return null;
   const row = result as {
     error?: unknown;
-    errors?: { message?: unknown }[];
+    errors?: { message?: unknown; code?: unknown }[];
     success?: boolean;
   };
   if (typeof row.error === "string" && row.error.trim()) return clipDetail(row.error);
-  const messages = (row.errors ?? [])
-    .map((item) => (typeof item?.message === "string" ? item.message.trim() : ""))
-    .filter(Boolean);
+  const messages = (row.errors ?? []).map((item) => workersAiErrorText(item)).filter(Boolean);
   if (messages.length > 0) return clipDetail(messages.join("; "));
   if (row.success === false) return "Workers AI reported an unsuccessful response.";
   return null;
+}
+
+function isWorkersAiRateLimit(error: unknown): boolean {
+  return error instanceof AiProviderError && error.provider === "workers-ai" && providerErrorCode(error.message) === WORKERS_AI_RATE_LIMIT_CODE;
+}
+
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 const NOTES_SYSTEM_PROMPT =
@@ -586,7 +601,18 @@ export function createAIClient(): AIClient {
 
       try {
         const ingredients = ingredientsFromPlan(baseline, locale);
-        const raw = await callModel(mealPlanPrompt(input, locale, ingredients));
+        const prompt = mealPlanPrompt(input, locale, ingredients);
+        let raw = "";
+        for (let attempt = 0; ; attempt += 1) {
+          try {
+            raw = await callModel(prompt);
+            break;
+          } catch (error) {
+            const wait = WORKERS_AI_RATE_LIMIT_BACKOFF_MS[attempt];
+            if (!isWorkersAiRateLimit(error) || wait == null) throw error;
+            await delay(wait);
+          }
+        }
         if (!raw.trim()) {
           logMealPlanFallback({ reason: "empty_output", provider });
           return baseline;
@@ -645,6 +671,7 @@ export function createAIClient(): AIClient {
             errorName: error.name,
             detail: fallbackDetail(error)
           });
+          if (isWorkersAiRateLimit(error)) return baseline;
           throw error;
         }
         const errorName = error instanceof Error && error.name.trim() ? error.name.trim() : "Error";

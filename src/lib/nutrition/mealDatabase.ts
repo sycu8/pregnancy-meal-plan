@@ -48,7 +48,7 @@ export const breakfastMeals: MealRecord[] = [
   meal("Cơm nắm muối vừng trứng", ["đạm", "canxi", "tinh bột"], ["quick", "budget_low", "no_fish_safe", "no_beef_safe", "no_seafood_safe"], ["trứng", "gạo", "vừng"], "Dễ chuẩn bị, phù hợp ngày bận."),
   meal("Bún riêu chay đậu hũ", ["đạm thực vật", "canxi", "rau"], ["vegetarian", "budget_medium", "no_fish_safe", "no_beef_safe", "no_seafood_safe"], ["đậu hũ", "cà chua", "bún"], "Vị thanh, thêm đậu hũ để tăng đạm."),
   meal("Cháo đậu xanh hạt sen", ["đạm thực vật", "tinh bột", "khoáng chất"], ["morning_sickness", "vegetarian", "budget_medium", "no_fish_safe", "no_beef_safe", "no_seafood_safe"], ["đậu xanh", "hạt sen", "gạo"], "Mềm, ít mùi và dễ ăn."),
-  meal("Bánh cuốn thịt nạc", ["đạm", "tinh bột"], ["budget_medium", "no_fish_safe", "no_seafood_safe"], ["thịt heo nạc", "bột gạo", "giá"], "Đổi vị nhẹ nhàng, không quá ngấy."),
+  meal("Bánh cuốn thịt nạc", ["đạm", "tinh bột"], ["budget_medium", "no_fish_safe", "no_seafood_safe"], ["thịt heo nạc", "bột gạo", "cà rốt"], "Đổi vị nhẹ nhàng, không quá ngấy."),
   meal("Súp gà ngô nấm", ["đạm", "chất xơ", "tinh bột"], ["morning_sickness", "budget_medium", "no_fish_safe", "no_beef_safe", "no_seafood_safe"], ["gà", "ngô", "nấm"], "Ấm, mềm và phù hợp khi khó ăn."),
   meal("Bún bò rau cải", ["sắt", "đạm", "rau xanh"], ["anemia", "budget_medium", "no_fish_safe", "no_seafood_safe"], ["thịt bò", "rau cải", "bún"], "Bổ sung sắt từ thịt đỏ ở lượng vừa phải."),
   meal("Cháo yến mạch thịt bằm", ["đạm", "chất xơ", "tinh bột chậm"], ["constipation", "gestational_diabetes", "budget_low", "no_fish_safe", "no_beef_safe", "no_seafood_safe"], ["thịt heo nạc", "yến mạch", "cà rốt"], "Có chất xơ và tinh bột chậm."),

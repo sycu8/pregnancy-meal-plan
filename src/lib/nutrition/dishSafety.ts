@@ -38,7 +38,7 @@ function mentionsUnsafeFood(text: string): boolean {
     "sữa mới vắt",
     "tiết canh"
   ];
-  if (accented.some((item) => phrase(nfc, item.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")))) return true;
+  if (accented.some((item) => phrase(nfc, escapePhrase(item)))) return true;
   const plain = [
     "ngai cuu",
     "ngai cu",
@@ -58,24 +58,89 @@ function mentionsUnsafeFood(text: string): boolean {
     "unripe papaya",
     "raw milk",
     "farm milk",
-    "alfalfa",
     "blood soup"
   ];
-  if (plain.some((item) => phrase(folded, item.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")))) return true;
-  const cooked = /xao|chien|luoc|hap|nuong|cooked|stir-fried|stir fried|boiled|steamed/;
-  const sprouts =
-    phrase(nfc, "giá đỗ") ||
-    phrase(nfc, "giá sống") ||
-    phrase(nfc, "rau mầm") ||
-    phrase(nfc, "mầm sống") ||
-    phrase(folded, "gia do") ||
-    phrase(folded, "gia song") ||
-    phrase(folded, "rau mam") ||
-    phrase(folded, "mam song") ||
-    phrase(folded, "bean sprouts") ||
-    phrase(folded, "sprouted");
-  if (phrase(folded, "alfalfa") || phrase(nfc, "alfalfa")) return true;
-  if (sprouts && !cooked.test(folded)) return true;
+  return plain.some((item) => phrase(folded, escapePhrase(item)));
+}
+
+function escapePhrase(item: string): string {
+  return item.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/** Bare giá, named sprouts, and other sprout types. Alfalfa is never spared. */
+function mentionsSprout(text: string): boolean {
+  const nfc = text.normalize("NFC").toLowerCase();
+  const folded = foldNote(text);
+  const accented = ["giá đỗ", "giá sống", "giá đậu", "rau mầm", "mầm sống", "mầm", "giá"];
+  if (accented.some((item) => phrase(nfc, escapePhrase(item)))) return true;
+  const plain = [
+    "gia do",
+    "gia song",
+    "gia dau",
+    "rau mam",
+    "mam song",
+    "bean sprouts",
+    "mung bean sprouts",
+    "broccoli sprouts",
+    "radish sprouts",
+    "pea sprouts",
+    "lentil sprouts",
+    "alfalfa sprouts",
+    "sprouts",
+    "sprouted",
+    "mam",
+    "gia"
+  ];
+  return plain.some((item) => phrase(folded, escapePhrase(item)));
+}
+
+function mentionsAlfalfa(text: string): boolean {
+  const nfc = text.normalize("NFC").toLowerCase();
+  return phrase(nfc, "alfalfa") || phrase(foldNote(text), "alfalfa");
+}
+
+function isBlanchedOrRaw(text: string): boolean {
+  const nfc = text.normalize("NFC").toLowerCase();
+  const folded = foldNote(text);
+  if (/trụng|chần|luộc sơ|blanch/.test(nfc) || /luoc so|blanch/.test(folded)) return true;
+  if (phrase(nfc, "sống") || phrase(folded, "raw")) return true;
+  return false;
+}
+
+/** Boiled, steamed, stir-fried, or otherwise cooked through. Blanching does not count. */
+function isFullyCooked(text: string): boolean {
+  if (isBlanchedOrRaw(text)) return false;
+  const nfc = text.normalize("NFC").toLowerCase();
+  const folded = foldNote(text);
+  if (/xào|chiên|luộc|hấp|nướng|chín kỹ|nấu chín/.test(nfc)) return true;
+  return (
+    phrase(folded, "xao") ||
+    phrase(folded, "chien") ||
+    phrase(folded, "luoc") ||
+    phrase(folded, "hap") ||
+    phrase(folded, "nuong") ||
+    /chin ky|nau chin|well cooked|stir-fried|stir fried/.test(folded) ||
+    phrase(folded, "boiled") ||
+    phrase(folded, "steamed") ||
+    phrase(folded, "cooked")
+  );
+}
+
+/**
+ * Sprouts are shown only when the dish says they are cooked through.
+ * A bare ingredient such as "giá" is not cooked. Alfalfa never stays.
+ */
+function hasUnsafeSprouts(name: string, ingredients: readonly string[]): boolean {
+  const parts = [name, ...ingredients];
+  if (parts.some((part) => mentionsAlfalfa(part))) return true;
+  const sproutParts = parts.filter((part) => mentionsSprout(part));
+  if (sproutParts.length === 0) return false;
+  const nameCooksSprouts = mentionsSprout(name) && isFullyCooked(name);
+  for (const part of sproutParts) {
+    if (isFullyCooked(part)) continue;
+    if (part !== name && nameCooksSprouts) continue;
+    return true;
+  }
   return false;
 }
 
@@ -134,12 +199,24 @@ function mentionsGdmSweet(text: string): boolean {
   return false;
 }
 
-/** Unsafe foods always. Sweets and white-rice staples when glucose is a concern. */
+/** Bún, miến, bánh cuốn, bánh đa, and phở noodles, same as white rice for glucose. */
+function mentionsRefinedStarch(text: string): boolean {
+  const nfc = text.normalize("NFC").toLowerCase();
+  const folded = foldNote(text);
+  const accented = ["bánh cuốn", "bánh đa", "bánh phở", "bún", "miến", "phở"];
+  if (accented.some((item) => phrase(nfc, escapePhrase(item)))) return true;
+  const plain = ["banh cuon", "banh da", "banh pho", "pho noodles", "rice noodles", "glass noodles", "rice crackers", "bun", "mien"];
+  if (plain.some((item) => phrase(folded, escapePhrase(item)))) return true;
+  if (phrase(folded, "pho") && !/\bpho mai\b|\bpho bien\b/.test(folded)) return true;
+  return false;
+}
+
+/** Unsafe foods always. Sweets, white rice, and refined noodles when glucose is a concern. */
 export function mealBlocked(meal: { name: string; ingredients: MealRecord["ingredients"] }, profile: PregnancyProfile): boolean {
   const ingredients = flattenMealIngredients(meal as MealRecord);
   const blob = [meal.name, ...ingredients].join(" \n ");
-  if (mentionsUnsafeFood(blob)) return true;
+  if (mentionsUnsafeFood(blob) || hasUnsafeSprouts(meal.name, ingredients)) return true;
   if (!isGlucoseConcern(profile)) return false;
-  if (ingredients.some(isWhiteRiceIngredient)) return true;
+  if (ingredients.some(isWhiteRiceIngredient) || mentionsRefinedStarch(blob)) return true;
   return mentionsGdmSweet(blob);
 }

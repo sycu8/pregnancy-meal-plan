@@ -73,7 +73,7 @@ export const NOTE_LIBRARY: readonly LibraryNote[] = [
 
   { id: "safety-cook-protein", topic: "food-safety", vi: "Nấu thịt, cá và hải sản cho đến khi chín đều.", en: "Cook meat, fish, and shellfish until done all the way through." },
   { id: "safety-eggs", topic: "food-safety", vi: "Trứng dùng cho mẹ bầu nên chín hoàn toàn.", en: "Eggs for pregnancy should be cooked all the way through." },
-  { id: "safety-leftovers", topic: "food-safety", vi: "Đồ ăn để nguội nên hâm nóng lại trước khi ăn.", en: "Reheat cooled leftovers until they are steaming hot." },
+  { id: "safety-leftovers", topic: "food-safety", vi: "Thịt hoặc cá đã nấu chín giữ được nếu vào tủ lạnh trong 2 giờ và ăn trong 24 giờ, hâm lại đến khi bốc hơi nóng đều. Nếu không, ăn trong ngày.", en: "Cooked meat or fish keeps if refrigerated within 2 hours and eaten within 24 hours, reheated until steaming hot all the way through. Otherwise, eat it the same day." },
   { id: "safety-wash", topic: "food-safety", vi: "Rửa rau và trái cây dưới nước sạch trước khi ăn.", en: "Rinse vegetables and fruit under clean water before eating." },
   { id: "safety-milk", topic: "food-safety", vi: "Chọn sữa và phô mai đã tiệt trùng.", en: "Choose pasteurized milk and cheese." },
   { id: "safety-separate", topic: "food-safety", vi: "Để thớt thịt sống riêng với rau đã rửa.", en: "Keep the raw-meat board separate from washed vegetables." },
@@ -89,7 +89,7 @@ export const NOTE_LIBRARY: readonly LibraryNote[] = [
   { id: "gdm-drinks", topic: "gdm", vi: "Uống nước lọc thay cho nước ngọt và nước ép.", en: "Drink water instead of sugary drinks and juice." },
 
   { id: "trimester-early-bland", topic: "trimester", vi: "Tam cá nguyệt đầu, món ít mùi và mềm thường dễ ăn hơn.", en: "In the first trimester, mild and soft dishes are often easier to eat." },
-  { id: "trimester-early-snacks", topic: "trimester", vi: "Chia ngày thành nhiều bữa nhỏ nếu buổi sáng khó ăn.", en: "Split the day into several small meals if mornings are hard." },
+  { id: "trimester-early-snacks", topic: "trimester", vi: "Nếu buổi sáng khó ăn, chọn món mềm và ít mùi.", en: "If mornings are hard, choose a soft dish with a mild smell." },
   { id: "trimester-mid-variety", topic: "trimester", vi: "Giữa thai kỳ là lúc dễ thêm rau, đậu và đạm vào các bữa.", en: "The second trimester is a good time to add vegetables, beans, and protein." },
   { id: "trimester-mid-iron", topic: "trimester", vi: "Giữa thai kỳ nên giữ thịt nạc hoặc đậu trong bữa chính.", en: "In the second trimester, keep lean meat or beans in main meals." },
   { id: "trimester-late-fiber", topic: "trimester", vi: "Tam cá nguyệt cuối, rau, khoai và nước lọc giúp bữa dễ tiêu hơn.", en: "In the third trimester, vegetables, sweet potato, and water keep meals easier to digest." },
@@ -126,6 +126,46 @@ export function ingredientsFromPlan(plan: MealPlan, locale: Locale): string[] {
 
 function foldToken(value: string): string {
   return value.normalize("NFC").normalize("NFD").replace(/\p{M}/gu, "").replace(/đ/gi, "d").toLowerCase().trim();
+}
+
+/** Foods a slot note may name. Anything outside the list is not shown. */
+const SLOT_FOODS: Partial<Record<NoteTopic, readonly string[]>> = {
+  protein: [
+    "trứng", "egg",
+    "thịt heo nạc", "lean pork",
+    "ức gà", "chicken breast",
+    "gà", "chicken",
+    "thịt bò", "beef",
+    "đậu hũ", "tofu",
+    "đậu lăng", "lentils",
+    "đậu nành", "soybeans",
+    "đậu đỏ", "red beans",
+    "đậu xanh", "mung beans",
+    "cá hồi", "salmon",
+    "cá basa", "basa fish",
+    "cá lóc", "snakehead fish",
+    "cá thu", "mackerel",
+    "cá diêu hồng", "red tilapia",
+    "tôm", "shrimp",
+    "chả cá", "fish cake",
+    "giò sống nạc", "lean pork paste",
+    "sữa tươi tiệt trùng", "pasteurized milk",
+    "sữa chua tiệt trùng", "pasteurized yogurt"
+  ],
+  iron: ["thịt bò", "beef", "thịt heo nạc", "lean pork", "rau dền", "amaranth", "cải bó xôi", "spinach", "trứng", "egg", "đậu lăng", "lentils", "đậu đỏ", "red beans", "rau muống", "water spinach"],
+  calcium: ["sữa tươi tiệt trùng", "pasteurized milk", "sữa chua tiệt trùng", "pasteurized yogurt", "đậu hũ", "tofu", "phô mai tiệt trùng", "pasteurized cheese", "cải bó xôi", "spinach", "rau cải", "leafy greens", "bông cải xanh", "broccoli"],
+  folate: ["rau cải", "leafy greens", "cải bó xôi", "spinach", "bông cải xanh", "broccoli", "đậu lăng", "lentils", "đậu đỏ", "red beans", "đậu xanh", "mung beans", "đậu nành", "soybeans", "rau muống", "water spinach", "cam", "orange"],
+  fiber: ["rau cải", "leafy greens", "yến mạch", "oats", "khoai lang", "sweet potato", "đậu lăng", "lentils", "đậu đỏ", "red beans", "ổi", "guava", "táo", "apple", "gạo lứt", "cơm gạo lứt", "brown rice", "bông cải xanh", "broccoli", "đậu bắp", "okra", "rau muống", "water spinach", "bánh mì nguyên cám", "whole-grain bread", "mướp", "luffa", "bí ngòi", "zucchini", "đậu nành", "soybeans"],
+  "food-safety": ["trứng", "egg", "thịt heo nạc", "lean pork", "ức gà", "chicken breast", "gà", "chicken", "thịt bò", "beef", "cá hồi", "salmon", "cá basa", "basa fish", "cá lóc", "snakehead fish", "cá thu", "mackerel", "cá diêu hồng", "red tilapia", "tôm", "shrimp", "chả cá", "fish cake", "giò sống nạc", "lean pork paste"],
+  gdm: ["yến mạch", "oats", "khoai lang", "sweet potato", "gạo lứt", "cơm gạo lứt", "brown rice", "đậu lăng", "lentils", "đậu hũ", "tofu", "trứng", "egg", "ức gà", "chicken breast", "thịt heo nạc", "lean pork", "rau cải", "leafy greens"]
+};
+
+function slotFoodAllowed(topic: NoteTopic, ingredient: string): boolean {
+  const allow = SLOT_FOODS[topic];
+  if (!allow) return false;
+  const allowed = new Set(allow.map((item) => foldToken(item)));
+  const forms = [ingredient, localizeIngredient(ingredient, "vi"), localizeIngredient(ingredient, "en")];
+  return forms.some((form) => allowed.has(foldToken(form)));
 }
 
 /** Accept the listed name, or the same food in the other language. */
@@ -205,7 +245,7 @@ export function selectLibraryNotes(payload: unknown, ingredients: readonly strin
     seen.add(id);
     const note = libraryNote(id);
     if (!note) continue;
-    if (note.foodSlot && !matched) continue;
+    if (note.foodSlot && (!matched || !slotFoodAllowed(note.topic, matched))) continue;
     const text = renderNote(note, locale, matched);
     if (!text) continue;
     rendered.push(text);
