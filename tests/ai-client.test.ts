@@ -116,6 +116,15 @@ describe("failed AI calls", () => {
     expect(providerLog.detail).toContain(WORKERS_AI_MODEL);
     expect(providerLog.detail).toMatch(/^AiProviderError: 5016:/);
     expect((providerLog.detail ?? "").length).toBeLessThanOrEqual(80);
+
+    aiRun.mockRejectedValueOnce(new Error("upstream 504 from the gateway (code 3043)"));
+    await expect(createAIClient().generateMealPlan(profile, "en")).rejects.toBeInstanceOf(AiProviderError);
+    const coded = loggedFallbacks(errorSpy).find((event) => String((event as { detail?: string }).detail).includes("3043")) as {
+      detail?: string;
+    };
+    expect(coded.detail).toMatch(/^AiProviderError: 3043:/);
+    expect(coded.detail).not.toMatch(/^AiProviderError: 504:/);
+    expect((coded.detail ?? "").length).toBeLessThanOrEqual(80);
     expect(loggedFallbacks(errorSpy)).toContainEqual(
       expect.objectContaining({
         event: "meal-plan-ai-fallback",
@@ -643,6 +652,66 @@ describe("failed AI calls", () => {
     expect(notes).not.toMatch(/overcooking|pickled/i);
     expect(notes).toContain("Drink water through the day.");
     expect(mealPlanServedAi(plan)).toBe(true);
+  });
+
+  it("does not serve a gestational-diabetes note that recommends fruits with whole grains", async () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const gdm: PregnancyProfile = { ...profile, healthConditions: ["gestational_diabetes"], goals: ["blood_sugar_control"] };
+    aiRun.mockResolvedValue({
+      response: JSON.stringify({
+        specialNotes: [
+          "As a pregnant woman with gestational diabetes, prioritize slow-digesting carbohydrates such as whole grains, fruits, and vegetables."
+        ]
+      })
+    });
+
+    const plan = await createAIClient().generateMealPlan(gdm, "en");
+    expect(plan.specialNotes.join(" ")).not.toMatch(/\bfruits\b/i);
+    expect(plan.specialNotes.join(" ")).toContain("Gestational diabetes");
+    expect(mealPlanServedAi(plan)).toBe(false);
+    expect(loggedFallbacks(errorSpy)).toContainEqual(expect.objectContaining({ detail: "safety_filtered" }));
+    errorSpy.mockRestore();
+  });
+
+  it("does not count notes that copy the safety panel or the prompt rules", async () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    const gdm: PregnancyProfile = { ...profile, healthConditions: ["gestational_diabetes"], goals: ["balanced"] };
+    aiRun.mockResolvedValue({
+      response: JSON.stringify({
+        specialNotes: [
+          "Tiểu đường thai kỳ: ưu tiên tinh bột chậm, chia nhỏ bữa, tránh nước ép/nước ngọt và hỏi bác sĩ về lượng tinh bột phù hợp.",
+          "Không ăn đồ sống/tái; nấu chín kỹ thịt, cá, trứng và hải sản.",
+          "Không khuyên đồ muối chua hoặc dưa muối.",
+          "Không ăn đồ muối chua hoặc dưa muối."
+        ]
+      })
+    });
+
+    const echoed = await createAIClient().generateMealPlan(gdm, "vi");
+    expect(echoed.specialNotes.join(" ")).toContain("Tiểu đường thai kỳ");
+    expect(echoed.specialNotes.join(" ")).not.toContain("Không khuyên");
+    expect(echoed.specialNotes.join(" ")).not.toContain("Không ăn đồ sống");
+    expect(echoed.specialNotes.join(" ")).not.toContain("đồ muối chua");
+    expect(mealPlanServedAi(echoed)).toBe(false);
+    expect(loggedFallbacks(errorSpy)).toContainEqual(expect.objectContaining({ detail: "echo_filtered" }));
+
+    aiRun.mockResolvedValue({
+      response: JSON.stringify({
+        specialNotes: [
+          "Không khuyên đồ muối chua hoặc dưa muối.",
+          "Chia nhỏ bữa và uống nước lọc."
+        ]
+      })
+    });
+    const mixed = await createAIClient().generateMealPlan(gdm, "vi");
+    expect(mixed.specialNotes.join(" ")).toContain("Chia nhỏ bữa và uống nước lọc.");
+    expect(mixed.specialNotes.join(" ")).not.toContain("Không khuyên");
+    expect(mealPlanServedAi(mixed)).toBe(true);
+    const ok = logSpy.mock.calls.map((call) => JSON.parse(String(call[0])) as { event?: string; noteCount?: number });
+    expect(ok).toContainEqual(expect.objectContaining({ event: "meal-plan-ai-ok", noteCount: 1 }));
+    errorSpy.mockRestore();
+    logSpy.mockRestore();
   });
 
   it("drops omega-3 fish advice that has no low-mercury caveat and keeps cooked fish", async () => {

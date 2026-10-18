@@ -1,7 +1,7 @@
 import type { Locale } from "@/lib/i18n";
 import { getBindings, readFeatureFlag } from "@/lib/cloudflare/bindings";
 import { getOptionalAiEnv } from "@/lib/cloudflare/env";
-import { filterSafeAiNotes, pregnancyNoteHardRules } from "@/lib/nutrition/aiNoteSafety";
+import { filterEchoedAiNotes, filterSafeAiNotes, pregnancyNoteHardRules } from "@/lib/nutrition/aiNoteSafety";
 import { buildMealPlanPrompt } from "@/lib/nutrition/aiPromptBuilder";
 import { ruleBasedMealPlanner } from "@/lib/nutrition/mealPlanner";
 import { filterNotesForLocale, localizeMealPlanForLocale, sanitizeSpecialNotes } from "@/lib/nutrition/localizeMealPlan";
@@ -192,10 +192,17 @@ function sanitiseLogMessage(value: string): string {
     .slice(0, LOG_DETAIL_MAX);
 }
 
-/** A provider status such as 5016. IP octets are removed first so they are not treated as codes. */
+/**
+ * Prefer a parenthesized provider code, then a 4-digit code, over an earlier
+ * HTTP status. "upstream 504 … (code 3043)" must log 3043, not 504.
+ * IP octets are removed first so they are not treated as codes.
+ */
 function providerErrorCode(message: string): string | undefined {
   const withoutNetwork = message.replace(/\b(?:\d{1,3}\.){3}\d{1,3}\b/g, " ");
-  return withoutNetwork.match(/\b\d{3,5}\b/)?.[0];
+  const parenthesized = withoutNetwork.match(/\(\s*(?:code\s*)?(\d{3,5})\s*\)/i);
+  if (parenthesized) return parenthesized[1];
+  const codes = [...withoutNetwork.matchAll(/\b(\d{3,5})\b/g)].map((match) => match[1]);
+  return codes.find((code) => code.length >= 4) ?? codes[0];
 }
 
 function fallbackDetail(error: unknown): string {
@@ -346,23 +353,46 @@ function stripJsonFence(text: string): string {
 }
 
 /**
- * The model sometimes closes the notes array and then stops, dropping the
- * final `}`. Append the missing braces only when specialNotes is present and
- * the text already ends at that array.
+ * Close a truncated specialNotes object. Handles a missing final `}`, a
+ * missing `]}`, and a last string that was cut off before its quote.
  */
 function repairTruncatedSpecialNotes(text: string): string | null {
   const start = text.indexOf("{");
   if (start < 0) return null;
-  const body = text.slice(start).trim();
+  let body = text.slice(start).trim();
   if (!/"specialNotes"\s*:/.test(body)) return null;
-  let opens = 0;
-  let closes = 0;
+
+  let inString = false;
+  let escape = false;
+  const stack: Array<"{" | "["> = [];
   for (const char of body) {
-    if (char === "{") opens += 1;
-    else if (char === "}") closes += 1;
+    if (inString) {
+      if (escape) {
+        escape = false;
+        continue;
+      }
+      if (char === "\\") {
+        escape = true;
+        continue;
+      }
+      if (char === '"') inString = false;
+      continue;
+    }
+    if (char === '"') {
+      inString = true;
+      continue;
+    }
+    if (char === "{" || char === "[") stack.push(char);
+    else if ((char === "}" || char === "]") && stack.length > 0) stack.pop();
   }
-  if (opens <= closes || !/\]\s*$/.test(body)) return null;
-  return `${body}${"}".repeat(opens - closes)}`;
+
+  if (!inString && stack.length === 0) return null;
+  if (inString) body += '"';
+  body = body.replace(/,\s*$/, "");
+  for (let index = stack.length - 1; index >= 0; index -= 1) {
+    body += stack[index] === "{" ? "}" : "]";
+  }
+  return body;
 }
 
 export function parseModelPayload(raw: string): { specialNotes?: unknown } {
@@ -622,8 +652,13 @@ export function createAIClient(): AIClient {
           logMealPlanFallback({ reason: "bad_output", provider, detail: "safety_filtered" });
           return baseline;
         }
+        const freshNotes = filterEchoedAiNotes(safeNotes, input, locale);
+        if (freshNotes.length === 0) {
+          logMealPlanFallback({ reason: "bad_output", provider, detail: "echo_filtered" });
+          return baseline;
+        }
 
-        const served = planWithAiNotes(baseline, safeNotes, locale);
+        const served = planWithAiNotes(baseline, freshNotes, locale);
         if (served.shown > 0) {
           logMealPlanOk({
             provider,
