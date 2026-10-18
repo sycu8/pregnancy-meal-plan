@@ -1,58 +1,14 @@
 import fs from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { WEIGHT_LEXICON, findWeightLexiconHits, foldLexiconText } from "@/lib/nutrition/weightLexicon";
+import { BLOG_WEIGHT_LEXICON, findWeightLexiconHits, foldLexiconText } from "@/lib/nutrition/weightLexicon";
 
 /**
  * PMP-WL-02: published blog prose must not promote weight loss, weight control, or satiety.
- * Phrase and word-boundary matching so unrelated words (fulfilling, muslim) do not match.
- * Scanned text is NFC-normalized, and an accent-folded copy is matched too
- * (đ→d, then strip combining diacritics / tone marks) so unaccented and NFD text hit.
+ * Matching lives in the shared lexicon (NFC plus an accent-folded copy).
  * Clinical red-flag wording that is not advice is allowlisted by exact context.
- * The scan uses the full shared list, including the stems the earlier subset skipped.
+ * Blog posts use the blog phrase list, not the planner stems for fetal weight or appetite.
  */
-const LEXICON: { name: string; pattern: RegExp }[] = [
-  { name: "giảm cân", pattern: /giảm cân/iu },
-  { name: "giam can", pattern: /\bgiam can\b/iu },
-  { name: "lấy lại vóc dáng", pattern: /lấy lại vóc dáng/iu },
-  { name: "lay lai voc dang", pattern: /\blay lai voc dang\b/iu },
-  { name: "eo thon", pattern: /\beo thon\b/iu },
-  { name: "lose weight", pattern: /\blose weight\b/iu },
-  { name: "losing weight", pattern: /\blosing weight\b/iu },
-  { name: "lost weight", pattern: /\blost weight\b/iu },
-  { name: "weight loss", pattern: /\bweight[\s-]*loss\b/iu },
-  { name: "weight control", pattern: /\bweight control\b/iu },
-  { name: "weight management", pattern: /\bweight management\b/iu },
-  { name: "shed pounds", pattern: /\bshed pounds\b/iu },
-  { name: "burn fat", pattern: /\bburn fat\b/iu },
-  { name: "satiety", pattern: /\bsatiety\b/iu },
-  { name: "slim down", pattern: /\bslim down\b/iu },
-  { name: "slim", pattern: /\bslims?\b/iu },
-  { name: "slimming", pattern: /\bslimming\b/iu },
-  { name: "slimmer", pattern: /\bslimmer\b/iu },
-  { name: "giảm béo", pattern: /giảm béo/iu },
-  { name: "đốt mỡ", pattern: /đốt mỡ/iu },
-  { name: "thon gọn", pattern: /thon gọn/iu },
-  { name: "chắc bụng", pattern: /chắc bụng/iu },
-  { name: "chac bung", pattern: /\bchac bung\b/iu },
-  { name: "đỡ đói", pattern: /đỡ đói/iu },
-  { name: "do doi", pattern: /\bdo doi\b/iu },
-  { name: "filling", pattern: /\bfilling\b/iu },
-  { name: "fuller", pattern: /\bfuller\b/iu },
-  { name: "fullness", pattern: /\bfullness\b/iu },
-  { name: "feel full", pattern: /\bfeel full\b/iu },
-  { name: "stay full", pattern: /\bstay full\b/iu },
-  { name: "cảm giác no", pattern: /cảm giác no/iu },
-  { name: "no lâu", pattern: /no lâu/iu },
-  { name: "no lau", pattern: /\bno lau\b/iu },
-  { name: "kiểm soát cân", pattern: /kiểm soát cân/iu },
-  { name: "curb appetite", pattern: /\bcurb appetite\b/iu },
-  { name: "prevent hunger", pattern: /\bprevent hunger\b/iu },
-  { name: "support healthy weight", pattern: /\bsupport healthy weight\b/iu },
-  { name: "healthy weight", pattern: /\bhealthy weight\b/iu },
-  { name: "low in calories", pattern: /\blow in calories\b/iu },
-  { name: "low calorie", pattern: /\blow[\s-]calorie\b/iu }
-];
 
 /** Exact contexts that are symptoms or care warnings, not weight or satiety advice. */
 const ALLOWED_CONTEXTS = [
@@ -83,68 +39,18 @@ const ENGLISH_PHRASES = [
 
 type Hit = { file: string; field: string; name: string; snippet: string };
 
-/** đ→d, then drop combining marks. Input is NFC so precomposed tones decompose first. */
-function foldAccents(text: string): string {
-  return text.normalize("NFD").replace(/đ/g, "d").replace(/Đ/g, "D").replace(/\p{M}/gu, "");
-}
-
-function withBoundaries(pattern: RegExp): RegExp {
-  const source = pattern.source;
-  const start = source.startsWith("\\b") ? source : `\\b(?:${source})`;
-  const full = start.endsWith("\\b") ? start : `${start}\\b`;
-  return new RegExp(full, pattern.flags);
-}
-
-function foldedPattern(pattern: RegExp): RegExp {
-  return withBoundaries(new RegExp(foldAccents(pattern.source), pattern.flags));
-}
-
-function isAllowed(text: string, index: number, length: number): boolean {
-  return ALLOWED_CONTEXTS.some((context) => {
-    const foldedContext = foldAccents(context.normalize("NFC"));
-    const candidates = context === foldedContext ? [context] : [context, foldedContext];
-    return candidates.some((candidate) => {
-      const at = text.indexOf(candidate);
-      if (at < 0) return false;
-      return index >= at && index + length <= at + candidate.length;
-    });
-  });
-}
-
-function collectHits(text: string, lexicon: { name: string; pattern: RegExp }[], field: string): Hit[] {
-  const hits: Hit[] = [];
-  for (const { name, pattern } of lexicon) {
-    const flags = pattern.flags.includes("g") ? pattern.flags : `${pattern.flags}g`;
-    const re = new RegExp(pattern.source, flags);
-    let match: RegExpExecArray | null;
-    while ((match = re.exec(text))) {
-      if (match[0].length === 0) break;
-      if (isAllowed(text, match.index, match[0].length)) continue;
-      const start = Math.max(0, match.index - 40);
-      const end = Math.min(text.length, match.index + match[0].length + 40);
-      hits.push({
-        file: "",
-        field,
-        name,
-        snippet: text.slice(start, end).replace(/\s+/g, " ")
-      });
-    }
-  }
-  return hits;
-}
-
 export function findLexiconHits(text: string, field = "text"): Hit[] {
-  const nfc = text.normalize("NFC");
-  const hits = collectHits(nfc, LEXICON, field);
-  const folded = foldAccents(nfc);
-  if (folded !== nfc) {
-    const foldedLexicon = LEXICON.map(({ name, pattern }) => ({
-      name,
-      pattern: foldedPattern(pattern)
-    }));
-    hits.push(...collectHits(folded, foldedLexicon, field));
-  }
-  return hits;
+  const folded = foldLexiconText(text);
+  return findWeightLexiconHits(text, BLOG_WEIGHT_LEXICON, ALLOWED_CONTEXTS).map((hit) => {
+    const start = Math.max(0, hit.index - 40);
+    const end = Math.min(folded.length, hit.index + hit.length + 40);
+    return {
+      file: "",
+      field,
+      name: hit.name,
+      snippet: folded.slice(start, end).replace(/\s+/g, " ")
+    };
+  });
 }
 
 function walkStrings(value: unknown, field: string, out: { field: string; text: string }[]) {
