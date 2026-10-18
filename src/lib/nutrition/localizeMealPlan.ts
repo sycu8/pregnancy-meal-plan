@@ -39,7 +39,7 @@ export function localizeMealPlanForLocale(plan: MealPlan, locale: Locale): MealP
     const afternoonSnack = localizeStoredMealItem(day.afternoonSnack, locale);
     const dinner = localizeStoredMealItem(day.dinner, locale);
     const dayMeals = [breakfast, morningSnack, lunch, afternoonSnack, dinner]
-      .map((item) => findMealRecordByName(item.mealId ?? resolveMealId(item.name) ?? item.name))
+      .map((item) => findMealRecordByName(resolveStoredMealId(item)))
       .filter(Boolean);
 
     return {
@@ -63,7 +63,7 @@ export function localizeMealPlanForLocale(plan: MealPlan, locale: Locale): MealP
 
   const allRecords = days
     .flatMap((day) => [day.breakfast, day.morningSnack, day.lunch, day.afternoonSnack, day.dinner])
-    .map((item) => findMealRecordByName(item.mealId ?? resolveMealId(item.name) ?? item.name))
+    .map((item) => findMealRecordByName(resolveStoredMealId(item)))
     .filter(Boolean) as NonNullable<ReturnType<typeof findMealRecordByName>>[];
 
   const country = getCountryPricing(plan.costEstimate?.countryCode ?? plan.profileSnapshot.residenceCountry);
@@ -89,7 +89,7 @@ export function localizeMealPlanForLocale(plan: MealPlan, locale: Locale): MealP
     const batchRecords = days
       .filter((day) => batch.days.includes(day.day))
       .flatMap((day) => [day.breakfast, day.morningSnack, day.lunch, day.afternoonSnack, day.dinner])
-      .map((item) => findMealRecordByName(item.mealId ?? resolveMealId(item.name) ?? item.name))
+      .map((item) => findMealRecordByName(resolveStoredMealId(item)))
       .filter(Boolean) as NonNullable<ReturnType<typeof findMealRecordByName>>[];
 
     return {
@@ -164,8 +164,12 @@ function localizeUrgentWarnings(warnings: string[] | undefined, locale: Locale):
   return en.length ? en : warnings;
 }
 
+function resolveStoredMealId(item: { mealId?: string; name: string }): string {
+  return resolveMealId(item.mealId) ?? resolveMealId(item.name) ?? item.name;
+}
+
 function localizeStoredMealItem(item: MealItem, locale: Locale): MealItem {
-  const mealId = item.mealId ?? resolveMealId(item.name) ?? item.name;
+  const mealId = resolveStoredMealId(item);
   const record = findMealRecordByName(mealId);
   const localized = localizeMealText(mealId, locale, {
     reason: record?.reason ?? item.reason,

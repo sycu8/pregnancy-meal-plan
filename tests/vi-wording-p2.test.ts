@@ -5,6 +5,9 @@ import { titleForDocument } from "@/lib/blog/titles";
 import { clampMetaDescription } from "@/lib/blog/synthesis/synthesizePost";
 import { PAST_DUE_WEEK_HINT, pregnancyProfileSchema } from "@/lib/nutrition/validation";
 import { getPostBySlug } from "@/lib/blog/posts";
+import { localizeIngredient } from "@/lib/nutrition/mealLocales";
+import { localizeMealPlanForLocale } from "@/lib/nutrition/localizeMealPlan";
+import { ruleBasedMealPlanner } from "@/lib/nutrition/mealPlanner";
 
 function post(slug: string) {
   return JSON.parse(fs.readFileSync(`content/blog/posts/${slug}.json`, "utf8")) as {
@@ -96,5 +99,61 @@ describe("P2/P3 Vietnamese wording", () => {
     const drafts = fs.readFileSync("src/lib/marketing/drafts.ts", "utf8");
     expect(drafts).toContain("không thay thế tư vấn của bác sĩ");
     expect(drafts).not.toContain("không thay thế bác sĩ.");
+  });
+
+  it("localizes a saved plan that still uses the old pasteurized meal id", () => {
+    const plan = ruleBasedMealPlanner(
+      {
+        pregnancyType: "singleton",
+        heightCm: 160,
+        prePregnancyWeightKg: 55,
+        currentWeightKg: 65,
+        activityLevel: "light",
+        healthConditions: ["none"],
+        cuisinePreferences: ["vietnamese_rice"],
+        budget: "medium",
+        cookingTime: "around_30",
+        goals: ["balanced"],
+        pregnancyWeek: 24
+      },
+      "vi"
+    );
+    const day = plan.days[0];
+    const saved = {
+      ...plan,
+      days: [
+        {
+          ...day,
+          breakfast: { ...day.breakfast, mealId: "Yến mạch sữa tươi tiệt trùng", name: "Yến mạch sữa tươi tiệt trùng" },
+          morningSnack: { ...day.morningSnack, mealId: "Sữa tươi tiệt trùng", name: "Sữa tươi tiệt trùng" },
+          lunch: {
+            ...day.lunch,
+            mealId: "Bánh mì nguyên cám phô mai tiệt trùng",
+            name: "Bánh mì nguyên cám phô mai tiệt trùng"
+          },
+          afternoonSnack: {
+            ...day.afternoonSnack,
+            mealId: "Sinh tố bơ sữa tiệt trùng không đường",
+            name: "Sinh tố bơ sữa tiệt trùng không đường"
+          }
+        },
+        ...plan.days.slice(1)
+      ],
+      shoppingList: {
+        ...plan.shoppingList,
+        dairy: ["sữa tươi tiệt trùng", "sữa chua tiệt trùng", "phô mai tiệt trùng"]
+      }
+    };
+
+    const localized = localizeMealPlanForLocale(saved, "en");
+    expect(localized.days[0].breakfast.name).toBe("Oats with pasteurized milk");
+    expect(localized.days[0].breakfast.mealId).toBe("Yến mạch sữa tươi đã thanh trùng");
+    expect(localized.days[0].morningSnack.name).toBe("Pasteurized milk");
+    expect(localized.days[0].lunch.name).toBe("Whole-grain bread with pasteurized cheese");
+    expect(localized.days[0].afternoonSnack.name).toBe("Unsweetened avocado milk smoothie");
+    expect(localizeIngredient("sữa tươi tiệt trùng", "en")).toBe("pasteurized or UHT milk");
+    expect(localizeIngredient("sữa chua tiệt trùng", "en")).toBe("yogurt made from pasteurized milk");
+    expect(localizeIngredient("phô mai tiệt trùng", "en")).toBe("cheese made from pasteurized milk");
+    expect(localizeIngredient("sữa tươi tiệt trùng", "vi")).toBe("sữa tươi đã thanh trùng hoặc tiệt trùng");
   });
 });
