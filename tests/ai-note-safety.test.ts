@@ -37,13 +37,14 @@ const TRUNCATED_SPECIAL_NOTES_JSON =
   '{"specialNotes":["Nên ăn nhiều trái cây.","Thử phở hoặc cơm tấm.","Uống nước ép mỗi ngày."]';
 
 describe("meal-plan prompt", () => {
-  it("asks for structured notes and does not paste warnings the model would restate", () => {
-    const prompt = buildMealPlanPrompt(gdm, "vi");
-    expect(prompt).toContain('"kind":"portion|swap|timing|prep|other"');
-    expect(prompt).toMatch(/2 or 3 items in Vietnamese only/);
-    expect(prompt).toMatch(/at most 12 words/);
-    expect(prompt).toMatch(/weight loss/i);
+  it("asks for note ids and does not paste warnings the model would restate", () => {
+    const prompt = buildMealPlanPrompt(gdm, "vi", ["rau cải"]);
+    expect(prompt).toContain('{"notes":[{"id":"..."}]}');
+    expect(prompt).toMatch(/2 or 3 ids/);
+    expect(prompt).toContain("hydration-steady");
+    expect(prompt).toContain("rau cải");
     expect(prompt).toMatch(/do not restate/i);
+    expect(prompt).not.toMatch(/specialNotes/);
     expect(prompt).not.toContain(getConditionSpecificWarnings(gdm, "vi")[0]);
     expect(prompt).not.toContain(getGeneralPregnancyFoodWarnings("vi")[0]);
     expect(prompt).not.toMatch(/chọn cá ít thủy ngân và nấu chín kỹ/i);
@@ -51,13 +52,12 @@ describe("meal-plan prompt", () => {
     expect(buildMealPlanPrompt(profile, "en")).not.toMatch(/low-mercury fish and cook it thoroughly/i);
   });
 
-  it("sends weight control as healthy pregnancy weight gain", () => {
-    const prompt = buildMealPlanPrompt({ ...profile, goals: ["weight_control", "balanced"] }, "en");
+  it("sends the plate-style goal label instead of the stored flag", () => {
+    const prompt = buildMealPlanPrompt({ ...profile, goals: ["weight_control", "balanced"] }, "en", []);
     expect(prompt).not.toContain("weight_control");
-    expect(prompt).toMatch(/pregnancy weight gain/i);
-    expect(prompt).toMatch(/not weight loss/i);
-    expect(prompt).toMatch(/Do not recommend weight loss/i);
+    expect(prompt).toContain("plates with vegetables and lean protein");
     expect(prompt).toContain("balanced");
+    expect(prompt).toContain("hydration-steady");
   });
 });
 

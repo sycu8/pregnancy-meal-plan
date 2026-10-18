@@ -143,18 +143,19 @@ describe("failed AI calls", () => {
 
   it("asks only for short notes and caps the token budget below a full plan", async () => {
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    aiRun.mockResolvedValue({ response: JSON.stringify({ specialNotes: ["Drink water through the day."] }) });
+    aiRun.mockResolvedValue({ response: JSON.stringify({ notes: [{ id: "hydration-steady" }] }) });
 
-    const prompt = buildMealPlanPrompt(profile, "en");
+    const prompt = buildMealPlanPrompt(profile, "en", ["egg"]);
     expect(prompt).toMatch(/Do not write a meal plan/);
-    expect(prompt).toMatch(/2 or 3 items in English only/);
-    expect(prompt).toContain('"kind":"portion|swap|timing|prep|other"');
+    expect(prompt).toMatch(/2 or 3 ids/);
+    expect(prompt).toContain('{"notes":[{"id":"..."}]}');
+    expect(prompt).toContain("hydration-steady");
+    expect(prompt).toContain("egg");
     expect(prompt).toMatch(/do not restate/i);
     expect(prompt).not.toMatch(/7-day/i);
     expect(prompt).not.toMatch(/draft english/i);
-    expect(buildMealPlanPrompt(profile, "vi")).toMatch(/2 or 3 items in Vietnamese only/);
-    expect(prompt).toMatch(/at most 12 words/);
-    expect(prompt).toMatch(/weight loss/i);
+    expect(prompt).not.toMatch(/specialNotes/);
+    expect(buildMealPlanPrompt(profile, "vi")).toMatch(/2 or 3 ids/);
 
     const plan = await createAIClient().generateMealPlan(profile, "en");
 
@@ -176,17 +177,14 @@ describe("failed AI calls", () => {
     logSpy.mockRestore();
   });
 
-  it("drops non-string specialNotes and caps count and length", async () => {
-    const long = `B${"e".repeat(238)}.${"e".repeat(300)}`;
+  it("drops unknown ids and keeps a library note inside the cap", async () => {
     aiRun.mockResolvedValue({
       response: JSON.stringify({
-        specialNotes: [
-          "Drink water through the day.",
-          1,
-          { bad: true },
-          null,
-          long,
-          ...Array.from({ length: 20 }, (_, index) => `Extra note ${index} about rest.`)
+        notes: [
+          { id: "hydration-steady" },
+          { id: "not-a-note" },
+          "also-unknown",
+          ...Array.from({ length: 20 }, (_, index) => ({ id: `extra-${index}` }))
         ]
       })
     });
@@ -196,9 +194,9 @@ describe("failed AI calls", () => {
     expect(plan.specialNotes.every((note) => typeof note === "string")).toBe(true);
     expect(plan.specialNotes.length).toBeLessThanOrEqual(8);
     expect(plan.specialNotes.every((note) => note.length <= 240)).toBe(true);
-    expect(plan.specialNotes.join(" ")).toContain("Drink water");
+    expect(plan.specialNotes.join(" ")).toContain("Drink water through the day.");
     expect(plan.specialNotes.join(" ")).not.toContain("[object Object]");
-    expect(plan.specialNotes.some((note) => note.startsWith("Beee") && note.length === 240)).toBe(true);
+    expect(plan.specialNotes.join(" ")).not.toContain("not-a-note");
   });
 
   it("surfaces an error payload from Workers AI instead of a silent fallback", async () => {
@@ -252,7 +250,7 @@ describe("failed AI calls", () => {
 
   it("calls Workers AI from the AI binding when AI_PROVIDER is unset", async () => {
     delete process.env.AI_PROVIDER;
-    aiRun.mockResolvedValue({ response: JSON.stringify({ specialNotes: ["Drink water through the day."] }) });
+    aiRun.mockResolvedValue({ response: JSON.stringify({ notes: [{ id: "hydration-steady" }] }) });
 
     const plan = await createAIClient().generateMealPlan(profile, "en");
 
@@ -262,7 +260,7 @@ describe("failed AI calls", () => {
 
   it("reads an object response without calling trim", async () => {
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    aiRun.mockResolvedValue({ response: { specialNotes: ["Uống đủ nước trong ngày."] } });
+    aiRun.mockResolvedValue({ response: { notes: [{ id: "hydration-steady" }] } });
 
     const plan = await createAIClient().generateMealPlan(profile, "vi");
 
@@ -272,7 +270,7 @@ describe("failed AI calls", () => {
   });
 
   it("reads a streamed SSE response and a fenced JSON string", async () => {
-    const payload = JSON.stringify({ specialNotes: ["Drink water through the day."] });
+    const payload = JSON.stringify({ notes: [{ id: "hydration-steady" }] });
     const encoder = new TextEncoder();
     aiRun.mockResolvedValueOnce(
       new ReadableStream<Uint8Array>({
@@ -402,20 +400,16 @@ describe("failed AI calls", () => {
     errorSpy.mockRestore();
   });
 
-  it("translates once when the notes are in the wrong language", async () => {
+  it("renders the library in the requested language without a second call", async () => {
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    aiRun
-      .mockResolvedValueOnce({ response: JSON.stringify({ specialNotes: ["Drink water through the day."] }) })
-      .mockResolvedValueOnce({ response: JSON.stringify({ specialNotes: ["Uống đủ nước trong ngày."] }) });
+    aiRun.mockResolvedValueOnce({ response: JSON.stringify({ notes: [{ id: "hydration-steady" }] }) });
 
     const plan = await createAIClient().generateMealPlan(profile, "vi");
 
-    expect(aiRun).toHaveBeenCalledTimes(2);
-    const retryPrompt = String(aiRun.mock.calls[1]?.[1] && JSON.stringify(aiRun.mock.calls[1][1]));
-    expect(retryPrompt).toMatch(/Vietnamese/);
-    expect(retryPrompt).toMatch(/do not add safety rules/i);
-    expect(retryPrompt).not.toContain("Thiếu máu/thiếu sắt");
-    expect(retryPrompt).not.toContain("Không ăn đồ sống/tái");
+    expect(aiRun).toHaveBeenCalledTimes(1);
+    const prompt = String(JSON.stringify(aiRun.mock.calls[0]?.[1]));
+    expect(prompt).not.toContain("Thiếu máu/thiếu sắt");
+    expect(prompt).not.toContain("Không ăn đồ sống/tái");
     expect(plan.specialNotes.join(" ")).toContain("Uống đủ nước trong ngày.");
     expect(plan.specialNotes.join(" ")).not.toContain("Drink water");
     expect(mealPlanServedAi(plan)).toBe(true);
@@ -425,7 +419,7 @@ describe("failed AI calls", () => {
 
   it("does not count a plan when the note cap hides every AI note", async () => {
     aiRun.mockResolvedValue({
-      response: JSON.stringify({ specialNotes: ["Uống thêm nước lọc giữa các bữa trong ngày."] })
+      response: JSON.stringify({ notes: [{ id: "hydration-steady" }] })
     });
     const crowded: PregnancyProfile = {
       ...profile,
@@ -446,29 +440,29 @@ describe("failed AI calls", () => {
 
     const plan = await createAIClient().generateMealPlan(crowded, "vi");
 
-    expect(plan.specialNotes).not.toContain("Uống thêm nước lọc giữa các bữa trong ngày.");
+    expect(plan.specialNotes).not.toContain("Uống đủ nước trong ngày.");
     expect(mealPlanServedAi(plan)).toBe(false);
   });
 
-  it("logs locale_filtered when a retry still returns the wrong language", async () => {
+  it("does not spend a note when every id is unknown", async () => {
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    aiRun.mockResolvedValue({ response: JSON.stringify({ specialNotes: ["Drink water through the day."] }) });
+    aiRun.mockResolvedValue({ response: JSON.stringify({ notes: [{ id: "not-a-real-note" }] }) });
 
     const plan = await createAIClient().generateMealPlan(plantedProfile(), "vi");
 
-    expect(aiRun).toHaveBeenCalledTimes(2);
+    expect(aiRun).toHaveBeenCalledTimes(1);
     expect(mealPlanServedAi(plan)).toBe(false);
     expect(plan.specialNotes.join(" ")).not.toContain("Drink water");
     expect(loggedFallbacks(errorSpy)).toContainEqual(
       expect.objectContaining({
         event: "meal-plan-ai-fallback",
-        reason: "locale_filtered",
+        reason: "empty_output",
         provider: "workers-ai",
-        detail: "wrong_language"
+        detail: "no_valid_notes"
       })
     );
     expect(JSON.stringify(loggedFallbacks(errorSpy))).not.toContain("PEANUTMARKER");
-    expect(JSON.stringify(loggedFallbacks(errorSpy))).not.toContain("Drink water");
+    expect(JSON.stringify(loggedFallbacks(errorSpy))).not.toContain("not-a-real-note");
     errorSpy.mockRestore();
   });
 
@@ -515,7 +509,7 @@ describe("failed AI calls", () => {
     expect(setCookie).not.toContain("PEANUTMARKER");
     expect(setCookie).not.toContain("doctor-note");
 
-    aiRun.mockResolvedValueOnce({ response: JSON.stringify({ specialNotes: ["Uống đủ nước trong ngày."] }) });
+    aiRun.mockResolvedValueOnce({ response: JSON.stringify({ notes: [{ id: "hydration-steady" }] }) });
     const served = await POST(planRequest(ip, setCookie.split(";")[0], { profile, locale: "vi" }));
     const servedBody = (await served.json()) as { plan: { specialNotes: string[] }; usage: { aiPlansUsed: number } };
     expect(served.status).toBe(200);
@@ -527,7 +521,7 @@ describe("failed AI calls", () => {
   it("does not spend a quota credit when the model returns no notes", async () => {
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     const ip = "203.0.113.77";
-    aiRun.mockResolvedValueOnce({ response: JSON.stringify({ specialNotes: [] }) });
+    aiRun.mockResolvedValueOnce({ response: JSON.stringify({ notes: [] }) });
 
     const empty = await POST(planRequest(ip, undefined, { profile: plantedProfile(), locale: "vi" }));
     const body = (await empty.json()) as { usage: { aiPlansUsed: number; aiPlansLimit: number } };
@@ -538,7 +532,7 @@ describe("failed AI calls", () => {
       expect.objectContaining({
         event: "meal-plan-ai-fallback",
         reason: "empty_output",
-        detail: "no_special_notes"
+        detail: "no_valid_notes"
       })
     );
     expect(JSON.stringify(loggedFallbacks(errorSpy))).not.toContain("PEANUTMARKER");
@@ -562,7 +556,7 @@ describe("failed AI calls", () => {
       expect.objectContaining({
         event: "meal-plan-ai-fallback",
         reason: "bad_output",
-        detail: "weight_loss"
+        detail: "invalid_notes"
       })
     );
     const serialized = JSON.stringify(loggedFallbacks(errorSpy));
@@ -576,7 +570,7 @@ describe("failed AI calls", () => {
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     aiRun.mockResolvedValueOnce({
       response: JSON.stringify({
-        specialNotes: ["Curb your appetite before dinner.", "Drink water between meals."]
+        notes: [{ id: "not-a-real-note" }, { id: "hydration-between" }]
       })
     });
 
@@ -584,7 +578,7 @@ describe("failed AI calls", () => {
     expect(plan.specialNotes.join(" ")).toContain("Drink water between meals.");
     expect(plan.specialNotes.join(" ")).not.toMatch(/appetite/i);
     expect(mealPlanServedAi(plan)).toBe(true);
-    expect(loggedFallbacks(errorSpy)).toContainEqual(expect.objectContaining({ detail: "weight_loss" }));
+    expect(loggedFallbacks(errorSpy)).toEqual([]);
     expect(JSON.stringify(loggedFallbacks(errorSpy))).not.toContain("Curb your appetite");
     errorSpy.mockRestore();
   });
@@ -599,7 +593,7 @@ describe("failed AI calls", () => {
       await incrementUsage(deviceRequest(), "ai-plan", { deviceId: device });
     }
 
-    aiRun.mockResolvedValue({ response: JSON.stringify({ specialNotes: ["Uống đủ nước trong ngày."] }) });
+    aiRun.mockResolvedValue({ response: JSON.stringify({ notes: [{ id: "hydration-steady" }] }) });
     const limited = await POST(planRequest("203.0.113.41", `bau_device=${device}`));
     const limitedBody = (await limited.json()) as { error: string; scope?: string; usage: { aiPlansUsed: number; aiPlansLimit: number } };
     expect(limited.status).toBe(429);
@@ -627,22 +621,18 @@ describe("failed AI calls", () => {
     expect(aiRun).not.toHaveBeenCalled();
   });
 
-  it("repairs a specialNotes object that is missing its closing brace", async () => {
-    aiRun.mockResolvedValue({ response: TRUNCATED_SPECIAL_NOTES_JSON });
+  it("repairs a notes object that is missing its closing brace", async () => {
+    aiRun.mockResolvedValue({ response: TRUNCATED_NOTES_JSON });
 
-    const parsed = parseModelPayload(TRUNCATED_SPECIAL_NOTES_JSON);
-    expect(parsed.specialNotes).toEqual([
-      "Uống đủ nước lọc trong ngày.",
-      "Chia nhỏ bữa nếu buồn nôn.",
-      "Nấu chín thịt, cá và trứng."
-    ]);
+    const parsed = parseModelPayload(TRUNCATED_NOTES_JSON);
+    expect(parsed.notes).toEqual([{ id: "hydration-steady" }, { id: "protein-each-meal" }]);
 
     const plan = await createAIClient().generateMealPlan(profile, "vi");
-    expect(plan.specialNotes.join(" ")).toContain("Uống đủ nước lọc trong ngày.");
+    expect(plan.specialNotes.join(" ")).toContain("Uống đủ nước trong ngày.");
     expect(mealPlanServedAi(plan)).toBe(true);
   });
 
-  it("drops GDM notes that contradict the condition warning and serves none when nothing safe remains", async () => {
+  it("does not render free-text notes when the model skips the id list", async () => {
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     const gdm: PregnancyProfile = { ...profile, healthConditions: ["gestational_diabetes"], goals: ["blood_sugar_control"] };
     aiRun.mockResolvedValue({
@@ -655,28 +645,28 @@ describe("failed AI calls", () => {
     const notes = plan.specialNotes.join(" ");
 
     expect(notes).not.toContain("Nên ăn nhiều trái cây");
-    expect(notes).not.toMatch(/phở|cơm tấm|nước ép trái cây/);
+    expect(notes).not.toMatch(/cơm tấm|nước ép trái cây/);
     expect(notes).toContain("Tiểu đường thai kỳ");
     expect(mealPlanServedAi(plan)).toBe(false);
     expect(loggedFallbacks(errorSpy)).toContainEqual(
-      expect.objectContaining({ reason: "bad_output", detail: "safety_filtered" })
+      expect.objectContaining({ reason: "bad_output", detail: "invalid_notes" })
     );
     expect(JSON.stringify(loggedFallbacks(errorSpy))).not.toContain("trái cây");
     expect(JSON.stringify(loggedFallbacks(errorSpy))).not.toContain("phở");
     errorSpy.mockRestore();
   });
 
-  it("keeps a safe GDM note after dropping contradictory ones", async () => {
+  it("renders a library id and ignores an unknown id", async () => {
     const gdm: PregnancyProfile = { ...profile, healthConditions: ["gestational_diabetes"], goals: ["balanced"] };
     aiRun.mockResolvedValue({
       response: JSON.stringify({
-        specialNotes: ["Nên ăn nhiều trái cây.", "Uống thêm nước lọc giữa các bữa."]
+        notes: [{ id: "not-a-real-note" }, { id: "hydration-between" }]
       })
     });
 
     const plan = await createAIClient().generateMealPlan(gdm, "vi");
     const notes = plan.specialNotes.join(" ");
-    expect(notes).toContain("Uống thêm nước lọc giữa các bữa.");
+    expect(notes).toContain("Uống nước lọc giữa các bữa.");
     expect(notes).not.toContain("Nên ăn nhiều trái cây");
     expect(notes).toContain("Tiểu đường thai kỳ");
     expect(mealPlanServedAi(plan)).toBe(true);
@@ -685,23 +675,23 @@ describe("failed AI calls", () => {
   it("does not render a cut-off note fragment", async () => {
     aiRun.mockResolvedValue({
       response: JSON.stringify({
-        specialNotes: ["Uống đủ nước", "Uống thêm nước lọc giữa các bữa.", "Drink water and"]
+        notes: ["Uống đủ nước", { id: "hydration-between" }, "Drink water and"]
       })
     });
 
     const plan = await createAIClient().generateMealPlan(profile, "vi");
     const notes = plan.specialNotes.join(" ");
-    expect(notes).toContain("Uống thêm nước lọc giữa các bữa.");
+    expect(notes).toContain("Uống nước lọc giữa các bữa.");
     expect(notes).not.toContain("Uống đủ nước");
     expect(notes).not.toContain("Drink water and");
     expect(mealPlanServedAi(plan)).toBe(true);
   });
 
-  it("drops English pho, com tam, and plenty-of-fruit notes for gestational diabetes", async () => {
+  it("renders a library note for gestational diabetes without free-text food advice", async () => {
     const gdm: PregnancyProfile = { ...profile, healthConditions: ["gestational_diabetes"], goals: ["balanced"] };
     aiRun.mockResolvedValue({
       response: JSON.stringify({
-        specialNotes: ["Try pho or com tam for lunch.", "Eat plenty of fruit.", "Drink water between meals."]
+        notes: ["Try pho or com tam for lunch.", { id: "hydration-between" }, "Eat plenty of fruit."]
       })
     });
 
@@ -713,20 +703,20 @@ describe("failed AI calls", () => {
     expect(mealPlanServedAi(plan)).toBe(true);
   });
 
-  it("does not deny pho when gestational diabetes is not selected", async () => {
+  it("does not turn a free-text pho sentence into a note", async () => {
     aiRun.mockResolvedValue({
       response: JSON.stringify({ specialNotes: ["Phở gà nấu chín là bữa dễ ăn."] })
     });
 
     const plan = await createAIClient().generateMealPlan(profile, "vi");
-    expect(plan.specialNotes.join(" ")).toContain("Phở gà nấu chín là bữa dễ ăn.");
-    expect(mealPlanServedAi(plan)).toBe(true);
+    expect(plan.specialNotes.join(" ")).not.toContain("Phở gà nấu chín là bữa dễ ăn.");
+    expect(mealPlanServedAi(plan)).toBe(false);
   });
 
-  it("drops notes that say to avoid overcooking or that suggest pickled food", async () => {
+  it("drops unknown sentences and keeps the library note", async () => {
     aiRun.mockResolvedValue({
       response: JSON.stringify({
-        specialNotes: ["Avoid overcooking vegetables.", "Try pickled vegetables as a snack.", "Drink water through the day."]
+        notes: ["Avoid overcooking vegetables.", { id: "hydration-steady" }, "Try pickled vegetables as a snack."]
       })
     });
 
@@ -737,12 +727,12 @@ describe("failed AI calls", () => {
     expect(mealPlanServedAi(plan)).toBe(true);
   });
 
-  it("does not serve a gestational-diabetes note that recommends fruits with whole grains", async () => {
+  it("does not serve free text that recommends fruits with whole grains", async () => {
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     const gdm: PregnancyProfile = { ...profile, healthConditions: ["gestational_diabetes"], goals: ["blood_sugar_control"] };
     aiRun.mockResolvedValue({
       response: JSON.stringify({
-        specialNotes: [
+        notes: [
           "As a pregnant woman with gestational diabetes, prioritize slow-digesting carbohydrates such as whole grains, fruits, and vegetables."
         ]
       })
@@ -752,11 +742,11 @@ describe("failed AI calls", () => {
     expect(plan.specialNotes.join(" ")).not.toMatch(/\bfruits\b/i);
     expect(plan.specialNotes.join(" ")).toContain("Gestational diabetes");
     expect(mealPlanServedAi(plan)).toBe(false);
-    expect(loggedFallbacks(errorSpy)).toContainEqual(expect.objectContaining({ detail: "safety_filtered" }));
+    expect(loggedFallbacks(errorSpy)).toContainEqual(expect.objectContaining({ detail: "no_valid_notes" }));
     errorSpy.mockRestore();
   });
 
-  it("does not count notes that copy the safety panel or the prompt rules", async () => {
+  it("does not count free-text copies of the safety panel", async () => {
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     const gdm: PregnancyProfile = { ...profile, healthConditions: ["gestational_diabetes"], goals: ["balanced"] };
@@ -775,18 +765,15 @@ describe("failed AI calls", () => {
     expect(echoed.specialNotes.join(" ")).not.toContain("Không khuyên");
     expect(echoed.specialNotes.join(" ")).not.toContain("Không ăn đồ sống");
     expect(mealPlanServedAi(echoed)).toBe(false);
-    expect(loggedFallbacks(errorSpy)).toContainEqual(expect.objectContaining({ detail: "echo_filtered" }));
+    expect(loggedFallbacks(errorSpy)).toContainEqual(expect.objectContaining({ detail: "invalid_notes" }));
 
     aiRun.mockResolvedValue({
       response: JSON.stringify({
-        specialNotes: [
-          "Không khuyên đồ muối chua hoặc dưa muối.",
-          "Uống thêm nước lọc giữa các bữa."
-        ]
+        notes: ["Không khuyên đồ muối chua hoặc dưa muối.", { id: "hydration-between" }]
       })
     });
     const mixed = await createAIClient().generateMealPlan(gdm, "vi");
-    expect(mixed.specialNotes.join(" ")).toContain("Uống thêm nước lọc giữa các bữa.");
+    expect(mixed.specialNotes.join(" ")).toContain("Uống nước lọc giữa các bữa.");
     expect(mixed.specialNotes.join(" ")).not.toContain("Không khuyên");
     expect(mealPlanServedAi(mixed)).toBe(true);
     const ok = logSpy.mock.calls.map((call) => JSON.parse(String(call[0])) as { event?: string; noteCount?: number });
@@ -795,35 +782,33 @@ describe("failed AI calls", () => {
     logSpy.mockRestore();
   });
 
-  it("drops omega-3 fish advice and does not keep a restatement of the fish rule", async () => {
+  it("does not render free-text fish advice", async () => {
     aiRun.mockResolvedValue({
       response: JSON.stringify({
-        specialNotes: [
+        notes: [
           "Ăn cá hồi giàu omega-3.",
+          { id: "folate-beans" },
           "Chọn cá ít thủy ngân, nấu chín kỹ.",
-          "Nấu chín cá, thịt và trứng.",
-          "Ăn một nắm hạt điều vào bữa xế."
+          "Nấu chín cá, thịt và trứng."
         ]
       })
     });
 
     const plan = await createAIClient().generateMealPlan(profile, "vi");
     const notes = plan.specialNotes.join(" ");
-    expect(notes).not.toMatch(/omega-3|cá hồi|thủy ngân|Nấu chín cá/);
-    expect(notes).toContain("Ăn một nắm hạt điều vào bữa xế.");
+    expect(notes).not.toMatch(/omega-3|cá hồi giàu|Nấu chín cá/);
+    expect(notes).toContain("Đậu và đậu lăng thêm folate cùng chất xơ.");
     expect(mealPlanServedAi(plan)).toBe(true);
   });
 
-  it("reads structured notes and does not spend a plan credit on echoed warnings", async () => {
+  it("reads note ids and does not spend a plan credit on free-text warnings", async () => {
     aiRun.mockResolvedValueOnce({
-      response: JSON.stringify({
-        specialNotes: [{ text: "Uống thêm nước lọc giữa các bữa.", kind: "timing", foods: ["water"] }]
-      })
+      response: JSON.stringify({ notes: [{ id: "hydration-between" }] })
     });
     const served = await POST(planRequest("203.0.113.77"));
     const servedBody = (await served.json()) as { plan: { specialNotes: string[] }; usage: { aiPlansUsed: number } };
     expect(served.status).toBe(200);
-    expect(servedBody.plan.specialNotes.join(" ")).toContain("Uống thêm nước lọc giữa các bữa.");
+    expect(servedBody.plan.specialNotes.join(" ")).toContain("Uống nước lọc giữa các bữa.");
     expect(servedBody.usage.aiPlansUsed).toBe(1);
 
     aiRun.mockResolvedValueOnce({
@@ -848,8 +833,7 @@ describe("failed AI calls", () => {
 });
 
 /** Closed notes array with the object's final brace missing. */
-const TRUNCATED_SPECIAL_NOTES_JSON =
-  '{"specialNotes":["Uống đủ nước lọc trong ngày.","Chia nhỏ bữa nếu buồn nôn.","Nấu chín thịt, cá và trứng."]';
+const TRUNCATED_NOTES_JSON = '{"notes":[{"id":"hydration-steady"},{"id":"protein-each-meal"}]';
 
 function plantedProfile(): PregnancyProfile {
   return {

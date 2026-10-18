@@ -135,7 +135,7 @@ export class PremiumLimitError extends Error {
   }
 }
 
-/** Client helper: API first with one retry, then local rule-based fallback for full plans only. */
+/** Client helper: API first with one retry, then local rule-based fallback for a complete plan only. */
 export async function fetchMealPlan(
   profile: PregnancyProfile,
   locale: Locale = "vi",
@@ -199,7 +199,7 @@ export async function fetchMealPlan(
   return localizeMealPlanForLocale(ruleBasedMealPlanner(profile, locale), locale);
 }
 
-/** Full plan without calling the API (does not consume daily API quota). */
+/** Local plan without calling the API (does not consume daily API quota). */
 export function createLocalMealPlan(profile: PregnancyProfile, locale: Locale = "vi") {
   return localizeMealPlanForLocale(ruleBasedMealPlanner(profile, locale), locale);
 }

@@ -87,7 +87,7 @@ export function localizeMealPlanForLocale(plan: MealPlan, locale: Locale): MealP
       : [
           { label: "Days 1-2", days: [1, 2], freshnessNote: "Prioritize leafy greens, soft fruit and meat or fish for the first 1-2 days." },
           { label: "Days 3-4", days: [3, 4], freshnessNote: "Refresh midweek groceries and check dates on yogurt, pasteurized milk and tofu." },
-          { label: "Days 5-7", days: [5, 6, 7], freshnessNote: "Buy the final 3-day batch; portion meat or fish and refrigerate properly if not cooking right away." }
+          { label: "Days 5-7", days: [5, 6, 7], freshnessNote: "Buy the final 3-day batch; divide meat or fish into packs and refrigerate properly if not cooking right away." }
         ];
 
   const shoppingBatches = (plan.shoppingBatches?.length ? plan.shoppingBatches : []).map((batch, index) => {
@@ -145,15 +145,15 @@ function localizeSummaryMessage(plan: MealPlan, locale: Locale): string {
 
   if (locale === "en") {
     if (status === "low") {
-      return "Weight gain is below the reference range. The plan will prioritize protein-rich, nutrient-dense and easy-to-eat meals.";
+      return "The gain is below the reference range. The plan will prioritize protein-rich, nutrient-dense and easy-to-eat meals.";
     }
     if (status === "high") {
-      return "Weight gain is above the reference range. The plan will prioritize vegetables, lean protein and slow-digesting carbohydrates while keeping meals balanced.";
+      return "The gain is above the reference range. The plan will prioritize vegetables, lean protein and slow-digesting carbohydrates while keeping meals balanced.";
     }
     if (status === "normal") {
       return "Your indicators are within the reference range. The plan suggests balanced, practical meals for this pregnancy week.";
     }
-    return "There is not enough data to assess weight gain. The meal plan is still generated from the information you entered.";
+    return "There is not enough data to assess the gain. The meal plan is still generated from the information you entered.";
   }
 
   if (status === "low") return "Mức tăng cân đang thấp hơn khoảng tham khảo. Mình sẽ ưu tiên bữa giàu đạm, năng lượng lành mạnh và dễ ăn.";

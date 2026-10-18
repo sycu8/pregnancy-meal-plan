@@ -40,7 +40,7 @@ Thực đơn 7 ngày món Việt cho mẹ bầu — miễn phí, có danh sách 
 
 ---
 
-## 2. Full description
+## 2. Complete description
 
 ### 2.1 Vietnamese (Google Play / App Store)
 
@@ -84,16 +84,16 @@ Liên hệ hỗ trợ: support@pregnancymeal.tips
 ```
 Bầu Ăn Gì? helps expecting parents plan practical, Vietnamese home-style meals week by week.
 
-The app generates a free 7-day meal plan based on gestational week, weight, taste preferences, budget and common concerns such as nausea, constipation, anemia, gestational diabetes or high blood pressure.
+The app generates a free 7-day meal plan based on gestational week, kilograms, taste preferences, budget and common concerns such as nausea, constipation, anemia, gestational diabetes or high blood pressure.
 
 KEY FEATURES
 • Free 7-day meal plans — no sign-in required
-• Familiar Vietnamese dishes with reference portions
+• Familiar Vietnamese dishes with reference amounts
 • Grouped grocery shopping lists
 • Estimated meal and shopping-trip costs
 • Pregnancy food-safety reminders
 • Guidance for protein, iron, calcium, folate, omega-3, fiber and hydration
-• Reference BMI and pregnancy weight-gain ranges
+• Reference BMI and pregnancy gain ranges
 • Save profile and meal-plan history on your device
 • Prenatal nutrition blog (Vietnamese and English)
 • Vietnamese and English UI
@@ -173,7 +173,7 @@ Test account: Not required — no login is needed for core features.
 How to test:
 1. Launch the app (loads https://pregnancymeal.tips in the native WebView).
 2. Tap “Tạo thực đơn miễn phí” / “Create a free plan”.
-3. Complete the multi-step form (gestational week, weight, preferences).
+3. Complete the multi-step form (gestational week, kilograms, preferences).
 4. View the 7-day plan, shopping list and food-safety notes.
 5. Optional: open Profile or History — data is stored on-device.
 
@@ -187,7 +187,7 @@ Support: support@pregnancymeal.tips
 
 | Data type | Collected? | Linked to user? | Used for tracking? | Purpose |
 |-----------|------------|-----------------|-------------------|---------|
-| Health & fitness (pregnancy week, weight, conditions — user-entered) | Yes | No (on-device default) | No | App functionality |
+| Health & fitness (pregnancy week, kilograms, conditions — user-entered) | Yes | No (on-device default) | No | App functionality |
 | User content (meal plans, preferences) | Yes | No (on-device default) | No | App functionality |
 | Diagnostics (crash logs if enabled by OS) | Optional | No | No | Analytics |
 | Usage data (anonymous web analytics if enabled on site) | Optional | No | No | Analytics |
@@ -226,7 +226,7 @@ App uses standard HTTPS only → **No** custom encryption beyond OS APIs (`ITSAp
 
 **Data types to declare:**
 
-1. **Health and fitness** — pregnancy week, weight, health conditions (optional, user-provided) — collected, not shared, optional, for app functionality, stored on device by default.
+1. **Health and fitness** — pregnancy week, kilograms, health conditions (optional, user-provided) — collected, not shared, optional, for app functionality, stored on device by default.
 2. **App activity** — meal plan history — collected, not shared, optional, on device.
 3. **Diagnostics** — crash data — if using Play crash reporting, declare as optional.
 

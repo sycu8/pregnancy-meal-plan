@@ -45,8 +45,8 @@ export function getConditionSpecificWarnings(profile: PregnancyProfile, locale: 
   if (conditions.has("gestational_diabetes") || profile.goals.includes("blood_sugar_control")) {
     notes.push(
       locale === "vi"
-        ? "Tiểu đường thai kỳ: ưu tiên tinh bột chậm. Chia nhỏ bữa, ăn đều trong ngày. Tránh nước ép/nước ngọt và hỏi bác sĩ về lượng tinh bột phù hợp."
-        : "Gestational diabetes: prioritize slow-digesting carbohydrates. Split meals into smaller ones, eaten evenly through the day. Avoid juice and sugary drinks, and ask your clinician about the right carbohydrate amount."
+        ? "Tiểu đường thai kỳ: ưu tiên tinh bột chậm, chia nhỏ bữa, tránh nước ép/nước ngọt và hỏi bác sĩ về lượng tinh bột phù hợp."
+        : "Gestational diabetes: prioritize slow-digesting carbohydrates, split meals across the day, avoid juice and sugary drinks, and ask your clinician about the right carbohydrate amount."
     );
   }
   if (conditions.has("anemia") || profile.goals.includes("increase_iron_calcium_protein")) {
@@ -74,14 +74,14 @@ export function getConditionSpecificWarnings(profile: PregnancyProfile, locale: 
     notes.push(
       locale === "vi"
         ? "Tăng cân nhanh: giảm đồ ngọt, nước ngọt, tinh bột tinh chế; tăng rau, đạm nạc và món hấp/luộc."
-        : "Fast weight gain: reduce sweets, sugary drinks and refined starches; add vegetables, lean protein and steamed or boiled dishes."
+        : "Gain ahead of the reference: fewer sweets, sugary drinks and refined starches; add vegetables, lean protein and steamed or boiled dishes."
     );
   }
   if (conditions.has("slow_weight_gain") || conditions.has("small_fetus") || profile.goals.includes("healthy_weight_gain")) {
     notes.push(
       locale === "vi"
         ? "Tăng cân chậm/thai nhỏ: tăng năng lượng lành mạnh từ đạm, sữa tiệt trùng, đậu, hạt và chất béo tốt."
-        : "Slow weight gain or smaller fetal growth: add healthy energy from protein, pasteurized dairy, beans, nuts and healthy fats."
+        : "Gain behind the reference or smaller fetal growth: add healthy energy from protein, pasteurized dairy, beans, nuts and healthy fats."
     );
   }
   if (conditions.has("hypertension") || conditions.has("edema")) {
@@ -94,8 +94,8 @@ export function getConditionSpecificWarnings(profile: PregnancyProfile, locale: 
   if (conditions.has("reflux")) {
     notes.push(
       locale === "vi"
-        ? "Trào ngược: ăn vừa miệng, tránh nằm ngay sau ăn, hạn chế món nhiều dầu, cay hoặc quá chua nếu làm khó chịu."
-        : "Reflux: eat comfortable amounts, don't overfill, avoid lying down right after meals, and limit oily, spicy or very sour foods if they trigger discomfort."
+        ? "Trào ngược: ăn lượng nhỏ, tránh nằm ngay sau ăn, hạn chế món nhiều dầu, cay hoặc quá chua nếu làm khó chịu."
+        : "Reflux: eat a smaller plate, avoid lying down right after meals, and limit oily, spicy or very sour foods if they trigger discomfort."
     );
   }
   if (conditions.has("large_fetus")) {

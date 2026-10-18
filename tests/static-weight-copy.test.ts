@@ -26,20 +26,28 @@ const SCAN_ROOTS = [
 ];
 
 /**
- * Weight-control advice in static copy. Serving words such as "phần ăn" stay.
- * "ăn ít muối" is blood-pressure guidance and is not this class.
+ * Accent-folded stems. full(er) matches full and fuller, not fully.
+ * A hyphen or underscore is part of a code token (w-full, fast_weight_gain), not copy.
  */
-const BANNED: { name: string; pattern: RegExp }[] = [
-  { name: "khẩu phần", pattern: /khẩu phần/iu },
-  { name: "kiểm soát cân", pattern: /kiểm soát\s+(?:tăng\s+)?cân/iu },
-  { name: "portion control", pattern: /portion control/i },
-  { name: "portion guidance", pattern: /portion guidance/i },
-  { name: "keep portions moderate", pattern: /keep (?:the |your )?portions? moderate/i },
-  { name: "weight-gain control", pattern: /weight-?gain control|control weight/i },
-  { name: "giữ dáng", pattern: /giữ dáng/iu },
-  { name: "ăn ít", pattern: /(?<![\p{L}\p{N}])ăn ít(?!\s+muối)(?![\p{L}\p{N}])/iu },
-  { name: "eat less", pattern: /(?<![\p{L}\p{N}])eat less(?!\s+(?:salt|sugar|sweet))(?![\p{L}\p{N}])/iu }
+const EDGE = "[\\p{L}\\p{N}_-]";
+const STEMS: { name: string; pattern: RegExp }[] = [
+  { name: "giảm cân", pattern: new RegExp(`(?<!${EDGE})giam can(?!${EDGE})`, "u") },
+  { name: "kiểm soát", pattern: new RegExp(`(?<!${EDGE})kiem soat(?!${EDGE})`, "u") },
+  { name: "khẩu phần", pattern: new RegExp(`(?<!${EDGE})khau phan(?!${EDGE})`, "u") },
+  { name: "no lâu", pattern: new RegExp(`(?<!${EDGE})no lau(?!${EDGE})`, "u") },
+  { name: "ít calo", pattern: new RegExp(`(?<!${EDGE})it calo(?!${EDGE})`, "u") },
+  { name: "giữ dáng", pattern: new RegExp(`(?<!${EDGE})giu dang(?!${EDGE})`, "u") },
+  { name: "weight", pattern: new RegExp(`(?<!${EDGE})weight(?!${EDGE})`, "u") },
+  { name: "portion", pattern: new RegExp(`(?<!${EDGE})portions?(?!${EDGE})`, "u") },
+  { name: "full(er)", pattern: new RegExp(`(?<!${EDGE})full(?:er)?(?!${EDGE})`, "u") },
+  { name: "satiety", pattern: new RegExp(`(?<!${EDGE})satiety(?!${EDGE})`, "u") },
+  { name: "calorie deficit", pattern: /calorie deficit/u },
+  { name: "appetite", pattern: new RegExp(`(?<!${EDGE})appetite(?!${EDGE})`, "u") }
 ];
+
+function foldLine(line: string): string {
+  return line.normalize("NFC").normalize("NFD").replace(/\p{M}/gu, "").replace(/đ/gi, "d").toLowerCase();
+}
 
 function filesUnder(relative: string): string[] {
   const absolute = path.join(ROOT, relative);
@@ -68,7 +76,8 @@ describe("static weight-control copy", () => {
       nutrients: meal?.nutrients ?? []
     });
     expect(english.reason).toBe("Simple and low in oil, with greens and lean protein.");
-    expect(english.reason).not.toMatch(/portion control|weight/i);
+    expect(foldLine(english.reason)).not.toMatch(new RegExp(`(?<!${EDGE})weight(?!${EDGE})`, "u"));
+    expect(foldLine(english.reason)).not.toMatch(new RegExp(`(?<!${EDGE})portions?(?!${EDGE})`, "u"));
   });
 
   it("scans static Vietnamese and English strings for weight-control phrasing", () => {
@@ -76,8 +85,9 @@ describe("static weight-control copy", () => {
     for (const file of staticFiles()) {
       const lines = readFileSync(path.join(ROOT, file), "utf8").split(/\r?\n/);
       lines.forEach((line, index) => {
-        for (const rule of BANNED) {
-          if (rule.pattern.test(line)) hits.push(`${file}:${index + 1} ${rule.name}`);
+        const folded = foldLine(line);
+        for (const stem of STEMS) {
+          if (stem.pattern.test(folded)) hits.push(`${file}:${index + 1} ${stem.name}`);
         }
       });
     }

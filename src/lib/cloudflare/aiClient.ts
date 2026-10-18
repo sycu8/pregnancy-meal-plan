@@ -1,8 +1,7 @@
 import type { Locale } from "@/lib/i18n";
 import { getBindings, readFeatureFlag } from "@/lib/cloudflare/bindings";
 import { getOptionalAiEnv } from "@/lib/cloudflare/env";
-import { filterEchoedAiNotes, filterSafeAiNotes, noteIsComplete } from "@/lib/nutrition/aiNoteSafety";
-import { partitionWeightNotes } from "@/lib/nutrition/weightLossReview";
+import { ingredientsFromPlan, selectLibraryNotes } from "@/lib/nutrition/noteLibrary";
 import { buildMealPlanPrompt } from "@/lib/nutrition/aiPromptBuilder";
 import { ruleBasedMealPlanner } from "@/lib/nutrition/mealPlanner";
 import { filterNotesForLocale, localizeMealPlanForLocale, sanitizeSpecialNotes } from "@/lib/nutrition/localizeMealPlan";
@@ -293,7 +292,7 @@ function textFromUnknown(value: unknown, depth = 0): string {
       if (nested.trim()) return nested;
     }
   }
-  if ("specialNotes" in row) return JSON.stringify(row);
+  if ("specialNotes" in row || "notes" in row) return JSON.stringify(row);
   return "";
 }
 
@@ -350,7 +349,7 @@ function repairTruncatedSpecialNotes(text: string): string | null {
   const start = text.indexOf("{");
   if (start < 0) return null;
   let body = text.slice(start).trim();
-  if (!/"specialNotes"\s*:/.test(body)) return null;
+  if (!/"specialNotes"\s*:/.test(body) && !/"notes"\s*:/.test(body)) return null;
 
   let inString = false;
   let escape = false;
@@ -385,12 +384,12 @@ function repairTruncatedSpecialNotes(text: string): string | null {
   return body;
 }
 
-export function parseModelPayload(raw: string): { specialNotes?: unknown } {
+export function parseModelPayload(raw: string): { specialNotes?: unknown; notes?: unknown; food?: unknown } {
   const stripped = stripJsonFence(raw);
   const read = (text: string) => {
     const parsed = JSON.parse(text) as unknown;
     if (!parsed || typeof parsed !== "object") throw new SyntaxError("unparseable_json");
-    return parsed as { specialNotes?: unknown };
+    return parsed as { specialNotes?: unknown; notes?: unknown; food?: unknown };
   };
   try {
     return read(stripped);
@@ -451,7 +450,7 @@ function workersAiFailureDetail(result: unknown): string | null {
 }
 
 const NOTES_SYSTEM_PROMPT =
-  'Return exactly one JSON object {"specialNotes":[{"text":"...","kind":"portion|swap|timing|prep|other","foods":["..."]}]} with 2 or 3 notes of at most 12 words, each ending with a period, in the requested language. Do not restate safety rules. Do not recommend weight loss, dieting, fasting, cutting calories, eating less, reducing appetite, or limiting weight. Do not write a meal plan.';
+  'Return exactly one JSON object {"notes":[{"id":"..."}]} with 2 or 3 ids from the user message. At most one object may include "food", copied from the ingredient list. Do not write sentences. Do not write a meal plan.';
 
 async function callOpenAi(prompt: string, apiKey: string, gatewayUrl: string | undefined, signal: AbortSignal): Promise<string> {
   const url = gatewayUrl ? `${gatewayUrl.replace(/\/$/, "")}/chat/completions` : "https://api.openai.com/v1/chat/completions";
@@ -548,36 +547,8 @@ function planWithAiNotes(baseline: MealPlan, notes: string[], locale: Locale): {
   return { plan, shown };
 }
 
-function mealPlanPrompt(input: PregnancyProfile, locale: Locale): string {
-  return buildMealPlanPrompt(input, locale);
-}
-
-function translateNotesPrompt(notes: readonly string[], locale: Locale): string {
-  const language = locale === "vi" ? "Vietnamese" : "English";
-  const listed = notes.map((note) => `- ${note}`).join("\n");
-  return [
-    "Do not write a meal plan.",
-    `The previous specialNotes were not in ${language}.`,
-    `Translate only these notes into ${language}.`,
-    'Return exactly one JSON object and nothing else: {"specialNotes":[{"text":"...","kind":"portion|swap|timing|prep|other","foods":["..."]}]}.',
-    `Translate only the text into ${language}. Do not add safety rules, condition warnings, or fish rules.`,
-    listed
-  ].join("\n");
-}
-
-type ParsedNotes =
-  | { ok: true; notes: string[] }
-  | { ok: false; reason: "empty_output" | "bad_output"; detail?: string };
-
-function parseNotes(raw: string): ParsedNotes {
-  if (!raw.trim()) return { ok: false, reason: "empty_output" };
-  try {
-    const notes = sanitizeSpecialNotes(parseModelPayload(raw).specialNotes).filter(noteIsComplete);
-    if (notes.length === 0) return { ok: false, reason: "empty_output", detail: "no_special_notes" };
-    return { ok: true, notes };
-  } catch {
-    return { ok: false, reason: "bad_output", detail: "unparseable_json" };
-  }
+function mealPlanPrompt(input: PregnancyProfile, locale: Locale, ingredients: readonly string[]): string {
+  return buildMealPlanPrompt(input, locale, ingredients);
 }
 
 export function createAIClient(): AIClient {
@@ -614,47 +585,38 @@ export function createAIClient(): AIClient {
         );
 
       try {
-        const first = parseNotes(await callModel(mealPlanPrompt(input, locale)));
-        if (!first.ok) {
+        const ingredients = ingredientsFromPlan(baseline, locale);
+        const raw = await callModel(mealPlanPrompt(input, locale, ingredients));
+        if (!raw.trim()) {
+          logMealPlanFallback({ reason: "empty_output", provider });
+          return baseline;
+        }
+
+        let payload: ReturnType<typeof parseModelPayload>;
+        try {
+          payload = parseModelPayload(raw);
+        } catch {
           logMealPlanFallback({
-            reason: first.reason,
+            reason: "bad_output",
             provider,
-            ...(first.reason === "bad_output" ? { errorName: "SyntaxError" } : {}),
-            ...(first.detail ? { detail: first.detail } : {})
+            errorName: "SyntaxError",
+            detail: "unparseable_json"
           });
           return baseline;
         }
 
-        let notes = first.notes;
-        if (filterNotesForLocale(notes, locale).length === 0) {
-          const retry = parseNotes(await callModel(translateNotesPrompt(notes, locale)));
-          const retryNotes = retry.ok ? filterNotesForLocale(retry.notes, locale) : [];
-          if (retryNotes.length === 0) {
-            logMealPlanFallback({ reason: "locale_filtered", provider, detail: "wrong_language" });
-            return baseline;
-          }
-          notes = retryNotes;
-        }
-
-        const localeNotes = filterNotesForLocale(notes, locale);
-        const weight = partitionWeightNotes(localeNotes);
-        const safeNotes = filterSafeAiNotes(weight.kept, input);
-        if (weight.droppedReason) {
-          logMealPlanFallback({ reason: "bad_output", provider, detail: weight.droppedReason });
-        }
-        if (safeNotes.length === 0) {
-          if (!(weight.droppedReason && weight.kept.length === 0)) {
-            logMealPlanFallback({ reason: "bad_output", provider, detail: "safety_filtered" });
-          }
-          return baseline;
-        }
-        const freshNotes = filterEchoedAiNotes(safeNotes, input, locale);
-        if (freshNotes.length === 0) {
-          logMealPlanFallback({ reason: "bad_output", provider, detail: "echo_filtered" });
+        const selected = selectLibraryNotes(payload, ingredients, locale);
+        if (!selected.ok) {
+          logMealPlanFallback({
+            reason: selected.detail === "no_valid_notes" ? "empty_output" : "bad_output",
+            provider,
+            ...(selected.detail === "invalid_notes" ? { errorName: "SyntaxError" } : {}),
+            detail: selected.detail
+          });
           return baseline;
         }
 
-        const served = planWithAiNotes(baseline, freshNotes, locale);
+        const served = planWithAiNotes(baseline, selected.notes, locale);
         if (served.shown > 0) {
           logMealPlanOk({
             provider,

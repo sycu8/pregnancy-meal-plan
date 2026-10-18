@@ -76,7 +76,7 @@ const mealTextByViName: Record<string, LocalizedMealText> = {
   },
   "Súp gà ngô nấm": {
     name: "Chicken, corn, and mushroom soup",
-    reason: "Warm and soft when appetite is low.",
+    reason: "Warm and soft on days when eating is hard.",
     nutrients: ["protein", "fiber", "starch"]
   },
   "Bún bò rau cải": {

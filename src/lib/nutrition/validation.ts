@@ -74,8 +74,8 @@ export function validationErrorToLocale(error: unknown, locale: Locale) {
         const field = item.path.join(".");
         if (field === "pregnancyWeek") return "Pregnancy week must be between 1 and 40.";
         if (field === "heightCm") return "Height must be between 120 and 220 cm.";
-        if (field === "prePregnancyWeightKg") return "Pre-pregnancy weight must be between 30 and 200 kg.";
-        if (field === "currentWeightKg") return "Current weight must be between 30 and 220 kg.";
+        if (field === "prePregnancyWeightKg") return "Kilograms before pregnancy must be between 30 and 200.";
+        if (field === "currentWeightKg") return "Current kilograms must be between 30 and 220.";
         if (field === "allergies") return "Food allergies must be 200 characters or fewer.";
         if (field === "dislikedFoods") return "Disliked foods must be 200 characters or fewer.";
         return "Some information is invalid. Please review the form.";
