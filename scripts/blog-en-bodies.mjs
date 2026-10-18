@@ -471,7 +471,7 @@ Track trends with your clinician against pre-pregnancy BMI ranges.
 
 Walking, prenatal yoga, or swimming if approved supports metabolism and mood.`,
     metaTitle: "Second-trimester nutrition | Bầu Ăn Gì? Blog",
-    metaDescription: "Mid-pregnancy nutrition priorities: protein, iron, calcium, fiber, and healthy weight gain.",
+    metaDescription: "Mid-pregnancy nutrition priorities: protein, iron, calcium, fiber, and prenatal weight gain.",
     reviewer: "References ACOG, NHS",
   },
   "dinh-duong-tre-12-24-thang": {
@@ -975,7 +975,7 @@ Facial swelling, fever, or severe tooth pain with infection risk — seek urgent
     reviewer: "References ACOG, ADA",
   },
   "tang-can-hop-ly-theo-bmi-khi-mang-thai": {
-    title: "Healthy weight gain in pregnancy by pre-pregnancy BMI",
+    title: "Pregnancy weight gain by pre-pregnancy BMI",
     excerpt: "Why tracking weight matters, BMI basics, IOM/ACOG reference ranges, trimester patterns, and when to personalize with your clinician.",
     content: `## Why track weight?
 
@@ -1476,7 +1476,7 @@ Excess caffeine, alcohol, unpasteurized beverages of unknown origin.`,
     excerpt: "Benefits, usually suitable activities, precautions, and stop signs — ACOG physical activity guidance summarized.",
     content: `## Benefits
 
-May reduce back pain, improve mood and sleep, support healthy weight, and prepare for labor — if no contraindications.
+May reduce back pain, improve mood and sleep, and prepare for labor — if no contraindications.
 
 ## Usually suitable
 
@@ -2037,7 +2037,7 @@ Reduce neural tube defect risk, anemia, and optimize health before conception.
 - **Folic acid** 400 mcg/day (or higher if prescribed).
 - Medical, dental, blood pressure, and glucose checks.
 - Update vaccines per schedule.
-- Stop smoking and alcohol; healthy weight.
+- Stop smoking and alcohol; balanced eating.
 
 ## Nutrition
 

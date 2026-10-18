@@ -487,7 +487,7 @@ Lactation support, adequate rest, and medical review for pain or low output — 
     title: "Second-trimester nutrition",
     excerpt: "Often the most comfortable phase for eating: growth accelerates, weight gain steadies, and activity can increase — ACOG-aligned priorities.",
     metaTitle: "Second-trimester nutrition | Bầu Ăn Gì? Blog",
-    metaDescription: "Mid-pregnancy nutrition priorities: protein, iron, calcium, fiber, and healthy weight gain.",
+    metaDescription: "Mid-pregnancy nutrition priorities: protein, iron, calcium, fiber, and prenatal weight gain.",
     author: "Bầu Ăn Gì? Team",
     reviewer: "References ACOG, NHS",
     content: `## Characteristics
@@ -1054,7 +1054,7 @@ Facial swelling, fever, or severe tooth pain with infection risk — seek urgent
   },
   {
     slug: "tang-can-hop-ly-theo-bmi-khi-mang-thai",
-    title: "Healthy weight gain in pregnancy by pre-pregnancy BMI",
+    title: "Pregnancy weight gain by pre-pregnancy BMI",
     excerpt: "Why tracking weight matters, BMI basics, IOM/ACOG reference ranges, trimester patterns, and when to personalize with your clinician.",
     metaTitle: "Pregnancy weight gain by BMI | Bầu Ăn Gì? Blog",
     metaDescription: "Recommended pregnancy weight gain ranges by pre-pregnancy BMI — ACOG and IOM references.",
@@ -1599,7 +1599,7 @@ Excess caffeine, alcohol, unpasteurized beverages of unknown origin.`,
     reviewer: "References ACOG, NHS",
     content: `## Benefits
 
-May reduce back pain, improve mood and sleep, support healthy weight, and prepare for labor — if no contraindications.
+May reduce back pain, improve mood and sleep, and prepare for labor — if no contraindications.
 
 ## Usually suitable
 
