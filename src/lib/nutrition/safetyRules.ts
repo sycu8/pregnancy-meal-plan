@@ -362,6 +362,26 @@ const KHONG_BRIDGE = new Set([
 ]);
 /** Whole-token teen spellings of không. «hông» is matched on the raw token so «hồng» does not count. */
 const TEEN_NEGATOR_FOLDS = new Set(["ko", "k", "kh", "hok", "hem", "kg", "khg", "hk"]);
+/**
+ * One negator set for absence, a negated decrease, never-stops, and negation scope.
+ * Each pair is the accented spelling and its unaccented fold.
+ * «chả» folds to «cha», not «chang». «hồng» is neither «hổng» nor «hông».
+ */
+const SHARED_NEGATOR_PAIRS: ReadonlyArray<readonly [string, string]> = [
+  ["không", "khong"],
+  ["chưa", "chua"],
+  ["chẳng", "chang"],
+  ["chả", "cha"],
+  ["hổng", "hong"],
+  ["hông", "hong"]
+];
+/** Accented forms, unaccented folds, and teen spellings. Tests iterate this list. */
+export const SHARED_NEGATORS: readonly string[] = Array.from(
+  new Set<string>([
+    ...SHARED_NEGATOR_PAIRS.flatMap(([exact, folded]) => [exact, folded]),
+    ...Array.from(TEEN_NEGATOR_FOLDS)
+  ])
+);
 /** Tokens that may sit between thai/con/bé and đạp/máy/cử động. */
 const SUBJECT_VERB_GAP = 5;
 /**
@@ -430,15 +450,16 @@ function isNegationFiller(tokens: string[], index: number): boolean {
   );
 }
 
-function isSymptomNegator(token: string, previousFolded: string | undefined): boolean {
-  if (token === "không" || token === "chưa" || token === "chẳng" || token === "chả") return true;
-  if (
-    !hasToneOrVowelMark(token) &&
-    (foldToken(token) === "khong" || foldToken(token) === "chua" || foldToken(token) === "chang")
-  ) {
-    return true;
+/** Shared negator: accented form, unaccented fold, or a whole-token teen spelling. */
+function isSharedNegator(token: string, previousFolded: string | undefined): boolean {
+  for (const [exact, folded] of SHARED_NEGATOR_PAIRS) {
+    if (isMarkedOrPlain(token, exact, folded)) return true;
   }
   return isTeenNegator(token, previousFolded);
+}
+
+function isSymptomNegator(token: string, previousFolded: string | undefined): boolean {
+  return isSharedNegator(token, previousFolded);
 }
 
 /** English «never» before a symptom, including «never had đau ngực». */
@@ -585,10 +606,9 @@ function symptomGovernedByNegation(tokens: string[], start: number, endExclusive
   return governedByPrecedingNegation(tokens, start) || hetRoiWraps(tokens, start, endExclusive);
 }
 
-function isMovementNegator(folded: string, canonical: string, previousFolded: string | undefined): boolean {
-  // «chả» / «hổng» deny, the same class as không / chẳng. «chả» does not fold to «chang».
-  if (canonical === "chả" || canonical === "hổng") return true;
-  return folded === "khong" || folded === "chang" || folded === "chua" || isTeenNegator(canonical, previousFolded);
+function isMovementNegator(_folded: string, canonical: string, previousFolded: string | undefined): boolean {
+  // Same set as negation scope. The canonical token keeps its tone, so «hồng» is not «hổng».
+  return isSharedNegator(canonical, previousFolded);
 }
 
 /** «không giảm» and «không thấy giảm» deny a decrease. They are not themselves a red flag. */
@@ -617,6 +637,7 @@ function giamIsNegated(folded: string[], index: number, canonical: string[]): bo
  * «thai máy giảm» still counts. «không phải thai máy giảm» does not.
  */
 function decreaseWordDenied(folded: string[], canonical: string[], index: number): boolean {
+  if (observedDenialCovers(canonical, folded, index)) return true;
   let cursor = index - 1;
   let steps = 0;
   while (cursor >= 0 && steps < 8) {
@@ -934,6 +955,12 @@ function isCountedReduction(index: number, canonical: string[], folded: string[]
   ) {
     return false;
   }
+  if (
+    ((folded[index] ?? "") === "ngung" || isVietnameseStop(canonical[index] ?? "")) &&
+    stopIsNegated(canonical, folded, index)
+  ) {
+    return false;
+  }
   if (isMovementNegator(folded[index] ?? "", canonical[index] ?? "", folded[index - 1])) {
     return negatorMarksAbsence(folded, canonical, index);
   }
@@ -1074,6 +1101,7 @@ function isNonNegatorDecrease(index: number, canonical: string[], folded: string
   if (giamIsNegated(folded, index, canonical) || decreaseWordDenied(folded, canonical, index)) return false;
   const word = folded[index] ?? "";
   const token = canonical[index] ?? "";
+  if ((word === "ngung" || isVietnameseStop(token)) && stopIsNegated(canonical, folded, index)) return false;
   if (isMovementLoss(canonical, folded, index)) return true;
   if (word === "it" || word === "yeu" || word === "ngung") return true;
   return word === "giam";
@@ -1243,13 +1271,20 @@ function isEnglishDecreaseWord(word: string): boolean {
     word === "fewer" ||
     word === "decrease" ||
     word === "decreased" ||
+    word === "decreasing" ||
+    word === "reducing" ||
     word === "reduced" ||
     word === "reduction"
   );
 }
 
-/** «no decrease», «not less», «has not decreased». */
-function englishDecreaseIsNegated(folded: string[], index: number): boolean {
+/** «no decrease», «not less», «has not decreased», «did not notice … less». */
+function englishDecreaseIsNegated(
+  folded: string[],
+  index: number,
+  canonical: string[] = folded
+): boolean {
+  if (observedDenialCovers(canonical, folded, index)) return true;
   for (let cursor = index - 1; cursor >= Math.max(0, index - 4); cursor -= 1) {
     const word = folded[cursor] ?? "";
     if (word === "no" || word === "not" || word === "never") return true;
@@ -1480,18 +1515,17 @@ function isVietnameseStop(token: string): boolean {
   );
 }
 
-/** «thôi đạp» / «thoi may» stops. A trailing «thôi» («đạp bình thường thôi») does not. */
+/**
+ * «thôi» / «thoi» is a stop only directly before the movement verb.
+ * That is «thôi đạp» and «thoi may», including between the subject and the verb
+ * («bé thôi đạp», «con thoi may»). Sentence-initial «thôi bé đạp» is discourse.
+ * A trailing «thôi» («đạp bình thường thôi») is not a stop.
+ */
 function thoiStopsFollowingMovement(canonical: string[], folded: string[], index: number): boolean {
   if (!isMarkedOrPlain(canonical[index] ?? "", "thôi", "thoi")) return false;
   if (stopIsNegated(canonical, folded, index)) return false;
-  const last = Math.min(folded.length, index + 4);
-  for (let cursor = index + 1; cursor < last; cursor += 1) {
-    if (movementVerbEnd(canonical, folded, cursor) >= 0 || isEnglishMovement(folded[cursor] ?? "")) return true;
-    const word = folded[cursor] ?? "";
-    if (FETAL_SUBJECTS.has(word) || word === "em" || word === "se" || word === "da" || word === "dang") continue;
-    return false;
-  }
-  return false;
+  const next = index + 1;
+  return movementVerbEnd(canonical, folded, next) >= 0 || isEnglishMovement(folded[next] ?? "");
 }
 
 function stopIsNegated(canonical: string[], folded: string[], index: number): boolean {
@@ -1501,6 +1535,15 @@ function stopIsNegated(canonical: string[], folded: string[], index: number): bo
     cursor -= 2;
   }
   if (cursor < 0) return false;
+  // «hổng chịu ngừng»: negator + chịu + stop means it never stops.
+  if (isMarkedOrPlain(canonical[cursor] ?? "", "chịu", "chiu")) {
+    let negAt = cursor - 1;
+    if (negAt >= 1 && (folded[negAt] ?? "") === "gio" && (folded[negAt - 1] ?? "") === "bao") {
+      negAt -= 2;
+    }
+    if (negAt < 0) return false;
+    return isMovementNegator(folded[negAt] ?? "", canonical[negAt] ?? "", folded[negAt - 1]);
+  }
   if (isMovementNegator(folded[cursor] ?? "", canonical[cursor] ?? "", folded[cursor - 1])) return true;
   const token = canonical[cursor] ?? "";
   return !hasToneOrVowelMark(token) && (folded[cursor] ?? "") === "never";
@@ -2668,7 +2711,7 @@ function partnerAlong(
     const stop =
       isVietnameseStop(token) ||
       englishStopWord(word) ||
-      (direction < 0 && isMarkedOrPlain(token, "thôi", "thoi"));
+      (direction < 0 && index + 1 === start && isMarkedOrPlain(token, "thôi", "thoi"));
     const vietnameseIt = word === "it" && !isEnglishPronounIt(folded, index);
     const decrease =
       (isBareDecreaseWord(word, token) && !isEnglishPronounIt(folded, index)) ||
@@ -2713,56 +2756,80 @@ function isHowToCountQuestion(note: string): boolean {
 
 /** A still-moving cue, «không giảm», «bình thường», or an English negated decrease. */
 /**
- * «không thấy / không cảm thấy … giảm / ít đi» denies the decrease.
+ * «không thấy / không cảm thấy / chưa thấy … giảm / ít đi» denies the decrease.
+ * English «did not notice … less» is the same denial.
  * «cảm giác» and «cảm nhận» are a different class: inability to feel movement.
  */
 function isCamThay(folded: string[], index: number): boolean {
   return (folded[index] ?? "") === "cam" && (folded[index + 1] ?? "") === "thay";
 }
 
-function observedDecreaseIsDenied(canonical: string[], folded: string[]): boolean {
-  for (let index = 0; index < folded.length; index += 1) {
-    const word = folded[index] ?? "";
+function isNoticeWord(word: string): boolean {
+  return word === "notice" || word === "noticed" || word === "notices" || word === "noticing";
+}
+
+function isObservedDecreaseAt(folded: string[], index: number): boolean {
+  const word = folded[index] ?? "";
+  if (word === "giam" || isEnglishDecreaseWord(word)) return true;
+  return (word === "it" || word === "yeu") && (folded[index + 1] ?? "") === "di";
+}
+
+/** Movement, the baby, or a filler may sit between «thấy» / «notice» and the decrease. */
+function isObservedDenialBridge(canonical: string[], folded: string[], index: number): boolean {
+  const word = folded[index] ?? "";
+  const token = canonical[index] ?? "";
+  if (isMovementNounAt(canonical, folded, index) || isEnglishMovement(word) || englishMovementNoun(word)) {
+    return true;
+  }
+  if (FETAL_SUBJECTS.has(word) || word === "em" || word === "baby" || word === "fetal" || word === "fetus") {
+    return true;
+  }
+  if (word === "the" || word === "a" || word === "of" || word === "my" || word === "her" || word === "his") return true;
+  if (word === "rat" || word === "dan" || word === "hon" || word === "qua" || word === "di") return true;
+  if (isSymptomFiller(token) || isKickClassifierAt(canonical, folded, index)) return true;
+  return isMarkedOrPlain(token, "động", "dong") && isMarkedOrPlain(canonical[index - 1] ?? "", "cử", "cu");
+}
+
+/**
+ * This decrease word is «negator + thấy/cảm thấy/notice + … + giảm/ít đi/less».
+ * «chưa» denies it the same way «không» does. «cảm nhận» does not.
+ */
+function observedDenialCovers(canonical: string[], folded: string[], target: number): boolean {
+  if (!isObservedDecreaseAt(folded, target)) return false;
+  for (let index = 0; index < target; index += 1) {
     const token = canonical[index] ?? "";
-    // «chưa thấy … giảm» stays the reduced-movement class. «không thấy/cảm thấy» denies it.
-    if (word === "chua" || token === "chưa") continue;
-    if (!isMovementNegator(word, token, folded[index - 1])) continue;
+    const word = folded[index] ?? "";
+    const vietnamese = isMovementNegator(word, token, folded[index - 1]);
+    const english = word === "not" || word === "no" || word === "never";
+    if (!vietnamese && !english) continue;
     let sawObserve = false;
     let steps = 0;
-    for (let cursor = index + 1; cursor < folded.length && steps < 8; cursor += 1) {
-      const word = folded[cursor] ?? "";
-      const token = canonical[cursor] ?? "";
+    for (let cursor = index + 1; cursor <= target && steps < 8; cursor += 1) {
+      const next = folded[cursor] ?? "";
+      const nextToken = canonical[cursor] ?? "";
       if (!sawObserve) {
-        if (isCamThay(folded, cursor) || word === "thay") {
+        if (isCamThay(folded, cursor) || next === "thay" || isNoticeWord(next)) {
           sawObserve = true;
           steps += 1;
           continue;
         }
-        if (word === "cam" && ((folded[cursor + 1] ?? "") === "giac" || (folded[cursor + 1] ?? "") === "nhan")) {
+        if (next === "cam" && ((folded[cursor + 1] ?? "") === "giac" || (folded[cursor + 1] ?? "") === "nhan")) {
           break;
         }
-        if (word === "cam" || isSymptomFiller(token) || word === "he") {
+        if (
+          next === "cam" ||
+          isSymptomFiller(nextToken) ||
+          next === "he" ||
+          next === "really" ||
+          next === "even"
+        ) {
           steps += 1;
           continue;
         }
         break;
       }
-      if (word === "giam") return true;
-      if ((word === "it" || word === "yeu") && (folded[cursor + 1] ?? "") === "di") return true;
-      const movementTail =
-        isMarkedOrPlain(token, "động", "dong") && isMarkedOrPlain(canonical[cursor - 1] ?? "", "cử", "cu");
-      if (
-        movementTail ||
-        isMovementNounAt(canonical, folded, cursor) ||
-        FETAL_SUBJECTS.has(word) ||
-        word === "em" ||
-        word === "rat" ||
-        word === "dan" ||
-        word === "hon" ||
-        word === "qua" ||
-        isSymptomFiller(token) ||
-        isKickClassifierAt(canonical, folded, cursor)
-      ) {
+      if (cursor === target) return true;
+      if (isObservedDenialBridge(canonical, folded, cursor)) {
         steps += 1;
         continue;
       }
@@ -2770,6 +2837,10 @@ function observedDecreaseIsDenied(canonical: string[], folded: string[]): boolea
     }
   }
   return false;
+}
+
+function observedDecreaseIsDenied(canonical: string[], folded: string[]): boolean {
+  return folded.some((_, index) => observedDenialCovers(canonical, folded, index));
 }
 
 /**
@@ -2893,13 +2964,44 @@ function foodBetween(canonical: string[], folded: string[], left: number, right:
 }
 
 /**
+ * hoạt động / vận động / activity name movement in general, not one kick verb.
+ * They count only when a fetal subject is in the same window, so «mẹ ít hoạt động» stays quiet.
+ */
+function isGeneralMovementConceptAt(canonical: string[], folded: string[], index: number): boolean {
+  const token = canonical[index] ?? "";
+  const next = canonical[index + 1] ?? "";
+  if (isMarkedOrPlain(token, "hoạt", "hoat") && isMarkedOrPlain(next, "động", "dong")) return true;
+  if (isMarkedOrPlain(token, "vận", "van") && isMarkedOrPlain(next, "động", "dong")) return true;
+  if (hasToneOrVowelMark(token)) return false;
+  const word = folded[index] ?? "";
+  return word === "activity" || word === "activities" || word === "active";
+}
+
+function fetalSubjectNear(canonical: string[], folded: string[], index: number): boolean {
+  const from = Math.max(0, index - 6);
+  const to = Math.min(folded.length - 1, index + 6);
+  for (let cursor = from; cursor <= to; cursor += 1) {
+    if (isFetalSubjectWord(canonical[cursor] ?? "", folded[cursor] ?? "")) return true;
+  }
+  return false;
+}
+
+/**
  * Reduced movement is a class: a reduction lemma near a movement lemma.
+ * Asking about it or describing it in general terms is the same class
+ * («giảm vận động của thai», «movement is decreasing», «reduced fetal activity»).
  * It is not one literal phrase. A denied decrease, weight loss, and food stay out.
  */
 function reducedMovementConceptShouldAlert(canonical: string[], folded: string[]): boolean {
   const movements: number[] = [];
   for (let index = 0; index < folded.length; index += 1) {
-    if (isMovementNounAt(canonical, folded, index) || isEnglishMovement(folded[index] ?? "")) movements.push(index);
+    if (isMovementNounAt(canonical, folded, index) || isEnglishMovement(folded[index] ?? "")) {
+      movements.push(index);
+      continue;
+    }
+    if (isGeneralMovementConceptAt(canonical, folded, index) && fetalSubjectNear(canonical, folded, index)) {
+      movements.push(index);
+    }
   }
   if (movements.length === 0) return false;
   for (let index = 0; index < folded.length; index += 1) {
@@ -2944,8 +3046,7 @@ function comparativeReductionShouldAlert(canonical: string[], folded: string[]):
       (folded[index + 2] ?? "") === "truoc"
     ) {
       for (let cursor = index - 1; cursor >= Math.max(0, index - 6); cursor -= 1) {
-        const prev = folded[cursor] ?? "";
-        if (prev === "khong" || prev === "chua" || prev === "chang") return true;
+        if (isMovementNegator(folded[cursor] ?? "", canonical[cursor] ?? "", folded[cursor - 1])) return true;
       }
     }
   }
@@ -3086,6 +3187,7 @@ function clauseAlertIsOnlyVague(clause: string): boolean {
   const { canonical, folded } = analyzed;
   if (fewerThanUsualShouldAlert(canonical, folded) || notYetReachingCount(canonical, folded)) return false;
   if (comparativeReductionShouldAlert(canonical, folded) || stopFollowsDeniedDecrease(canonical, folded)) return false;
+  if (reducedMovementConceptShouldAlert(canonical, folded)) return false;
   if (seesLessMovement(canonical, folded) || decreaseImmediatelyOnMovement(canonical, folded)) return false;
   if (folded.some((_, index) => negatorMarksAbsence(folded, canonical, index))) return false;
   if (vietnameseStopNearMovement(canonical, folded) || englishReducedMovement(folded)) return false;

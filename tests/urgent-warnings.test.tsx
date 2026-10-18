@@ -7,6 +7,7 @@ import { UrgentWarningBanner } from "@/components/result/UrgentWarningBanner";
 import { emergencyNow, seekCareSoon } from "@/lib/blog/emergencyCopy";
 import { synthesizePost } from "@/lib/blog/synthesis/synthesizePost";
 import {
+  SHARED_NEGATORS,
   URGENT_NOTE_ACTION,
   URGENT_NOTE_BANNER,
   detectUrgentWarnings
@@ -1008,14 +1009,15 @@ describe("PMP40-R11 delta-11", () => {
   it("M03 alerts for negator, perception, and a decrease of movement", () => {
     expect(warningsFor("không cảm nhận được cử động giảm")).toEqual([URGENT_NOTE_BANNER.vi]);
     expect(warningsFor("khong cam nhan duoc cu dong giam")).toEqual([URGENT_NOTE_BANNER.vi]);
-    expect(warningsFor("chưa thấy bé đạp giảm")).toEqual([URGENT_NOTE_BANNER.vi]);
+    // «chưa thấy … giảm» is no decrease noticed, the same denial as «không thấy … giảm».
+    expect(warningsFor("chưa thấy bé đạp giảm")).toEqual([]);
     expect(warningsFor("không thấy cử động giảm, bé vẫn đạp")).toEqual([]);
   });
 
   it("M03 alerts a reduced-movement concept by class, not one literal phrase", () => {
-    // The hold-out sentence is not in this repo. The class is a reduction lemma
-    // near a movement lemma: either order, with words between, including
-    // diminished / decline and «suy giảm». GE2 stays in the English class below.
+    // The hold-out sentence is not in this repo. Asking about the concept
+    // and describing it are the same class: a reduction near movement,
+    // including general terms (vận động, activity, decreasing), not one token.
     expect(warningsFor("cử động của thai nhi giảm")).toEqual([URGENT_NOTE_BANNER.vi]);
     expect(warningsFor("suy giảm cử động")).toEqual([URGENT_NOTE_BANNER.vi]);
     expect(warningsFor("mất cử động")).toEqual([URGENT_NOTE_BANNER.vi]);
@@ -1024,6 +1026,19 @@ describe("PMP40-R11 delta-11", () => {
     expect(warningsFor("movement has declined")).toEqual([URGENT_NOTE_BANNER.vi]);
     expect(warningsFor("there is a decline in movement")).toEqual([URGENT_NOTE_BANNER.vi]);
     expect(warningsFor("decrease in movement")).toEqual([URGENT_NOTE_BANNER.vi]);
+    expect(warningsFor("Em muốn hỏi về giảm cử động")).toEqual([URGENT_NOTE_BANNER.vi]);
+    expect(warningsFor("Giảm cử động thai là gì?")).toEqual([URGENT_NOTE_BANNER.vi]);
+    expect(warningsFor("Is reduced movement a concern?")).toEqual([URGENT_NOTE_BANNER.vi]);
+    expect(warningsFor("She described reduced movement")).toEqual([URGENT_NOTE_BANNER.vi]);
+    expect(warningsFor("movement is decreasing")).toEqual([URGENT_NOTE_BANNER.vi]);
+    expect(warningsFor("decreasing fetal movement")).toEqual([URGENT_NOTE_BANNER.vi]);
+    expect(warningsFor("bé ít hoạt động hơn")).toEqual([URGENT_NOTE_BANNER.vi]);
+    expect(warningsFor("giảm vận động của thai")).toEqual([URGENT_NOTE_BANNER.vi]);
+    expect(warningsFor("reduced fetal activity")).toEqual([URGENT_NOTE_BANNER.vi]);
+    expect(warningsFor("the baby is less active")).toEqual([URGENT_NOTE_BANNER.vi]);
+    expect(warningsFor("Thai máy giảm có bình thường không?")).toEqual([URGENT_NOTE_BANNER.vi]);
+    expect(warningsFor("không thấy thai máy giảm")).toEqual([]);
+    expect(warningsFor("mẹ ít hoạt động")).toEqual([]);
   });
 
   it("FK3 alerts for a movement noun plus a stop verb and no perception verb", () => {
@@ -1180,5 +1195,49 @@ describe("PMP-D12 verbatim notes", () => {
     } else {
       expect(warnings, id).toEqual([]);
     }
+  });
+});
+
+describe("PMP-D13 verbatim notes", () => {
+  const cases: Array<[string, string, "alert" | "silent"]> = [
+    ["OT9", "thôi bé đạp nhiều là tốt rồi", "silent"],
+    ["ON7", "bé hổng chịu ngừng máy", "silent"],
+    ["OD4", "hổng thấy bé máy giảm", "silent"],
+    ["OD8", "chưa thấy thai máy giảm", "silent"],
+    ["OB-04", "did not notice baby moving less", "silent"],
+    ["OB-04b", "haven't noticed less movement", "silent"],
+    ["HS4", "bé thôi đạp từ tối qua", "alert"],
+    ["KS4", "con thoi may tu trua", "alert"],
+    ["FWO1", "không thấy thai máy giảm", "silent"],
+    ["OD8-ABS", "chưa thấy máy", "alert"]
+  ];
+
+  it.each(cases)("%s is %s", (id, text, expected) => {
+    const warnings = warningsFor(text);
+    if (expected === "alert") {
+      expect(warnings, id).toEqual([URGENT_NOTE_BANNER.vi]);
+    } else {
+      expect(warnings, id).toEqual([]);
+    }
+  });
+});
+
+describe("PMP-D13 shared negator property", () => {
+  const perceptions = ["thấy", "cảm thấy", "notice"] as const;
+  const decreases = ["giảm", "ít đi", "less"] as const;
+
+  it("stays silent for every shared negator with perception, movement, and a decrease", () => {
+    let count = 0;
+    for (const negator of SHARED_NEGATORS) {
+      for (const perception of perceptions) {
+        for (const decrease of decreases) {
+          count += 1;
+          const sentence = `${negator} ${perception} bé đạp ${decrease}`;
+          expect(warningsFor(sentence), sentence).toEqual([]);
+        }
+      }
+    }
+    expect(SHARED_NEGATORS.length).toBeGreaterThan(8);
+    expect(count).toBe(SHARED_NEGATORS.length * perceptions.length * decreases.length);
   });
 });
