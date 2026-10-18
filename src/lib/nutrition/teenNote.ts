@@ -31,7 +31,7 @@ const NUCLEI = new Set([
   "ia", "iê", "iu", "iêu",
   "oa", "oă", "oe", "oi", "ôi", "ơi", "oai", "oay",
   "ua", "uâ", "ưa", "ue", "uê", "ui", "ưi", "uo", "uô", "ươ", "uy", "uya", "uyu", "uyê",
-  "uôi", "ươi", "ươu", "yêu", "ye"
+  "uôi", "ươi", "ươu", "ưu", "yêu", "ye"
 ]);
 
 /** Trailing s is a tone only in a note that already has another Telex/VNI signal. These stay English. */
@@ -105,6 +105,11 @@ function applyW(word: string): string | null {
   if (base.endsWith("uo") || base.endsWith("uô")) {
     nucleus[nucleus.length - 2] = "ư";
     nucleus[nucleus.length - 1] = "ơ";
+    return chars.slice(0, loc.start).join("") + nucleus.join("") + chars.slice(loc.end).join("");
+  }
+  if (base.endsWith("uu") && nucleus.length >= 2) {
+    nucleus[nucleus.length - 2] = "ư";
+    nucleus[nucleus.length - 1] = "u";
     return chars.slice(0, loc.start).join("") + nucleus.join("") + chars.slice(loc.end).join("");
   }
   const last = stripToneChar(nucleus[nucleus.length - 1]);
@@ -251,8 +256,13 @@ export function isVietnameseSyllable(word: string): boolean {
 
 type Conversion = { kind: "none" | "strong" | "trailing-s"; text: string };
 
+const ENGLISH_OPEN_TONE = new Set(["chef", "text", "next", "self", "half", "plus", "from", "with", "have", "your", "meal"]);
+
 function acceptStrong(core: string, ime: ImeResult): boolean {
   if (ime.tone === "other" && (hasCoda(ime.text) || ime.w || ime.double)) return true;
+  // "ngaix" is an open syllable plus a tone key. The stem without that key must already be Vietnamese.
+  const stem = core.slice(0, -1);
+  if (ime.tone === "other" && core.length >= 5 && !ENGLISH_OPEN_TONE.has(core) && isVietnameseSyllable(stem)) return true;
   if (ime.w && (ime.tone !== "none" || /w[aeiouy]/.test(core))) return true;
   if (ime.double && (ime.tone !== "none" || ime.text.includes("đ"))) return true;
   return false;

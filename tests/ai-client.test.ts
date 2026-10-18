@@ -545,6 +545,50 @@ describe("failed AI calls", () => {
     errorSpy.mockRestore();
   });
 
+  it("does not spend a quota credit when every note is weight-loss advice", async () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const ip = "203.0.113.78";
+    const marker = "APPETITEMARKER";
+    aiRun.mockResolvedValueOnce({
+      response: JSON.stringify({ specialNotes: [`Curb your appetite before dinner ${marker}.`] })
+    });
+
+    const dropped = await POST(planRequest(ip, undefined, { profile: plantedProfile(), locale: "en" }));
+    const body = (await dropped.json()) as { usage: { aiPlansUsed: number; aiPlansLimit: number } };
+
+    expect(dropped.status).toBe(200);
+    expect(body.usage).toEqual({ aiPlansUsed: 0, aiPlansLimit: 3 });
+    expect(loggedFallbacks(errorSpy)).toContainEqual(
+      expect.objectContaining({
+        event: "meal-plan-ai-fallback",
+        reason: "bad_output",
+        detail: "weight_loss"
+      })
+    );
+    const serialized = JSON.stringify(loggedFallbacks(errorSpy));
+    expect(serialized).not.toContain(marker);
+    expect(serialized).not.toContain("Curb your appetite");
+    expect(serialized).not.toContain("PEANUTMARKER");
+    errorSpy.mockRestore();
+  });
+
+  it("serves the remaining notes after a weight-loss note is dropped", async () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    aiRun.mockResolvedValueOnce({
+      response: JSON.stringify({
+        specialNotes: ["Curb your appetite before dinner.", "Drink water between meals."]
+      })
+    });
+
+    const plan = await createAIClient().generateMealPlan({ ...profile, pregnancyWeek: 8 }, "en");
+    expect(plan.specialNotes.join(" ")).toContain("Drink water between meals.");
+    expect(plan.specialNotes.join(" ")).not.toMatch(/appetite/i);
+    expect(mealPlanServedAi(plan)).toBe(true);
+    expect(loggedFallbacks(errorSpy)).toContainEqual(expect.objectContaining({ detail: "weight_loss" }));
+    expect(JSON.stringify(loggedFallbacks(errorSpy))).not.toContain("Curb your appetite");
+    errorSpy.mockRestore();
+  });
+
   it("returns 429 with the basic-plan message when the device or network quota is spent", async () => {
     const device = "a".repeat(32);
     const deviceRequest = () =>

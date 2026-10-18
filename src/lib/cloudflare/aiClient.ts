@@ -2,6 +2,7 @@ import type { Locale } from "@/lib/i18n";
 import { getBindings, readFeatureFlag } from "@/lib/cloudflare/bindings";
 import { getOptionalAiEnv } from "@/lib/cloudflare/env";
 import { filterEchoedAiNotes, filterSafeAiNotes, noteIsComplete } from "@/lib/nutrition/aiNoteSafety";
+import { partitionWeightNotes } from "@/lib/nutrition/weightLossReview";
 import { buildMealPlanPrompt } from "@/lib/nutrition/aiPromptBuilder";
 import { ruleBasedMealPlanner } from "@/lib/nutrition/mealPlanner";
 import { filterNotesForLocale, localizeMealPlanForLocale, sanitizeSpecialNotes } from "@/lib/nutrition/localizeMealPlan";
@@ -450,7 +451,7 @@ function workersAiFailureDetail(result: unknown): string | null {
 }
 
 const NOTES_SYSTEM_PROMPT =
-  'Return exactly one JSON object {"specialNotes":[{"text":"...","kind":"portion|swap|timing|prep|other","foods":["..."]}]} with 2 or 3 notes of at most 12 words, each ending with a period, in the requested language. Do not restate safety rules. Do not recommend weight loss, dieting, fasting, or cutting calories. Do not write a meal plan.';
+  'Return exactly one JSON object {"specialNotes":[{"text":"...","kind":"portion|swap|timing|prep|other","foods":["..."]}]} with 2 or 3 notes of at most 12 words, each ending with a period, in the requested language. Do not restate safety rules. Do not recommend weight loss, dieting, fasting, cutting calories, eating less, reducing appetite, or limiting weight. Do not write a meal plan.';
 
 async function callOpenAi(prompt: string, apiKey: string, gatewayUrl: string | undefined, signal: AbortSignal): Promise<string> {
   const url = gatewayUrl ? `${gatewayUrl.replace(/\/$/, "")}/chat/completions` : "https://api.openai.com/v1/chat/completions";
@@ -635,9 +636,16 @@ export function createAIClient(): AIClient {
           notes = retryNotes;
         }
 
-        const safeNotes = filterSafeAiNotes(filterNotesForLocale(notes, locale), input);
+        const localeNotes = filterNotesForLocale(notes, locale);
+        const weight = partitionWeightNotes(localeNotes);
+        const safeNotes = filterSafeAiNotes(weight.kept, input);
+        if (weight.droppedReason) {
+          logMealPlanFallback({ reason: "bad_output", provider, detail: weight.droppedReason });
+        }
         if (safeNotes.length === 0) {
-          logMealPlanFallback({ reason: "bad_output", provider, detail: "safety_filtered" });
+          if (!(weight.droppedReason && weight.kept.length === 0)) {
+            logMealPlanFallback({ reason: "bad_output", provider, detail: "safety_filtered" });
+          }
           return baseline;
         }
         const freshNotes = filterEchoedAiNotes(safeNotes, input, locale);

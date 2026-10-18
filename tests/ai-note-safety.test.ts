@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { parseModelPayload } from "@/lib/cloudflare/aiClient";
 import { filterEchoedAiNotes, filterSafeAiNotes } from "@/lib/nutrition/aiNoteSafety";
+import { partitionWeightNotes, reviewWeightLossNote } from "@/lib/nutrition/weightLossReview";
 import { buildMealPlanPrompt } from "@/lib/nutrition/aiPromptBuilder";
 import { prepareNote } from "@/lib/nutrition/teenNote";
 import { notesPanelKind } from "@/lib/nutrition/notesPanel";
@@ -137,7 +138,22 @@ const gdmContradictions = [
   "Khong nhat thiet han che mit.",
   "You need not limit watermelon.",
   "No limit on grapes.",
-  "Coca-cola with ice."
+  "Coca-cola with ice.",
+  "Have ice cream after lunch.",
+  "An kem sau com.",
+  "A slice of chocolate cake.",
+  "Uong bo huc khi khat.",
+  "Red Bull before a walk.",
+  "Mirinda with ice.",
+  "Tra chanh da sau com.",
+  "Sweet foods at the afternoon snack.",
+  "An keo sau bua.",
+  "An nho den sau com trua.",
+  "Vai thieu moi chieu.",
+  "An traicay giua buoi.",
+  "You don't have to limit mango.",
+  "Choose white rice instead of oats.",
+  "Trade brown rice for white rice."
 ];
 
 const gdmSafe = [
@@ -171,7 +187,8 @@ const gdmSafe = [
   "Chọn món ít chế biến sẵn.",
   "Eat less sugar with meals.",
   "Khong gioi han rau xanh.",
-  "Uu tien tinh bot cham vao bua trua."
+  "Uu tien tinh bot cham vao bua trua.",
+  "Use oats instead of white rice."
 ];
 
 const unsafeFoods = [
@@ -262,7 +279,37 @@ const unsafeFoods = [
   "Thuong thuc tieets canh voi com.",
   "Uong suwax soongs moi vat.",
   "Sua chuwa thanh trungf moi sang.",
-  "Uong tie6t1 canh toi nay."
+  "Uong tie6t1 canh toi nay.",
+  "Add bean sprouts to the noodle bowl.",
+  "Sprouted beans on the salad.",
+  "Rau mầm sống trộn gỏi.",
+  "Giá đỗ sống cho món cuốn.",
+  "An gia do song moi sang.",
+  "Toss on some rau mam.",
+  "Stir-fried alfalfa on the rice.",
+  "Sữa tươi sống mỗi sáng.",
+  "Sữa bò sống pha với bột.",
+  "Sữa chưa qua thanh trùng.",
+  "Uống sữa nông trại.",
+  "Sua nong trai moi sang.",
+  "Non-pasteurized milk on oats.",
+  "Milk straight from the cow.",
+  "A smaller dinner will curb your appetite.",
+  "Eat less at dinner so the scale stays put.",
+  "Keep your weight down through week eight.",
+  "Aim for your pre-pregnancy weight.",
+  "Watch your weight between visits.",
+  "Limit weight gain until the next checkup.",
+  "Không tăng cân trong tháng này.",
+  "Kiểm soát cân nặng bằng bữa tối nhẹ.",
+  "Cắt cảm giác đói bằng nước lọc.",
+  "Bớt ăn vào buổi chiều.",
+  "Không phải kiêng pate.",
+  "Pâté is allowed at lunch.",
+  "Pate cũng được với bánh mì.",
+  "Don't have to abstain from pâté.",
+  "Ngaix cuuws nau voi mat ong.",
+  "Uong suwax nong trai moi sang."
 ];
 
 const safeFoods = [
@@ -307,7 +354,20 @@ const safeFoods = [
   "She should not fast.",
   "She must not drink farm milk.",
   "Du du chin mot lat.",
-  "Eat less sugar with breakfast."
+  "Eat less sugar with breakfast.",
+  "Giá xào với tỏi.",
+  "Stir-fried bean sprouts with garlic.",
+  "Không ăn rau mầm.",
+  "Don't eat raw sprouts.",
+  "Sữa tươi tiệt trùng mỗi sáng.",
+  "Không giảm cân trong thai kỳ.",
+  "Đừng giảm cân khi nghén.",
+  "Don't lose weight this trimester.",
+  "You can add oats to breakfast.",
+  "Pate thì không được.",
+  "Pâté is not allowed.",
+  "She should not eat bean sprouts.",
+  "Không ăn rau mầm.".normalize("NFD")
 ];
 
 describe("per-condition deny list", () => {
@@ -530,7 +590,19 @@ describe("authored GDM plans", () => {
     { locale: "en", text: "She should not eat pâté.", block: false },
     { locale: "en", text: "She only eats cooked oysters.", block: false },
     { locale: "vi", text: "Khong an hau song; hau nau chin thi duoc.", block: false },
-    { locale: "en", text: "She should not fast.", block: false }
+    { locale: "en", text: "She should not fast.", block: false },
+    { locale: "en", text: "A smaller dinner will curb your appetite.", block: true },
+    { locale: "en", text: "Keep your weight down through week eight.", block: true },
+    { locale: "vi", text: "Không tăng cân trong tháng này.", block: true },
+    { locale: "vi", text: "Không giảm cân trong thai kỳ.", block: false },
+    { locale: "en", text: "Add bean sprouts to the noodle bowl.", block: true },
+    { locale: "vi", text: "Giá xào với tỏi.", block: false },
+    { locale: "en", text: "Milk straight from the cow.", block: true },
+    { locale: "en", text: "Have ice cream after lunch.", block: true },
+    { locale: "en", text: "Choose white rice instead of oats.", block: true },
+    { locale: "en", text: "Use oats instead of white rice.", block: false },
+    { locale: "vi", text: "Không phải kiêng pate.", block: true },
+    { locale: "en", text: "Pâté is not allowed.", block: false }
   ];
 
   it("keeps only new notes on 3 Vietnamese and 3 English plans", () => {
@@ -575,6 +647,35 @@ describe("teen-code leftovers", () => {
     expect(prepareNote("Use 100g of chicken.").text).toBe("Use 100g of chicken.");
     expect(prepareNote("Breakfast is oats.").text).toBe("Breakfast is oats.");
     expect(prepareNote("raw milk").text).toBe("raw milk");
+    expect(prepareNote("ngaix").text.normalize("NFC")).toBe("ngãi");
+    expect(prepareNote("cuuws").text.normalize("NFC")).toBe("cứu");
+    expect(prepareNote("ngaix cuuws").text.normalize("NFC")).toBe("ngãi cứu");
+    expect(prepareNote("breakfast is soft and raw.").text).toBe("breakfast is soft and raw.");
+    expect(prepareNote("A box of bananas.").text).toBe("A box of bananas.");
+    expect(prepareNote("see the liver.").text).toBe("see the liver.");
+  });
+});
+
+describe("weight-loss second pass", () => {
+  it("drops appetite and weight goals at any week and keeps the sugar exception", () => {
+    expect(filterSafeAiNotes(["Curb your appetite before dinner."], { ...profile, pregnancyWeek: 8 })).toEqual([]);
+    expect(filterSafeAiNotes(["Eat less sugar with breakfast."], { ...profile, pregnancyWeek: 8 })).toEqual([
+      "Eat less sugar with breakfast."
+    ]);
+    expect(filterSafeAiNotes(["You can add oats to breakfast."], profile)).toEqual(["You can add oats to breakfast."]);
+  });
+
+  it("fails closed when the check throws and does not return the note", () => {
+    const review = reviewWeightLossNote("Drink water between meals.", () => {
+      throw new Error("checker down");
+    });
+    expect(review).toEqual({ drop: true, reason: "classifier_error" });
+    const parted = partitionWeightNotes(["Drink water between meals.", "Curb your appetite before dinner."], (note) => {
+      if (note.startsWith("Drink")) throw new Error("checker down");
+      return note.toLowerCase().includes("appetite");
+    });
+    expect(parted.kept).toEqual([]);
+    expect(parted.droppedReason).toBe("classifier_error");
   });
 });
 
