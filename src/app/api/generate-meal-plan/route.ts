@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { checkRateLimit } from "@/lib/cloudflare/rateLimit";
 import { validateB2BApiKey } from "@/lib/b2b/apiKey";
-import { createAIClient } from "@/lib/cloudflare/aiClient";
+import { AiProviderError, createAIClient } from "@/lib/cloudflare/aiClient";
 import { verifyTurnstileToken } from "@/lib/cloudflare/turnstile";
 import { checkUsage, incrementUsage, usageLimitMessage } from "@/lib/premium/serverUsage";
 import type { Locale } from "@/lib/i18n";
@@ -104,6 +104,9 @@ export async function POST(request: Request) {
     const plan = await createAIClient().generateMealPlan(parsed.profile, locale);
     return NextResponse.json({ plan });
   } catch (error) {
+    if (error instanceof AiProviderError) {
+      return NextResponse.json({ error: error.message }, { status: 502 });
+    }
     const message = locale === "en" ? validationErrorToLocale(error, "en") : validationErrorToVietnamese(error);
     return NextResponse.json({ error: message }, { status: 400 });
   }

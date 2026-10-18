@@ -214,7 +214,11 @@ export function PlannerForm({ mode = "planner", locale = "vi" }: { mode?: "plann
       incrementPlanCount();
       router.push(localizedPath(locale, "/result"));
     } catch (caught) {
-      setError(validationErrorToLocale(caught, locale));
+      if (caught instanceof Error && caught.name !== "ZodError") {
+        setError(caught.message);
+      } else {
+        setError(validationErrorToLocale(caught, locale));
+      }
     } finally {
       setIsLoading(false);
     }
