@@ -104,6 +104,31 @@ describe("failed AI calls", () => {
     expect(plan.specialNotes.join(" ")).toContain("Drink water");
   });
 
+  it("drops non-string specialNotes and caps count and length", async () => {
+    const long = `B${"e".repeat(500)}`;
+    aiRun.mockResolvedValue({
+      response: JSON.stringify({
+        specialNotes: [
+          "Drink water through the day.",
+          1,
+          { bad: true },
+          null,
+          long,
+          ...Array.from({ length: 20 }, (_, index) => `Extra note ${index} about rest.`)
+        ]
+      })
+    });
+
+    const plan = await createAIClient().generateMealPlan(profile, "en");
+
+    expect(plan.specialNotes.every((note) => typeof note === "string")).toBe(true);
+    expect(plan.specialNotes.length).toBeLessThanOrEqual(8);
+    expect(plan.specialNotes.every((note) => note.length <= 240)).toBe(true);
+    expect(plan.specialNotes.join(" ")).toContain("Drink water");
+    expect(plan.specialNotes.join(" ")).not.toContain("[object Object]");
+    expect(plan.specialNotes.some((note) => note.startsWith("Beee") && note.length === 240)).toBe(true);
+  });
+
   it("surfaces an error payload from Workers AI instead of a silent fallback", async () => {
     aiRun.mockResolvedValue({ errors: [{ message: "Model is retired" }] });
 

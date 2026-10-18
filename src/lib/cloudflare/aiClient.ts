@@ -3,7 +3,7 @@ import { getBindings, readFeatureFlag } from "@/lib/cloudflare/bindings";
 import { getOptionalAiEnv } from "@/lib/cloudflare/env";
 import { buildMealPlanPrompt } from "@/lib/nutrition/aiPromptBuilder";
 import { ruleBasedMealPlanner } from "@/lib/nutrition/mealPlanner";
-import { localizeMealPlanForLocale } from "@/lib/nutrition/localizeMealPlan";
+import { localizeMealPlanForLocale, sanitizeSpecialNotes } from "@/lib/nutrition/localizeMealPlan";
 import type { MealPlan } from "@/types/mealPlan";
 import type { PregnancyProfile } from "@/types/pregnancy";
 
@@ -216,11 +216,12 @@ export function createAIClient(): AIClient {
 
         if (!raw) return baseline;
 
-        const parsed = JSON.parse(raw) as { specialNotes?: string[] };
-        if (Array.isArray(parsed.specialNotes) && parsed.specialNotes.length > 0) {
+        const parsed = JSON.parse(raw) as { specialNotes?: unknown };
+        const notes = sanitizeSpecialNotes(parsed.specialNotes);
+        if (notes.length > 0) {
           const withNotes = {
             ...baseline,
-            specialNotes: [...new Set([...baseline.specialNotes, ...parsed.specialNotes])]
+            specialNotes: sanitizeSpecialNotes([...baseline.specialNotes, ...notes])
           };
           return localizeMealPlanForLocale(withNotes, locale);
         }

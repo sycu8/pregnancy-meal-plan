@@ -10,8 +10,8 @@ import { PremiumUpsell } from "@/components/premium/PremiumUpsell";
 import { canCreateAiPlan } from "@/lib/premium/usage";
 import { getPremiumTier } from "@/lib/premium/tier";
 import { getNutritionLabels } from "@/lib/nutrition/labels";
-import { fetchMealPlan, createLocalMealPlan, MealPlanAiError, PremiumLimitError } from "@/lib/nutrition/fetchMealPlan";
-import { aiUnavailableMessage, leaksProviderDetail, looksLikeHtmlError } from "@/lib/nutrition/aiUnavailable";
+import { fetchMealPlan, createLocalMealPlan, MealPlanRequestError, PremiumLimitError } from "@/lib/nutrition/fetchMealPlan";
+import { isAbortError, mealPlanErrorMessage, type MealPlanErrorAction } from "@/lib/nutrition/aiUnavailable";
 import { pregnancyProfileSchema, validationErrorToLocale } from "@/lib/nutrition/validation";
 import { saveMealPlan, saveProfile, getProfile } from "@/lib/storage/localStorage";
 import { cacheOfflineSnapshot, incrementPlanCount } from "@/lib/storage/offlineCache";
@@ -73,6 +73,7 @@ const copy = {
     saveProfile: "Lưu hồ sơ",
     submit: "Tạo thực đơn miễn phí",
     tryAgain: "Thử lại",
+    recheck: "Kiểm tra lại",
     useBasicPlan: "Dùng thực đơn cơ bản",
     planLimit: "Đã hết lượt tạo thực đơn AI hôm nay. Đang dùng thực đơn rule-based (miễn phí).",
     lifeStage: "Giai đoạn",
@@ -115,6 +116,7 @@ const copy = {
     saveProfile: "Save profile",
     submit: "Create a free plan",
     tryAgain: "Try again",
+    recheck: "Check again",
     useBasicPlan: "Use basic plan",
     planLimit: "Daily AI limit reached. Using the free rule-based meal plan instead.",
     lifeStage: "Life stage",
@@ -135,7 +137,7 @@ export function PlannerForm({ mode = "planner", locale = "vi" }: { mode?: "plann
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
   const [showPlanUpsell, setShowPlanUpsell] = useState(false);
-  const [showAiActions, setShowAiActions] = useState(false);
+  const [errorAction, setErrorAction] = useState<MealPlanErrorAction | "none">("none");
   const isProfileMode = mode === "profile";
 
   useEffect(() => {
@@ -187,14 +189,20 @@ export function PlannerForm({ mode = "planner", locale = "vi" }: { mode?: "plann
       incrementPlanCount();
       router.push(localizedPath(locale, "/result"));
     } catch (caught) {
-      setShowAiActions(false);
+      setErrorAction("none");
       setError(validationErrorToLocale(caught, locale));
     }
   }
 
+  function recheckForm() {
+    setError("");
+    setErrorAction("none");
+    setStep(0);
+  }
+
   async function handleSubmit() {
     setError("");
-    setShowAiActions(false);
+    setErrorAction("none");
     setIsLoading(true);
     await new Promise((resolve) => setTimeout(resolve, 250));
 
@@ -235,17 +243,14 @@ export function PlannerForm({ mode = "planner", locale = "vi" }: { mode?: "plann
       incrementPlanCount();
       router.push(localizedPath(locale, "/result"));
     } catch (caught) {
-      const raw = caught instanceof Error ? caught.message : "";
-      const aiFailure =
-        caught instanceof MealPlanAiError ||
-        caught instanceof TypeError ||
-        looksLikeHtmlError(raw) ||
-        leaksProviderDetail(raw);
-      if (aiFailure) {
-        setShowAiActions(true);
-        setError(aiUnavailableMessage(locale));
+      if (caught instanceof MealPlanRequestError) {
+        setErrorAction(caught.action);
+        setError(mealPlanErrorMessage(locale, caught.kind));
+      } else if (isAbortError(caught)) {
+        setErrorAction("retry");
+        setError(mealPlanErrorMessage(locale, "aborted"));
       } else {
-        setShowAiActions(false);
+        setErrorAction("none");
         setError(validationErrorToLocale(caught, locale));
       }
     } finally {
@@ -375,13 +380,27 @@ export function PlannerForm({ mode = "planner", locale = "vi" }: { mode?: "plann
         {error && (
           <div className="mt-4 rounded-md bg-red-50 p-3 text-sm text-red-700" role="alert">
             <p>{error}</p>
-            {showAiActions && (
+            {errorAction === "ai" && (
               <div className="mt-3 flex flex-col gap-2 sm:flex-row">
                 <Button type="button" onClick={handleSubmit} disabled={isLoading}>
                   {t.tryAgain}
                 </Button>
                 <Button type="button" variant="secondary" onClick={finishWithBasicPlan} disabled={isLoading}>
                   {t.useBasicPlan}
+                </Button>
+              </div>
+            )}
+            {errorAction === "retry" && (
+              <div className="mt-3">
+                <Button type="button" onClick={handleSubmit} disabled={isLoading}>
+                  {t.tryAgain}
+                </Button>
+              </div>
+            )}
+            {errorAction === "recheck" && (
+              <div className="mt-3">
+                <Button type="button" variant="secondary" onClick={recheckForm} disabled={isLoading}>
+                  {t.recheck}
                 </Button>
               </div>
             )}

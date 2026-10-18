@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { aiUnavailableMessage } from "@/lib/nutrition/aiUnavailable";
-import { MealPlanAiError, fetchMealPlan } from "@/lib/nutrition/fetchMealPlan";
+import { aiUnavailableMessage, mealPlanErrorMessage, type MealPlanErrorKind } from "@/lib/nutrition/aiUnavailable";
+import { MealPlanAiError, MealPlanRequestError, fetchMealPlan } from "@/lib/nutrition/fetchMealPlan";
 import type { PregnancyProfile } from "@/types/pregnancy";
 
 const profile: PregnancyProfile = {
@@ -66,18 +66,92 @@ describe("meal plan error UX", () => {
     });
   });
 
-  it("keeps a Vietnamese validation message", async () => {
+  it("maps 429, Turnstile 403, other 5xx, 400, and abort to their own actions", async () => {
+    const validationFallback = "Dữ liệu chưa hợp lệ. Vui lòng kiểm tra lại thông tin đã nhập.";
+    const leak = /@cf\/|<html|workers ai|llama-3|too many requests|turnstile|openai/i;
+
+    async function expectMapped(
+      response: Response | (() => Promise<Response> | Response),
+      kind: MealPlanErrorKind,
+      calls: number
+    ) {
+      const fetchMock = vi.fn(async () => (typeof response === "function" ? response() : response.clone()));
+      vi.stubGlobal("fetch", fetchMock);
+
+      const error = await fetchMealPlan(profile, "vi").then(
+        () => {
+          throw new Error("expected fetchMealPlan to fail");
+        },
+        (caught: unknown) => caught
+      );
+
+      expect(error).toBeInstanceOf(kind === "ai" ? MealPlanAiError : MealPlanRequestError);
+      const caught = error as MealPlanRequestError;
+      expect(caught.kind).toBe(kind);
+      expect(caught.action).toBe(kind === "ai" ? "ai" : kind === "turnstile" || kind === "invalid" ? "recheck" : "retry");
+      expect(caught.message).toBe(mealPlanErrorMessage("vi", kind));
+      expect(caught.message).not.toBe(validationFallback);
+      expect(caught.message).not.toMatch(leak);
+      expect(fetchMock).toHaveBeenCalledTimes(calls);
+    }
+
+    await expectMapped(
+      new Response(JSON.stringify({ error: "Too many requests. Please try again later." }), { status: 429 }),
+      "rate_limit",
+      1
+    );
+    await expectMapped(
+      new Response(JSON.stringify({ error: "Turnstile verification failed." }), { status: 403 }),
+      "turnstile",
+      1
+    );
+    await expectMapped(
+      new Response(JSON.stringify({ error: "<html>@cf/meta/llama-3.1-8b-instruct-fp8</html>" }), { status: 500 }),
+      "server",
+      2
+    );
+    await expectMapped(
+      new Response("<html><body><h1>503 Service Unavailable</h1>Workers AI</body></html>", {
+        status: 503,
+        headers: { "content-type": "text/html" }
+      }),
+      "server",
+      2
+    );
+    await expectMapped(
+      new Response(JSON.stringify({ error: "Dị ứng thực phẩm tối đa 200 ký tự. <html>@cf/meta/llama-3</html>" }), {
+        status: 400
+      }),
+      "invalid",
+      1
+    );
+    await expectMapped(() => {
+      const aborted = new Error("The operation was aborted");
+      aborted.name = "AbortError";
+      throw aborted;
+    }, "aborted", 1);
+
+    expect(mealPlanErrorMessage("en", "rate_limit")).toMatch(/too quickly/i);
+    expect(mealPlanErrorMessage("en", "invalid")).toMatch(/not accepted/i);
+  });
+
+  it("still falls back to a local plan when a 429 includes premium usage", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn(
         async () =>
-          new Response(JSON.stringify({ error: "Dị ứng thực phẩm tối đa 200 ký tự." }), {
-            status: 400,
-            headers: { "content-type": "application/json" }
-          })
+          new Response(
+            JSON.stringify({
+              error: "Too many requests. Please try again later.",
+              usage: { aiPlansUsed: 1, aiPlansLimit: 1 }
+            }),
+            { status: 429 }
+          )
       )
     );
 
-    await expect(fetchMealPlan(profile, "vi")).rejects.toThrow("Dị ứng thực phẩm tối đa 200 ký tự.");
+    const plan = await fetchMealPlan(profile, "vi");
+    expect(plan.days).toHaveLength(7);
+    expect(plan.specialNotes.every((note) => typeof note === "string")).toBe(true);
   });
 });

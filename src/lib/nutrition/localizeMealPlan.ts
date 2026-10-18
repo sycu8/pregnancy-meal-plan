@@ -10,6 +10,23 @@ import {
   MEDICAL_DISCLAIMER
 } from "./safetyRules";
 
+export const MAX_SPECIAL_NOTES = 8;
+export const MAX_SPECIAL_NOTE_CHARS = 240;
+
+/** Keep only short strings so a model payload cannot crash the result page. */
+export function sanitizeSpecialNotes(notes: unknown): string[] {
+  if (!Array.isArray(notes)) return [];
+  const clean: string[] = [];
+  for (const note of notes) {
+    if (typeof note !== "string") continue;
+    const text = note.trim().replace(/\s+/g, " ").slice(0, MAX_SPECIAL_NOTE_CHARS);
+    if (!text) continue;
+    clean.push(text);
+    if (clean.length >= MAX_SPECIAL_NOTES) break;
+  }
+  return clean;
+}
+
 /**
  * Re-apply display language for a saved plan.
  * English is authored first; Vietnamese locale must always show Vietnamese meal copy.
@@ -213,14 +230,15 @@ function uniqueSorted(values: string[]) {
   return Array.from(new Set(values)).sort();
 }
 
-function localizeSpecialNotes(notes: string[], profile: MealPlan["profileSnapshot"], locale: Locale): string[] {
-  const localized = getConditionSpecificWarnings(profile, locale);
+function localizeSpecialNotes(notes: unknown, profile: MealPlan["profileSnapshot"], locale: Locale): string[] {
+  const safe = sanitizeSpecialNotes(notes);
+  const localized = sanitizeSpecialNotes(getConditionSpecificWarnings(profile, locale));
   if (locale === "vi") {
-    const kept = notes.filter((note) => looksVietnamese(note));
-    return [...new Set([...localized, ...kept])];
+    const kept = safe.filter((note) => looksVietnamese(note));
+    return sanitizeSpecialNotes([...new Set([...localized, ...kept])]);
   }
-  const kept = notes.filter((note) => !looksVietnamese(note));
-  return [...new Set([...localized, ...kept])];
+  const kept = safe.filter((note) => !looksVietnamese(note));
+  return sanitizeSpecialNotes([...new Set([...localized, ...kept])]);
 }
 
 function looksVietnamese(text: string): boolean {

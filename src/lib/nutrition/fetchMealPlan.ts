@@ -8,10 +8,14 @@ import { ruleBasedMealPlanner } from "@/lib/nutrition/mealPlanner";
 import { localizeMealPlanForLocale } from "@/lib/nutrition/localizeMealPlan";
 import {
   AI_UNAVAILABLE_CODE,
-  aiUnavailableMessage,
-  clientVisibleMealPlanError,
+  classifyMealPlanStatus,
+  isAbortError,
   leaksProviderDetail,
-  looksLikeHtmlError
+  looksLikeHtmlError,
+  mealPlanErrorAction,
+  mealPlanErrorMessage,
+  mealPlanKindFromCode,
+  type MealPlanErrorKind
 } from "@/lib/nutrition/aiUnavailable";
 
 export type GenerateMealPlanRequest = {
@@ -29,13 +33,29 @@ export type GenerateMealPlanResponse =
       usage?: { aiPlansUsed?: number; aiPlansLimit?: number; mealSwapsUsed?: number; mealSwapsLimit?: number };
     };
 
-export class MealPlanAiError extends Error {
+export class MealPlanRequestError extends Error {
+  readonly kind: MealPlanErrorKind;
+  readonly action: "ai" | "retry" | "recheck";
+
+  constructor(locale: Locale, kind: MealPlanErrorKind) {
+    super(mealPlanErrorMessage(locale, kind));
+    this.name = "MealPlanRequestError";
+    this.kind = kind;
+    this.action = mealPlanErrorAction(kind);
+  }
+}
+
+export class MealPlanAiError extends MealPlanRequestError {
   readonly code = AI_UNAVAILABLE_CODE;
 
   constructor(locale: Locale) {
-    super(aiUnavailableMessage(locale));
+    super(locale, "ai");
     this.name = "MealPlanAiError";
   }
+}
+
+function failureFor(locale: Locale, kind: MealPlanErrorKind) {
+  return kind === "ai" ? new MealPlanAiError(locale) : new MealPlanRequestError(locale, kind);
 }
 
 function usageHeaders() {
@@ -67,20 +87,20 @@ async function postGenerateMealPlan(body: GenerateMealPlanRequest): Promise<{ st
   });
   const raw = await response.text();
   const data = parseMealPlanBody(raw);
-  if (!data || looksLikeHtmlError(raw)) {
+  if (!response.ok || !data || looksLikeHtmlError(raw) || !("plan" in data)) {
+    const status = !response.ok ? response.status : 502;
+    const kind =
+      mealPlanKindFromCode(data && "code" in data ? data.code : undefined) ??
+      (looksLikeHtmlError(raw) && status >= 500 && status !== 502 ? "server" : classifyMealPlanStatus(status));
+    const usage = data && "usage" in data ? data.usage : undefined;
+    const original = data && "error" in data && typeof data.error === "string" ? data.error : undefined;
+    const keepUsageMessage =
+      status === 429 && Boolean(usage) && Boolean(original) && !looksLikeHtmlError(original) && !leaksProviderDetail(original);
     return {
-      status: response.ok ? 502 : response.status,
-      data: { error: aiUnavailableMessage(locale), code: AI_UNAVAILABLE_CODE }
-    };
-  }
-  if (!response.ok) {
-    const usage = "usage" in data ? data.usage : undefined;
-    const rawError = "error" in data ? data.error : undefined;
-    return {
-      status: response.status,
+      status,
       data: {
-        error: clientVisibleMealPlanError(locale, rawError, response.status),
-        code: "code" in data && data.code ? data.code : response.status === 502 ? AI_UNAVAILABLE_CODE : undefined,
+        error: keepUsageMessage && original ? original : mealPlanErrorMessage(locale, kind),
+        code: kind === "ai" ? AI_UNAVAILABLE_CODE : kind,
         usage
       }
     };
@@ -143,34 +163,24 @@ export async function fetchMealPlan(
         return localizeMealPlanForLocale(ruleBasedMealPlanner(profile, locale), locale);
       }
 
-      if (attempt === 1) {
-        const rawError = "error" in data ? data.error : undefined;
-        const unavailable =
-          status === 502 ||
-          ("code" in data && data.code === AI_UNAVAILABLE_CODE) ||
-          looksLikeHtmlError(rawError);
-        if (unavailable && !options?.regenerate) {
-          throw new MealPlanAiError(locale);
-        }
-        throw new Error(
-          options?.regenerate
-            ? locale === "vi"
-              ? "Không đổi được món. Hãy thử lại."
-              : "Could not swap meal"
-            : clientVisibleMealPlanError(locale, rawError, status)
-        );
+      const kind =
+        ("code" in data ? mealPlanKindFromCode(data.code) : null) ?? classifyMealPlanStatus(status);
+      const retryable = kind === "server" || kind === "ai";
+      if (!options?.regenerate && (!retryable || attempt === 1)) {
+        throw failureFor(locale, kind);
+      }
+      if (options?.regenerate && attempt === 1) {
+        throw new Error(locale === "vi" ? "Không đổi được món. Hãy thử lại." : "Could not swap meal");
       }
     } catch (error) {
-      if (error instanceof PremiumLimitError || error instanceof MealPlanAiError) {
+      if (error instanceof PremiumLimitError || error instanceof MealPlanRequestError) {
         throw error;
       }
+      if (isAbortError(error)) {
+        throw failureFor(locale, "aborted");
+      }
       if (attempt === 1) {
-        const raw = error instanceof Error ? error.message : "";
-        if (!options?.regenerate && (error instanceof TypeError || looksLikeHtmlError(raw) || leaksProviderDetail(raw))) {
-          throw new MealPlanAiError(locale);
-        }
-        if (error instanceof Error) throw error;
-        break;
+        throw failureFor(locale, "server");
       }
     }
   }
