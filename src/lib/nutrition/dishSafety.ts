@@ -211,19 +211,45 @@ function mentionsRefinedStarch(text: string): boolean {
   return false;
 }
 
+/** Whole-grain, buckwheat, and rye stay. A hyphenated whole-wheat name counts too. */
 function isWholeGrainStarch(text: string): boolean {
   const folded = foldNote(text);
-  return /nguyen cam|nguyen hat|whole grain|whole-grain|whole wheat|wholewheat/.test(folded);
+  return /nguyen cam|nguyen hat|whole grain|whole-grain|whole wheat|whole-wheat|wholewheat|buckwheat|kieu mach|lua mach den|(?<![\p{L}\p{N}])rye(?![\p{L}\p{N}])/u.test(folded);
 }
 
-/** White bread, flour, instant noodles, and refined pasta. Whole-grain bread stays. */
+/**
+ * Refined wheat names for glucose: white bread, flour, pasta, mì/mỳ, instant noodles,
+ * ramen, bánh bao, and crackers. Whole-wheat, buckwheat, rye, and whole-grain stay.
+ */
 function mentionsRefinedFlour(text: string): boolean {
   if (isWholeGrainStarch(text)) return false;
   const nfc = text.normalize("NFC").toLowerCase();
   const folded = foldNote(text);
-  const accented = ["bánh mì trắng", "bánh mì", "bột mì", "mì ống", "mì gói", "mì ý", "nui"];
+  const accented = ["bánh mì trắng", "bánh mì", "bột mì", "mì ống", "mì gói", "mì ý", "mì tôm", "mì ăn liền", "bánh bao", "bánh quy", "mì", "mỳ", "nui"];
   if (accented.some((item) => phrase(nfc, escapePhrase(item)))) return true;
-  const plain = ["banh mi trang", "banh mi", "bot mi", "white bread", "bread", "macaroni", "pasta", "spaghetti", "mi ong", "mi goi", "mi y", "nui"];
+  const plain = [
+    "banh mi trang",
+    "banh mi",
+    "bot mi",
+    "white bread",
+    "bread",
+    "macaroni",
+    "pasta",
+    "spaghetti",
+    "mi ong",
+    "mi goi",
+    "mi y",
+    "mi tom",
+    "mi an lien",
+    "instant noodles",
+    "ramen",
+    "banh bao",
+    "banh quy",
+    "crackers",
+    "mi",
+    "my",
+    "nui"
+  ];
   return plain.some((item) => phrase(folded, escapePhrase(item)));
 }
 

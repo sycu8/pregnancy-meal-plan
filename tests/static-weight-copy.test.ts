@@ -4,8 +4,10 @@ import { describe, expect, it } from "vitest";
 import { breakfastMeals, findMealRecordByName, flattenMealIngredients, mainMeals, snackMeals } from "@/lib/nutrition/mealDatabase";
 import { localizeMealText } from "@/lib/nutrition/mealLocales";
 import { NOTE_LIBRARY } from "@/lib/nutrition/noteLibrary";
+import { ruleBasedMealPlanner } from "@/lib/nutrition/mealPlanner";
 import { getConditionSpecificWarnings, getGeneralPregnancyFoodWarnings } from "@/lib/nutrition/safetyRules";
 import { WEIGHT_LEXICON, findWeightLexiconHits, foldLexiconText } from "@/lib/nutrition/weightLexicon";
+import { synthesizePost } from "@/lib/blog/synthesis/synthesizePost";
 import type { PregnancyProfile } from "@/types/pregnancy";
 
 const ROOT = path.resolve(__dirname, "..");
@@ -28,6 +30,8 @@ const SCAN_ROOTS = [
   "src/lib/legal",
   "src/lib/blog/categories.ts",
   "src/lib/blog/synthesis/editorialTopics.ts",
+  "src/lib/blog/synthesis/synthesizePost.ts",
+  "src/lib/blog/synthesis/contentStandards.ts",
   "docs/STORE_SUBMISSION.md"
 ];
 
@@ -102,6 +106,52 @@ function visibleCopy(): string[] {
   return lines;
 }
 
+function collectStrings(value: unknown, out: string[]): void {
+  if (typeof value === "string") {
+    out.push(value);
+    return;
+  }
+  if (Array.isArray(value)) {
+    for (const item of value) collectStrings(item, out);
+    return;
+  }
+  if (value && typeof value === "object") {
+    for (const child of Object.values(value)) collectStrings(child, out);
+  }
+}
+
+/** Strings the meal planner and the fallback post generator emit. */
+function generatorOutput(): string[] {
+  const lines: string[] = [];
+  const profiles: PregnancyProfile[] = [
+    sampleProfile,
+    { ...sampleProfile, healthConditions: ["reflux"] },
+    { ...sampleProfile, healthConditions: ["morning_sickness"], goals: ["reduce_nausea"] },
+    { ...sampleProfile, healthConditions: ["morning_sickness"], goals: ["weight_control"] },
+    { ...sampleProfile, healthConditions: ["morning_sickness", "fast_weight_gain"], goals: ["balanced"] },
+    { ...sampleProfile, healthConditions: ["morning_sickness", "reflux"], goals: ["weight_control"] },
+    { ...sampleProfile, healthConditions: ["gestational_diabetes"], goals: ["blood_sugar_control"] },
+    { ...sampleProfile, healthConditions: ["gestational_diabetes", "morning_sickness"], goals: ["blood_sugar_control"] },
+    { ...sampleProfile, healthConditions: ["gestational_diabetes", "morning_sickness"], goals: ["weight_control"] },
+    {
+      ...sampleProfile,
+      healthConditions: ["gestational_diabetes", "morning_sickness", "reflux"],
+      goals: ["blood_sugar_control"]
+    }
+  ];
+  for (const profile of profiles) {
+    for (const locale of ["vi", "en"] as const) collectStrings(ruleBasedMealPlanner(profile, locale), lines);
+  }
+  const post = synthesizePost({
+    title: "Iron and folate at lunch",
+    snippet: "A practical note on cooked meals.",
+    sourceName: "Clinic notes",
+    url: "https://example.com/iron"
+  });
+  collectStrings(post, lines);
+  return lines;
+}
+
 describe("static weight-control copy", () => {
   it("does not tell a weight-control profile to control portions", () => {
     const meal = findMealRecordByName("Gà luộc cơm rau luộc");
@@ -173,10 +223,34 @@ describe("static weight-control copy", () => {
     expect(findWeightLexiconHits("fully cooked")).toEqual([]);
     expect(findWeightLexiconHits("give them an apple")).toEqual([]);
     expect(findWeightLexiconHits("how to use them and the plan")).toEqual([]);
+    expect(findWeightLexiconHits("www them an vat")).toEqual([]);
+    expect(findWeightLexiconHits("123 them an vat")).toEqual([]);
+    expect(findWeightLexiconHits("them an vat").map((hit) => hit.name)).toContain("thèm ăn");
+    expect(findWeightLexiconHits("hay them an vat").map((hit) => hit.name)).toContain("thèm ăn");
+    expect(findWeightLexiconHits("rat them an tao").map((hit) => hit.name)).toContain("thèm ăn");
     expect(findWeightLexiconHits("Thèm ăn táo").map((hit) => hit.name)).toContain("thèm ăn");
     expect(findWeightLexiconHits("Kiểm soát đường huyết")).toEqual([]);
     expect(findWeightLexiconHits("kiem soat duong huyet")).toEqual([]);
-    expect(findWeightLexiconHits("kiểm soát cân nặng").map((hit) => hit.name)).toContain("kiểm soát cân");
+    for (const phrase of [
+      "kiểm soát tăng cân",
+      "kiem soat tang can",
+      "kiểm soát cân nặng",
+      "kiem soat can nang",
+      "kiểm soát ăn uống",
+      "kiem soat an uong",
+      "kiểm soát calo",
+      "kiem soat calo",
+      "kiểm soát lượng calo",
+      "kiem soat luong calo",
+      "kiểm soát khẩu phần",
+      "kiem soat khau phan",
+      "kiểm soát vòng eo",
+      "kiem soat vong eo",
+      "kiểm soát mỡ",
+      "kiem soat mo"
+    ]) {
+      expect(findWeightLexiconHits(phrase).length, phrase).toBeGreaterThan(0);
+    }
   });
 
   it("scans static Vietnamese and English strings for weight-control phrasing", () => {
@@ -186,6 +260,7 @@ describe("static weight-control copy", () => {
       hits.push(...lexiconHits(lines, file));
     }
     hits.push(...lexiconHits(visibleCopy(), "visible"));
+    hits.push(...lexiconHits(generatorOutput(), "generator"));
     expect(hits).toEqual([]);
   });
 
@@ -241,24 +316,34 @@ describe("static weight-control copy", () => {
     expect(morningRefluxEn.filter((note) => /spread meals|smaller meals|small meals/i.test(note))).toEqual([
       "Spread meals across the day, eat slowly, and don't lie down right after eating. Choose mild-smelling, soft, easy-to-digest foods such as bread, porridge, potatoes or less acidic fruit."
     ]);
-    const gdmNausea = getConditionSpecificWarnings(
-      { ...sampleProfile, healthConditions: ["gestational_diabetes", "morning_sickness"], goals: ["blood_sugar_control"] },
+    const gdmNauseaProfile: PregnancyProfile = {
+      ...sampleProfile,
+      healthConditions: ["gestational_diabetes", "morning_sickness"],
+      goals: ["blood_sugar_control"]
+    };
+    const gdmNausea = getConditionSpecificWarnings(gdmNauseaProfile, "vi").join(" ");
+    expect(gdmNausea).toContain("bánh nguyên cám hoặc bánh quy nguyên cám, cháo yến mạch");
+    expect(gdmNausea).toContain("Chia nhỏ bữa, ăn đều trong ngày");
+    expect(gdmNausea).not.toMatch(/chia bữa đều trong ngày/);
+    expect(gdmNausea).not.toMatch(/bánh mì|cháo(?! yến mạch)/);
+    const gdmNauseaEn = getConditionSpecificWarnings(gdmNauseaProfile, "en").join(" ");
+    expect(gdmNauseaEn).toContain("whole-grain bread or crackers, oat porridge");
+    expect(gdmNauseaEn).toContain("Smaller meals spread through the day");
+    expect(gdmNauseaEn).not.toMatch(/split meals across the day|Spread meals across the day/);
+    expect(gdmNauseaEn).not.toMatch(/white bread|(?<!whole-grain )bread|(?<!oat )porridge/i);
+    const gdmNauseaWeight = getConditionSpecificWarnings(
+      { ...sampleProfile, healthConditions: ["gestational_diabetes", "morning_sickness"], goals: ["weight_control"] },
       "vi"
     ).join(" ");
-    expect(gdmNausea).toContain("bánh nguyên cám hoặc bánh quy nguyên cám, cháo yến mạch");
-    expect(gdmNausea).not.toMatch(/bánh mì|cháo(?! yến mạch)/);
-    expect(
-      getConditionSpecificWarnings(
-        { ...sampleProfile, healthConditions: ["gestational_diabetes", "morning_sickness"], goals: ["blood_sugar_control"] },
-        "en"
-      ).join(" ")
-    ).toContain("whole-grain bread or crackers, oat porridge");
-    expect(
-      getConditionSpecificWarnings(
-        { ...sampleProfile, healthConditions: ["gestational_diabetes", "morning_sickness"], goals: ["blood_sugar_control"] },
-        "en"
-      ).join(" ")
-    ).not.toMatch(/white bread|(?<!whole-grain )bread|(?<!oat )porridge/i);
+    expect(gdmNauseaWeight).toContain("Chia bữa đều trong ngày");
+    expect(gdmNauseaWeight).not.toContain("Chia nhỏ bữa, ăn đều trong ngày");
+    const gdmNauseaReflux = getConditionSpecificWarnings(
+      { ...sampleProfile, healthConditions: ["gestational_diabetes", "morning_sickness", "reflux"], goals: ["blood_sugar_control"] },
+      "vi"
+    );
+    expect(gdmNauseaReflux.filter((note) => /chia bữa|nhỏ bữa|bữa nhỏ|ăn đều trong ngày/i.test(note))).toEqual([
+      "Chia nhỏ bữa, ăn đều trong ngày, ăn chậm, không nằm ngay sau ăn. Chọn món ít mùi, mềm, dễ tiêu; có thể thử bánh nguyên cám hoặc bánh quy nguyên cám, cháo yến mạch, khoai hoặc trái cây ít chua."
+    ]);
     const gdm = getConditionSpecificWarnings({ ...sampleProfile, healthConditions: ["gestational_diabetes"] }, "vi");
     expect(gdm.join(" ")).toContain("chia bữa đều trong ngày");
     expect(gdm.join(" ")).not.toMatch(/chia nhỏ bữa/);

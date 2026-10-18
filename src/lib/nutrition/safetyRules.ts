@@ -42,13 +42,10 @@ export function getConditionSpecificWarnings(profile: PregnancyProfile, locale: 
   const conditions = new Set(profile.healthConditions.filter((condition) => condition !== "none"));
   const notes: string[] = [];
 
-  if (conditions.has("gestational_diabetes") || profile.goals.includes("blood_sugar_control")) {
-    notes.push(
-      locale === "vi"
-        ? "Tiểu đường thai kỳ: ưu tiên tinh bột chậm, chia bữa đều trong ngày, tránh nước ép/nước ngọt và hỏi bác sĩ về lượng tinh bột phù hợp."
-        : "Gestational diabetes: prioritize slow-digesting carbohydrates, split meals across the day, avoid juice and sugary drinks, and ask your clinician about the right carbohydrate amount."
-    );
-  }
+  const weightControl = conditions.has("fast_weight_gain") || profile.goals.includes("weight_control");
+  const nausea = conditions.has("morning_sickness") || profile.goals.includes("reduce_nausea");
+  const glucose = conditions.has("gestational_diabetes") || profile.goals.includes("blood_sugar_control");
+  if (glucose) notes.push(glucoseLine(locale, !nausea));
   if (conditions.has("anemia") || profile.goals.includes("increase_iron_calcium_protein")) {
     notes.push(
       locale === "vi"
@@ -63,11 +60,8 @@ export function getConditionSpecificWarnings(profile: PregnancyProfile, locale: 
         : "Constipation: increase fiber, water, yogurt, leafy greens, beans and sweet potato as tolerated."
     );
   }
-  const weightControl = conditions.has("fast_weight_gain") || profile.goals.includes("weight_control");
-  const nausea = conditions.has("morning_sickness") || profile.goals.includes("reduce_nausea");
-  const glucose = conditions.has("gestational_diabetes") || profile.goals.includes("blood_sugar_control");
-  if (nausea && conditions.has("reflux") && weightControl) {
-    notes.push(nauseaAndRefluxLine(locale, glucose));
+  if (nausea && conditions.has("reflux") && (weightControl || glucose)) {
+    notes.push(nauseaAndRefluxLine(locale, glucose, weightControl));
   } else if (nausea) {
     notes.push(nauseaLine(locale, weightControl, glucose));
   }
@@ -92,7 +86,7 @@ export function getConditionSpecificWarnings(profile: PregnancyProfile, locale: 
         : "High blood pressure or swelling: reduce very salty foods and processed foods; follow your clinician's monitoring guidance."
     );
   }
-  if (conditions.has("reflux") && !(nausea && weightControl)) {
+  if (conditions.has("reflux") && !(nausea && (weightControl || glucose))) {
     notes.push(
       weightControl
         ? locale === "vi"
@@ -150,6 +144,17 @@ function nauseaFoods(locale: Locale, glucose: boolean): string {
     : "bread, porridge, potatoes or less acidic fruit";
 }
 
+function glucoseLine(locale: Locale, includeSpacing: boolean): string {
+  if (locale === "vi") {
+    return includeSpacing
+      ? "Tiểu đường thai kỳ: ưu tiên tinh bột chậm, chia bữa đều trong ngày, tránh nước ép/nước ngọt và hỏi bác sĩ về lượng tinh bột phù hợp."
+      : "Tiểu đường thai kỳ: ưu tiên tinh bột chậm, tránh nước ép/nước ngọt và hỏi bác sĩ về lượng tinh bột phù hợp.";
+  }
+  return includeSpacing
+    ? "Gestational diabetes: prioritize slow-digesting carbohydrates, split meals across the day, avoid juice and sugary drinks, and ask your clinician about the right carbohydrate amount."
+    : "Gestational diabetes: prioritize slow-digesting carbohydrates, avoid juice and sugary drinks, and ask your clinician about the right carbohydrate amount.";
+}
+
 function nauseaLine(locale: Locale, weightControl: boolean, glucose: boolean): string {
   const foods = nauseaFoods(locale, glucose);
   if (!weightControl && !glucose) {
@@ -157,17 +162,25 @@ function nauseaLine(locale: Locale, weightControl: boolean, glucose: boolean): s
       ? "Nghén: chia nhỏ bữa, chọn món ít mùi, mềm, dễ tiêu; có thể thử bánh mì, cháo, khoai hoặc trái cây ít chua."
       : "Morning sickness: eat smaller meals and choose mild-smelling, soft, easy-to-digest foods such as bread, porridge, potatoes or less acidic fruit.";
   }
-  if (locale === "vi") {
-    const spacing = weightControl ? "Chia bữa đều trong ngày" : "chia nhỏ bữa";
-    return `Nghén: ${spacing}, chọn món ít mùi, mềm, dễ tiêu; có thể thử ${foods}.`;
+  if (!weightControl && glucose) {
+    return locale === "vi"
+      ? `Nghén: Chia nhỏ bữa, ăn đều trong ngày, chọn món ít mùi, mềm, dễ tiêu; có thể thử ${foods}.`
+      : `Morning sickness: Smaller meals spread through the day and choose mild-smelling, soft, easy-to-digest foods such as ${foods}.`;
   }
-  const spacing = weightControl ? "Spread meals across the day" : "eat smaller meals";
-  return `Morning sickness: ${spacing} and choose mild-smelling, soft, easy-to-digest foods such as ${foods}.`;
+  if (locale === "vi") {
+    return `Nghén: Chia bữa đều trong ngày, chọn món ít mùi, mềm, dễ tiêu; có thể thử ${foods}.`;
+  }
+  return `Morning sickness: Spread meals across the day and choose mild-smelling, soft, easy-to-digest foods such as ${foods}.`;
 }
 
-/** One meal-spacing line when nausea and reflux are both set for that goal. */
-function nauseaAndRefluxLine(locale: Locale, glucose: boolean): string {
+/** One meal-spacing line when nausea and reflux are both set. */
+function nauseaAndRefluxLine(locale: Locale, glucose: boolean, weightControl: boolean): string {
   const foods = nauseaFoods(locale, glucose);
+  if (!weightControl && glucose) {
+    return locale === "vi"
+      ? `Chia nhỏ bữa, ăn đều trong ngày, ăn chậm, không nằm ngay sau ăn. Chọn món ít mùi, mềm, dễ tiêu; có thể thử ${foods}.`
+      : `Smaller meals spread through the day, eat slowly, and don't lie down right after eating. Choose mild-smelling, soft, easy-to-digest foods such as ${foods}.`;
+  }
   return locale === "vi"
     ? `Chia bữa đều trong ngày, ăn chậm, không nằm ngay sau ăn. Chọn món ít mùi, mềm, dễ tiêu; có thể thử ${foods}.`
     : `Spread meals across the day, eat slowly, and don't lie down right after eating. Choose mild-smelling, soft, easy-to-digest foods such as ${foods}.`;

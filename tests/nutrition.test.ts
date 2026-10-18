@@ -254,8 +254,18 @@ describe("special notes", () => {
     const english = ruleBasedMealPlanner(profile, "en").specialNotes.join(" ");
     expect(vietnamese).toContain("cháo yến mạch");
     expect(vietnamese).toContain("bánh nguyên cám");
+    expect(vietnamese).toContain("Chia nhỏ bữa, ăn đều trong ngày");
+    expect(vietnamese).not.toMatch(/chia bữa đều trong ngày/);
     expect(vietnamese).not.toMatch(/bánh mì|white bread|cháo(?! yến mạch)/);
     expect(english).toContain("whole-grain bread or crackers, oat porridge");
+    expect(english).toContain("Smaller meals spread through the day");
+    expect(english).not.toMatch(/split meals across the day|Spread meals across the day/);
     expect(english).not.toMatch(/white bread|(?<!whole-grain )bread|(?<!oat )porridge/i);
+    const withWeight = ruleBasedMealPlanner(
+      { ...profile, goals: ["weight_control", "blood_sugar_control"] },
+      "vi"
+    ).specialNotes.join(" ");
+    expect(withWeight).toContain("Chia bữa đều trong ngày");
+    expect(withWeight).not.toContain("Chia nhỏ bữa, ăn đều trong ngày");
   });
 });
