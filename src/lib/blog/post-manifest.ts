@@ -259,6 +259,7 @@ import ironRichPregnancyMealsWithVitaminCPairingTipsF61af7 from "../../../conten
 import ironRichPregnancyMealsWithVitaminCPairingTipsFe3a8c from "../../../content/blog/posts/iron-rich-pregnancy-meals-with-vitamin-c-pairing-tips-fe3a8c.json";
 import ironRichPregnancyMealsWithVitaminCPairingTipsFf2d24 from "../../../content/blog/posts/iron-rich-pregnancy-meals-with-vitamin-c-pairing-tips-ff2d24.json";
 import ironRichPregnancyMealsWithVitaminCPairingTips from "../../../content/blog/posts/iron-rich-pregnancy-meals-with-vitamin-c-pairing-tips.json";
+import juicesSmoothiesAndSproutsSaferChoicesInPregnancy from "../../../content/blog/posts/juices-smoothies-and-sprouts-safer-choices-in-pregnancy.json";
 import keHoachMangThaiTruocKhiThuThai from "../../../content/blog/posts/ke-hoach-mang-thai-truoc-khi-thu-thai.json";
 import kemVaMagieKhiMangThai from "../../../content/blog/posts/kem-va-magie-khi-mang-thai.json";
 import khamThaiLanDauTuanBaoNhieu from "../../../content/blog/posts/kham-thai-lan-dau-tuan-bao-nhieu.json";
@@ -411,6 +412,7 @@ import phuNuSauSinhAnGiBoMauNhungDieuChiEmKhongNenBoQua73178 from "../../../cont
 import phuNuSauSinhAnHatSenDuocKhongCanLuuYGiKhiAnHatSen73159 from "../../../content/blog/posts/phu-nu-sau-sinh-an-hat-sen-duoc-khong-can-luu-y-gi-khi-an-hat-sen-73159.json";
 import picaKhiMangThai from "../../../content/blog/posts/pica-khi-mang-thai.json";
 import postpartumBreastfeedingNutrition from "../../../content/blog/posts/postpartum-breastfeeding-nutrition.json";
+import pregnancyBreakfastPlatesProteinFolateAndFiber from "../../../content/blog/posts/pregnancy-breakfast-plates-protein-folate-and-fiber.json";
 import pregnancyChildbirthNewborn29318b from "../../../content/blog/posts/pregnancy-childbirth-newborn-29318b.json";
 import pregnancyChildbirthNewborn from "../../../content/blog/posts/pregnancy-childbirth-newborn.json";
 import pregnancyFoodSafetyAnalysisSushiSaladsBbqAndCheeseBoards2e176b from "../../../content/blog/posts/pregnancy-food-safety-analysis-sushi-salads-bbq-and-cheese-boards-2e176b.json";
@@ -455,9 +457,11 @@ import sangLocTruocSinhCanLamGi from "../../../content/blog/posts/sang-loc-truoc
 import sauSinhAnKhoQuaDuocKhongNhungLoiIchSucKhoeKhoQuaMangLaiLaGi731 from "../../../content/blog/posts/sau-sinh-an-kho-qua-duoc-khong-nhung-loi-ich-suc-khoe-kho-qua-mang-lai-la-gi-731.json";
 import sauSinhThieuMauAnGi from "../../../content/blog/posts/sau-sinh-thieu-mau-an-gi.json";
 import sayThaiTuNhienRaMauTrongBaoLauVi from "../../../content/blog/posts/say-thai-tu-nhien-ra-mau-trong-bao-lau-vi.json";
+import shellfishInPregnancyCookedShrimpCrabAndWhatToSkip from "../../../content/blog/posts/shellfish-in-pregnancy-cooked-shrimp-crab-and-what-to-skip.json";
 import sieuAmThaiNhieuCoHaiKhong from "../../../content/blog/posts/sieu-am-thai-nhieu-co-hai-khong.json";
 import startingSolids6Months from "../../../content/blog/posts/starting-solids-6-months.json";
 import statementFromTheChiefPublicHealthOfficerOfCanadaImportanceOfCovid19 from "../../../content/blog/posts/statement-from-the-chief-public-health-officer-of-canada-importance-of-covid-19-.json";
+import storingAndReheatingLeftoversSafelyInPregnancy from "../../../content/blog/posts/storing-and-reheating-leftovers-safely-in-pregnancy.json";
 import suaCongThucKhiCan from "../../../content/blog/posts/sua-cong-thuc-khi-can.json";
 import sucKhoeRangMiengKhiMangThai from "../../../content/blog/posts/suc-khoe-rang-mieng-khi-mang-thai.json";
 import sushiSaladsBbqAndCheeseBoardsPregnancyFoodSafetyAnalysis1181e0 from "../../../content/blog/posts/sushi-salads-bbq-and-cheese-boards-pregnancy-food-safety-analysis-1181e0.json";
@@ -785,6 +789,7 @@ export const postManifest: BlogPost[] = [
   ironRichPregnancyMealsWithVitaminCPairingTipsFe3a8c,
   ironRichPregnancyMealsWithVitaminCPairingTipsFf2d24,
   ironRichPregnancyMealsWithVitaminCPairingTips,
+  juicesSmoothiesAndSproutsSaferChoicesInPregnancy,
   keHoachMangThaiTruocKhiThuThai,
   kemVaMagieKhiMangThai,
   khamThaiLanDauTuanBaoNhieu,
@@ -937,6 +942,7 @@ export const postManifest: BlogPost[] = [
   phuNuSauSinhAnHatSenDuocKhongCanLuuYGiKhiAnHatSen73159,
   picaKhiMangThai,
   postpartumBreastfeedingNutrition,
+  pregnancyBreakfastPlatesProteinFolateAndFiber,
   pregnancyChildbirthNewborn29318b,
   pregnancyChildbirthNewborn,
   pregnancyFoodSafetyAnalysisSushiSaladsBbqAndCheeseBoards2e176b,
@@ -981,9 +987,11 @@ export const postManifest: BlogPost[] = [
   sauSinhAnKhoQuaDuocKhongNhungLoiIchSucKhoeKhoQuaMangLaiLaGi731,
   sauSinhThieuMauAnGi,
   sayThaiTuNhienRaMauTrongBaoLauVi,
+  shellfishInPregnancyCookedShrimpCrabAndWhatToSkip,
   sieuAmThaiNhieuCoHaiKhong,
   startingSolids6Months,
   statementFromTheChiefPublicHealthOfficerOfCanadaImportanceOfCovid19,
+  storingAndReheatingLeftoversSafelyInPregnancy,
   suaCongThucKhiCan,
   sucKhoeRangMiengKhiMangThai,
   sushiSaladsBbqAndCheeseBoardsPregnancyFoodSafetyAnalysis1181e0,
