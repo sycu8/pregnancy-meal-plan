@@ -17,11 +17,17 @@ export type AIClient = {
  * Text model confirmed against the Workers AI catalog on 2026-10-18.
  * `@cf/meta/llama-3.1-8b-instruct` was retired on 2026-05-30.
  * `@cf/meta/llama-3.1-8b-instruct-fast` is no longer in the catalog
- * ("deprecated, removed, or not found"). The remaining Llama 3.1 8B
- * instruct text model is the FP8 build.
+ * (its docs page redirects to ?unavailable=). This client uses the FP8 build.
  * https://developers.cloudflare.com/workers-ai/models/llama-3.1-8b-instruct-fp8/
  */
 export const WORKERS_AI_MODEL = "@cf/meta/llama-3.1-8b-instruct-fp8";
+
+/**
+ * Workers AI defaults `max_tokens` to 256, which truncates a meal plan.
+ * A localized 7-day plan is about 22k characters. 16384 covers that JSON
+ * and stays inside this model's 32k context window with the short prompt.
+ */
+export const WORKERS_AI_MAX_TOKENS = 16384;
 
 /**
  * Model ids Cloudflare retired on 2026-05-30, plus later catalog removals
@@ -154,7 +160,8 @@ async function callWorkersAi(prompt: string): Promise<string> {
             "You assist with pregnancy meal planning. Draft English first, then adapt to the requested locale. Respond concisely as JSON."
         },
         { role: "user", content: prompt }
-      ]
+      ],
+      max_tokens: WORKERS_AI_MAX_TOKENS
     });
   } catch (error) {
     throw new AiProviderError(

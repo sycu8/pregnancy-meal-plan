@@ -16,10 +16,13 @@ import { POST } from "@/app/api/generate-meal-plan/route";
 import {
   AiProviderError,
   RETIRED_WORKERS_AI_MODEL_IDS,
+  WORKERS_AI_MAX_TOKENS,
   WORKERS_AI_MODEL,
   assertSupportedWorkersAiModel,
   createAIClient
 } from "@/lib/cloudflare/aiClient";
+import { localizeMealPlanForLocale } from "@/lib/nutrition/localizeMealPlan";
+import { ruleBasedMealPlanner } from "@/lib/nutrition/mealPlanner";
 
 const profile: PregnancyProfile = {
   pregnancyWeek: 24,
@@ -82,7 +85,25 @@ describe("failed AI calls", () => {
       provider: "workers-ai",
       message: `Workers AI request failed for ${WORKERS_AI_MODEL}: 5016: No such model @cf/meta/llama-3.1-8b-instruct`
     });
-    expect(aiRun).toHaveBeenCalledWith(WORKERS_AI_MODEL, expect.any(Object));
+    expect(aiRun).toHaveBeenCalledWith(
+      WORKERS_AI_MODEL,
+      expect.objectContaining({ max_tokens: WORKERS_AI_MAX_TOKENS })
+    );
+  });
+
+  it("sets max_tokens above the 256 default and above a full meal-plan JSON", async () => {
+    aiRun.mockResolvedValue({ response: JSON.stringify({ specialNotes: ["Drink water through the day."] }) });
+
+    const plan = await createAIClient().generateMealPlan(profile, "en");
+    const fullPlanTokens = Math.ceil(JSON.stringify(plan).length / 2);
+
+    expect(WORKERS_AI_MAX_TOKENS).toBeGreaterThan(256);
+    expect(WORKERS_AI_MAX_TOKENS).toBeGreaterThanOrEqual(fullPlanTokens);
+    expect(aiRun).toHaveBeenCalledWith(
+      WORKERS_AI_MODEL,
+      expect.objectContaining({ max_tokens: WORKERS_AI_MAX_TOKENS })
+    );
+    expect(plan.specialNotes.join(" ")).toContain("Drink water");
   });
 
   it("surfaces an error payload from Workers AI instead of a silent fallback", async () => {
