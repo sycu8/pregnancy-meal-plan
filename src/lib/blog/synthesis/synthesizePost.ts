@@ -140,7 +140,7 @@ export function synthesizePost(input: SynthesisInput): SynthesisOutput {
     }
   ];
 
-  const contentViLinked = ensureInternalLinks(contentVi, {
+  const contentViLinked = ensureInternalLinks(ensureSourceNoteVi(contentVi, input), {
     slug: "draft",
     category,
     tags,
@@ -357,11 +357,8 @@ function stripForEnglishTitle(title: string) {
 }
 
 function ensureSourceNoteVi(content: string, input: SynthesisInput) {
-  if (!content.includes(input.url)) return content;
-  return content.replace(
-    /\n*> Nội dung tổng hợp tham khảo chủ đề từ \[[^\]]+\]\([^)]+\), không sao chép nguyên văn\.\n*/g,
-    "\n"
-  );
+  if (content.includes(input.url)) return content;
+  return `${content.trim()}\n\n> Nội dung tổng hợp tham khảo chủ đề từ [${input.sourceName}](${input.url}), không sao chép nguyên văn.\n`;
 }
 
 function ensureSourceNoteEn(content: string, input: SynthesisInput) {

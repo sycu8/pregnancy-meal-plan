@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { renderBlogMarkdown } from "@/lib/blog/markdown";
+import { synthesizePost } from "@/lib/blog/synthesis/synthesizePost";
 import pho from "../content/blog/posts/pho-tai-va-do-song-an-toan-me-bau.json";
 import menu from "../content/blog/posts/thuc-don-mau-tuan-cho-me-bau-tam-ca-nguyet-2.json";
 import sushi from "../content/blog/posts/pregnancy-food-safety-analysis-sushi-salads-bbq-and-cheese-boards-d69f3b.json";
@@ -10,11 +11,48 @@ import heat from "../content/blog/posts/mang-thai-mua-he-nong.json";
 import minister from "../content/blog/posts/message-from-the-minister-of-mental-health-and-addictions-and-associate-minister.json";
 
 describe("P1 Vietnamese wording", () => {
-  it("renders star bullets as real lists", () => {
-    const html = renderBlogMarkdown("* Sushi cá sống\n* Phô mai cứng");
+  it("renders star, dash, and plus bullets as real lists", () => {
+    const html = renderBlogMarkdown("* Sushi cá sống\n- Phô mai cứng\n+ Ngũ cốc\n+  Rau xanh");
     expect(html).toContain("<ul");
-    expect(html).toContain("<li");
+    expect(html.match(/<li/g)).toHaveLength(4);
+    expect(html).toContain("Ngũ cốc");
+    expect(html).toContain("Rau xanh");
     expect(html).not.toContain("* Sushi");
+    expect(html).not.toContain("+ Ngũ");
+    expect(html).not.toContain("+  Rau");
+  });
+
+  it("keeps bold lines out of bullet lists", () => {
+    const html = renderBlogMarkdown("**Cần cấp cứu ngay (gọi 115):** ra máu nhiều.");
+    expect(html).toContain("<p");
+    expect(html).toContain("<strong>Cần cấp cứu ngay (gọi 115):</strong>");
+    expect(html).not.toContain("<li");
+    expect(html).not.toContain("<ul");
+  });
+
+  it("does not leave raw star or plus list markers in Vietnamese paragraphs", () => {
+    const dir = path.join(process.cwd(), "content/blog/posts");
+    for (const name of fs.readdirSync(dir)) {
+      if (!name.endsWith(".json")) continue;
+      const post = JSON.parse(fs.readFileSync(path.join(dir, name), "utf8")) as { content?: string };
+      const html = renderBlogMarkdown(post.content ?? "");
+      expect(html, name).not.toMatch(/<p\b[^>]*>\s*[*+] /);
+    }
+  });
+
+  it("adds the Vietnamese topic-source note on the template path", () => {
+    const result = synthesizePost({
+      title: "Iron-rich meals",
+      titleVi: "Món giàu sắt",
+      snippet: "Meal ideas.",
+      snippetVi: "Gợi ý món.",
+      sourceName: "WHO",
+      url: "https://www.who.int/example-note"
+    });
+    expect(result.content).toContain(
+      "> Nội dung tổng hợp tham khảo chủ đề từ [WHO](https://www.who.int/example-note), không sao chép nguyên văn."
+    );
+    expect(result.content).not.toContain("tổng hợp dựa trên tiêu đề và mô tả công khai từ nguồn");
   });
 
   it("uses the reviewed phở, menu, sushi, drug, and heat wording", () => {
@@ -59,5 +97,18 @@ describe("P1 Vietnamese wording", () => {
       expect(raw, name).not.toMatch(/1800|1900/);
       expect(raw, name).not.toContain("cần xác minh số hiện hành");
     }
+  });
+
+  it("keeps the historical topic-source blockquote on the posts that had it", () => {
+    const dir = path.join(process.cwd(), "content/blog/posts");
+    const marker = /> Nội dung tổng hợp tham khảo chủ đề từ \[[^\]]+\]\([^)]+\), không sao chép nguyên văn\./g;
+    let count = 0;
+    for (const name of fs.readdirSync(dir)) {
+      if (!name.endsWith(".json")) continue;
+      const raw = fs.readFileSync(path.join(dir, name), "utf8");
+      const found = raw.match(marker);
+      if (found) count += found.length;
+    }
+    expect(count).toBe(199);
   });
 });
