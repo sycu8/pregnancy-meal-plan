@@ -3,7 +3,7 @@ import { getBindings, readFeatureFlag } from "@/lib/cloudflare/bindings";
 import { getOptionalAiEnv } from "@/lib/cloudflare/env";
 import { buildMealPlanPrompt } from "@/lib/nutrition/aiPromptBuilder";
 import { ruleBasedMealPlanner } from "@/lib/nutrition/mealPlanner";
-import { localizeMealPlanForLocale, sanitizeSpecialNotes } from "@/lib/nutrition/localizeMealPlan";
+import { filterNotesForLocale, localizeMealPlanForLocale, sanitizeSpecialNotes } from "@/lib/nutrition/localizeMealPlan";
 import type { MealPlan } from "@/types/mealPlan";
 import type { PregnancyProfile } from "@/types/pregnancy";
 
@@ -76,6 +76,46 @@ export class AiProviderError extends Error {
   }
 }
 
+/**
+ * Bound a Workers AI or OpenAI call so a hung model returns the basic plan
+ * well before Cloudflare's ~100s 524. Tests may shorten it via AI_CALL_TIMEOUT_MS.
+ */
+export const AI_CALL_TIMEOUT_MS = 28_000;
+
+export class AiCallTimeoutError extends Error {
+  constructor() {
+    super("ai_timeout");
+    this.name = "AiCallTimeoutError";
+  }
+}
+
+function aiCallTimeoutMs(): number {
+  if (process.env.NODE_ENV === "test") {
+    const raw = Number(process.env.AI_CALL_TIMEOUT_MS);
+    if (Number.isFinite(raw) && raw >= 1 && raw <= 30_000) return raw;
+  }
+  return AI_CALL_TIMEOUT_MS;
+}
+
+/** Race the model call against a shared deadline. The timeout is not a provider error. */
+function withDeadline<T>(work: Promise<T>, deadlineAt: number): Promise<T> {
+  const remaining = deadlineAt - Date.now();
+  // A late rejection from the model must not surface as an unhandled rejection after we already timed out.
+  void work.then(
+    () => undefined,
+    () => undefined
+  );
+  if (remaining <= 0) return Promise.reject(new AiCallTimeoutError());
+
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new AiCallTimeoutError()), remaining);
+  });
+  return Promise.race([work, timeout]).finally(() => {
+    if (timer) clearTimeout(timer);
+  });
+}
+
 export function assertSupportedWorkersAiModel(model: string): void {
   if ((RETIRED_WORKERS_AI_MODEL_IDS as readonly string[]).includes(model)) {
     throw new AiProviderError(
@@ -99,18 +139,42 @@ const MAX_AI_TEXT_CHARS = 20_000;
 
 type MealPlanProvider = "workers-ai" | "openai" | "none";
 
-type FallbackReason = "ai_disabled" | "no_provider" | "empty_output" | "bad_output" | "thrown" | "provider_error";
+type FallbackReason =
+  | "ai_disabled"
+  | "no_provider"
+  | "empty_output"
+  | "bad_output"
+  | "thrown"
+  | "provider_error"
+  | "timeout"
+  | "locale_filtered";
 
-/** Collapse secrets and keep fallback logs short. Never include prompts or model text. */
-function redactDetail(value: string): string {
+const LOG_DETAIL_MAX = 80;
+
+/**
+ * Log an error class plus a short message. Strip markup, secrets, emails, IPs,
+ * and long free-text tokens so profile fields and model text cannot land in logs.
+ */
+function sanitiseLogMessage(value: string): string {
   return value
     .replace(/<[^>]*>/g, " ")
-    .replace(/sk-[A-Za-z0-9_-]{6,}/g, "sk-redacted")
-    .replace(/bearer\s+\S+/gi, "bearer redacted")
-    .replace(/\b(api[_-]?key|token|secret|password|authorization)\b\s*[:=]\s*\S+/gi, "$1 redacted")
+    .replace(/sk-[A-Za-z0-9_-]{6,}/g, "[redacted]")
+    .replace(/bearer\s+\S+/gi, "bearer [redacted]")
+    .replace(/\b(api[_-]?key|token|secret|password|authorization)\b\s*[:=]\s*\S+/gi, "$1 [redacted]")
+    .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, "[email]")
+    .replace(/\b(?:\d{1,3}\.){3}\d{1,3}\b/g, "[ip]")
+    .replace(/\S{25,}/g, "[redacted]")
     .replace(/\s+/g, " ")
     .trim()
-    .slice(0, 160);
+    .slice(0, LOG_DETAIL_MAX);
+}
+
+function fallbackDetail(error: unknown): string {
+  const name = error instanceof Error && error.name.trim() ? error.name.trim() : "Error";
+  const message = error instanceof Error ? error.message : typeof error === "string" ? error : "";
+  const safe = sanitiseLogMessage(message);
+  if (!safe) return name.slice(0, LOG_DETAIL_MAX);
+  return `${name}: ${safe}`.slice(0, LOG_DETAIL_MAX);
 }
 
 function logMealPlanFallback(details: {
@@ -119,7 +183,7 @@ function logMealPlanFallback(details: {
   errorName?: string;
   detail?: string;
 }): void {
-  const detail = details.detail ? redactDetail(details.detail) : "";
+  const detail = details.detail ? sanitiseLogMessage(details.detail) : "";
   console.error(
     JSON.stringify({
       event: "meal-plan-ai-fallback",
@@ -352,6 +416,55 @@ async function callWorkersAi(prompt: string): Promise<string> {
   return (await coerceWorkersAiText(result)).trim();
 }
 
+const aiServedPlans = new WeakMap<MealPlan, true>();
+
+/** True only when this plan object includes model notes that survived the locale filter. */
+export function mealPlanServedAi(plan: MealPlan): boolean {
+  return aiServedPlans.has(plan);
+}
+
+function planWithAiNotes(baseline: MealPlan, notes: string[], locale: Locale): MealPlan {
+  const withNotes = {
+    ...baseline,
+    specialNotes: sanitizeSpecialNotes([...baseline.specialNotes, ...notes])
+  };
+  const plan = localizeMealPlanForLocale(withNotes, locale);
+  aiServedPlans.set(plan, true);
+  return plan;
+}
+
+function mealPlanPrompt(input: PregnancyProfile, locale: Locale): string {
+  const language = locale === "vi" ? "Vietnamese" : "English";
+  return `${buildMealPlanPrompt(input)}\nLocale: ${locale}\nReturn JSON with field "specialNotes" as string array customizing the baseline plan. Write specialNotes in ${language} only.`;
+}
+
+function translateNotesPrompt(notes: readonly string[], locale: Locale): string {
+  const language = locale === "vi" ? "Vietnamese" : "English";
+  const listed = notes.map((note) => `- ${note}`).join("\n");
+  return [
+    `The previous specialNotes were not in ${language}.`,
+    `Translate only these notes into ${language}.`,
+    `Locale: ${locale}.`,
+    `Return JSON with field "specialNotes" as a string array in ${language} only.`,
+    listed
+  ].join("\n");
+}
+
+type ParsedNotes =
+  | { ok: true; notes: string[] }
+  | { ok: false; reason: "empty_output" | "bad_output"; detail?: string };
+
+function parseNotes(raw: string): ParsedNotes {
+  if (!raw.trim()) return { ok: false, reason: "empty_output" };
+  try {
+    const notes = sanitizeSpecialNotes(parseModelPayload(raw).specialNotes);
+    if (notes.length === 0) return { ok: false, reason: "empty_output", detail: "no_special_notes" };
+    return { ok: true, notes };
+  } catch {
+    return { ok: false, reason: "bad_output", detail: "unparseable_json" };
+  }
+}
+
 export function createAIClient(): AIClient {
   const env = getOptionalAiEnv();
 
@@ -360,7 +473,8 @@ export function createAIClient(): AIClient {
       const baseline = localizeMealPlanForLocale(ruleBasedMealPlanner(input, locale), locale);
       const provider = await resolveMealPlanProvider(env);
       // The flag defaults on whenever a provider is configured. KV `ai_planner_enabled=false`
-      // or FEATURE_AI_PLANNER_ENABLED=false still turns it off. Prod has the AI binding and no flag.
+      // or FEATURE_AI_PLANNER_ENABLED=false still turns it off. An env true overrides KV.
+      // Prod has the AI binding and no flag.
       const aiEnabled = await readFeatureFlag("ai_planner_enabled", provider !== "none");
 
       if (provider === "none") {
@@ -372,44 +486,56 @@ export function createAIClient(): AIClient {
         return baseline;
       }
 
-      try {
-        const prompt = `${buildMealPlanPrompt(input)}\nLocale: ${locale}\nReturn JSON with field "specialNotes" as string array customizing the baseline plan. For locale=vi write specialNotes in Vietnamese only.`;
-        const raw =
+      const deadlineAt = Date.now() + aiCallTimeoutMs();
+
+      const callModel = (prompt: string) => {
+        const work =
           provider === "workers-ai"
-            ? await callWorkersAi(prompt)
-            : await callOpenAi(prompt, env.OPENAI_API_KEY ?? "", env.AI_GATEWAY_URL);
+            ? callWorkersAi(prompt)
+            : callOpenAi(prompt, env.OPENAI_API_KEY ?? "", env.AI_GATEWAY_URL);
+        return withDeadline(work, deadlineAt);
+      };
 
-        if (!raw.trim()) {
-          logMealPlanFallback({ reason: "empty_output", provider });
+      try {
+        const first = parseNotes(await callModel(mealPlanPrompt(input, locale)));
+        if (!first.ok) {
+          logMealPlanFallback({
+            reason: first.reason,
+            provider,
+            ...(first.reason === "bad_output" ? { errorName: "SyntaxError" } : {}),
+            ...(first.detail ? { detail: first.detail } : {})
+          });
           return baseline;
         }
 
-        let parsed: { specialNotes?: unknown };
-        try {
-          parsed = parseModelPayload(raw);
-        } catch {
-          logMealPlanFallback({ reason: "bad_output", provider, errorName: "SyntaxError", detail: "unparseable_json" });
-          return baseline;
+        let notes = first.notes;
+        if (filterNotesForLocale(notes, locale).length === 0) {
+          const retry = parseNotes(await callModel(translateNotesPrompt(notes, locale)));
+          const retryNotes = retry.ok ? filterNotesForLocale(retry.notes, locale) : [];
+          if (retryNotes.length === 0) {
+            logMealPlanFallback({ reason: "locale_filtered", provider, detail: "wrong_language" });
+            return baseline;
+          }
+          notes = retryNotes;
         }
 
-        const notes = sanitizeSpecialNotes(parsed.specialNotes);
-        if (notes.length === 0) {
-          logMealPlanFallback({ reason: "empty_output", provider, detail: "no_special_notes" });
-          return baseline;
-        }
-
-        const withNotes = {
-          ...baseline,
-          specialNotes: sanitizeSpecialNotes([...baseline.specialNotes, ...notes])
-        };
-        return localizeMealPlanForLocale(withNotes, locale);
+        return planWithAiNotes(baseline, notes, locale);
       } catch (error) {
+        if (error instanceof AiCallTimeoutError) {
+          logMealPlanFallback({
+            reason: "timeout",
+            provider,
+            errorName: error.name,
+            detail: "ai_timeout"
+          });
+          return baseline;
+        }
         if (error instanceof AiProviderError) {
           logMealPlanFallback({
             reason: "provider_error",
             provider: error.provider,
             errorName: error.name,
-            detail: error.message
+            detail: fallbackDetail(error)
           });
           throw error;
         }
@@ -417,7 +543,7 @@ export function createAIClient(): AIClient {
           reason: "thrown",
           provider,
           errorName: error instanceof Error ? error.name : "Error",
-          detail: error instanceof Error ? error.message : "unknown"
+          detail: fallbackDetail(error)
         });
         return baseline;
       }

@@ -2,9 +2,9 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { checkRateLimit } from "@/lib/cloudflare/rateLimit";
 import { validateB2BApiKey } from "@/lib/b2b/apiKey";
-import { AiProviderError, createAIClient } from "@/lib/cloudflare/aiClient";
+import { AiProviderError, createAIClient, mealPlanServedAi } from "@/lib/cloudflare/aiClient";
 import { verifyTurnstileToken } from "@/lib/cloudflare/turnstile";
-import { checkUsage, incrementUsage, usageLimitMessage } from "@/lib/premium/serverUsage";
+import { checkUsage, deviceCookieHeader, incrementUsage, usageLimitMessage, type UsageCheck } from "@/lib/premium/serverUsage";
 import type { Locale } from "@/lib/i18n";
 import { regenerateMealInPlan } from "@/lib/nutrition/mealPlanner";
 import { localizeMealPlanForLocale } from "@/lib/nutrition/localizeMealPlan";
@@ -33,8 +33,16 @@ function resolveLocale(request: Request, bodyLocale?: Locale): Locale {
   return header.startsWith("en") ? "en" : "vi";
 }
 
+function withDeviceCookie(response: NextResponse, check?: UsageCheck) {
+  if (check?.issueDeviceCookie && check.deviceId) {
+    response.headers.append("Set-Cookie", deviceCookieHeader(check.deviceId));
+  }
+  return response;
+}
+
 export async function POST(request: Request) {
   let locale: Locale = "vi";
+  let deviceCheck: UsageCheck | undefined;
 
   try {
     const isB2B = validateB2BApiKey(request);
@@ -87,19 +95,35 @@ export async function POST(request: Request) {
 
     if (!isB2B) {
       const aiCheck = await checkUsage(request, "ai-plan");
+      deviceCheck = aiCheck;
       if (!aiCheck.ok) {
-        return NextResponse.json(
-          { error: usageLimitMessage("ai-plan", locale), usage: { aiPlansUsed: aiCheck.used, aiPlansLimit: aiCheck.limit } },
-          { status: 429 }
+        return withDeviceCookie(
+          NextResponse.json(
+            {
+              error: usageLimitMessage("ai-plan", locale, aiCheck.scope),
+              usage: { aiPlansUsed: aiCheck.used, aiPlansLimit: aiCheck.limit }
+            },
+            { status: 429 }
+          ),
+          aiCheck
         );
       }
 
       const plan = await createAIClient().generateMealPlan(parsed.profile, locale);
-      const aiUsage = await incrementUsage(request, "ai-plan");
-      return NextResponse.json({
-        plan,
-        usage: { aiPlansUsed: aiUsage.used, aiPlansLimit: aiUsage.limit }
-      });
+      let used = aiCheck.used;
+      let limit = aiCheck.limit;
+      if (mealPlanServedAi(plan)) {
+        const aiUsage = await incrementUsage(request, "ai-plan", { deviceId: aiCheck.deviceId });
+        used = aiUsage.used;
+        limit = aiUsage.limit;
+      }
+      return withDeviceCookie(
+        NextResponse.json({
+          plan,
+          usage: { aiPlansUsed: used, aiPlansLimit: limit }
+        }),
+        aiCheck
+      );
     }
 
     const plan = await createAIClient().generateMealPlan(parsed.profile, locale);
@@ -114,12 +138,15 @@ export async function POST(request: Request) {
           errorName: error.name
         })
       );
-      return NextResponse.json(
-        { error: aiUnavailableMessage(locale), code: AI_UNAVAILABLE_CODE },
-        { status: 502 }
+      return withDeviceCookie(
+        NextResponse.json(
+          { error: aiUnavailableMessage(locale), code: AI_UNAVAILABLE_CODE },
+          { status: 502 }
+        ),
+        deviceCheck
       );
     }
     const message = locale === "en" ? validationErrorToLocale(error, "en") : validationErrorToVietnamese(error);
-    return NextResponse.json({ error: message }, { status: 400 });
+    return withDeviceCookie(NextResponse.json({ error: message }, { status: 400 }), deviceCheck);
   }
 }

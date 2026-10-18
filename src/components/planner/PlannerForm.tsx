@@ -11,7 +11,7 @@ import { canCreateAiPlan } from "@/lib/premium/usage";
 import { getPremiumTier } from "@/lib/premium/tier";
 import { getNutritionLabels } from "@/lib/nutrition/labels";
 import { fetchMealPlan, createLocalMealPlan, MealPlanRequestError, PremiumLimitError } from "@/lib/nutrition/fetchMealPlan";
-import { isAbortError, mealPlanErrorMessage, type MealPlanErrorAction } from "@/lib/nutrition/aiUnavailable";
+import { isAbortError, leaksProviderDetail, mealPlanErrorMessage, type MealPlanErrorAction } from "@/lib/nutrition/aiUnavailable";
 import { pregnancyProfileSchema, validationErrorToLocale } from "@/lib/nutrition/validation";
 import { saveMealPlan, saveProfile, getProfile } from "@/lib/storage/localStorage";
 import { cacheOfflineSnapshot, incrementPlanCount } from "@/lib/storage/offlineCache";
@@ -231,7 +231,8 @@ export function PlannerForm({ mode = "planner", locale = "vi" }: { mode?: "plann
           setShowPlanUpsell(true);
           plan = createLocalMealPlan(validProfile, locale);
           if (typeof window !== "undefined") {
-            window.sessionStorage.setItem(PLAN_NOTICE_KEY, t.planLimit);
+            const notice = caught.message.trim() && !leaksProviderDetail(caught.message) ? caught.message : t.planLimit;
+            window.sessionStorage.setItem(PLAN_NOTICE_KEY, notice);
           }
         } else {
           throw caught;

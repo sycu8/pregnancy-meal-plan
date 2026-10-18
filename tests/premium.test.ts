@@ -52,7 +52,7 @@ const samplePlan = {
 
 describe("premium limits", () => {
   it("defines free tier daily caps", () => {
-    expect(getPremiumLimits("free").aiPlansPerDay).toBe(1);
+    expect(getPremiumLimits("free").aiPlansPerDay).toBe(3);
     expect(getPremiumLimits("free").mealSwapsPerDay).toBe(2);
     expect(getPremiumLimits("free").historyPlans).toBe(5);
     expect(getPremiumLimits("free").cloudExport).toBe(false);

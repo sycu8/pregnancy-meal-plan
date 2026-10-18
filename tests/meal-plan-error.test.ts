@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { aiUnavailableMessage, mealPlanErrorMessage, type MealPlanErrorKind } from "@/lib/nutrition/aiUnavailable";
-import { MealPlanAiError, MealPlanRequestError, fetchMealPlan } from "@/lib/nutrition/fetchMealPlan";
+import { MealPlanAiError, MealPlanRequestError, PremiumLimitError, fetchMealPlan } from "@/lib/nutrition/fetchMealPlan";
 import type { PregnancyProfile } from "@/types/pregnancy";
 
 const profile: PregnancyProfile = {
@@ -135,23 +135,29 @@ describe("meal plan error UX", () => {
     expect(mealPlanErrorMessage("en", "invalid")).toMatch(/not accepted/i);
   });
 
-  it("still falls back to a local plan when a 429 includes premium usage", async () => {
+  it("returns a clear daily-limit error when a 429 includes premium usage", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn(
         async () =>
           new Response(
             JSON.stringify({
-              error: "Too many requests. Please try again later.",
-              usage: { aiPlansUsed: 1, aiPlansLimit: 1 }
+              error: "Đã hết lượt tạo thực đơn AI trong ngày. Bạn vẫn dùng được thực đơn cơ bản.",
+              usage: { aiPlansUsed: 3, aiPlansLimit: 3 }
             }),
             { status: 429 }
           )
       )
     );
 
-    const plan = await fetchMealPlan(profile, "vi");
-    expect(plan.days).toHaveLength(7);
-    expect(plan.specialNotes.every((note) => typeof note === "string")).toBe(true);
+    const error = await fetchMealPlan(profile, "vi").then(
+      () => {
+        throw new Error("expected the daily limit to surface");
+      },
+      (caught: unknown) => caught
+    );
+    expect(error).toBeInstanceOf(PremiumLimitError);
+    expect((error as PremiumLimitError).message).toMatch(/thực đơn cơ bản/);
+    expect((error as PremiumLimitError).message).not.toMatch(/too many requests|@cf\/|<html/i);
   });
 });

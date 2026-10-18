@@ -230,14 +230,17 @@ function uniqueSorted(values: string[]) {
   return Array.from(new Set(values)).sort();
 }
 
+/** Notes that can be shown for this locale. English notes are dropped from a Vietnamese plan, and the reverse. */
+export function filterNotesForLocale(notes: readonly string[], locale: Locale): string[] {
+  const safe = sanitizeSpecialNotes([...notes]);
+  if (locale === "vi") return safe.filter((note) => looksVietnamese(note));
+  return safe.filter((note) => !looksVietnamese(note));
+}
+
 function localizeSpecialNotes(notes: unknown, profile: MealPlan["profileSnapshot"], locale: Locale): string[] {
   const safe = sanitizeSpecialNotes(notes);
   const localized = sanitizeSpecialNotes(getConditionSpecificWarnings(profile, locale));
-  if (locale === "vi") {
-    const kept = safe.filter((note) => looksVietnamese(note));
-    return sanitizeSpecialNotes([...new Set([...localized, ...kept])]);
-  }
-  const kept = safe.filter((note) => !looksVietnamese(note));
+  const kept = filterNotesForLocale(safe, locale);
   return sanitizeSpecialNotes([...new Set([...localized, ...kept])]);
 }
 

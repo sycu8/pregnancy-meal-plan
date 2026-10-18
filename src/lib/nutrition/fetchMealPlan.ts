@@ -157,10 +157,8 @@ export async function fetchMealPlan(
       applyUsageFromResponse(data);
 
       if (isPremiumLimitResponse(status, data)) {
-        if (options?.regenerate) {
-          throw new PremiumLimitError("error" in data ? data.error : "Daily limit reached");
-        }
-        return localizeMealPlanForLocale(ruleBasedMealPlanner(profile, locale), locale);
+        const message = "error" in data && typeof data.error === "string" && data.error.trim() ? data.error : "Daily limit reached";
+        throw new PremiumLimitError(message);
       }
 
       const kind =

@@ -19,14 +19,17 @@ vi.mock("@/lib/cloudflare/bindings", () => ({
 
 import { POST } from "@/app/api/generate-meal-plan/route";
 import {
+  AI_CALL_TIMEOUT_MS,
   AiProviderError,
   RETIRED_WORKERS_AI_MODEL_IDS,
   WORKERS_AI_MAX_TOKENS,
   WORKERS_AI_MODEL,
   assertSupportedWorkersAiModel,
-  createAIClient
+  createAIClient,
+  mealPlanServedAi
 } from "@/lib/cloudflare/aiClient";
 import { aiUnavailableMessage } from "@/lib/nutrition/aiUnavailable";
+import { incrementUsage, resetUsageMemoryForTests } from "@/lib/premium/serverUsage";
 
 const profile: PregnancyProfile = {
   pregnancyWeek: 24,
@@ -85,6 +88,8 @@ describe("failed AI calls", () => {
     delete process.env.OPENAI_API_KEY;
     delete process.env.AI_GATEWAY_URL;
     delete process.env.FEATURE_AI_PLANNER_ENABLED;
+    delete process.env.AI_CALL_TIMEOUT_MS;
+    resetUsageMemoryForTests();
   });
 
   afterEach(() => {
@@ -317,4 +322,179 @@ describe("failed AI calls", () => {
     );
     errorSpy.mockRestore();
   });
+
+  it("falls back to the basic plan when the model hangs", async () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    process.env.AI_CALL_TIMEOUT_MS = "40";
+    aiRun.mockImplementation(() => new Promise(() => {}));
+
+    const started = Date.now();
+    const response = await POST(planRequest("203.0.113.21"));
+    const body = (await response.json()) as { plan: { days: unknown[]; specialNotes: string[] }; usage: { aiPlansUsed: number } };
+
+    expect(response.status).toBe(200);
+    expect(body.plan.days).toHaveLength(7);
+    expect(body.usage.aiPlansUsed).toBe(0);
+    expect(Date.now() - started).toBeLessThan(2_000);
+    expect(loggedFallbacks(errorSpy)).toContainEqual(
+      expect.objectContaining({
+        event: "meal-plan-ai-fallback",
+        reason: "timeout",
+        provider: "workers-ai",
+        errorName: "AiCallTimeoutError",
+        detail: "ai_timeout"
+      })
+    );
+    expect(AI_CALL_TIMEOUT_MS).toBe(28_000);
+    expect(AI_CALL_TIMEOUT_MS).toBeLessThan(30_000);
+    errorSpy.mockRestore();
+  });
+
+  it("translates once when the notes are in the wrong language", async () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    aiRun
+      .mockResolvedValueOnce({ response: JSON.stringify({ specialNotes: ["Drink water through the day."] }) })
+      .mockResolvedValueOnce({ response: JSON.stringify({ specialNotes: ["Uống đủ nước trong ngày."] }) });
+
+    const plan = await createAIClient().generateMealPlan(profile, "vi");
+
+    expect(aiRun).toHaveBeenCalledTimes(2);
+    expect(String(aiRun.mock.calls[1]?.[1] && JSON.stringify(aiRun.mock.calls[1][1]))).toMatch(/Vietnamese/);
+    expect(plan.specialNotes.join(" ")).toContain("Uống đủ nước trong ngày.");
+    expect(plan.specialNotes.join(" ")).not.toContain("Drink water");
+    expect(mealPlanServedAi(plan)).toBe(true);
+    expect(loggedFallbacks(errorSpy)).toHaveLength(0);
+    errorSpy.mockRestore();
+  });
+
+  it("logs locale_filtered when a retry still returns the wrong language", async () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    aiRun.mockResolvedValue({ response: JSON.stringify({ specialNotes: ["Drink water through the day."] }) });
+
+    const plan = await createAIClient().generateMealPlan(plantedProfile(), "vi");
+
+    expect(aiRun).toHaveBeenCalledTimes(2);
+    expect(mealPlanServedAi(plan)).toBe(false);
+    expect(plan.specialNotes.join(" ")).not.toContain("Drink water");
+    expect(loggedFallbacks(errorSpy)).toContainEqual(
+      expect.objectContaining({
+        event: "meal-plan-ai-fallback",
+        reason: "locale_filtered",
+        provider: "workers-ai",
+        detail: "wrong_language"
+      })
+    );
+    expect(JSON.stringify(loggedFallbacks(errorSpy))).not.toContain("PEANUTMARKER");
+    expect(JSON.stringify(loggedFallbacks(errorSpy))).not.toContain("Drink water");
+    errorSpy.mockRestore();
+  });
+
+  it("logs an error class and a sanitised detail instead of the raw message", async () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const marker = "ALLERGYMARKERALLERGYMARKERALLERGY";
+    aiRun.mockRejectedValueOnce(new Error(`user@example.com 203.0.113.8 ${marker} sk-live-abc123secret`));
+
+    await expect(createAIClient().generateMealPlan(plantedProfile(), "vi")).rejects.toBeInstanceOf(AiProviderError);
+
+    getBindingsMock.mockRejectedValueOnce(new Error(`Authorization: Bearer sk-live-abc123secret ${marker} user@example.com`));
+    const fallenBack = await createAIClient().generateMealPlan(plantedProfile(), "en");
+
+    const events = loggedFallbacks(errorSpy);
+    const providerLog = events.find((event) => (event as { reason?: string }).reason === "provider_error") as { detail?: string };
+    const thrownLog = events.find((event) => (event as { reason?: string }).reason === "thrown") as { detail?: string };
+    expect(providerLog.detail).toMatch(/^AiProviderError: /);
+    expect(thrownLog.detail).toMatch(/^Error: /);
+    expect((providerLog.detail ?? "").length).toBeLessThanOrEqual(80);
+    expect((thrownLog.detail ?? "").length).toBeLessThanOrEqual(80);
+    const serialized = JSON.stringify(events);
+    expect(serialized).not.toContain(marker);
+    expect(serialized).not.toContain("user@example.com");
+    expect(serialized).not.toContain("203.0.113.8");
+    expect(serialized).not.toContain("sk-live");
+    expect(serialized).not.toContain("PEANUTMARKER");
+    expect(serialized).not.toContain("BITTERMELONMARKER");
+    expect(mealPlanServedAi(fallenBack)).toBe(false);
+    errorSpy.mockRestore();
+  });
+
+  it("counts the daily quota only when AI notes were served", async () => {
+    const ip = "203.0.113.40";
+    aiRun.mockResolvedValueOnce({ response: "not json" });
+    const fallback = await POST(planRequest(ip, undefined, { profile: plantedProfile(), locale: "vi" }));
+    const fallbackBody = (await fallback.json()) as { usage: { aiPlansUsed: number; aiPlansLimit: number } };
+    expect(fallback.status).toBe(200);
+    expect(fallbackBody.usage).toEqual({ aiPlansUsed: 0, aiPlansLimit: 3 });
+
+    const setCookie = fallback.headers.get("set-cookie") ?? "";
+    expect(setCookie).toMatch(/HttpOnly/i);
+    expect(setCookie).toMatch(/bau_device=[a-f0-9]{32}/);
+    expect(setCookie).not.toContain("PEANUTMARKER");
+    expect(setCookie).not.toContain("doctor-note");
+
+    aiRun.mockResolvedValueOnce({ response: JSON.stringify({ specialNotes: ["Uống đủ nước trong ngày."] }) });
+    const served = await POST(planRequest(ip, setCookie.split(";")[0], { profile, locale: "vi" }));
+    const servedBody = (await served.json()) as { plan: { specialNotes: string[] }; usage: { aiPlansUsed: number } };
+    expect(served.status).toBe(200);
+    expect(servedBody.usage.aiPlansUsed).toBe(1);
+    expect(servedBody.plan.specialNotes.join(" ")).toContain("Uống đủ nước");
+    expect(served.headers.get("set-cookie")).toBeNull();
+  });
+
+  it("returns 429 with the basic-plan message when the device or network quota is spent", async () => {
+    const device = "a".repeat(32);
+    const deviceRequest = () =>
+      new Request("http://localhost/api/generate-meal-plan", {
+        headers: { cookie: `bau_device=${device}`, "cf-connecting-ip": "203.0.113.41" }
+      });
+    for (let i = 0; i < 3; i += 1) {
+      await incrementUsage(deviceRequest(), "ai-plan", { deviceId: device });
+    }
+
+    aiRun.mockResolvedValue({ response: JSON.stringify({ specialNotes: ["Uống đủ nước trong ngày."] }) });
+    const limited = await POST(planRequest("203.0.113.41", `bau_device=${device}`));
+    const limitedBody = (await limited.json()) as { error: string; usage: { aiPlansUsed: number; aiPlansLimit: number } };
+    expect(limited.status).toBe(429);
+    expect(limitedBody.error).toMatch(/thực đơn cơ bản/);
+    expect(limitedBody.usage).toEqual({ aiPlansUsed: 3, aiPlansLimit: 3 });
+    expect(aiRun).not.toHaveBeenCalled();
+
+    const network = "203.0.113.42";
+    for (let i = 0; i < 30; i += 1) {
+      const id = i.toString(16).padStart(32, "b");
+      await incrementUsage(
+        new Request("http://localhost/api/generate-meal-plan", { headers: { "cf-connecting-ip": network, cookie: `bau_device=${id}` } }),
+        "ai-plan",
+        { deviceId: id }
+      );
+    }
+    const blocked = await POST(planRequest(network, `bau_device=${"c".repeat(32)}`));
+    const blockedBody = (await blocked.json()) as { error: string; usage: { aiPlansLimit: number } };
+    expect(blocked.status).toBe(429);
+    expect(blockedBody.error).toMatch(/thực đơn cơ bản/);
+    expect(blockedBody.usage.aiPlansLimit).toBe(30);
+    expect(aiRun).not.toHaveBeenCalled();
+  });
 });
+
+function plantedProfile(): PregnancyProfile {
+  return {
+    ...profile,
+    allergies: "PEANUTMARKERPEANUTMARKERPEANUT",
+    dislikedFoods: "BITTERMELONMARKERBITTERMELON1",
+    doctorNote: "doctor-note-marker-should-not-log"
+  };
+}
+
+function planRequest(ip: string, cookie?: string, body?: unknown) {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    "Accept-Language": "vi",
+    "cf-connecting-ip": ip
+  };
+  if (cookie) headers.cookie = cookie;
+  return new Request("http://localhost/api/generate-meal-plan", {
+    method: "POST",
+    headers,
+    body: JSON.stringify(body ?? { profile, locale: "vi" })
+  });
+}
