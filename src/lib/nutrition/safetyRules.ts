@@ -3609,15 +3609,234 @@ function assertiveNote(note: string): string {
   return kept.join(", ");
 }
 
+/**
+ * English names for the signed-off Vietnamese red flags.
+ * Bleeding, severe pain, chest pain, shortness of breath, seizure, fainting,
+ * fever, and the other symptoms already on that list. Nothing beyond it.
+ * Reduced movement stays on the token-class matcher above, so this list does
+ * not repeat kick counts.
+ */
+const ENGLISH_SYMPTOM_PHRASES: readonly (readonly string[])[] = [
+  ["bleeding"],
+  ["bleed"],
+  ["bled"],
+  ["hemorrhage"],
+  ["hemorrhaging"],
+  ["haemorrhage"],
+  ["pink", "discharge"],
+  ["brown", "discharge"],
+  ["severe", "pain"],
+  ["severe", "abdominal", "pain"],
+  ["severe", "belly", "pain"],
+  ["severe", "stomach", "pain"],
+  ["severe", "cramps"],
+  ["severe", "cramping"],
+  ["severe", "headache"],
+  ["blurred", "vision"],
+  ["blurry", "vision"],
+  ["swollen", "face"],
+  ["face", "is", "swollen"],
+  ["face", "swollen"],
+  ["face", "swelling"],
+  ["swollen", "hand"],
+  ["swollen", "hands"],
+  ["hands", "are", "swollen"],
+  ["hands", "swollen"],
+  ["hand", "swelling"],
+  ["hands", "swelling"],
+  ["severe", "swelling"],
+  ["high", "blood", "pressure"],
+  ["water", "broke"],
+  ["waters", "broke"],
+  ["amniotic", "fluid"],
+  ["seizure"],
+  ["seizures"],
+  ["convulsion"],
+  ["convulsions"],
+  ["convulsing"],
+  ["fainted"],
+  ["fainting"],
+  ["passed", "out"],
+  ["feel", "faint"],
+  ["feeling", "faint"],
+  ["shortness", "of", "breath"],
+  ["short", "of", "breath"],
+  ["difficulty", "breathing"],
+  ["trouble", "breathing"],
+  ["chest", "pain"],
+  ["chest", "hurts"],
+  ["pain", "in", "the", "chest"],
+  ["pain", "in", "my", "chest"],
+  ["high", "fever"],
+  ["fever"],
+  ["vomiting", "blood"],
+  ["vomited", "blood"],
+  ["threw", "up", "blood"],
+  ["continuous", "contractions"],
+  ["constant", "contractions"],
+  ["nonstop", "contractions"],
+  ["shoulder", "pain"],
+  ["pain", "in", "the", "shoulder"],
+  ["pain", "in", "my", "shoulder"]
+];
+
+const ENGLISH_NEGATORS = new Set(["no", "not", "never", "without"]);
+const ENGLISH_NEGATION_FILLERS = new Set([
+  "a",
+  "an",
+  "the",
+  "any",
+  "some",
+  "really",
+  "just",
+  "even",
+  "high",
+  "very",
+  "bad",
+  "sudden",
+  "feel",
+  "feels",
+  "feeling",
+  "felt",
+  "have",
+  "has",
+  "had",
+  "been",
+  "being",
+  "do",
+  "does",
+  "did",
+  "am",
+  "is",
+  "are",
+  "was",
+  "were",
+  "of",
+  "my",
+  "our",
+  "your",
+  "her",
+  "his",
+  "much",
+  "got",
+  "gotten",
+  "get",
+  "getting",
+  "in",
+  "on"
+]);
+
+function expandEnglishContractions(note: string): string {
+  return note
+    .toLowerCase()
+    .replace(/\bwon't\b/g, "will not")
+    .replace(/\bcan't\b/g, "can not")
+    .replace(/\bcannot\b/g, "can not")
+    .replace(/\b([a-z]+)n't\b/g, "$1 not");
+}
+
+function englishSymptomTokens(note: string): string[] {
+  const marked = expandEnglishContractions(note).replace(/[!?;.,]+/g, ` ${CLAUSE_BREAK} `);
+  return [...marked.matchAll(/[a-z]+|\d+(?:-\d+)?|§/g)].map((match) => match[0] ?? "");
+}
+
+/** A comma, semicolon, or period ends the negation. «or» keeps the next symptom inside it. */
+function governedByEnglishNegation(tokens: string[], target: number): boolean {
+  let index = target - 1;
+  let crossedOr = false;
+  let steps = 0;
+  while (index >= 0 && steps < 16) {
+    const token = tokens[index] ?? "";
+    if (token === CLAUSE_BREAK) return false;
+    if (token === "or") {
+      crossedOr = true;
+      index -= 1;
+      steps += 1;
+      continue;
+    }
+    if (ENGLISH_NEGATION_FILLERS.has(token)) {
+      index -= 1;
+      steps += 1;
+      continue;
+    }
+    if (ENGLISH_NEGATORS.has(token)) return true;
+    if (!crossedOr) return false;
+    index -= 1;
+    steps += 1;
+  }
+  return false;
+}
+
+function englishPhraseEnd(tokens: string[], index: number, phrase: readonly string[]): number | null {
+  let cursor = index;
+  for (const part of phrase) {
+    if (tokens[cursor] !== part) return null;
+    cursor += 1;
+  }
+  return cursor;
+}
+
+function matchesEnglishSymptom(tokens: string[]): boolean {
+  for (let index = 0; index < tokens.length; index += 1) {
+    if (tokens[index] === CLAUSE_BREAK) continue;
+    for (const phrase of ENGLISH_SYMPTOM_PHRASES) {
+      if (englishPhraseEnd(tokens, index, phrase) === null) continue;
+      if (governedByEnglishNegation(tokens, index)) continue;
+      return true;
+    }
+  }
+  return false;
+}
+
+/** «can't breathe» is inability, the same class as «không thở được». */
+function matchesEnglishCannotBreathe(tokens: string[]): boolean {
+  for (let index = 0; index < tokens.length; index += 1) {
+    const word = tokens[index] ?? "";
+    if (word !== "breathe" && word !== "breathing") continue;
+    for (let cursor = index - 1; cursor >= Math.max(0, index - 4); cursor -= 1) {
+      if (tokens[cursor] === CLAUSE_BREAK) break;
+      if (tokens[cursor] === "not" || tokens[cursor] === "unable") return true;
+    }
+  }
+  return false;
+}
+
+function matchesCannotKeepFoodDown(tokens: string[]): boolean {
+  for (let index = 0; index < tokens.length; index += 1) {
+    if (tokens[index] !== "keep") continue;
+    const food = tokens[index + 1] === "food" || tokens[index + 1] === "anything";
+    if (!food || tokens[index + 2] !== "down") continue;
+    if (governedByEnglishNegation(tokens, index)) return true;
+  }
+  return false;
+}
+
+/**
+ * Plain English symptom names. Movement and kick counts stay on
+ * noteMatchesReducedFetalMovement, which already separates a normal count
+ * from fewer-than-usual. There is one englishDecreaseIsNegated.
+ */
+function noteMatchesEnglishClinical(note: string): boolean {
+  const tokens = englishSymptomTokens(note);
+  if (tokens.length === 0) return false;
+  if (matchesEnglishCannotBreathe(tokens)) return true;
+  if (matchesCannotKeepFoodDown(tokens)) return true;
+  return matchesEnglishSymptom(tokens);
+}
+
 export function detectUrgentWarnings(profile: PregnancyProfile, locale: Locale = "vi"): string[] {
-  const note = assertiveNote(profile.doctorNote ?? "");
-  if (!note.trim()) return [];
+  const original = profile.doctorNote ?? "";
+  const note = assertiveNote(original);
+  const englishClinical = noteMatchesEnglishClinical(original);
+  if (!note.trim() && !englishClinical) return [];
 
   if (
-    URGENT_DOCTOR_NOTE_KEYWORDS.some((keyword) => noteMatchesUrgentKeyword(note, keyword)) ||
-    noteMatchesReducedFetalMovement(note) ||
-    noteMatchesFaceOrHandSwelling(note) ||
-    noteMatchesCannotBreathe(note)
+    englishClinical ||
+    (note.trim() !== "" &&
+      (URGENT_DOCTOR_NOTE_KEYWORDS.some((keyword) => noteMatchesUrgentKeyword(note, keyword)) ||
+        noteMatchesReducedFetalMovement(note) ||
+        noteMatchesFaceOrHandSwelling(note) ||
+        noteMatchesCannotBreathe(note)))
   ) {
     return [locale === "vi" ? URGENT_NOTE_BANNER.vi : URGENT_NOTE_BANNER.en];
   }
