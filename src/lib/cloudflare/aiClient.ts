@@ -16,15 +16,16 @@ export type AIClient = {
 /**
  * Text model confirmed against the Workers AI catalog on 2026-10-18.
  * `@cf/meta/llama-3.1-8b-instruct` was retired on 2026-05-30.
- * `@cf/meta/llama-3.1-8b-instruct-fast` stays active; this client uses the FP8 build.
+ * `@cf/meta/llama-3.1-8b-instruct-fast` is no longer in the catalog
+ * ("deprecated, removed, or not found"). The remaining Llama 3.1 8B
+ * instruct text model is the FP8 build.
  * https://developers.cloudflare.com/workers-ai/models/llama-3.1-8b-instruct-fp8/
- * https://developers.cloudflare.com/changelog/post/2026-05-08-planned-model-deprecations/
  */
 export const WORKERS_AI_MODEL = "@cf/meta/llama-3.1-8b-instruct-fp8";
 
 /**
- * Model ids Cloudflare retired on 2026-05-30.
- * The `-fast` variant `@cf/meta/llama-3.1-8b-instruct-fast` remains active and is not listed here.
+ * Model ids Cloudflare retired on 2026-05-30, plus later catalog removals
+ * that must not be selected again.
  * https://developers.cloudflare.com/changelog/post/2026-05-08-planned-model-deprecations/
  */
 export const RETIRED_WORKERS_AI_MODEL_IDS = [
@@ -34,6 +35,7 @@ export const RETIRED_WORKERS_AI_MODEL_IDS = [
   "@cf/meta/llama-3-8b-instruct-awq",
   "@cf/meta/llama-3.1-8b-instruct",
   "@cf/meta/llama-3.1-8b-instruct-awq",
+  "@cf/meta/llama-3.1-8b-instruct-fast",
   "@cf/meta/llama-3.1-70b-instruct",
   "@cf/meta/llama-2-7b-chat-int8",
   "@cf/meta/llama-2-7b-chat-fp16",
