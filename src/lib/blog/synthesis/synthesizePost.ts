@@ -100,7 +100,7 @@ export function synthesizePost(input: SynthesisInput): SynthesisOutput {
     `## Practical tips`,
     ``,
     `- Prefer thoroughly cooked foods, wash produce well, and store leftovers safely.`,
-    `- Smaller meals spread through the day if nausea makes eating hard; stay hydrated through the day.`,
+    `- Eat smaller meals spread through the day if nausea makes eating hard; stay hydrated through the day.`,
     `- Track how you feel and ask your obstetrician or midwife before major diet or supplement changes.`,
     ``,
     `## Seek care urgently if`,

@@ -25,9 +25,12 @@ export const WEIGHT_LEXICON: readonly WeightLexiconPhrase[] = [
   { name: "kiểm soát ăn uống", source: "kiem soat an uong" },
   { name: "kiểm soát calo", source: "kiem soat calo" },
   { name: "kiểm soát lượng calo", source: "kiem soat luong calo" },
+  { name: "kiểm soát lượng ăn", source: "kiem soat luong an" },
   { name: "kiểm soát khẩu phần", source: "kiem soat khau phan" },
   { name: "kiểm soát vòng eo", source: "kiem soat vong eo" },
-  { name: "kiểm soát mỡ", source: "kiem soat mo" },
+  { name: "kiểm soát cơn đói", source: "kiem soat con doi" },
+  // Weight-sense fat only. "mỡ máu" is a blood-lipid phrase and stays allowed.
+  { name: "kiểm soát mỡ", source: "kiem soat mo(?!\\s+mau)" },
   { name: "khẩu phần", source: "khau phan" },
   { name: "no lâu", source: "no lau" },
   { name: "no ăn lâu", source: "no an lau" },
@@ -106,8 +109,10 @@ const BLOG_PHRASE_NAMES = new Set([
   "kiểm soát ăn uống",
   "kiểm soát calo",
   "kiểm soát lượng calo",
+  "kiểm soát lượng ăn",
   "kiểm soát khẩu phần",
   "kiểm soát vòng eo",
+  "kiểm soát cơn đói",
   "kiểm soát mỡ",
   "no lâu",
   "chắc bụng",
@@ -156,7 +161,8 @@ const VIETNAMESE_LETTER = /[abcdeghiklmnopqrstuvxy]/i;
 const ENGLISH_VERB_BASES = [
   "give", "tell", "ask", "use", "make", "get", "let", "send", "show", "bring", "offer", "hand", "teach", "buy",
   "call", "help", "leave", "pay", "lend", "promise", "warn", "remind", "allow", "want", "need", "see", "hear",
-  "find", "keep", "take", "write", "read", "have", "do", "put", "set", "serve", "pass", "feed", "save", "spare",
+  "find", "keep", "take", "write", "read", "have", "put", "set", "serve", "pass", "feed", "save", "spare",
+  "eat",
   "grant", "throw", "toss", "email", "text", "invite", "thank", "wish", "cause", "watch", "follow", "meet",
   "join", "sell", "owe", "deny", "refuse", "permit", "forbid", "advise", "recommend", "encourage", "force",
   "order", "beg", "expect", "prefer", "love", "hate", "like", "know", "believe", "consider", "imagine",
@@ -170,9 +176,9 @@ const ENGLISH_VERB_BASES = [
 const ENGLISH_VERB_IRREGULARS = [
   "gave", "given", "told", "made", "got", "gotten", "sent", "brought", "taught", "bought", "left", "paid",
   "lent", "saw", "seen", "heard", "found", "kept", "took", "taken", "wrote", "written", "had", "did", "done",
-  "fed", "threw", "thrown", "met", "sold", "chose", "chosen", "felt", "became", "held", "caught", "lost",
-  "am", "is", "are", "was", "were", "been", "being", "can", "could", "will", "would", "shall", "should",
-  "may", "might", "must"
+  "ate", "eaten", "fed", "threw", "thrown", "met", "sold", "chose", "chosen", "felt", "became", "held",
+  "caught", "lost", "are", "was", "were", "been", "being", "could", "will", "would", "shall", "should",
+  "might", "must"
 ];
 
 function englishVerbForms(base: string): string[] {
@@ -197,6 +203,8 @@ const ENGLISH_VERBS = new Set<string>([
   ...ENGLISH_VERB_BASES.flatMap(englishVerbForms),
   ...ENGLISH_VERB_IRREGULARS
 ]);
+// These fold from common unaccented Vietnamese words (đó, cân, máy, ấm), so they never skip a craving.
+for (const foldedVietnamese of ["do", "can", "may", "am", "is"]) ENGLISH_VERBS.delete(foldedVietnamese);
 
 /**
  * "thèm ăn" is the craving phrase. Accented and NFD forms always match.

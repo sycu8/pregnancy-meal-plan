@@ -228,6 +228,21 @@ describe("static weight-control copy", () => {
     expect(findWeightLexiconHits("them an vat").map((hit) => hit.name)).toContain("thèm ăn");
     expect(findWeightLexiconHits("hay them an vat").map((hit) => hit.name)).toContain("thèm ăn");
     expect(findWeightLexiconHits("rat them an tao").map((hit) => hit.name)).toContain("thèm ăn");
+    expect(findWeightLexiconHits("do them an vat").map((hit) => hit.name)).toContain("thèm ăn");
+    expect(findWeightLexiconHits("can them an vat").map((hit) => hit.name)).toContain("thèm ăn");
+    expect(findWeightLexiconHits("may them an vat").map((hit) => hit.name)).toContain("thèm ăn");
+    expect(findWeightLexiconHits("am them an vat").map((hit) => hit.name)).toContain("thèm ăn");
+    expect(findWeightLexiconHits("is them an vat").map((hit) => hit.name)).toContain("thèm ăn");
+    expect(findWeightLexiconHits("đó them an vat").map((hit) => hit.name)).toContain("thèm ăn");
+    expect(findWeightLexiconHits("cân them an vat").map((hit) => hit.name)).toContain("thèm ăn");
+    expect(findWeightLexiconHits("máy them an vat").map((hit) => hit.name)).toContain("thèm ăn");
+    expect(findWeightLexiconHits("ấm them an vat").map((hit) => hit.name)).toContain("thèm ăn");
+    expect(findWeightLexiconHits("đó thèm ăn táo").map((hit) => hit.name)).toContain("thèm ăn");
+    expect(findWeightLexiconHits("cân thèm ăn táo").map((hit) => hit.name)).toContain("thèm ăn");
+    expect(findWeightLexiconHits("máy thèm ăn táo").map((hit) => hit.name)).toContain("thèm ăn");
+    expect(findWeightLexiconHits("ấm thèm ăn táo").map((hit) => hit.name)).toContain("thèm ăn");
+    expect(findWeightLexiconHits("I can eat an apple")).toEqual([]);
+    expect(findWeightLexiconHits("I can eat them an apple")).toEqual([]);
     expect(findWeightLexiconHits("Thèm ăn táo").map((hit) => hit.name)).toContain("thèm ăn");
     expect(findWeightLexiconHits("Kiểm soát đường huyết")).toEqual([]);
     expect(findWeightLexiconHits("kiem soat duong huyet")).toEqual([]);
@@ -246,11 +261,22 @@ describe("static weight-control copy", () => {
       "kiem soat khau phan",
       "kiểm soát vòng eo",
       "kiem soat vong eo",
+      "kiểm soát lượng ăn",
+      "kiem soat luong an",
+      "kiểm soát cơn đói",
+      "kiem soat con doi",
       "kiểm soát mỡ",
-      "kiem soat mo"
+      "kiem soat mo",
+      "kiểm soát mỡ bụng",
+      "kiem soat mo bung",
+      "kiểm soát mỡ thừa",
+      "kiem soat mo thua"
     ]) {
       expect(findWeightLexiconHits(phrase).length, phrase).toBeGreaterThan(0);
     }
+    expect(findWeightLexiconHits("kiểm soát mỡ máu")).toEqual([]);
+    expect(findWeightLexiconHits("kiem soat mo mau")).toEqual([]);
+    expect(findWeightLexiconHits("Kiểm soát mỡ máu khi mang thai")).toEqual([]);
   });
 
   it("scans static Vietnamese and English strings for weight-control phrasing", () => {
@@ -328,7 +354,7 @@ describe("static weight-control copy", () => {
     expect(gdmNausea).not.toMatch(/bánh mì|cháo(?! yến mạch)/);
     const gdmNauseaEn = getConditionSpecificWarnings(gdmNauseaProfile, "en").join(" ");
     expect(gdmNauseaEn).toContain("whole-grain bread or crackers, oat porridge");
-    expect(gdmNauseaEn).toContain("Smaller meals spread through the day");
+    expect(gdmNauseaEn).toContain("Eat smaller meals spread through the day");
     expect(gdmNauseaEn).not.toMatch(/split meals across the day|Spread meals across the day/);
     expect(gdmNauseaEn).not.toMatch(/white bread|(?<!whole-grain )bread|(?<!oat )porridge/i);
     const gdmNauseaWeight = getConditionSpecificWarnings(
@@ -366,5 +392,38 @@ describe("static weight-control copy", () => {
     expect(leftovers?.en.toLowerCase()).toContain("within 24 hours");
     expect(leftovers?.en.toLowerCase()).toContain("reheat until steaming hot");
     expect(leftovers?.en.toLowerCase()).not.toContain("same day");
+  });
+
+  it("shows at most one meal-spacing line for every condition combo", () => {
+    const spacing = /chia nhỏ bữa|chia bữa đều|nhỏ bữa|ăn đều trong ngày|smaller meals|small meals|spread meals|split meals/i;
+    const flags = [false, true];
+    for (const gdm of flags) {
+      for (const morningSickness of flags) {
+        for (const reflux of flags) {
+          for (const weightControl of flags) {
+            const healthConditions: PregnancyProfile["healthConditions"] = [];
+            if (gdm) healthConditions.push("gestational_diabetes");
+            if (morningSickness) healthConditions.push("morning_sickness");
+            if (reflux) healthConditions.push("reflux");
+            if (weightControl) healthConditions.push("fast_weight_gain");
+            if (healthConditions.length === 0) healthConditions.push("none");
+            const profile: PregnancyProfile = {
+              ...sampleProfile,
+              healthConditions,
+              goals: weightControl ? ["weight_control"] : ["balanced"]
+            };
+            for (const locale of ["vi", "en"] as const) {
+              const notes = getConditionSpecificWarnings(profile, locale);
+              const spacingNotes = notes.filter((note) => spacing.test(note));
+              expect(spacingNotes, `${locale} ${healthConditions.join("+")}`).toHaveLength(Math.min(spacingNotes.length, 1));
+              if (!weightControl || (!gdm && !morningSickness && !reflux)) continue;
+              const joined = notes.join(" ");
+              expect(joined, locale).not.toMatch(/chia nhỏ bữa|smaller meals|small meals/i);
+              expect(joined, locale).toMatch(locale === "vi" ? /chia bữa đều trong ngày/i : /spread meals across the day|split meals across the day/i);
+            }
+          }
+        }
+      }
+    }
   });
 });

@@ -258,7 +258,7 @@ describe("special notes", () => {
     expect(vietnamese).not.toMatch(/chia bữa đều trong ngày/);
     expect(vietnamese).not.toMatch(/bánh mì|white bread|cháo(?! yến mạch)/);
     expect(english).toContain("whole-grain bread or crackers, oat porridge");
-    expect(english).toContain("Smaller meals spread through the day");
+    expect(english).toContain("Eat smaller meals spread through the day");
     expect(english).not.toMatch(/split meals across the day|Spread meals across the day/);
     expect(english).not.toMatch(/white bread|(?<!whole-grain )bread|(?<!oat )porridge/i);
     const withWeight = ruleBasedMealPlanner(

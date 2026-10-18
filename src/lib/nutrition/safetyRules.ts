@@ -45,7 +45,7 @@ export function getConditionSpecificWarnings(profile: PregnancyProfile, locale: 
   const weightControl = conditions.has("fast_weight_gain") || profile.goals.includes("weight_control");
   const nausea = conditions.has("morning_sickness") || profile.goals.includes("reduce_nausea");
   const glucose = conditions.has("gestational_diabetes") || profile.goals.includes("blood_sugar_control");
-  if (glucose) notes.push(glucoseLine(locale, !nausea));
+  if (glucose) notes.push(glucoseLine(locale, !(nausea || conditions.has("reflux"))));
   if (conditions.has("anemia") || profile.goals.includes("increase_iron_calcium_protein")) {
     notes.push(
       locale === "vi"
@@ -60,7 +60,7 @@ export function getConditionSpecificWarnings(profile: PregnancyProfile, locale: 
         : "Constipation: increase fiber, water, yogurt, leafy greens, beans and sweet potato as tolerated."
     );
   }
-  if (nausea && conditions.has("reflux") && (weightControl || glucose)) {
+  if (nausea && conditions.has("reflux")) {
     notes.push(nauseaAndRefluxLine(locale, glucose, weightControl));
   } else if (nausea) {
     notes.push(nauseaLine(locale, weightControl, glucose));
@@ -86,7 +86,7 @@ export function getConditionSpecificWarnings(profile: PregnancyProfile, locale: 
         : "High blood pressure or swelling: reduce very salty foods and processed foods; follow your clinician's monitoring guidance."
     );
   }
-  if (conditions.has("reflux") && !(nausea && (weightControl || glucose))) {
+  if (conditions.has("reflux") && !nausea) {
     notes.push(
       weightControl
         ? locale === "vi"
@@ -165,7 +165,7 @@ function nauseaLine(locale: Locale, weightControl: boolean, glucose: boolean): s
   if (!weightControl && glucose) {
     return locale === "vi"
       ? `Nghén: Chia nhỏ bữa, ăn đều trong ngày, chọn món ít mùi, mềm, dễ tiêu; có thể thử ${foods}.`
-      : `Morning sickness: Smaller meals spread through the day and choose mild-smelling, soft, easy-to-digest foods such as ${foods}.`;
+      : `Morning sickness: Eat smaller meals spread through the day, and choose mild-smelling, soft, easy-to-digest foods such as ${foods}.`;
   }
   if (locale === "vi") {
     return `Nghén: Chia bữa đều trong ngày, chọn món ít mùi, mềm, dễ tiêu; có thể thử ${foods}.`;
@@ -179,7 +179,12 @@ function nauseaAndRefluxLine(locale: Locale, glucose: boolean, weightControl: bo
   if (!weightControl && glucose) {
     return locale === "vi"
       ? `Chia nhỏ bữa, ăn đều trong ngày, ăn chậm, không nằm ngay sau ăn. Chọn món ít mùi, mềm, dễ tiêu; có thể thử ${foods}.`
-      : `Smaller meals spread through the day, eat slowly, and don't lie down right after eating. Choose mild-smelling, soft, easy-to-digest foods such as ${foods}.`;
+      : `Eat smaller meals spread through the day, eat slowly, and don't lie down right after eating. Choose mild-smelling, soft, easy-to-digest foods such as ${foods}.`;
+  }
+  if (!weightControl) {
+    return locale === "vi"
+      ? `Chia nhỏ bữa ăn, ăn chậm, không nằm ngay sau ăn. Chọn món ít mùi, mềm, dễ tiêu; có thể thử ${foods}.`
+      : `Eat smaller meals slowly, and don't lie down right after eating. Choose mild-smelling, soft, easy-to-digest foods such as ${foods}.`;
   }
   return locale === "vi"
     ? `Chia bữa đều trong ngày, ăn chậm, không nằm ngay sau ăn. Chọn món ít mùi, mềm, dễ tiêu; có thể thử ${foods}.`
