@@ -4,7 +4,7 @@ import { getOptionalAiEnv } from "@/lib/cloudflare/env";
 import { ingredientsFromPlan, selectLibraryNotes } from "@/lib/nutrition/noteLibrary";
 import { buildMealPlanPrompt } from "@/lib/nutrition/aiPromptBuilder";
 import { ruleBasedMealPlanner } from "@/lib/nutrition/mealPlanner";
-import { filterNotesForLocale, localizeMealPlanForLocale, sanitizeSpecialNotes } from "@/lib/nutrition/localizeMealPlan";
+import { filterNotesForLocale, localizeMealPlanForLocale } from "@/lib/nutrition/localizeMealPlan";
 import type { MealPlan } from "@/types/mealPlan";
 import type { PregnancyProfile } from "@/types/pregnancy";
 

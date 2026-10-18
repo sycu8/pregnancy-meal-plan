@@ -330,4 +330,21 @@ describe("special notes", () => {
     expect(localized.specialNotes).not.toContain("Ghi chú AI bị loại.");
     expect(localized.specialNotes.length).toBe(warnings.length + modelNotes.length);
   });
+
+  it("drops the wrong language before the 8-note cap", () => {
+    const profile: PregnancyProfile = { ...baseProfile, goals: ["balanced"], healthConditions: ["none"] };
+    const plan = ruleBasedMealPlanner(profile, "vi");
+    const english = Array.from({ length: MAX_SPECIAL_NOTES }, (_, index) => `English note ${index} for the saved plan.`);
+    const vietnamese = Array.from({ length: MAX_SPECIAL_NOTES }, (_, index) => `Ghi chú tiếng Việt số ${index}.`);
+    const localized = localizeMealPlanForLocale(
+      { ...plan, specialNotes: [...english, ...vietnamese, "Ghi chú thứ chín bị loại."] },
+      "vi"
+    );
+
+    for (const note of vietnamese) {
+      expect(localized.specialNotes).toContain(note);
+    }
+    expect(localized.specialNotes.join(" ")).not.toMatch(/English note/);
+    expect(localized.specialNotes).not.toContain("Ghi chú thứ chín bị loại.");
+  });
 });

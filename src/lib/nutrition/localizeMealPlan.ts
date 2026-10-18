@@ -37,8 +37,8 @@ function cleanNoteStrings(notes: unknown, limit = Number.POSITIVE_INFINITY): str
 }
 
 /** Keep only short strings so a model payload cannot crash the result page. */
-export function sanitizeSpecialNotes(notes: unknown): string[] {
-  return cleanNoteStrings(notes, MAX_SPECIAL_NOTES);
+export function sanitizeSpecialNotes(notes: unknown, limit = MAX_SPECIAL_NOTES): string[] {
+  return cleanNoteStrings(notes, limit);
 }
 
 /**
@@ -244,11 +244,11 @@ function uniqueSorted(values: string[]) {
   return Array.from(new Set(values)).sort();
 }
 
-/** Notes that can be shown for this locale. English notes are dropped from a Vietnamese plan, and the reverse. */
+/** Notes that can be shown for this locale. The 8-note cap is applied after the language filter. */
 export function filterNotesForLocale(notes: readonly string[], locale: Locale): string[] {
-  const safe = sanitizeSpecialNotes([...notes]);
-  if (locale === "vi") return safe.filter((note) => looksVietnamese(note));
-  return safe.filter((note) => !looksVietnamese(note));
+  const clean = sanitizeSpecialNotes([...notes], Number.POSITIVE_INFINITY);
+  const localized = locale === "vi" ? clean.filter((note) => looksVietnamese(note)) : clean.filter((note) => !looksVietnamese(note));
+  return localized.slice(0, MAX_SPECIAL_NOTES);
 }
 
 function localizeSpecialNotes(notes: unknown, profile: MealPlan["profileSnapshot"], locale: Locale): string[] {
