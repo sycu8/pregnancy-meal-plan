@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { aiUnavailableMessage, mealPlanErrorMessage, type MealPlanErrorKind } from "@/lib/nutrition/aiUnavailable";
+import { aiUnavailableMessage, isTimeoutError, mealPlanErrorMessage, type MealPlanErrorKind } from "@/lib/nutrition/aiUnavailable";
 import {
   MealPlanAiError,
   MealPlanRequestError,
@@ -234,6 +234,28 @@ describe("meal plan error UX", () => {
     expect((timeoutError as MealPlanAiError).action).toBe("ai");
     expect((timeoutError as MealPlanAiError).message).toBe(aiUnavailableMessage("en"));
     expect(timeout).toHaveBeenCalledTimes(2);
+
+    const mentioned = new Error("Invalid timeout configuration");
+    expect(isTimeoutError(mentioned)).toBe(false);
+    expect(isTimeoutError(Object.assign(new Error("The user aborted a request."), { name: "AbortError" }))).toBe(false);
+    expect(
+      isTimeoutError(Object.assign(new Error("The operation was aborted due to timeout"), { name: "AbortError" }))
+    ).toBe(true);
+
+    const mentionFetch = vi.fn(async () => {
+      throw mentioned;
+    });
+    vi.stubGlobal("fetch", mentionFetch);
+    const notATimeout = await fetchMealPlan(profile, "vi").then(
+      () => {
+        throw new Error("expected a non-timeout failure");
+      },
+      (caught: unknown) => caught
+    );
+    expect(notATimeout).toBeInstanceOf(MealPlanRequestError);
+    expect((notATimeout as MealPlanRequestError).kind).toBe("server");
+    expect((notATimeout as MealPlanRequestError).action).toBe("retry");
+    expect((notATimeout as MealPlanRequestError).message).toBe(serverMessage);
   });
 
   it("shows the swap error immediately for 400, 403, and 429 and does not retry", async () => {

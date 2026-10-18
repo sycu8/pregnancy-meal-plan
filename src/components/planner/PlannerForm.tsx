@@ -11,6 +11,7 @@ import { canCreateAiPlan } from "@/lib/premium/usage";
 import { getPremiumTier } from "@/lib/premium/tier";
 import { getNutritionLabels } from "@/lib/nutrition/labels";
 import { fetchMealPlan, createLocalMealPlan, MealPlanRequestError, PremiumLimitError } from "@/lib/nutrition/fetchMealPlan";
+import { MealPlanResult } from "@/components/result/MealPlanResult";
 import { isAbortError, leaksProviderDetail, mealPlanErrorMessage, type MealPlanErrorAction } from "@/lib/nutrition/aiUnavailable";
 import { pregnancyProfileSchema, validationErrorToLocale } from "@/lib/nutrition/validation";
 import { saveMealPlan, saveProfile, getProfile } from "@/lib/storage/localStorage";
@@ -146,6 +147,7 @@ export function PlannerForm({ mode = "planner", locale = "vi" }: { mode?: "plann
   const [showPlanUpsell, setShowPlanUpsell] = useState(false);
   const [planUpsellReason, setPlanUpsellReason] = useState<PremiumUpsellReason>("ai-limit");
   const [errorAction, setErrorAction] = useState<MealPlanErrorAction | "none">("none");
+  const [inlinePlan, setInlinePlan] = useState(false);
   const isProfileMode = mode === "profile";
 
   useEffect(() => {
@@ -195,7 +197,7 @@ export function PlannerForm({ mode = "planner", locale = "vi" }: { mode?: "plann
       saveMealPlan(plan);
       cacheOfflineSnapshot(validProfile, plan);
       incrementPlanCount();
-      router.push(localizedPath(locale, "/result"));
+      setInlinePlan(true);
     } catch (caught) {
       setErrorAction("none");
       setError(validationErrorToLocale(caught, locale));
@@ -270,6 +272,10 @@ export function PlannerForm({ mode = "planner", locale = "vi" }: { mode?: "plann
     } finally {
       setIsLoading(false);
     }
+  }
+
+  if (inlinePlan) {
+    return <MealPlanResult locale={locale} />;
   }
 
   return (

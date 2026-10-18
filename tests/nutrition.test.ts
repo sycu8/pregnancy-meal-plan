@@ -200,6 +200,10 @@ describe("special notes", () => {
     expect(notes.every((note) => note.length <= MAX_SPECIAL_NOTE_CHARS)).toBe(true);
     expect(notes[0]).toBe("Uống đủ nước.");
     expect(notes[1]).toHaveLength(MAX_SPECIAL_NOTE_CHARS);
+
+    const unique = ["Uống đủ nước.", ...Array.from({ length: 7 }, (_, index) => `Ghi chú riêng ${index}.`)];
+    const withDuplicates = ["Uống đủ nước.", "Uống đủ nước.", "  Uống   đủ nước.  ", ...unique.slice(1)];
+    expect(sanitizeSpecialNotes(withDuplicates)).toEqual(unique);
     expect(notes.join(" ")).not.toContain("[object Object]");
 
     const plan = ruleBasedMealPlanner(baseProfile, "vi");

@@ -176,6 +176,7 @@ const copy = {
     caution: "Note",
     estimate: "Estimate",
     swapMeal: "Swap meal",
+    tryAgain: "Try again",
     swapping: "Swapping...",
     share: "Share",
     shared: "Shared",
@@ -207,6 +208,7 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
   const [saved, setSaved] = useState(false);
   const [shareState, setShareState] = useState<"idle" | "shared" | "copied" | "shared_local" | "copied_local">("idle");
   const [swapError, setSwapError] = useState("");
+  const [swapErrorSlot, setSwapErrorSlot] = useState<MealSlot | null>(null);
   const [shareError, setShareError] = useState("");
   const [exportError, setExportError] = useState("");
   const [exported, setExported] = useState(false);
@@ -296,10 +298,12 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
     if (!plan) return;
     if (!canSwapMeal(getPremiumTier())) {
       setSwapError(t.swapLimit);
+      setSwapErrorSlot(mealSlot);
       setShowSwapUpsell(true);
       return;
     }
     setSwapError("");
+    setSwapErrorSlot(mealSlot);
     setShowSwapUpsell(false);
     const day = plan.days[activeDayIndex]?.day ?? 1;
     setSwappingSlot(mealSlot);
@@ -475,7 +479,23 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
         </div>
         <div className="no-print mt-3 space-y-3">
           <PremiumUsageHint locale={locale} mode="swap" refreshKey={usageRefresh} />
-          {swapError && <p className="text-sm text-red-700">{swapError}</p>}
+          {swapError && locale === "en" ? (
+            <div className="space-y-2">
+              <p className="text-sm text-red-700">{swapError}</p>
+              <Button
+                type="button"
+                variant="secondary"
+                disabled={!swapErrorSlot || swappingSlot !== null}
+                onClick={() => {
+                  if (swapErrorSlot) void handleSwapMeal(swapErrorSlot);
+                }}
+              >
+                {copy.en.tryAgain}
+              </Button>
+            </div>
+          ) : swapError ? (
+            <p className="text-sm text-red-700">{swapError}</p>
+          ) : null}
           {shareError && <p className="text-sm text-red-700">{shareError}</p>}
           {exportError && <p className="text-sm text-red-700">{exportError}</p>}
           {showSwapUpsell && isFreeTier ? <PremiumUpsell locale={locale} reason="swap-limit" /> : null}

@@ -87,10 +87,13 @@ export function isAbortError(error: unknown): boolean {
   return error instanceof Error && error.name === "AbortError" && !isTimeoutError(error);
 }
 
-/** Fetch timeouts should offer the basic plan, the same as an AI outage. */
+const REAL_TIMEOUT_MESSAGE = /^(?:the operation was aborted due to timeout|the operation timed out|signal timed out)\.?$/i;
+
+/** Only AbortSignal / TimeoutError failures, not any message that mentions a timeout. */
 export function isTimeoutError(error: unknown): boolean {
   if (!(error instanceof Error)) return false;
-  return error.name === "TimeoutError" || /timeout|timed out/i.test(error.message);
+  if (error.name === "TimeoutError") return true;
+  return error.name === "AbortError" && REAL_TIMEOUT_MESSAGE.test(error.message.trim());
 }
 
 /** A failed fetch (no HTTP status) is a network failure, not a 5xx response. */
