@@ -15,6 +15,7 @@ export function buildMealPlanPrompt(profile: PregnancyProfile, locale: Locale = 
     "Do not restate food-safety rules, condition warnings, mercury or fish rules, or anything the app already tells the user.",
     "If you have no new practical note, return {\"specialNotes\":[]}.",
     "Do not provide medical diagnoses and do not tell the user to ask a clinician.",
+    "Do not recommend weight loss, dieting, eating less to slim down, or cutting calories during pregnancy.",
     "Use only the profile fields below:",
     JSON.stringify({
       residenceCountry: profile.residenceCountry ?? "VN",

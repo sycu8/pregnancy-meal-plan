@@ -450,7 +450,7 @@ function workersAiFailureDetail(result: unknown): string | null {
 }
 
 const NOTES_SYSTEM_PROMPT =
-  'Return exactly one JSON object {"specialNotes":[{"text":"...","kind":"portion|swap|timing|prep|other","foods":["..."]}]} with 2 or 3 notes of at most 12 words, each ending with a period, in the requested language. Do not restate safety rules. Do not write a meal plan.';
+  'Return exactly one JSON object {"specialNotes":[{"text":"...","kind":"portion|swap|timing|prep|other","foods":["..."]}]} with 2 or 3 notes of at most 12 words, each ending with a period, in the requested language. Do not restate safety rules. Do not recommend weight loss or dieting. Do not write a meal plan.';
 
 async function callOpenAi(prompt: string, apiKey: string, gatewayUrl: string | undefined, signal: AbortSignal): Promise<string> {
   const url = gatewayUrl ? `${gatewayUrl.replace(/\/$/, "")}/chat/completions` : "https://api.openai.com/v1/chat/completions";

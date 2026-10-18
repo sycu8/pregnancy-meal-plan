@@ -40,6 +40,7 @@ describe("meal-plan prompt", () => {
     expect(prompt).toContain('"kind":"portion|swap|timing|prep|other"');
     expect(prompt).toMatch(/2 or 3 items in Vietnamese only/);
     expect(prompt).toMatch(/at most 12 words/);
+    expect(prompt).toMatch(/weight loss/i);
     expect(prompt).toMatch(/do not restate/i);
     expect(prompt).not.toContain(getConditionSpecificWarnings(gdm, "vi")[0]);
     expect(prompt).not.toContain(getGeneralPregnancyFoodWarnings("vi")[0]);
@@ -98,7 +99,22 @@ const gdmContradictions = [
   "Bubble tea is a snack.",
   "Uống trà sữa.",
   "Ăn nhãn tươi mỗi ngày.",
-  "Thử phở cho bữa trưa."
+  "Thử phở cho bữa trưa.",
+  "Try pho for lunch.",
+  "Pho ga is an easy lunch.",
+  "An thom chin sau bua trua.",
+  "Them mit vao sua chua.",
+  "An chuoi chin moi sang.",
+  "A cola with the rice bowl.",
+  "Uong tra dao da moi chieu.",
+  "Nuoc co ga khi khat.",
+  "Them siro vao sua moi toi.",
+  "Replace brown rice with white rice.",
+  "Swap oats for white rice.",
+  "Đổi gạo lứt sang cơm trắng.",
+  "không cần phải hạn chế xoài.",
+  "There is no need to limit mango.",
+  "Durian, a small bowl, is plenty."
 ];
 
 const gdmSafe = [
@@ -117,8 +133,10 @@ const gdmSafe = [
   "Have one small apple with nuts instead of juice.",
   "Replace white rice with brown rice.",
   "Swap white rice for brown rice.",
-  "Try pho for lunch.",
   "No mango.",
+  "Have mango, just a small bowl.",
+  "Xoài chỉ một lát sau bữa.",
+  "Watermelon: half a cup.",
   "Ko an mit.",
   "Đọc nhãn dinh dưỡng trước khi mua.",
   "Have a kiwi or an apple.",
@@ -165,7 +183,29 @@ const unsafeFoods = [
   "Giá sống trong món gỏi.",
   "Raw sprouts on the salad.",
   "Một phần nhỏ gan mỗi tuần.",
-  "Ăn xúc xích chưa làm nóng."
+  "Ăn xúc xích chưa làm nóng.",
+  "Order oysters on the half shell.",
+  "Prawns that are under-cooked.",
+  "Hàu tươi cho bữa tối.",
+  "Tôm tái với rau thơm.",
+  "An so huyet truoc com.",
+  "A small bowl of tiết canh.",
+  "Thuong thuc tiet canh vit.",
+  "Duck blood soup is warming.",
+  "Pour a little whiskey into the sauce.",
+  "Champagne at dinner is festive.",
+  "A gin and tonic.",
+  "Farm raw milk on porridge.",
+  "Sữa bò chưa thanh trùng mỗi sáng.",
+  "Sua song moi vat uong lien.",
+  "Milk that has not been pasteurised.",
+  "Skip raw fish but pâté is fine.",
+  "Không ăn sushi nhưng pate thì được.",
+  "Avoid cold cuts; pâté on toast is alright.",
+  "Don't avoid pâté at breakfast.",
+  "Ăn ít tinh bột để giảm cân.",
+  "A light dinner helps with weight loss.",
+  "Cut calories at week twenty."
 ];
 
 const safeFoods = [
@@ -186,7 +226,13 @@ const safeFoods = [
   "Hâm nóng xúc xích trước khi ăn.",
   "Don't drink wine.",
   "No alcohol tonight.",
-  "Đeo trang sức vàng."
+  "Đeo trang sức vàng.",
+  "Steamed mussels with garlic.",
+  "Tôm hấp chín với bún.",
+  "Không ăn pate.",
+  "Không uống sữa chưa thanh trùng.",
+  "Use pasteurised milk in the oats.",
+  "Giảm đồ ngọt và chia nhỏ bữa."
 ];
 
 describe("per-condition deny list", () => {
@@ -372,7 +418,20 @@ describe("authored GDM plans", () => {
     { locale: "en", text: "No mango.", block: false },
     { locale: "vi", text: "Ko an mit.", block: false },
     { locale: "vi", text: "Một phần nhỏ gan gà nấu chín mỗi tuần.", block: false },
-    { locale: "en", text: "Try pho for lunch.", block: false },
+    { locale: "en", text: "Try pho for lunch.", block: true },
+    { locale: "en", text: "Order oysters on the half shell.", block: true },
+    { locale: "vi", text: "Tôm tái với rau thơm.", block: true },
+    { locale: "vi", text: "Thuong thuc tiet canh vit.", block: true },
+    { locale: "en", text: "A gin and tonic.", block: true },
+    { locale: "vi", text: "Sữa bò chưa thanh trùng mỗi sáng.", block: true },
+    { locale: "en", text: "Skip raw fish but pâté is fine.", block: true },
+    { locale: "vi", text: "An thom chin sau bua trua.", block: true },
+    { locale: "vi", text: "Uong tra dao da moi chieu.", block: true },
+    { locale: "en", text: "Replace brown rice with white rice.", block: true },
+    { locale: "vi", text: "Ăn ít tinh bột để giảm cân.", block: true },
+    { locale: "en", text: "Have mango, just a small bowl.", block: false },
+    { locale: "en", text: "Steamed mussels with garlic.", block: false },
+    { locale: "vi", text: "Không ăn pate.", block: false },
     { locale: "en", text: "Have a kiwi or an apple.", block: false },
     { locale: "vi", text: "Ăn ổi và táo.", block: false },
     { locale: "vi", text: "Không ăn sầu riêng.", block: false },
@@ -408,11 +467,12 @@ describe("authored GDM plans", () => {
 });
 
 describe("class probe extras", () => {
-  it("treats NFD phở like NFC phở and still allows English pho", () => {
+  it("treats NFD phở and English pho as high-GI for gestational diabetes", () => {
     const nfd = "Thử phở cho bữa trưa.".normalize("NFD");
     expect(nfd.normalize("NFC")).not.toBe(nfd);
     expect(filterSafeAiNotes([nfd], gdm)).toEqual([]);
-    expect(filterSafeAiNotes(["Try pho for lunch."], gdm)).toEqual(["Try pho for lunch."]);
+    expect(filterSafeAiNotes(["Try pho for lunch."], gdm)).toEqual([]);
+    expect(filterSafeAiNotes(["Phở gà nấu chín là bữa dễ ăn."], profile)).toEqual(["Phở gà nấu chín là bữa dễ ăn."]);
   });
 });
 

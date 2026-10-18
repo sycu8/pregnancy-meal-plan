@@ -101,7 +101,9 @@ const VI_FRUIT_PLAIN = [
   "hong xiem",
   "vu sua",
   "du du",
-  "xoai"
+  "xoai",
+  "thom",
+  "khe"
 ];
 
 /** Bare quả/trái, plus guarded unaccented forms that must not match quá, chuỗi, or trà. */
@@ -119,7 +121,7 @@ const LONGAN_PLAIN =
 const FRUIT_ACCENTED = `${EN_FRUIT}|${words(VI_FRUIT)}|${LONGAN_ACCENTED}|${BARE_FRUIT_ACCENTED}`;
 const FRUIT_PLAIN = `${EN_FRUIT}|${words(VI_FRUIT_PLAIN)}|${LONGAN_PLAIN}|${GUARDED_PLAIN_FRUIT}|${BARE_FRUIT_PLAIN}`;
 
-const EN_SWEET = ["juices?", "smoothies?", "honey", "desserts?", "sugary drinks?", "soft drinks?", "soda", "sugar cane", "white rice", "milk teas?", "bubble teas?"]
+const EN_SWEET = ["juices?", "smoothies?", "honey", "desserts?", "sugary drinks?", "soft drinks?", "soda", "sugar cane", "white rice", "milk teas?", "bubble teas?", "colas?", "energy drinks?", "syrups?", "sweet teas?"]
   .map((phrase) => `(?<![\\p{L}\\p{N}])(?:${phrase})(?![\\p{L}\\p{N}])`)
   .join("|");
 const VI_SWEET = [
@@ -133,6 +135,11 @@ const VI_SWEET = [
   "bánh ngọt",
   "sữa đặc",
   "trà sữa",
+  "trà đào",
+  "nước có ga",
+  "nước đường",
+  "nước tăng lực",
+  "siro",
   "cơm tấm",
   "đồ ngọt"
 ];
@@ -147,23 +154,28 @@ const VI_SWEET_PLAIN = [
   "banh ngot",
   "sua dac",
   "tra sua",
+  "tra dao",
+  "nuoc co ga",
+  "nuoc duong",
+  "nuoc tang luc",
+  "siro",
   "com tam",
   "do ngot"
 ];
 /**
- * chè / phở / xôi stay on the accented pattern so chế, phổ, and phô do not fold into them.
- * English "pho" is not high-GI; Vietnamese phở is, including a decomposed phở after NFC.
+ * chè / phở / xôi / English pho stay high-GI. The plain pho guard skips phô mai and phổ biến.
+ * A decomposed phở is NFC'd before the accented pattern runs.
  */
 const FOLD_SENSITIVE_ACCENTED = `${word("chè")}|${word("xôi")}|${word("phở")}`;
 const FOLD_SENSITIVE_PLAIN =
-  "(?<!han\\s)(?<![\\p{L}\\p{N}])che(?![\\p{L}\\p{N}])(?!\\s+bien)|(?<![\\p{L}\\p{N}])xoi(?![\\p{L}\\p{N}])";
+  "(?<!han\\s)(?<![\\p{L}\\p{N}])che(?![\\p{L}\\p{N}])(?!\\s+bien)|(?<![\\p{L}\\p{N}])xoi(?![\\p{L}\\p{N}])|(?<![\\p{L}\\p{N}])pho(?![\\p{L}\\p{N}])(?!\\s+(?:mai|bien))";
 
 const SWEET_ACCENTED = `${EN_SWEET}|${words(VI_SWEET)}|${FOLD_SENSITIVE_ACCENTED}`;
 const SWEET_PLAIN = `${EN_SWEET}|${words(VI_SWEET_PLAIN)}|${FOLD_SENSITIVE_PLAIN}`;
 
 function isCooked(note: string): boolean {
   const folded = foldNote(note.normalize("NFC"));
-  return /(?:cooked|grilled|baked|steamed|nau chin|(?<![a-z])(?:hap|nuong|grill)(?![a-z]))/iu.test(folded);
+  return /(?<![a-z-])(?:cooked|grilled|baked|steamed)(?![a-z])|nau chin|(?<![a-z])(?:hap|nuong|grill)(?![a-z])/iu.test(folded);
 }
 
 function isReheated(note: string): boolean {
@@ -228,9 +240,9 @@ const FOOD_SAFETY_DENY_RULES: DenyRule[] = [
   {
     applies: () => true,
     accented:
-      "sashimi|sushi|unpasteuri[sz]ed|unpasteuri[sz]e|chưa tiệt trùng|(?<![\\p{L}\\p{N}])raw(?![\\p{L}\\p{N}])|undercooked|cá sống|thịt sống|trứng sống|đồ sống|đồ tái|hải sản sống",
+      "sashimi|sushi|unpasteuri[sz]ed|unpasteuri[sz]e|(?:not|n't)\\s+been\\s+pasteuri[sz]ed|not\\s+pasteuri[sz]ed|under-?cooked|(?<![\\p{L}\\p{N}])raw(?![\\p{L}\\p{N}])|raw milk|sữa sống|sữa mới vắt|chưa tiệt trùng|chưa thanh trùng|(?:chưa\\s+(?:[\\p{L}\\p{N}]+\\s+){0,3}(?:tiệt trùng|thanh trùng))|cá sống|thịt sống|trứng sống|đồ sống|đồ tái|hải sản sống",
     plain:
-      "sashimi|sushi|unpasteuri[sz]ed|unpasteuri[sz]e|chua tiet trung|(?<![\\p{L}\\p{N}])raw(?![\\p{L}\\p{N}])|undercooked|ca song|thit song|trung song|do song|do tai|hai san song"
+      "sashimi|sushi|unpasteuri[sz]ed|unpasteuri[sz]e|(?:not|n't)\\s+been\\s+pasteuri[sz]ed|not\\s+pasteuri[sz]ed|under-?cooked|(?<![\\p{L}\\p{N}])raw(?![\\p{L}\\p{N}])|raw milk|sua song|sua moi vat|chua tiet trung|chua thanh trung|(?:chua\\s+(?:[a-z0-9]+\\s+){0,3}(?:tiet trung|thanh trung))|ca song|thit song|trung song|do song|do tai|hai san song"
   },
   {
     applies: () => true,
@@ -257,8 +269,10 @@ const FOOD_SAFETY_DENY_RULES: DenyRule[] = [
   },
   {
     applies: () => true,
-    accented: "(?<![\\p{L}\\p{N}])(?:alcohol|wines?|beers?|rượu|bia|cocktails?|soju)(?![\\p{L}\\p{N}])",
-    plain: "(?<![\\p{L}\\p{N}])(?:alcohol|wines?|beers?|ruou|bia|vang|cocktails?|soju)(?![\\p{L}\\p{N}])"
+    accented:
+      "(?<![\\p{L}\\p{N}])(?:alcohol|wines?|beers?|rượu|bia|cocktails?|soju|liquors?|spirits|boozes?|whisk(?:e)?ys?|vodkas?|rums?|gins?|champagnes?|ciders?|brand(?:y|ies)|tequilas?|bourbons?|scotch(?:es)?|liqueurs?|sangrias?|martinis?|ales?|lagers?|proseccos?)(?![\\p{L}\\p{N}])",
+    plain:
+      "(?<![\\p{L}\\p{N}])(?:alcohol|wines?|beers?|ruou|bia|vang|cocktails?|soju|liquors?|spirits|boozes?|whisk(?:e)?ys?|vodkas?|rums?|gins?|champagnes?|ciders?|brand(?:y|ies)|tequilas?|bourbons?|scotch(?:es)?|liqueurs?|sangrias?|martinis?|ales?|lagers?|proseccos?)(?![\\p{L}\\p{N}])"
   },
   {
     applies: () => true,
@@ -270,6 +284,17 @@ const FOOD_SAFETY_DENY_RULES: DenyRule[] = [
     applies: () => true,
     accented: `${word("giá sống")}|raw sprouts|raw bean sprouts`,
     plain: `${word("gia song")}|raw sprouts|raw bean sprouts`
+  },
+  {
+    applies: () => true,
+    accented: `${word("tiết canh")}|blood soup|blood pudding|duck blood|pig blood|pork blood`,
+    plain: `${word("tiet canh")}|blood soup|blood pudding|duck blood|pig blood|pork blood`
+  },
+  {
+    applies: () => true,
+    ignoreNegation: true,
+    accented: "giảm cân|giảm béo|lose weight|weight loss|losing weight|calorie deficit|cut calories|dieting|slim down",
+    plain: "giam can|giam beo|lose weight|weight loss|losing weight|calorie deficit|cut calories|dieting|slim down"
   },
   { applies: () => true, accented: "(?<![\\p{L}\\p{N}])tuna(?![\\p{L}\\p{N}])|cá ngừ", plain: "(?<![\\p{L}\\p{N}])tuna(?![\\p{L}\\p{N}])|ca ngu" },
   {
@@ -284,17 +309,31 @@ const LIMITER =
 
 /** "don't limit" and "không cần hạn chế" cancel the limiter; they are not a portion cap. */
 const NEGATED_LIMITER =
-  /(?:don't|do not|(?:không|khong|ko)(?:\s+(?:cần|can))?)\s+(?:hạn chế|han che|giới hạn|gioi han|limit(?:ed)?)/giu;
+  /(?:don't(?:\s+need\s+to)?|do not(?:\s+need\s+to)?|no need to|(?:không|khong|ko)(?:\s+(?:cần|can))?(?:\s+(?:phải|phai))?)\s+(?:hạn chế|han che|giới hạn|gioi han|limit(?:ed)?)/giu;
+
+/** "don't avoid pâté" negates the avoidance and still recommends the food. */
+const NEGATED_AVOIDANCE =
+  /(?:don't|do not|not|(?:không|khong|ko)(?:\s+(?:cần|can))?(?:\s+(?:phải|phai))?)\s+(?:avoid|tránh|tranh|skip)/giu;
 
 const RECOMMEND_BREAK =
   /(?:^|[^\p{L}\p{N}])(?:and|va|và|,)\s+(?:eat|eats|enjoy|try|tries|have|drink|drinks|add|choose|prioritize|incorporate|include|uống|uong|ăn|thử|thu|thưởng|thuong|nên|nen)\b/iu;
+
+/** Negation does not cross a contrast or a new clause. */
+const SCOPE_BREAK =
+  /(?:^|[^\p{L}\p{N}])(?:but|nhưng|nhung|mà|ma)(?=$|[^\p{L}\p{N}])/iu;
+
+/** "replace X with Y" governs X, not the food after with/for/sang. */
+const SWAP_DESTINATION =
+  /(?:^|[^\p{L}\p{N}])(?:with|for|bằng|bang|sang|thành|thanh|lấy|lay)(?=$|[^\p{L}\p{N}])/iu;
 
 /**
  * A limiter governs the matched food when it introduces that food or a list of foods.
  * "in moderation" is not a limiter. "over" and "instead of" cover the following phrase.
  */
 function withoutNegatedLimiters(text: string): string {
-  return text.replace(NEGATED_LIMITER, (match) => " ".repeat(match.length));
+  return text
+    .replace(NEGATED_LIMITER, (match) => " ".repeat(match.length))
+    .replace(NEGATED_AVOIDANCE, (match) => " ".repeat(match.length));
 }
 
 function limiterGoverns(before: string, nfcBefore?: string): boolean {
@@ -310,7 +349,8 @@ function limiterGoverns(before: string, nfcBefore?: string): boolean {
   if (matches.length === 0) return false;
   const last = matches[matches.length - 1];
   const gap = stripped.slice((last.index ?? 0) + last[0].length);
-  if (/[.!?;]/.test(gap) || RECOMMEND_BREAK.test(gap)) return false;
+  if (/[.!?;]/.test(gap) || SCOPE_BREAK.test(gap) || RECOMMEND_BREAK.test(gap)) return false;
+  if (/replace|swap|thay|đổi|doi/i.test(last[0]) && SWAP_DESTINATION.test(gap)) return false;
   const wordsInGap = gap.trim().split(/\s+/).filter(Boolean);
   const shortScope = /over|instead of|thay|replace|swap/i.test(last[0]);
   return wordsInGap.length <= (shortScope ? 6 : 20);
@@ -324,12 +364,12 @@ function portionLimits(before: string): boolean {
   );
 }
 
+const PORTION_CUE =
+  /(?:\d+\s?(?:g|gram|grams|ml)\b)|(?:small|limited|nhỏ|nho|vài|vai|một ít|mot it|một chút|mot chut|một miếng|mot mieng|một lát|mot lat|one|half|nửa|nua|no more than|không quá|khong qua|tối đa|toi da|chỉ|chi|up to|a few)\s+(?:[\p{L}\p{N}]+\s+){0,4}(?:serving|servings|portion|portions|amount|piece|pieces|plate|plates|bowl|bowls|cup|cups|slice|slices|handful|phần|phan|miếng|mieng|chén|chen|bát|bat|lát|lat|nắm|nam|thìa|thia)\b|(?:một phần nhỏ|mot phan nho|phần nhỏ|phan nho|one small|half an|half a|nửa phần|nua phan|a few|(?:một|mot)\s+(?:tô|to))\b/iu;
+
 function portionLimitsAfter(after: string): boolean {
-  const head = after.slice(0, 72);
-  return (
-    /^(?:[\s,;:]*)(?:(?:một|mot|one|a|an)\s+)?(?:small|limited|nhỏ|nho)\s+(?:[\p{L}\p{N}]+\s+){0,3}(?:serving|portion|amount|piece|plate|phần|phan|miếng|mieng)\b/iu.test(head) ||
-    /^(?:[\s,;:]*)(?:một phần nhỏ|mot phan nho|phần nhỏ|phan nho|một ít|mot it|no more than|không quá|khong qua|tối đa|toi da|chỉ một|chi mot|one small|half an|half a|nửa phần|nua phan)\b/iu.test(head)
-  );
+  const clause = (after.split(/(?:[.!?;]|(?:^|[^\p{L}\p{N}])(?:but|nhưng|nhung|mà|ma)(?=$|[^\p{L}\p{N}]))/iu)[0] ?? "").slice(0, 96);
+  return PORTION_CUE.test(clause);
 }
 
 /** True when the folded hit still has a diacritic in the original, so chế did not become chè. */
@@ -380,6 +420,40 @@ function ruleHits(note: string, rule: DenyRule): boolean {
   return scanRule(folded, rule.plain, rule, nfc, true);
 }
 
+const SHELLFISH =
+  /(?<![a-z])(?:oysters?|clams?|mussels?|shellfish|scallops?|prawns?|shrimps?|crabs?|hau|tom|ngheu|vem|hen|oc)(?![a-z])|so huyet|half[-\s]shell/giu;
+const ALWAYS_RAW_SHELLFISH = /(?<![a-z])(?:oysters?|hau)(?![a-z])|so huyet|half[-\s]shell/giu;
+const RAW_SHELLFISH_ATTR =
+  /(?<![a-z])(?:raw|undercooked|under-cooked|song|tai)(?![a-z])|chua chin|tuoi song|half[-\s]shell/giu;
+
+function ungovernedFoldedHit(note: string, pattern: RegExp): boolean {
+  const nfc = note.normalize("NFC");
+  const folded = foldNote(nfc);
+  for (const match of folded.matchAll(new RegExp(pattern.source, "giu"))) {
+    const start = match.index ?? 0;
+    const from = Math.max(0, start - 96);
+    const before = folded.slice(from, start);
+    if (limiterGoverns(before, nfc.slice(from, start))) continue;
+    return true;
+  }
+  return false;
+}
+
+function rawAttributeNearShellfish(folded: string): boolean {
+  const shells = [...folded.matchAll(new RegExp(SHELLFISH.source, "giu"))];
+  const raws = [...folded.matchAll(new RegExp(RAW_SHELLFISH_ATTR.source, "giu"))];
+  return shells.some((shell) => raws.some((raw) => Math.abs((shell.index ?? 0) - (raw.index ?? 0)) <= 48));
+}
+
+/** Raw or undercooked shellfish, including oysters and sò huyết unless cooked through. */
+function recommendsRawShellfish(note: string): boolean {
+  const folded = foldNote(note.normalize("NFC"));
+  const rawNear = rawAttributeNearShellfish(folded);
+  if (isCooked(note) && !rawNear) return false;
+  if (rawNear) return ungovernedFoldedHit(note, SHELLFISH);
+  return ungovernedFoldedHit(note, ALWAYS_RAW_SHELLFISH);
+}
+
 function recommendsFishWithoutMercuryCaveat(note: string): boolean {
   const text = foldNote(note.normalize("NFC"));
   if (!/(?:omega-?3|ca hoi|salmon|fatty fish|an them ca|eat more fish)/iu.test(text)) return false;
@@ -404,7 +478,9 @@ export function noteIsComplete(note: string): boolean {
 /** Drop model notes that contradict a selected condition or pregnancy food safety. */
 export function filterSafeAiNotes(notes: readonly string[], profile: PregnancyProfile): string[] {
   const rules = [...CONDITION_DENY_RULES, ...FOOD_SAFETY_DENY_RULES].filter((rule) => rule.applies(profile));
-  return notes.filter((note) => !recommendsFishWithoutMercuryCaveat(note) && !rules.some((rule) => ruleHits(note, rule)));
+  return notes.filter(
+    (note) => !recommendsFishWithoutMercuryCaveat(note) && !recommendsRawShellfish(note) && !rules.some((rule) => ruleHits(note, rule))
+  );
 }
 
 const META_PREFIX =

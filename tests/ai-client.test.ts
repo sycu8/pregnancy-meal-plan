@@ -154,6 +154,7 @@ describe("failed AI calls", () => {
     expect(prompt).not.toMatch(/draft english/i);
     expect(buildMealPlanPrompt(profile, "vi")).toMatch(/2 or 3 items in Vietnamese only/);
     expect(prompt).toMatch(/at most 12 words/);
+    expect(prompt).toMatch(/weight loss/i);
 
     const plan = await createAIClient().generateMealPlan(profile, "en");
 
