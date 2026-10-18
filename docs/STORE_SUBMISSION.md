@@ -51,7 +51,7 @@ Bầu Ăn Gì? giúp mẹ bầu Việt Nam lên thực đơn ăn uống trong tu
 
 TÍNH NĂNG CHÍNH
 • Tạo thực đơn 7 ngày miễn phí — không bắt buộc đăng nhập
-• Món Việt dễ nấu, gợi ý khẩu phần tham khảo
+• Món Việt dễ nấu, gợi ý món và danh sách đi chợ
 • Danh sách đi chợ gom theo nhóm thực phẩm
 • Ước tính chi phí từng món và từng đợt đi chợ
 • Cảnh báo thực phẩm nên tránh trong thai kỳ

@@ -98,7 +98,7 @@ export const pageSeo: Record<Locale, Record<PageKey, { title: string; descriptio
     result: {
       title: "7-Day Pregnancy Meal Plan Result | Pregnancy Meal Planner",
       description:
-        "See your 7-day pregnancy meal plan with meal ideas, reference portions, estimated costs, and shopping list.",
+        "See your 7-day pregnancy meal plan with meal ideas, estimated costs, and a detailed shopping list for the week.",
       keywords: ["pregnancy meal plan result", "7 day prenatal meal plan", "pregnancy shopping list"]
     }
   },
@@ -136,7 +136,7 @@ export const pageSeo: Record<Locale, Record<PageKey, { title: string; descriptio
     result: {
       title: "Kết quả thực đơn 7 ngày | Pregnancy Meal Planner",
       description:
-        "Xem thực đơn 7 ngày với món ăn gợi ý, khẩu phần tham khảo, chi phí ước tính và danh sách đi chợ chi tiết.",
+        "Xem thực đơn 7 ngày với món ăn gợi ý, chi phí ước tính và danh sách đi chợ chi tiết theo từng tuần thai.",
       keywords: ["kết quả thực đơn", "thực đơn 7 ngày", "danh sách đi chợ"]
     }
   }

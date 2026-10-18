@@ -31,7 +31,7 @@ import { formatMoney, getCountryPricing } from "@/lib/nutrition/countries";
 import { localizedPath, type Locale } from "@/lib/i18n";
 import type { MealItem, MealPlan } from "@/types/mealPlan";
 
-/** Thực đơn dinh dưỡng là khẩu phần 1 người; khi quy đổi đi chợ cho trẻ, mỗi trẻ ~ phần nhỏ hơn người lớn. */
+/** Thực đơn dinh dưỡng là phần ăn 1 người; khi quy đổi đi chợ cho trẻ, mỗi trẻ ~ phần nhỏ hơn người lớn. */
 const CHILD_PORTION_FACTOR = 0.55;
 const ADULTS_IN_COUPLE = 2;
 
@@ -99,7 +99,7 @@ const copy = {
     meals: ["Bữa sáng", "Bữa phụ sáng", "Bữa trưa", "Bữa phụ chiều", "Bữa tối"],
     hydration: "Nước uống / trái cây",
     estimateNote:
-      "Ước tính khẩu phần và calorie chỉ để tham khảo, có thể thay đổi theo cách nấu và phần ăn thực tế.",
+      "Ước tính phần ăn và năng lượng chỉ để tham khảo, có thể thay đổi theo cách nấu và lượng ăn thực tế.",
     freshShopping: "Lịch đi chợ tươi ngon",
     shoppingTitle: "Ưu tiên mua theo 2-3 ngày/lần",
     shoppingIntro:
@@ -754,11 +754,11 @@ function HouseholdCostSection({
   const household = {
     vi: {
       title: "Ước tính chi phí theo số người ăn",
-      introStart: "Khẩu phần dinh dưỡng trong thực đơn là cho",
+      introStart: "Phần ăn trong thực đơn là cho",
       mother: "một người (mẹ)",
       introMiddle: "Các mức chi phí dưới đây giúp quy đổi khi nấu chung:",
       couple: "Hai vợ chồng",
-      introEnd: `tính ×2 so với một người; phần trẻ em tách riêng theo số con bạn nhập (mỗi trẻ ~${Math.round(CHILD_PORTION_FACTOR * 100)}% khẩu phần đi chợ ước lượng so với một người lớn).`,
+      introEnd: `tính ×2 so với một người; phần trẻ em tách riêng theo số con bạn nhập (mỗi trẻ ~${Math.round(CHILD_PORTION_FACTOR * 100)}% lượng đi chợ ước lượng so với một người lớn).`,
       childrenLabel: "Số trẻ ăn cùng (cùng món gia đình)",
       weekTitle: "Đi chợ cả tuần (cộng các đợt)",
       dayTitle: `Ngày ${activeDayNumber} - chi phí món ước tính`,
@@ -774,7 +774,7 @@ function HouseholdCostSection({
     },
     en: {
       title: "Estimated cost by number of eaters",
-      introStart: "The nutrition portion in this meal plan is for",
+      introStart: "The meals in this plan are written for",
       mother: "one person (the mother)",
       introMiddle: "Use the estimates below when cooking for the household:",
       couple: "two adults",

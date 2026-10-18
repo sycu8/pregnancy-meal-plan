@@ -51,7 +51,7 @@ const mealTextByViName: Record<string, LocalizedMealText> = {
   },
   "Xôi đậu xanh ít dầu": {
     name: "Low-oil mung bean sticky rice",
-    reason: "Good energy from the beans and rice.",
+    reason: "Good energy for breakfast.",
     nutrients: ["plant protein", "starch"]
   },
   "Cơm nắm muối vừng trứng": {
@@ -176,7 +176,7 @@ const mealTextByViName: Record<string, LocalizedMealText> = {
   },
   "Thịt heo nạc rim gừng": {
     name: "Ginger-braised lean pork",
-    reason: "Easy to cook ahead.",
+    reason: "Easy to cook and pack for several meals.",
     nutrients: ["protein", "iron"]
   },
   "Canh cải bó xôi thịt bằm": {
@@ -309,7 +309,7 @@ const mealTextByViName: Record<string, LocalizedMealText> = {
   },
   "Bắp luộc": {
     name: "Boiled corn",
-    reason: "A simple change of pace.",
+    reason: "A simple change of pace, with fiber.",
     nutrients: ["starch", "fiber"]
   },
   "Chè đậu đỏ ít đường": {

@@ -29,7 +29,7 @@ export const cuisinePreferenceLabels: Record<CuisinePreference, string> = {
 
 export const nutritionGoalLabels: Record<NutritionGoal, string> = {
   balanced: "Ăn đủ chất",
-  weight_control: "Theo dõi mức tăng",
+  weight_control: "Bữa nhiều rau và đạm nạc",
   healthy_weight_gain: "Tăng cân lành mạnh",
   reduce_nausea: "Giảm nghén",
   blood_sugar_control: "Kiểm soát đường huyết",
@@ -83,7 +83,7 @@ export const englishCuisinePreferenceLabels: Record<CuisinePreference, string> =
 
 export const englishNutritionGoalLabels: Record<NutritionGoal, string> = {
   balanced: "Balanced nutrition",
-  weight_control: "Track pregnancy gain",
+  weight_control: "Plates with vegetables and lean protein",
   healthy_weight_gain: "Healthy weight gain",
   reduce_nausea: "Reduce nausea",
   blood_sugar_control: "Blood sugar control",

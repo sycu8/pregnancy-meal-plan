@@ -136,7 +136,7 @@ export const EDITORIAL_TOPICS: EditorialTopic[] = [
     snippet:
       "How to transition toward family meals, limit added sugar/salt, and keep portions age-appropriate.",
     titleVi: "Dinh dưỡng trẻ 12–24 tháng: chuyển sang ăn cùng gia đình",
-    snippetVi: "Chuyển dần khẩu phần gia đình, hạn chế đường muối và giữ khẩu phần phù hợp tuổi.",
+    snippetVi: "Chuyển dần sang món gia đình, hạn chế đường muối và giữ lượng ăn phù hợp tuổi.",
     category: "cham-con-0-24-thang",
     tags: ["toddler", "nutrition"]
   },
@@ -194,7 +194,7 @@ export const EDITORIAL_TOPICS: EditorialTopic[] = [
       "Three tasty recipes pairing heme/non-heme iron with vitamin C — Vietnamese-inspired bowls with clear portions and food-safety notes.",
     titleVi: "Công thức ngon cho mẹ bầu: tô cơm giàu sắt và folate trong 30 phút",
     snippetVi:
-      "Ba công thức kết hợp sắt với vitamin C — tô cơm kiểu Việt, khẩu phần rõ ràng và lưu ý an toàn thực phẩm.",
+      "Ba công thức kết hợp sắt với vitamin C — tô cơm kiểu Việt, lượng đạm rõ và lưu ý an toàn thực phẩm.",
     category: "thuc-don-ba-bau",
     tags: ["recipes", "iron", "meal-plan"]
   },
