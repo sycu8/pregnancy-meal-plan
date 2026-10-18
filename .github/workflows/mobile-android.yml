@@ -2,6 +2,10 @@ name: Mobile Android build
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - "mobile/**"
+      - ".github/workflows/mobile-android.yml"
   push:
     branches: [main]
     paths:
@@ -30,7 +34,7 @@ jobs:
           java-version: "21"
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
 
       - name: Install dependencies
         run: npm ci
