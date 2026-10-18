@@ -293,4 +293,37 @@ describe("special notes", () => {
       );
     }
   });
+
+  it("keeps condition warnings without spending special-note slots", () => {
+    const profile: PregnancyProfile = {
+      ...baseProfile,
+      goals: ["balanced"],
+      healthConditions: [
+        "morning_sickness",
+        "constipation",
+        "anemia",
+        "gestational_diabetes",
+        "hypertension",
+        "reflux",
+        "fast_weight_gain",
+        "slow_weight_gain",
+        "large_fetus"
+      ]
+    };
+    const warnings = getConditionSpecificWarnings(profile, "vi");
+    expect(warnings.length).toBeGreaterThanOrEqual(MAX_SPECIAL_NOTES);
+
+    const modelNotes = Array.from({ length: MAX_SPECIAL_NOTES }, (_, index) => `Ghi chú AI số ${index} cho mẹ bầu.`);
+    const plan = ruleBasedMealPlanner(profile, "vi");
+    const localized = localizeMealPlanForLocale({ ...plan, specialNotes: [...warnings, ...modelNotes, "Ghi chú AI bị loại."] }, "vi");
+
+    for (const warning of warnings) {
+      expect(localized.specialNotes).toContain(warning);
+    }
+    for (const note of modelNotes) {
+      expect(localized.specialNotes).toContain(note);
+    }
+    expect(localized.specialNotes).not.toContain("Ghi chú AI bị loại.");
+    expect(localized.specialNotes.length).toBe(warnings.length + modelNotes.length);
+  });
 });

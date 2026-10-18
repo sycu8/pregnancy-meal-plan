@@ -20,19 +20,25 @@ function textOfNote(note: unknown): string | null {
   return typeof text === "string" ? text : null;
 }
 
-/** Keep only short strings so a model payload cannot crash the result page. */
-export function sanitizeSpecialNotes(notes: unknown): string[] {
+function cleanNoteStrings(notes: unknown, limit = Number.POSITIVE_INFINITY): string[] {
   if (!Array.isArray(notes)) return [];
   const clean: string[] = [];
+  const seen = new Set<string>();
   for (const note of notes) {
     const raw = textOfNote(note);
     if (!raw) continue;
     const text = raw.trim().replace(/\s+/g, " ").slice(0, MAX_SPECIAL_NOTE_CHARS);
-    if (!text) continue;
+    if (!text || seen.has(text)) continue;
+    seen.add(text);
     clean.push(text);
-    if (clean.length >= MAX_SPECIAL_NOTES) break;
+    if (clean.length >= limit) break;
   }
   return clean;
+}
+
+/** Keep only short strings so a model payload cannot crash the result page. */
+export function sanitizeSpecialNotes(notes: unknown): string[] {
+  return cleanNoteStrings(notes, MAX_SPECIAL_NOTES);
 }
 
 /**
@@ -246,10 +252,11 @@ export function filterNotesForLocale(notes: readonly string[], locale: Locale): 
 }
 
 function localizeSpecialNotes(notes: unknown, profile: MealPlan["profileSnapshot"], locale: Locale): string[] {
-  const safe = sanitizeSpecialNotes(notes);
-  const localized = sanitizeSpecialNotes(getConditionSpecificWarnings(profile, locale));
-  const kept = filterNotesForLocale(safe, locale);
-  return sanitizeSpecialNotes([...new Set([...localized, ...kept])]);
+  const warnings = cleanNoteStrings(getConditionSpecificWarnings(profile, locale));
+  const warningSet = new Set(warnings);
+  const incoming = cleanNoteStrings(notes).filter((note) => !warningSet.has(note));
+  const kept = filterNotesForLocale(incoming, locale);
+  return [...new Set([...warnings, ...kept])];
 }
 
 function looksVietnamese(text: string): boolean {

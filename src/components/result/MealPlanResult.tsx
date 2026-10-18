@@ -22,7 +22,7 @@ import { getCurrentMealPlan, getMealPlanById, saveMealPlan, setCurrentMealPlan }
 import { cacheOfflineSnapshot, shouldShowReviewPrompt } from "@/lib/storage/offlineCache";
 import { authHeaders } from "@/lib/storage/authSession";
 import { buildPlanExportText } from "@/lib/export/planExport";
-import { fetchMealPlan, PremiumLimitError } from "@/lib/nutrition/fetchMealPlan";
+import { fetchMealPlan, MealSwapError, PremiumLimitError } from "@/lib/nutrition/fetchMealPlan";
 import { regenerateMealInPlan, type MealSlot } from "@/lib/nutrition/mealPlanner";
 import { localizeMealPlanForLocale } from "@/lib/nutrition/localizeMealPlan";
 import { notesPanelKind } from "@/lib/nutrition/notesPanel";
@@ -315,6 +315,8 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
       if (error instanceof PremiumLimitError) {
         setSwapError(error.message);
         setShowSwapUpsell(true);
+      } else if (error instanceof MealSwapError && !error.allowLocalFallback) {
+        setSwapError(error.message);
       } else {
         try {
           const next = regenerateMealInPlan(plan, plan.profileSnapshot, day, mealSlot, locale);
@@ -323,7 +325,6 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
           setSaved(true);
         } catch {
           setSwapError(error instanceof Error ? error.message : t.swapLimit);
-          setShowSwapUpsell(true);
         }
       }
     } finally {

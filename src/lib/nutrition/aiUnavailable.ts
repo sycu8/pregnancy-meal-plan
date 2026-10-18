@@ -84,5 +84,18 @@ export function leaksProviderDetail(value: string | undefined): boolean {
 }
 
 export function isAbortError(error: unknown): boolean {
-  return error instanceof Error && error.name === "AbortError";
+  return error instanceof Error && error.name === "AbortError" && !isTimeoutError(error);
+}
+
+/** Fetch timeouts should offer the basic plan, the same as an AI outage. */
+export function isTimeoutError(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+  return error.name === "TimeoutError" || /timeout|timed out/i.test(error.message);
+}
+
+/** A failed fetch (no HTTP status) is a network failure, not a 5xx response. */
+export function isNetworkError(error: unknown): boolean {
+  if (!(error instanceof Error) || isTimeoutError(error) || isAbortError(error)) return false;
+  if (error instanceof TypeError) return true;
+  return /failed to fetch|networkerror|network request failed|load failed|fetch failed/i.test(error.message);
 }

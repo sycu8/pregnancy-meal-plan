@@ -192,7 +192,8 @@ describe("failed AI calls", () => {
     const plan = await createAIClient().generateMealPlan(profile, "en");
 
     expect(plan.specialNotes.every((note) => typeof note === "string")).toBe(true);
-    expect(plan.specialNotes.length).toBeLessThanOrEqual(8);
+    expect(plan.specialNotes.some((note) => note.startsWith("Anemia or low iron"))).toBe(true);
+    expect(plan.specialNotes.filter((note) => !note.startsWith("Anemia or low iron"))).toHaveLength(8);
     expect(plan.specialNotes.every((note) => note.length <= 240)).toBe(true);
     expect(plan.specialNotes.join(" ")).toContain("Drink water through the day.");
     expect(plan.specialNotes.join(" ")).not.toContain("[object Object]");

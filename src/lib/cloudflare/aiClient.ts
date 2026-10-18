@@ -551,11 +551,8 @@ export function mealPlanServedAi(plan: MealPlan): boolean {
 
 function planWithAiNotes(baseline: MealPlan, notes: string[], locale: Locale): { plan: MealPlan; shown: number } {
   const kept = filterNotesForLocale(notes, locale);
-  const withNotes = {
-    ...baseline,
-    specialNotes: sanitizeSpecialNotes([...baseline.specialNotes, ...kept])
-  };
-  const plan = localizeMealPlanForLocale(withNotes, locale);
+  // Condition warnings are added during localization and must not use the 8 note slots.
+  const plan = localizeMealPlanForLocale({ ...baseline, specialNotes: kept }, locale);
   const visible = new Set(plan.specialNotes);
   const shown = kept.filter((note) => visible.has(note)).length;
   if (shown > 0) aiServedPlans.set(plan, true);
