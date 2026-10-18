@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { parseModelPayload } from "@/lib/cloudflare/aiClient";
 import { filterEchoedAiNotes, filterSafeAiNotes } from "@/lib/nutrition/aiNoteSafety";
 import { buildMealPlanPrompt } from "@/lib/nutrition/aiPromptBuilder";
+import { prepareNote } from "@/lib/nutrition/teenNote";
 import { notesPanelKind } from "@/lib/nutrition/notesPanel";
 import { getConditionSpecificWarnings, getGeneralPregnancyFoodWarnings } from "@/lib/nutrition/safetyRules";
 import type { PregnancyProfile } from "@/types/pregnancy";
@@ -47,6 +48,15 @@ describe("meal-plan prompt", () => {
     expect(prompt).not.toMatch(/chọn cá ít thủy ngân và nấu chín kỹ/i);
     expect(buildMealPlanPrompt(profile, "en")).not.toContain(getConditionSpecificWarnings(profile, "en")[0]);
     expect(buildMealPlanPrompt(profile, "en")).not.toMatch(/low-mercury fish and cook it thoroughly/i);
+  });
+
+  it("sends weight control as healthy pregnancy weight gain", () => {
+    const prompt = buildMealPlanPrompt({ ...profile, goals: ["weight_control", "balanced"] }, "en");
+    expect(prompt).not.toContain("weight_control");
+    expect(prompt).toMatch(/pregnancy weight gain/i);
+    expect(prompt).toMatch(/not weight loss/i);
+    expect(prompt).toMatch(/Do not recommend weight loss/i);
+    expect(prompt).toContain("balanced");
   });
 });
 
@@ -114,7 +124,20 @@ const gdmContradictions = [
   "Đổi gạo lứt sang cơm trắng.",
   "không cần phải hạn chế xoài.",
   "There is no need to limit mango.",
-  "Durian, a small bowl, is plenty."
+  "Durian, a small bowl, is plenty.",
+  "An mitj sau com trua.",
+  "Uong nuocws ngotj khi khat.",
+  "An xoai2 chin moi sang.",
+  "Mot lon sting khi khat.",
+  "Pepsi with the rice bowl.",
+  "A can of 7up.",
+  "Tra tac da sau com.",
+  "Unlimited mango at lunch.",
+  "Khong can thiet phai han che xoai.",
+  "Khong nhat thiet han che mit.",
+  "You need not limit watermelon.",
+  "No limit on grapes.",
+  "Coca-cola with ice."
 ];
 
 const gdmSafe = [
@@ -145,7 +168,10 @@ const gdmSafe = [
   "Ưu tiên phô mai tiệt trùng.",
   "Cá phổ biến nên nấu chín.",
   "Giữ chuỗi bữa nhỏ trong ngày.",
-  "Chọn món ít chế biến sẵn."
+  "Chọn món ít chế biến sẵn.",
+  "Eat less sugar with meals.",
+  "Khong gioi han rau xanh.",
+  "Uu tien tinh bot cham vao bua trua."
 ];
 
 const unsafeFoods = [
@@ -205,7 +231,38 @@ const unsafeFoods = [
   "Don't avoid pâté at breakfast.",
   "Ăn ít tinh bột để giảm cân.",
   "A light dinner helps with weight loss.",
-  "Cut calories at week twenty."
+  "Cut calories at week twenty.",
+  "Try fasting on two mornings.",
+  "Bo bua sang de giu dang.",
+  "Count calories before each meal.",
+  "A low-carb plate at lunch.",
+  "Cut carbs from the rice bowl.",
+  "Keto snacks between meals.",
+  "Dot mo bang mon luoc.",
+  "An it lai vao buoi toi.",
+  "Start a short detox this week.",
+  "Thanh loc co the bang nuoc.",
+  "Giam tinh bot de eo thon.",
+  "She skips breakfast to slim down.",
+  "Cap the day at 1400 calories.",
+  "Dem calo cho tung bua.",
+  "Khong an thit nguoi, pate thi duoc.",
+  "Avoid deli meat except pâté.",
+  "Don't have to skip pâté.",
+  "No need to avoid pâté.",
+  "Drink herbal tea after dinner.",
+  "Uong thuoc nam moi toi.",
+  "Them ngai cuu vao lau.",
+  "Goi du du xanh truoc com.",
+  "Green papaya salad at lunch.",
+  "Milk from the farm on the oats.",
+  "Farm-fresh milk with porridge.",
+  "Fresh from the cow this morning.",
+  "Add alfalfa sprouts to the bowl.",
+  "Thuong thuc tieets canh voi com.",
+  "Uong suwax soongs moi vat.",
+  "Sua chuwa thanh trungf moi sang.",
+  "Uong tie6t1 canh toi nay."
 ];
 
 const safeFoods = [
@@ -232,7 +289,25 @@ const safeFoods = [
   "Không ăn pate.",
   "Không uống sữa chưa thanh trùng.",
   "Use pasteurised milk in the oats.",
-  "Giảm đồ ngọt và chia nhỏ bữa."
+  "Giảm đồ ngọt và chia nhỏ bữa.",
+  "She should not eat pâté.",
+  "She should not eat blood soup.",
+  "She only eats cooked oysters.",
+  "Chi an hau da nau chin.",
+  "Khong an hau song; hau nau chin thi duoc.",
+  "Don't drink herbal tea.",
+  "She should not eat green papaya.",
+  "Khong uong thuoc nam.",
+  "Eat bananas and grapes.",
+  "Use 100g of chicken in the soup.",
+  "Breakfast is oats and yoghurt.",
+  "Khong duoc an pate.",
+  "Don't skip breakfast.",
+  "Khong nhin an giua cac bua.",
+  "She should not fast.",
+  "She must not drink farm milk.",
+  "Du du chin mot lat.",
+  "Eat less sugar with breakfast."
 ];
 
 describe("per-condition deny list", () => {
@@ -436,7 +511,26 @@ describe("authored GDM plans", () => {
     { locale: "vi", text: "Ăn ổi và táo.", block: false },
     { locale: "vi", text: "Không ăn sầu riêng.", block: false },
     { locale: "en", text: "Reheat deli meat until steaming hot.", block: true },
-    { locale: "en", text: "Eat animal liver once a week.", block: true }
+    { locale: "en", text: "Eat animal liver once a week.", block: true },
+    { locale: "vi", text: "Thuong thuc tieets canh voi com.", block: true },
+    { locale: "vi", text: "Uong suwax soongs moi vat.", block: true },
+    { locale: "vi", text: "An mitj sau com trua.", block: true },
+    { locale: "vi", text: "Uong nuocws ngotj khi khat.", block: true },
+    { locale: "en", text: "Try fasting on two mornings.", block: true },
+    { locale: "vi", text: "Bo bua sang de giu dang.", block: true },
+    { locale: "en", text: "She skips breakfast to slim down.", block: true },
+    { locale: "en", text: "A low-carb plate at lunch.", block: true },
+    { locale: "vi", text: "Khong an thit nguoi, pate thi duoc.", block: true },
+    { locale: "en", text: "Avoid deli meat except pâté.", block: true },
+    { locale: "en", text: "Green papaya salad at lunch.", block: true },
+    { locale: "en", text: "Milk from the farm on the oats.", block: true },
+    { locale: "en", text: "Add alfalfa sprouts to the bowl.", block: true },
+    { locale: "vi", text: "Uong thuoc nam moi toi.", block: true },
+    { locale: "en", text: "No limit on grapes.", block: true },
+    { locale: "en", text: "She should not eat pâté.", block: false },
+    { locale: "en", text: "She only eats cooked oysters.", block: false },
+    { locale: "vi", text: "Khong an hau song; hau nau chin thi duoc.", block: false },
+    { locale: "en", text: "She should not fast.", block: false }
   ];
 
   it("keeps only new notes on 3 Vietnamese and 3 English plans", () => {
@@ -466,6 +560,24 @@ describe("authored GDM plans", () => {
   });
 });
 
+describe("teen-code leftovers", () => {
+  it("converts one Telex or VNI syllable and leaves English tokens alone", () => {
+    expect(prepareNote("tieets canh").text).toBe("tiết canh");
+    expect(prepareNote("suwax soongs").text).toBe("sữa sống");
+    expect(prepareNote("chuwa thanh trungf").text).toBe("chưa thanh trùng");
+    expect(prepareNote("tie6t1 canh").text).toBe("tiết canh");
+    expect(prepareNote("su7a4 so6ng1").text).toBe("sữa sống");
+    expect(prepareNote("xoai2").text).toBe("xoài");
+    expect(prepareNote("mitj").text.normalize("NFC")).toBe("mịt");
+    expect(prepareNote("nuocws ngotj").text).toBe("nước ngọt");
+    expect(prepareNote("Eat bananas and grapes.").text).toBe("Eat bananas and grapes.");
+    expect(prepareNote("A can of 7up.").text).toBe("A can of 7up.");
+    expect(prepareNote("Use 100g of chicken.").text).toBe("Use 100g of chicken.");
+    expect(prepareNote("Breakfast is oats.").text).toBe("Breakfast is oats.");
+    expect(prepareNote("raw milk").text).toBe("raw milk");
+  });
+});
+
 describe("class probe extras", () => {
   it("treats NFD phở and English pho as high-GI for gestational diabetes", () => {
     const nfd = "Thử phở cho bữa trưa.".normalize("NFD");
@@ -473,6 +585,17 @@ describe("class probe extras", () => {
     expect(filterSafeAiNotes([nfd], gdm)).toEqual([]);
     expect(filterSafeAiNotes(["Try pho for lunch."], gdm)).toEqual([]);
     expect(filterSafeAiNotes(["Phở gà nấu chín là bữa dễ ăn."], profile)).toEqual(["Phở gà nấu chín là bữa dễ ăn."]);
+  });
+
+  it("keeps a cooked oyster clause and an NFD negation", () => {
+    const nfdCooked = "Hàu đã nấu chín.".normalize("NFD");
+    const nfdNegated = "Không ăn pate.".normalize("NFD");
+    expect(nfdCooked.normalize("NFC")).not.toBe(nfdCooked);
+    expect(filterSafeAiNotes([nfdCooked], profile)).toEqual([nfdCooked]);
+    expect(filterSafeAiNotes([nfdNegated], profile)).toEqual([nfdNegated]);
+    expect(filterSafeAiNotes(["Không ăn hàu sống; hàu nấu chín thì được."], profile)).toEqual([
+      "Không ăn hàu sống; hàu nấu chín thì được."
+    ]);
   });
 });
 

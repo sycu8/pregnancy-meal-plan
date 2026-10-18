@@ -524,6 +524,27 @@ describe("failed AI calls", () => {
     expect(served.headers.get("set-cookie")).toBeNull();
   });
 
+  it("does not spend a quota credit when the model returns no notes", async () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const ip = "203.0.113.77";
+    aiRun.mockResolvedValueOnce({ response: JSON.stringify({ specialNotes: [] }) });
+
+    const empty = await POST(planRequest(ip, undefined, { profile: plantedProfile(), locale: "vi" }));
+    const body = (await empty.json()) as { usage: { aiPlansUsed: number; aiPlansLimit: number } };
+
+    expect(empty.status).toBe(200);
+    expect(body.usage).toEqual({ aiPlansUsed: 0, aiPlansLimit: 3 });
+    expect(loggedFallbacks(errorSpy)).toContainEqual(
+      expect.objectContaining({
+        event: "meal-plan-ai-fallback",
+        reason: "empty_output",
+        detail: "no_special_notes"
+      })
+    );
+    expect(JSON.stringify(loggedFallbacks(errorSpy))).not.toContain("PEANUTMARKER");
+    errorSpy.mockRestore();
+  });
+
   it("returns 429 with the basic-plan message when the device or network quota is spent", async () => {
     const device = "a".repeat(32);
     const deviceRequest = () =>

@@ -1,6 +1,15 @@
 import type { Locale } from "@/lib/i18n";
 import type { PregnancyProfile } from "@/types/pregnancy";
 
+/** The stored goal is a control flag. The model should hear healthy gain, not a diet target. */
+function goalsForPrompt(goals: readonly string[]): string[] {
+  return goals.map((goal) =>
+    goal === "weight_control"
+      ? "support the recommended pregnancy weight gain for this week, not weight loss"
+      : goal
+  );
+}
+
 /**
  * Ask only for a few new notes. Pasting the safety panel or condition warnings
  * makes the model restate them. specialNotes MUST match the requested locale.
@@ -15,7 +24,7 @@ export function buildMealPlanPrompt(profile: PregnancyProfile, locale: Locale = 
     "Do not restate food-safety rules, condition warnings, mercury or fish rules, or anything the app already tells the user.",
     "If you have no new practical note, return {\"specialNotes\":[]}.",
     "Do not provide medical diagnoses and do not tell the user to ask a clinician.",
-    "Do not recommend weight loss, dieting, eating less to slim down, or cutting calories during pregnancy.",
+    "Do not recommend weight loss, dieting, fasting, skipping meals, calorie caps, or cutting carbohydrates during pregnancy.",
     "Use only the profile fields below:",
     JSON.stringify({
       residenceCountry: profile.residenceCountry ?? "VN",
@@ -25,7 +34,7 @@ export function buildMealPlanPrompt(profile: PregnancyProfile, locale: Locale = 
       cuisinePreferences: profile.cuisinePreferences,
       budget: profile.budget,
       cookingTime: profile.cookingTime,
-      goals: profile.goals,
+      goals: goalsForPrompt(profile.goals),
       allergies: profile.allergies,
       dislikedFoods: profile.dislikedFoods
     })
