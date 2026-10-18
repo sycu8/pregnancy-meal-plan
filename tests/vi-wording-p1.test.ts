@@ -93,10 +93,30 @@ describe("P1 Vietnamese wording", () => {
       expect(raw, name).not.toContain("nhiệt độ nội bộ");
       expect(raw, name).not.toContain("chưa tiệt trùng");
       expect(raw, name).not.toContain("chưa được tiệt trùng");
+      expect(raw, name).not.toContain("đã được tiệt trùng hoặc nấu chín kỹ");
       expect(raw, name).not.toContain("tổng hợp dựa trên tiêu đề và mô tả công khai từ nguồn");
       expect(raw, name).not.toMatch(/1800|1900/);
       expect(raw, name).not.toContain("cần xác minh số hiện hành");
     }
+  });
+
+  it("uses thanh trùng on the label-check cook-thoroughly lines", () => {
+    const files = [
+      "foods-to-limit-or-cook-thoroughly-during-pregnancy-5d230f.json",
+      "foods-to-limit-or-cook-thoroughly-during-pregnancy-7053df.json",
+      "foods-to-limit-or-cook-thoroughly-during-pregnancy-97f4ee.json",
+      "foods-to-limit-or-cook-thoroughly-during-pregnancy-f7c92a.json"
+    ];
+    const dir = path.join(process.cwd(), "content/blog/posts");
+    for (const name of files) {
+      const raw = fs.readFileSync(path.join(dir, name), "utf8");
+      expect(raw, name).toContain("đã được thanh trùng hoặc nấu chín kỹ");
+    }
+    const milk = fs.readFileSync(
+      path.join(dir, "pho-mem-va-sua-chua-tiet-trung-khi-mang-thai.json"),
+      "utf8"
+    );
+    expect(milk).toContain("sữa tiệt trùng");
   });
 
   it("keeps the historical topic-source blockquote on the posts that had it", () => {
