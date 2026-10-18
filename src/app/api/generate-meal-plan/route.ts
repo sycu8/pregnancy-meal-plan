@@ -101,6 +101,7 @@ export async function POST(request: Request) {
           NextResponse.json(
             {
               error: usageLimitMessage("ai-plan", locale, aiCheck.scope),
+              scope: aiCheck.scope,
               usage: { aiPlansUsed: aiCheck.used, aiPlansLimit: aiCheck.limit }
             },
             { status: 429 }
@@ -113,7 +114,10 @@ export async function POST(request: Request) {
       let used = aiCheck.used;
       let limit = aiCheck.limit;
       if (mealPlanServedAi(plan)) {
-        const aiUsage = await incrementUsage(request, "ai-plan", { deviceId: aiCheck.deviceId });
+        const aiUsage = await incrementUsage(request, "ai-plan", {
+          deviceId: aiCheck.deviceId,
+          accountId: aiCheck.accountId
+        });
         used = aiUsage.used;
         limit = aiUsage.limit;
       }
@@ -130,14 +134,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ plan });
   } catch (error) {
     if (error instanceof AiProviderError) {
-      console.error(
-        JSON.stringify({
-          event: "meal-plan-ai-fallback",
-          reason: "provider_error",
-          provider: error.provider,
-          errorName: error.name
-        })
-      );
       return withDeviceCookie(
         NextResponse.json(
           { error: aiUnavailableMessage(locale), code: AI_UNAVAILABLE_CODE },

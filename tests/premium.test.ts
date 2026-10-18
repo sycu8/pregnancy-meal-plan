@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { getPremiumLimits } from "@/lib/premium/limits";
+import { premiumUpsellText } from "@/components/premium/PremiumUpsell";
 import { getUsageDateKey, isValidUsageDateKey } from "@/lib/premium/dateKey";
 import { buildPlanShareText, buildPlanShareUrl } from "@/lib/share/planShare";
 import { PremiumLimitError } from "@/lib/nutrition/fetchMealPlan";
@@ -56,6 +57,16 @@ describe("premium limits", () => {
     expect(getPremiumLimits("free").mealSwapsPerDay).toBe(2);
     expect(getPremiumLimits("free").historyPlans).toBe(5);
     expect(getPremiumLimits("free").cloudExport).toBe(false);
+  });
+
+  it("uses a network-limit message that is not the free daily cap", () => {
+    for (const locale of ["vi", "en"] as const) {
+      const network = premiumUpsellText(locale, "network-limit");
+      const device = premiumUpsellText(locale, "ai-limit");
+      expect(network.body).not.toMatch(/3 thực đơn|3 AI plan|aiPlansPerDay/i);
+      expect(network.title).not.toBe(device.title);
+      expect(network.body).toMatch(/basic plan|thực đơn cơ bản/i);
+    }
   });
 
   it("removes caps for premium tier", () => {

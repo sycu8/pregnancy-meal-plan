@@ -1,6 +1,10 @@
 export type CloudflareBindings = {
   AI?: {
-    run: (model: string, input: Record<string, unknown>) => Promise<unknown>;
+    run: (
+      model: string,
+      input: Record<string, unknown>,
+      options?: { signal?: AbortSignal }
+    ) => Promise<unknown>;
   };
   FEATURE_FLAGS?: {
     get: (key: string) => Promise<string | null>;

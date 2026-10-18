@@ -7,10 +7,14 @@ import type { PremiumTier } from "@/lib/premium/limits";
  * Only trust authenticated D1 `users.premium` — never client `x-premium-tier` headers
  * (those are UI hints and can be spoofed).
  */
-export async function resolvePremiumTier(request: Request): Promise<PremiumTier> {
+export async function resolvePremiumContext(request: Request): Promise<{ tier: PremiumTier; userId: string | null }> {
   const userId = await resolveUserIdFromRequest(request);
-  if (!userId) return "free";
+  if (!userId) return { tier: "free", userId: null };
 
   const user = await getUserById(userId);
-  return user?.premium ? "premium" : "free";
+  return { tier: user?.premium ? "premium" : "free", userId };
+}
+
+export async function resolvePremiumTier(request: Request): Promise<PremiumTier> {
+  return (await resolvePremiumContext(request)).tier;
 }

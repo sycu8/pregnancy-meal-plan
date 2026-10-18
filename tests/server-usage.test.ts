@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  AI_PLAN_ACCOUNT_DAILY_CAP,
   AI_PLAN_IP_DAILY_CEILING,
   DEVICE_COOKIE_NAME,
   checkUsage,
@@ -94,16 +95,26 @@ describe("anonymous device AI quota", () => {
     expect(blocked.used).toBe(AI_PLAN_IP_DAILY_CEILING);
   });
 
-  it("still applies the IP ceiling when the device limit is unlimited", async () => {
-    vi.spyOn(resolveTier, "resolvePremiumTier").mockResolvedValue("premium");
+  it("lets Premium skip the IP ceiling and stop at the per-account cap", async () => {
     const ip = "203.0.113.62";
     for (let i = 0; i < AI_PLAN_IP_DAILY_CEILING; i += 1) {
       await incrementUsage(request(ip, DEVICE_A), "ai-plan", { deviceId: DEVICE_A });
     }
-    const blocked = await checkUsage(request(ip, DEVICE_A), "ai-plan");
+
+    vi.spyOn(resolveTier, "resolvePremiumContext").mockResolvedValue({ tier: "premium", userId: "user-premium-1" });
+    const allowed = await checkUsage(request(ip, DEVICE_A), "ai-plan");
+    expect(allowed.ok).toBe(true);
+    expect(allowed.scope).toBe("account");
+    expect(allowed.limit).toBe(AI_PLAN_ACCOUNT_DAILY_CAP);
+
+    for (let i = 0; i < AI_PLAN_ACCOUNT_DAILY_CAP; i += 1) {
+      await incrementUsage(request(ip, DEVICE_A), "ai-plan", { deviceId: DEVICE_A, accountId: "user-premium-1" });
+    }
+    const blocked = await checkUsage(request(ip, DEVICE_B), "ai-plan");
     expect(blocked.ok).toBe(false);
-    expect(blocked.scope).toBe("ip");
-    expect(blocked.limit).toBe(30);
+    expect(blocked.scope).toBe("account");
+    expect(blocked.used).toBe(AI_PLAN_ACCOUNT_DAILY_CAP);
+    expect(blocked.limit).toBe(AI_PLAN_ACCOUNT_DAILY_CAP);
   });
 
   it("keeps meal swaps on the per-IP limit", async () => {

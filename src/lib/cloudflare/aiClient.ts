@@ -23,21 +23,29 @@ export type AIClient = {
 export const WORKERS_AI_MODEL = "@cf/meta/llama-3.1-8b-instruct-fp8";
 
 /**
- * The call only asks for `{ specialNotes: string[] }`. Size the budget to that
- * JSON. Workers AI otherwise defaults max_tokens to 256 and cuts the notes off.
+ * The call asks only for 3–5 short notes, not a 7-day plan. Keep the budget
+ * small so a model that ignores the instruction cannot spend ~28s filling 512 tokens.
  * Vietnamese text is estimated at 2 characters per token.
  */
 const MEAL_PLAN_AI_OUTPUT = {
   specialNotes: [
-    "Uống đủ nước trong ngày và chia nhỏ bữa nếu buồn nôn.",
+    "Uống đủ nước và chia nhỏ bữa nếu buồn nôn.",
     "Ưu tiên thực phẩm giàu sắt, ăn kèm trái cây giàu vitamin C.",
-    "Hạn chế đồ ngọt, đồ chiên và nước ngọt; chọn tinh bột chậm.",
-    "Ăn đủ đạm nạc, sữa tiệt trùng và rau xanh luộc chín.",
-    "Đổi món dị ứng hoặc món không thích bằng nguyên liệu tương đương, nấu chín kỹ."
+    "Hạn chế đồ chiên, đồ ngọt và nước ngọt.",
+    "Ăn đạm nạc, sữa tiệt trùng và rau xanh chín.",
+    "Đổi món dị ứng bằng nguyên liệu tương đương, nấu chín."
   ]
 };
 
-export const WORKERS_AI_MAX_TOKENS = Math.max(512, Math.ceil(JSON.stringify(MEAL_PLAN_AI_OUTPUT).length / 2));
+export const WORKERS_AI_MAX_TOKENS = Math.min(256, Math.max(192, Math.ceil(JSON.stringify(MEAL_PLAN_AI_OUTPUT).length / 2)));
+
+/**
+ * FP8 accepts response_format type json_object and rejects json_schema.
+ * JSON mode keeps the model on one object instead of a long plan.
+ */
+export const MEAL_PLAN_RESPONSE_FORMAT = {
+  type: "json_object"
+} as const;
 
 /**
  * Model ids Cloudflare retired on 2026-05-30, plus later catalog removals
@@ -97,20 +105,34 @@ function aiCallTimeoutMs(): number {
   return AI_CALL_TIMEOUT_MS;
 }
 
-/** Race the model call against a shared deadline. The timeout is not a provider error. */
-function withDeadline<T>(work: Promise<T>, deadlineAt: number): Promise<T> {
+function isAbortLike(error: unknown): boolean {
+  return error instanceof Error && error.name === "AbortError";
+}
+
+/** Race the model call against a shared deadline and abort the underlying request. */
+function withDeadline<T>(start: (signal: AbortSignal) => Promise<T>, deadlineAt: number): Promise<T> {
   const remaining = deadlineAt - Date.now();
-  // A late rejection from the model must not surface as an unhandled rejection after we already timed out.
+  const controller = new AbortController();
+  if (remaining <= 0) {
+    controller.abort();
+    return Promise.reject(new AiCallTimeoutError());
+  }
+
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => {
+      controller.abort();
+      reject(new AiCallTimeoutError());
+    }, remaining);
+  });
+  const work = start(controller.signal).catch((error: unknown) => {
+    if (controller.signal.aborted || isAbortLike(error)) throw new AiCallTimeoutError();
+    throw error;
+  });
   void work.then(
     () => undefined,
     () => undefined
   );
-  if (remaining <= 0) return Promise.reject(new AiCallTimeoutError());
-
-  let timer: ReturnType<typeof setTimeout> | undefined;
-  const timeout = new Promise<never>((_, reject) => {
-    timer = setTimeout(() => reject(new AiCallTimeoutError()), remaining);
-  });
   return Promise.race([work, timeout]).finally(() => {
     if (timer) clearTimeout(timer);
   });
@@ -163,7 +185,7 @@ function sanitiseLogMessage(value: string): string {
     .replace(/\b(api[_-]?key|token|secret|password|authorization)\b\s*[:=]\s*\S+/gi, "$1 [redacted]")
     .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, "[email]")
     .replace(/\b(?:\d{1,3}\.){3}\d{1,3}\b/g, "[ip]")
-    .replace(/\S{25,}/g, "[redacted]")
+    .replace(/\S{25,}/g, (token) => (/@(?:cf|hf)\/[A-Za-z0-9._/-]+/.test(token) ? token : "[redacted]"))
     .replace(/\s+/g, " ")
     .trim()
     .slice(0, LOG_DETAIL_MAX);
@@ -171,10 +193,22 @@ function sanitiseLogMessage(value: string): string {
 
 function fallbackDetail(error: unknown): string {
   const name = error instanceof Error && error.name.trim() ? error.name.trim() : "Error";
-  const message = error instanceof Error ? error.message : typeof error === "string" ? error : "";
-  const safe = sanitiseLogMessage(message);
-  if (!safe) return name.slice(0, LOG_DETAIL_MAX);
-  return `${name}: ${safe}`.slice(0, LOG_DETAIL_MAX);
+  if (!(error instanceof Error) || !error.message.trim()) return name.slice(0, LOG_DETAIL_MAX);
+  const model = error.message.match(/@(?:cf|hf)\/[A-Za-z0-9._/-]+/)?.[0];
+  const safe = sanitiseLogMessage(model ? error.message.replace(model, " ") : error.message);
+  return [name, model, safe].filter((part) => part && part.trim()).join(": ").slice(0, LOG_DETAIL_MAX);
+}
+
+function logMealPlanOk(details: { provider: MealPlanProvider; locale: Locale; noteCount: number; durationMs: number }): void {
+  console.log(
+    JSON.stringify({
+      event: "meal-plan-ai-ok",
+      provider: details.provider,
+      locale: details.locale,
+      noteCount: details.noteCount,
+      durationMs: details.durationMs
+    })
+  );
 }
 
 function logMealPlanFallback(details: {
@@ -343,7 +377,10 @@ function workersAiFailureDetail(result: unknown): string | null {
   return null;
 }
 
-async function callOpenAi(prompt: string, apiKey: string, gatewayUrl?: string): Promise<string> {
+const NOTES_SYSTEM_PROMPT =
+  'Return exactly one JSON object {"specialNotes":["..."]} with 3 to 5 short notes in the requested language. Do not write a meal plan.';
+
+async function callOpenAi(prompt: string, apiKey: string, gatewayUrl: string | undefined, signal: AbortSignal): Promise<string> {
   const url = gatewayUrl ? `${gatewayUrl.replace(/\/$/, "")}/chat/completions` : "https://api.openai.com/v1/chat/completions";
   let response: Response;
   try {
@@ -353,20 +390,19 @@ async function callOpenAi(prompt: string, apiKey: string, gatewayUrl?: string): 
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json"
       },
+      signal,
       body: JSON.stringify({
         model: "gpt-4o-mini",
         messages: [
-          {
-            role: "system",
-            content:
-              "Author meal-plan guidance in English first, then translate to the requested locale. Return only valid JSON with a specialNotes string array."
-          },
+          { role: "system", content: NOTES_SYSTEM_PROMPT },
           { role: "user", content: prompt }
         ],
-        temperature: 0.4
+        temperature: 0.2,
+        response_format: MEAL_PLAN_RESPONSE_FORMAT
       })
     });
   } catch (error) {
+    if (isAbortLike(error)) throw error;
     throw new AiProviderError("openai", `OpenAI request failed: ${describeFailure(error)}`);
   }
 
@@ -380,7 +416,7 @@ async function callOpenAi(prompt: string, apiKey: string, gatewayUrl?: string): 
   return textFromUnknown(data.choices?.[0]?.message?.content).trim();
 }
 
-async function callWorkersAi(prompt: string): Promise<string> {
+async function callWorkersAi(prompt: string, signal: AbortSignal): Promise<string> {
   assertSupportedWorkersAiModel(WORKERS_AI_MODEL);
 
   const { AI } = await getBindings();
@@ -390,18 +426,21 @@ async function callWorkersAi(prompt: string): Promise<string> {
 
   let result: unknown;
   try {
-    result = await AI.run(WORKERS_AI_MODEL, {
-      messages: [
-        {
-          role: "system",
-          content:
-            "You assist with pregnancy meal planning. Draft English first, then adapt to the requested locale. Respond concisely as JSON."
-        },
-        { role: "user", content: prompt }
-      ],
-      max_tokens: WORKERS_AI_MAX_TOKENS
-    });
+    result = await AI.run(
+      WORKERS_AI_MODEL,
+      {
+        messages: [
+          { role: "system", content: NOTES_SYSTEM_PROMPT },
+          { role: "user", content: prompt }
+        ],
+        max_tokens: WORKERS_AI_MAX_TOKENS,
+        temperature: 0.2,
+        response_format: MEAL_PLAN_RESPONSE_FORMAT
+      },
+      { signal }
+    );
   } catch (error) {
+    if (isAbortLike(error)) throw error;
     throw new AiProviderError(
       "workers-ai",
       `Workers AI request failed for ${WORKERS_AI_MODEL}: ${describeFailure(error)}`
@@ -423,29 +462,32 @@ export function mealPlanServedAi(plan: MealPlan): boolean {
   return aiServedPlans.has(plan);
 }
 
-function planWithAiNotes(baseline: MealPlan, notes: string[], locale: Locale): MealPlan {
+function planWithAiNotes(baseline: MealPlan, notes: string[], locale: Locale): { plan: MealPlan; shown: number } {
+  const kept = filterNotesForLocale(notes, locale);
   const withNotes = {
     ...baseline,
-    specialNotes: sanitizeSpecialNotes([...baseline.specialNotes, ...notes])
+    specialNotes: sanitizeSpecialNotes([...baseline.specialNotes, ...kept])
   };
   const plan = localizeMealPlanForLocale(withNotes, locale);
-  aiServedPlans.set(plan, true);
-  return plan;
+  const visible = new Set(plan.specialNotes);
+  const shown = kept.filter((note) => visible.has(note)).length;
+  if (shown > 0) aiServedPlans.set(plan, true);
+  return { plan, shown };
 }
 
 function mealPlanPrompt(input: PregnancyProfile, locale: Locale): string {
-  const language = locale === "vi" ? "Vietnamese" : "English";
-  return `${buildMealPlanPrompt(input)}\nLocale: ${locale}\nReturn JSON with field "specialNotes" as string array customizing the baseline plan. Write specialNotes in ${language} only.`;
+  return buildMealPlanPrompt(input, locale);
 }
 
 function translateNotesPrompt(notes: readonly string[], locale: Locale): string {
   const language = locale === "vi" ? "Vietnamese" : "English";
   const listed = notes.map((note) => `- ${note}`).join("\n");
   return [
+    "Do not write a meal plan.",
     `The previous specialNotes were not in ${language}.`,
     `Translate only these notes into ${language}.`,
-    `Locale: ${locale}.`,
-    `Return JSON with field "specialNotes" as a string array in ${language} only.`,
+    `Return exactly one JSON object and nothing else: {"specialNotes":["..."]}.`,
+    `specialNotes must contain 3 to 5 short sentences in ${language} only.`,
     listed
   ].join("\n");
 }
@@ -486,15 +528,17 @@ export function createAIClient(): AIClient {
         return baseline;
       }
 
-      const deadlineAt = Date.now() + aiCallTimeoutMs();
+      const startedAt = Date.now();
+      const deadlineAt = startedAt + aiCallTimeoutMs();
 
-      const callModel = (prompt: string) => {
-        const work =
-          provider === "workers-ai"
-            ? callWorkersAi(prompt)
-            : callOpenAi(prompt, env.OPENAI_API_KEY ?? "", env.AI_GATEWAY_URL);
-        return withDeadline(work, deadlineAt);
-      };
+      const callModel = (prompt: string) =>
+        withDeadline(
+          (signal) =>
+            provider === "workers-ai"
+              ? callWorkersAi(prompt, signal)
+              : callOpenAi(prompt, env.OPENAI_API_KEY ?? "", env.AI_GATEWAY_URL, signal),
+          deadlineAt
+        );
 
       try {
         const first = parseNotes(await callModel(mealPlanPrompt(input, locale)));
@@ -519,7 +563,16 @@ export function createAIClient(): AIClient {
           notes = retryNotes;
         }
 
-        return planWithAiNotes(baseline, notes, locale);
+        const served = planWithAiNotes(baseline, notes, locale);
+        if (served.shown > 0) {
+          logMealPlanOk({
+            provider,
+            locale,
+            noteCount: served.shown,
+            durationMs: Date.now() - startedAt
+          });
+        }
+        return served.plan;
       } catch (error) {
         if (error instanceof AiCallTimeoutError) {
           logMealPlanFallback({
@@ -539,11 +592,12 @@ export function createAIClient(): AIClient {
           });
           throw error;
         }
+        const errorName = error instanceof Error && error.name.trim() ? error.name.trim() : "Error";
         logMealPlanFallback({
           reason: "thrown",
           provider,
-          errorName: error instanceof Error ? error.name : "Error",
-          detail: fallbackDetail(error)
+          errorName,
+          detail: errorName
         });
         return baseline;
       }

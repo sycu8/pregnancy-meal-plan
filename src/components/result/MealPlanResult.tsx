@@ -13,7 +13,7 @@ import { ReviewPrompt } from "@/components/shared/ReviewPrompt";
 import { bmiCategoryLabels } from "@/lib/nutrition/bmi";
 import { weightGainStatusLabels } from "@/lib/nutrition/weightGain";
 import { PremiumUsageHint } from "@/components/shared/PremiumUsageHint";
-import { PremiumUpsell } from "@/components/premium/PremiumUpsell";
+import { PremiumUpsell, type PremiumUpsellReason } from "@/components/premium/PremiumUpsell";
 import { canSwapMeal } from "@/lib/premium/usage";
 import { getPremiumTier } from "@/lib/premium/tier";
 import { getPremiumLimits } from "@/lib/premium/limits";
@@ -218,6 +218,7 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
   const [showSwapUpsell, setShowSwapUpsell] = useState(false);
   const [showExportUpsell, setShowExportUpsell] = useState(false);
   const [showPlanUpsell, setShowPlanUpsell] = useState(false);
+  const [planUpsellReason, setPlanUpsellReason] = useState<PremiumUpsellReason>("ai-limit");
   const isFreeTier = getPremiumTier() === "free";
   const canCloudExport = getPremiumLimits(getPremiumTier()).cloudExport;
   const displayPlan = useMemo(() => (plan ? localizeMealPlanForLocale(plan, locale) : null), [plan, locale]);
@@ -225,10 +226,13 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
   useEffect(() => {
     if (typeof window === "undefined") return;
     const notice = window.sessionStorage.getItem("bau-an-gi:plan-notice");
+    const scope = window.sessionStorage.getItem("bau-an-gi:plan-notice-scope");
     if (notice) {
       setPlanNotice(notice);
+      setPlanUpsellReason(scope === "ip" ? "network-limit" : scope === "account" ? "account-limit" : "ai-limit");
       setShowPlanUpsell(true);
       window.sessionStorage.removeItem("bau-an-gi:plan-notice");
+      window.sessionStorage.removeItem("bau-an-gi:plan-notice-scope");
     }
   }, []);
 
@@ -424,7 +428,7 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
       {planNotice && (
         <p className="rounded-md bg-amber-50 px-4 py-3 text-sm text-amber-900">{planNotice}</p>
       )}
-      {showPlanUpsell && isFreeTier ? <PremiumUpsell locale={locale} reason="ai-limit" /> : null}
+      {showPlanUpsell && isFreeTier ? <PremiumUpsell locale={locale} reason={planUpsellReason} /> : null}
       <section className="rounded-lg border border-border bg-white p-5 shadow-soft">
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div>

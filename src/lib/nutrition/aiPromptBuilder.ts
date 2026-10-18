@@ -1,16 +1,18 @@
+import type { Locale } from "@/lib/i18n";
 import type { PregnancyProfile } from "@/types/pregnancy";
 
 /**
- * Meal-plan prompts are authored in English first, then localized for Vietnamese UI.
+ * Ask only for a few short notes. A prompt that requests a 7-day plan makes the
+ * model write until max_tokens and the JSON comes back truncated.
  * specialNotes MUST match the requested locale — Vietnamese for locale=vi, English for locale=en.
  */
-export function buildMealPlanPrompt(profile: PregnancyProfile): string {
+export function buildMealPlanPrompt(profile: PregnancyProfile, locale: Locale = "vi"): string {
+  const language = locale === "vi" ? "Vietnamese" : "English";
   return [
-    "You are a pregnancy nutrition reference assistant.",
-    "Draft English-first guidance for a 7-day Vietnamese-style pregnancy meal plan, then translate the final wording to the requested locale.",
-    "If Locale is vi, every specialNotes string MUST be written in Vietnamese (no English leftovers).",
-    "If Locale is en, every specialNotes string MUST be written in English.",
-    "Stay safety-focused and do not provide medical diagnoses.",
+    "You write short pregnancy nutrition notes. Do not write a meal plan, a menu, recipes, or a day-by-day schedule.",
+    `Return exactly one JSON object and nothing else: {"specialNotes":["..."]}.`,
+    `specialNotes must contain 3 to 5 short sentences in ${language} only.`,
+    "Each note is one sentence. Do not provide medical diagnoses.",
     "Use only the profile fields below:",
     JSON.stringify({
       residenceCountry: profile.residenceCountry ?? "VN",

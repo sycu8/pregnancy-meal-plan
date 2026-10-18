@@ -6,7 +6,7 @@ import { ArrowLeft, ArrowRight, Loader2, Save, Sparkles } from "lucide-react";
 import { Button } from "@/components/shared/Button";
 import { Disclaimer } from "@/components/shared/Disclaimer";
 import { PremiumUsageHint } from "@/components/shared/PremiumUsageHint";
-import { PremiumUpsell } from "@/components/premium/PremiumUpsell";
+import { PremiumUpsell, type PremiumUpsellReason } from "@/components/premium/PremiumUpsell";
 import { canCreateAiPlan } from "@/lib/premium/usage";
 import { getPremiumTier } from "@/lib/premium/tier";
 import { getNutritionLabels } from "@/lib/nutrition/labels";
@@ -20,6 +20,13 @@ import type { CuisinePreference, HealthCondition, NutritionGoal, PregnancyProfil
 import { residenceCountries } from "@/lib/nutrition/countries";
 
 const PLAN_NOTICE_KEY = "bau-an-gi:plan-notice";
+const PLAN_NOTICE_SCOPE_KEY = "bau-an-gi:plan-notice-scope";
+
+function upsellReasonForScope(scope: string | undefined): PremiumUpsellReason {
+  if (scope === "ip") return "network-limit";
+  if (scope === "account") return "account-limit";
+  return "ai-limit";
+}
 
 const defaultProfile: PregnancyProfile = {
   lifeStage: "pregnancy",
@@ -137,6 +144,7 @@ export function PlannerForm({ mode = "planner", locale = "vi" }: { mode?: "plann
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
   const [showPlanUpsell, setShowPlanUpsell] = useState(false);
+  const [planUpsellReason, setPlanUpsellReason] = useState<PremiumUpsellReason>("ai-limit");
   const [errorAction, setErrorAction] = useState<MealPlanErrorAction | "none">("none");
   const isProfileMode = mode === "profile";
 
@@ -218,21 +226,26 @@ export function PlannerForm({ mode = "planner", locale = "vi" }: { mode?: "plann
       let plan;
       try {
         if (!canCreateAiPlan(getPremiumTier())) {
+          setPlanUpsellReason("ai-limit");
           setShowPlanUpsell(true);
           plan = createLocalMealPlan(validProfile, locale);
           if (typeof window !== "undefined") {
             window.sessionStorage.setItem(PLAN_NOTICE_KEY, t.planLimit);
+            window.sessionStorage.setItem(PLAN_NOTICE_SCOPE_KEY, "device");
           }
         } else {
           plan = await fetchMealPlan(validProfile, locale);
         }
       } catch (caught) {
         if (caught instanceof PremiumLimitError) {
+          const reason = upsellReasonForScope(caught.scope);
+          setPlanUpsellReason(reason);
           setShowPlanUpsell(true);
           plan = createLocalMealPlan(validProfile, locale);
           if (typeof window !== "undefined") {
             const notice = caught.message.trim() && !leaksProviderDetail(caught.message) ? caught.message : t.planLimit;
             window.sessionStorage.setItem(PLAN_NOTICE_KEY, notice);
+            window.sessionStorage.setItem(PLAN_NOTICE_SCOPE_KEY, caught.scope ?? "device");
           }
         } else {
           throw caught;
@@ -411,7 +424,7 @@ export function PlannerForm({ mode = "planner", locale = "vi" }: { mode?: "plann
         {!isProfileMode && step === t.steps.length - 1 && (
           <div className="mt-4 space-y-3">
             <PremiumUsageHint locale={locale} mode="ai" />
-            {showPlanUpsell ? <PremiumUpsell locale={locale} reason="ai-limit" /> : null}
+            {showPlanUpsell ? <PremiumUpsell locale={locale} reason={planUpsellReason} /> : null}
           </div>
         )}
 

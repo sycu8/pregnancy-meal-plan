@@ -160,4 +160,32 @@ describe("meal plan error UX", () => {
     expect((error as PremiumLimitError).message).toMatch(/thực đơn cơ bản/);
     expect((error as PremiumLimitError).message).not.toMatch(/too many requests|@cf\/|<html/i);
   });
+
+  it("keeps the network-limit message instead of the daily device cap", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(
+        async () =>
+          new Response(
+            JSON.stringify({
+              error: "Mạng này đã tạo quá nhiều thực đơn AI hôm nay. Bạn vẫn dùng được thực đơn cơ bản.",
+              scope: "ip",
+              usage: { aiPlansUsed: 30, aiPlansLimit: 30 }
+            }),
+            { status: 429 }
+          )
+      )
+    );
+
+    const error = await fetchMealPlan(profile, "vi").then(
+      () => {
+        throw new Error("expected the network limit to surface");
+      },
+      (caught: unknown) => caught
+    );
+    expect(error).toBeInstanceOf(PremiumLimitError);
+    expect((error as PremiumLimitError).scope).toBe("ip");
+    expect((error as PremiumLimitError).message).toMatch(/Mạng này/);
+    expect((error as PremiumLimitError).message).not.toMatch(/3 thực đơn/);
+  });
 });
