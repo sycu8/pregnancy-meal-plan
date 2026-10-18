@@ -453,7 +453,7 @@ describe("failed AI calls", () => {
     errorSpy.mockRestore();
   });
 
-  it("does not count a plan when the note cap hides every AI note", async () => {
+  it("serves an AI note when condition warnings would have filled the note cap", async () => {
     aiRun.mockResolvedValue({
       response: JSON.stringify({ notes: [{ id: "hydration-steady" }] })
     });
@@ -476,8 +476,9 @@ describe("failed AI calls", () => {
 
     const plan = await createAIClient().generateMealPlan(crowded, "vi");
 
-    expect(plan.specialNotes).not.toContain("Uống đủ nước trong ngày.");
-    expect(mealPlanServedAi(plan)).toBe(false);
+    expect(plan.specialNotes).toContain("Uống đủ nước trong ngày.");
+    expect(plan.specialNotes.length).toBeGreaterThan(8);
+    expect(mealPlanServedAi(plan)).toBe(true);
   });
 
   it("does not spend a note when every id is unknown", async () => {
