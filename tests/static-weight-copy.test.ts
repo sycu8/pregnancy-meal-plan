@@ -5,6 +5,7 @@ import { breakfastMeals, findMealRecordByName, flattenMealIngredients, mainMeals
 import { localizeMealText } from "@/lib/nutrition/mealLocales";
 import { NOTE_LIBRARY } from "@/lib/nutrition/noteLibrary";
 import { getConditionSpecificWarnings, getGeneralPregnancyFoodWarnings } from "@/lib/nutrition/safetyRules";
+import { WEIGHT_LEXICON, findWeightLexiconHits, foldLexiconText } from "@/lib/nutrition/weightLexicon";
 import type { PregnancyProfile } from "@/types/pregnancy";
 
 const ROOT = path.resolve(__dirname, "..");
@@ -14,10 +15,12 @@ const SKIP_FILES = new Set([
   "src/lib/nutrition/aiNoteSafety.ts",
   "src/lib/nutrition/aiPromptBuilder.ts",
   "src/lib/nutrition/weightLossReview.ts",
+  "src/lib/nutrition/weightLexicon.ts",
   "src/lib/cloudflare/aiClient.ts"
 ]);
 
 const SCAN_ROOTS = [
+  "src/app",
   "src/components",
   "src/lib/nutrition",
   "src/lib/i18n.ts",
@@ -28,39 +31,12 @@ const SCAN_ROOTS = [
   "docs/STORE_SUBMISSION.md"
 ];
 
-/**
- * Accent-folded stems. full(er) matches full and fuller, not fully.
- * A hyphen or underscore is part of a code token (w-full, fast_weight_gain), not copy.
- */
-const EDGE = "[\\p{L}\\p{N}_-]";
-const STEMS: { name: string; pattern: RegExp }[] = [
-  { name: "giảm cân", pattern: new RegExp(`(?<!${EDGE})giam can(?!${EDGE})`, "u") },
-  { name: "kiểm soát", pattern: new RegExp(`(?<!${EDGE})kiem soat(?!${EDGE})`, "u") },
-  { name: "khẩu phần", pattern: new RegExp(`(?<!${EDGE})khau phan(?!${EDGE})`, "u") },
-  { name: "no lâu", pattern: new RegExp(`(?<!${EDGE})no lau(?!${EDGE})`, "u") },
-  { name: "ít calo", pattern: new RegExp(`(?<!${EDGE})it calo(?!${EDGE})`, "u") },
-  { name: "giữ dáng", pattern: new RegExp(`(?<!${EDGE})giu dang(?!${EDGE})`, "u") },
-  { name: "weight", pattern: new RegExp(`(?<!${EDGE})weight(?!${EDGE})`, "u") },
-  { name: "portion", pattern: new RegExp(`(?<!${EDGE})portions?(?!${EDGE})`, "u") },
-  { name: "full(er)", pattern: new RegExp(`(?<!${EDGE})full(?:er)?(?!${EDGE})`, "u") },
-  { name: "filling", pattern: new RegExp(`(?<!${EDGE})filling(?!${EDGE})`, "u") },
-  { name: "fullness", pattern: new RegExp(`(?<!${EDGE})fullness(?!${EDGE})`, "u") },
-  { name: "hearty", pattern: new RegExp(`(?<!${EDGE})hearty(?!${EDGE})`, "u") },
-  { name: "satisfying", pattern: new RegExp(`(?<!${EDGE})satisfying(?!${EDGE})`, "u") },
-  { name: "no ăn lâu", pattern: new RegExp(`(?<!${EDGE})no an lau(?!${EDGE})`, "u") },
-  { name: "chắc bụng", pattern: new RegExp(`(?<!${EDGE})chac bung(?!${EDGE})`, "u") },
-  { name: "đỡ đói", pattern: new RegExp(`(?<!${EDGE})do doi(?!${EDGE})`, "u") },
-  { name: "no dai", pattern: new RegExp(`(?<!${EDGE})no dai(?!${EDGE})`, "u") },
-  { name: "cảm giác no", pattern: new RegExp(`(?<!${EDGE})cam giac no(?!${EDGE})`, "u") },
-  { name: "satiety", pattern: new RegExp(`(?<!${EDGE})satiety(?!${EDGE})`, "u") },
-  { name: "calorie deficit", pattern: /calorie deficit/u },
-  { name: "appetite", pattern: new RegExp(`(?<!${EDGE})appetite(?!${EDGE})`, "u") },
-  { name: "several small meals", pattern: /several small meals/u },
-  { name: "nhiều bữa nhỏ", pattern: new RegExp(`(?<!${EDGE})nhieu bua nho(?!${EDGE})`, "u") }
-];
-
-function foldLine(line: string): string {
-  return line.normalize("NFC").normalize("NFD").replace(/\p{M}/gu, "").replace(/đ/gi, "d").toLowerCase();
+function lexiconHits(lines: readonly string[], label: string): string[] {
+  const hits: string[] = [];
+  lines.forEach((line, index) => {
+    for (const hit of findWeightLexiconHits(line)) hits.push(`${label}:${index + 1} ${hit.name}`);
+  });
+  return hits;
 }
 
 function filesUnder(relative: string): string[] {
@@ -79,17 +55,6 @@ function filesUnder(relative: string): string[] {
 
 function staticFiles(): string[] {
   return SCAN_ROOTS.flatMap(filesUnder).filter((file) => !SKIP_FILES.has(file.split(path.sep).join("/")));
-}
-
-function lexiconHits(lines: readonly string[], label: string): string[] {
-  const hits: string[] = [];
-  lines.forEach((line, index) => {
-    const folded = foldLine(line);
-    for (const stem of STEMS) {
-      if (stem.pattern.test(folded)) hits.push(`${label}:${index + 1} ${stem.name}`);
-    }
-  });
-  return hits;
 }
 
 const sampleProfile: PregnancyProfile = {
@@ -143,15 +108,66 @@ describe("static weight-control copy", () => {
       nutrients: meal?.nutrients ?? []
     });
     expect(english.reason).toBe("Simple and low in oil, with greens and lean protein.");
-    expect(foldLine(english.reason)).not.toMatch(new RegExp(`(?<!${EDGE})weight(?!${EDGE})`, "u"));
-    expect(foldLine(english.reason)).not.toMatch(new RegExp(`(?<!${EDGE})portions?(?!${EDGE})`, "u"));
+    expect(findWeightLexiconHits(english.reason)).toEqual([]);
   });
 
-  it("names the satiety stems beyond full and fuller", () => {
-    const names = STEMS.map((stem) => stem.name);
-    for (const name of ["filling", "hearty", "satisfying", "no ăn lâu", "chắc bụng", "đỡ đói", "fullness"]) {
+  it("names the satiety stems the guard used to miss", () => {
+    const names = WEIGHT_LEXICON.map((phrase) => phrase.name);
+    for (const name of [
+      "filling",
+      "hearty",
+      "satisfying",
+      "satisfied",
+      "satiated",
+      "no ăn lâu",
+      "chắc bụng",
+      "đỡ đói",
+      "fullness",
+      "smaller plate",
+      "bữa nhỏ",
+      "lượng nhỏ",
+      "ăn ít",
+      "eat less",
+      "hunger",
+      "cravings",
+      "thèm ăn"
+    ]) {
       expect(names).toContain(name);
     }
+  });
+
+  it("matches unaccented text and NFD text", () => {
+    const samples = [
+      "giam can",
+      "giảm cân".normalize("NFD"),
+      "chac bung",
+      "chắc bụng".normalize("NFD"),
+      "do doi",
+      "đỡ đói".normalize("NFD"),
+      "bua nho",
+      "bữa nhỏ".normalize("NFD"),
+      "luong nho",
+      "lượng nhỏ".normalize("NFD"),
+      "an it",
+      "ăn ít".normalize("NFD"),
+      "them an",
+      "thèm ăn".normalize("NFD"),
+      "no lau",
+      "no lâu".normalize("NFD"),
+      "smaller plate",
+      "eat less",
+      "hunger",
+      "cravings",
+      "satisfied",
+      "satiated"
+    ];
+    for (const sample of samples) {
+      expect(findWeightLexiconHits(sample).length, sample).toBeGreaterThan(0);
+    }
+    expect(foldLexiconText("Giảm cân".normalize("NFD"))).toBe("giam can");
+    expect(findWeightLexiconHits("a fulfilling plate").map((hit) => hit.name)).not.toContain("filling");
+    expect(findWeightLexiconHits("w-full")).toEqual([]);
+    expect(findWeightLexiconHits("fully cooked")).toEqual([]);
   });
 
   it("scans static Vietnamese and English strings for weight-control phrasing", () => {
@@ -171,9 +187,24 @@ describe("static weight-control copy", () => {
     expect(getConditionSpecificWarnings({ ...sampleProfile, healthConditions: ["reflux"] }, "en")).toEqual([
       "Eat smaller meals slowly, and don't lie down right after."
     ]);
-    expect(getConditionSpecificWarnings({ ...sampleProfile, healthConditions: ["fast_weight_gain"], goals: ["weight_control"] }, "en").join(" ")).not.toMatch(
-      /several small meals/i
+    const refluxAndWeight: PregnancyProfile = {
+      ...sampleProfile,
+      healthConditions: ["reflux", "fast_weight_gain"],
+      goals: ["weight_control"]
+    };
+    expect(getConditionSpecificWarnings(refluxAndWeight, "vi")).toContain("Chia bữa đều trong ngày, ăn chậm, không nằm ngay sau ăn.");
+    expect(getConditionSpecificWarnings(refluxAndWeight, "en")).toContain(
+      "Spread meals across the day, eat slowly, and don't lie down right after eating."
     );
+    expect(getConditionSpecificWarnings(refluxAndWeight, "en").join(" ")).not.toMatch(/small meals/i);
+    expect(getConditionSpecificWarnings(refluxAndWeight, "vi").join(" ")).not.toMatch(/bữa nhỏ|nhỏ bữa/);
+    const gdm = getConditionSpecificWarnings({ ...sampleProfile, healthConditions: ["gestational_diabetes"] }, "vi");
+    expect(gdm.join(" ")).toContain("chia bữa đều trong ngày");
+    expect(gdm.join(" ")).not.toMatch(/chia nhỏ bữa/);
+    expect(getConditionSpecificWarnings({ ...sampleProfile, healthConditions: ["gestational_diabetes"] }, "en").join(" ")).toContain(
+      "split meals across the day"
+    );
+    expect(NOTE_LIBRARY.map((note) => note.id)).not.toContain("safety-same-day");
     for (const note of NOTE_LIBRARY) {
       expect(note.en).not.toMatch(/several small meals/i);
       expect(note.vi).not.toMatch(/nhiều bữa nhỏ/);

@@ -211,12 +211,28 @@ function mentionsRefinedStarch(text: string): boolean {
   return false;
 }
 
+function isWholeGrainStarch(text: string): boolean {
+  const folded = foldNote(text);
+  return /nguyen cam|nguyen hat|whole grain|whole-grain|whole wheat|wholewheat/.test(folded);
+}
+
+/** White bread and refined-flour pasta. Whole-grain bread stays. */
+function mentionsRefinedFlour(text: string): boolean {
+  if (isWholeGrainStarch(text)) return false;
+  const nfc = text.normalize("NFC").toLowerCase();
+  const folded = foldNote(text);
+  const accented = ["bánh mì trắng", "bánh mì", "mì ống", "nui"];
+  if (accented.some((item) => phrase(nfc, escapePhrase(item)))) return true;
+  const plain = ["banh mi trang", "banh mi", "white bread", "macaroni", "pasta", "spaghetti", "mi ong", "nui"];
+  return plain.some((item) => phrase(folded, escapePhrase(item)));
+}
+
 /** Unsafe foods always. Sweets, white rice, and refined noodles when glucose is a concern. */
 export function mealBlocked(meal: { name: string; ingredients: MealRecord["ingredients"] }, profile: PregnancyProfile): boolean {
   const ingredients = flattenMealIngredients(meal as MealRecord);
   const blob = [meal.name, ...ingredients].join(" \n ");
   if (mentionsUnsafeFood(blob) || hasUnsafeSprouts(meal.name, ingredients)) return true;
   if (!isGlucoseConcern(profile)) return false;
-  if (ingredients.some(isWhiteRiceIngredient) || mentionsRefinedStarch(blob)) return true;
+  if (ingredients.some(isWhiteRiceIngredient) || mentionsRefinedStarch(blob) || [meal.name, ...ingredients].some(mentionsRefinedFlour)) return true;
   return mentionsGdmSweet(blob);
 }

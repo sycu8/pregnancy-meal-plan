@@ -78,8 +78,6 @@ export const NOTE_LIBRARY: readonly LibraryNote[] = [
   { id: "safety-milk", topic: "food-safety", vi: "Chọn sữa và phô mai đã tiệt trùng.", en: "Choose pasteurized milk and cheese." },
   { id: "safety-separate", topic: "food-safety", vi: "Để thớt thịt sống riêng với rau đã rửa.", en: "Keep the raw-meat board separate from washed vegetables." },
   { id: "safety-cook-food", topic: "food-safety", foodSlot: true, vi: "Nấu {food} cho đến khi chín nóng đều.", en: "Cook {food} until it is hot all the way through." },
-  { id: "safety-same-day", topic: "food-safety", vi: "Món có thịt hoặc cá nên ăn trong ngày sau khi nấu.", en: "Eat dishes with meat or fish the same day they are cooked." },
-
   { id: "gdm-oats", topic: "gdm", vi: "Yến mạch và khoai lang là tinh bột chậm dễ dùng.", en: "Oats and sweet potato are practical slow-digesting starches." },
   { id: "gdm-brown-rice", topic: "gdm", vi: "Gạo lứt và cơm gạo lứt thay cho gạo trắng trong bữa chính.", en: "Use brown rice in place of white rice at main meals." },
   { id: "gdm-vegetables", topic: "gdm", vi: "Thêm rau vào đĩa cùng đạm và tinh bột chậm.", en: "Add vegetables on the plate with protein and slow-digesting starch." },

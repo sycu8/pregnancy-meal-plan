@@ -7,6 +7,7 @@ describe("note library", () => {
     expect(NOTE_LIBRARY.length).toBeLessThanOrEqual(80);
     expect(new Set(NOTE_IDS).size).toBe(NOTE_LIBRARY.length);
     expect(NOTE_LIBRARY.some((note) => note.foodSlot)).toBe(true);
+    expect(NOTE_IDS).not.toContain("safety-same-day");
     for (const note of NOTE_LIBRARY) {
       expect(note.vi).toMatch(/[àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ]/i);
       expect(note.en).not.toMatch(/[àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ]/i);

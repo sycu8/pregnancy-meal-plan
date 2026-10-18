@@ -45,7 +45,7 @@ export function getConditionSpecificWarnings(profile: PregnancyProfile, locale: 
   if (conditions.has("gestational_diabetes") || profile.goals.includes("blood_sugar_control")) {
     notes.push(
       locale === "vi"
-        ? "Tiểu đường thai kỳ: ưu tiên tinh bột chậm, chia nhỏ bữa, tránh nước ép/nước ngọt và hỏi bác sĩ về lượng tinh bột phù hợp."
+        ? "Tiểu đường thai kỳ: ưu tiên tinh bột chậm, chia bữa đều trong ngày, tránh nước ép/nước ngọt và hỏi bác sĩ về lượng tinh bột phù hợp."
         : "Gestational diabetes: prioritize slow-digesting carbohydrates, split meals across the day, avoid juice and sugary drinks, and ask your clinician about the right carbohydrate amount."
     );
   }
@@ -92,10 +92,15 @@ export function getConditionSpecificWarnings(profile: PregnancyProfile, locale: 
     );
   }
   if (conditions.has("reflux")) {
+    const withWeightControl = conditions.has("fast_weight_gain") || profile.goals.includes("weight_control");
     notes.push(
-      locale === "vi"
-        ? "Chia nhỏ bữa ăn, ăn chậm, không nằm ngay sau ăn."
-        : "Eat smaller meals slowly, and don't lie down right after."
+      withWeightControl
+        ? locale === "vi"
+          ? "Chia bữa đều trong ngày, ăn chậm, không nằm ngay sau ăn."
+          : "Spread meals across the day, eat slowly, and don't lie down right after eating."
+        : locale === "vi"
+          ? "Chia nhỏ bữa ăn, ăn chậm, không nằm ngay sau ăn."
+          : "Eat smaller meals slowly, and don't lie down right after."
     );
   }
   if (conditions.has("large_fetus")) {
