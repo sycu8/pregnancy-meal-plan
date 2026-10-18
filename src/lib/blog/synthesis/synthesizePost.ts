@@ -89,7 +89,7 @@ export function synthesizePost(input: SynthesisInput): SynthesisOutput {
     ``,
     `**${SEEK_CARE_SOON_VI}**`,
     ``,
-    `> Nội dung được tổng hợp tham khảo từ tiêu đề/chủ đề nguồn [${input.sourceName}](${input.url}), không sao chép nguyên văn bài gốc.`
+    ``
   ].join("\n");
 
   const contentEn = [
@@ -357,8 +357,11 @@ function stripForEnglishTitle(title: string) {
 }
 
 function ensureSourceNoteVi(content: string, input: SynthesisInput) {
-  if (content.includes(input.url)) return content;
-  return `${content.trim()}\n\n> Nội dung tổng hợp tham khảo chủ đề từ [${input.sourceName}](${input.url}), không sao chép nguyên văn.\n`;
+  if (!content.includes(input.url)) return content;
+  return content.replace(
+    /\n*> Nội dung tổng hợp tham khảo chủ đề từ \[[^\]]+\]\([^)]+\), không sao chép nguyên văn\.\n*/g,
+    "\n"
+  );
 }
 
 function ensureSourceNoteEn(content: string, input: SynthesisInput) {

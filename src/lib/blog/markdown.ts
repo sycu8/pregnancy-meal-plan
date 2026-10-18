@@ -69,7 +69,7 @@ export function renderBlogMarkdown(markdown: string): string {
       html.push(`<h2 class="mt-8 text-xl font-semibold text-foreground">${inline(trimmed.slice(3))}</h2>`);
       continue;
     }
-    if (trimmed.startsWith("- ")) {
+    if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
       if (inOl) {
         html.push("</ol>");
         inOl = false;
