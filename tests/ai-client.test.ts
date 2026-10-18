@@ -42,12 +42,13 @@ describe("Workers AI model catalog", () => {
   it("uses a text model that is not a known retired id", () => {
     expect(WORKERS_AI_MODEL).toBe("@cf/meta/llama-3.1-8b-instruct-fp8");
     expect(RETIRED_WORKERS_AI_MODEL_IDS).not.toContain(WORKERS_AI_MODEL);
+    expect(RETIRED_WORKERS_AI_MODEL_IDS).not.toContain("@cf/meta/llama-3.1-8b-instruct-fast");
     expect(() => assertSupportedWorkersAiModel(WORKERS_AI_MODEL)).not.toThrow();
+    expect(() => assertSupportedWorkersAiModel("@cf/meta/llama-3.1-8b-instruct-fast")).not.toThrow();
   });
 
   it("fails on known retired model ids", () => {
     expect(RETIRED_WORKERS_AI_MODEL_IDS).toContain("@cf/meta/llama-3.1-8b-instruct");
-    expect(RETIRED_WORKERS_AI_MODEL_IDS).toContain("@cf/meta/llama-3.1-8b-instruct-fast");
 
     for (const model of RETIRED_WORKERS_AI_MODEL_IDS) {
       expect(() => assertSupportedWorkersAiModel(model)).toThrow(AiProviderError);
