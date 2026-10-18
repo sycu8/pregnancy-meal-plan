@@ -3865,10 +3865,14 @@ function isEnglishHistoryClause(clause: string): boolean {
 /** «the scan said movement is normal». A stop or decrease in the same clause still counts. */
 function isEnglishNormalFindingClause(clause: string): boolean {
   const lower = clause.toLowerCase();
+  const danger =
+    /\b(?:stopped|stops|stopping|decreased|reduced|fewer|not moving|no movement|no longer)\b/.test(lower);
+  // «<measure> normal on ultrasound/scan» is a normal finding, with no "said/showed".
+  if (/\bnormal\s+on\s+(?:the\s+|an\s+|a\s+)?(?:ultrasound|scan|sono)\b/.test(lower) && !danger) return true;
   const reporter = /\b(?:scan|ultrasound|sono|doctor|midwife|ob|clinician)\b/.test(lower);
   const said = /\b(?:said|says|told|showed|shows|reported)\b/.test(lower);
   if (!reporter || !said || !/\bnormal\b/.test(lower)) return false;
-  return !/\b(?:stopped|stops|stopping|decreased|reduced|fewer|not moving|no movement|no longer)\b/.test(lower);
+  return !danger;
 }
 
 /** Gum bleeding from brushing or flossing. Vaginal bleeding is not this. */

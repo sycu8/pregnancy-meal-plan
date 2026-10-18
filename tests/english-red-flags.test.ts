@@ -160,6 +160,7 @@ describe("PMP42-FA-01 English history, normal findings, and gum bleeding", () =>
     expect(warningsFor("no history of reduced fetal movement")).toEqual([]);
     expect(warningsFor("no history of high blood pressure")).toEqual([]);
     expect(warningsFor("the scan was normal")).toEqual([]);
+    expect(warningsFor("amniotic fluid level normal on ultrasound")).toEqual([]);
     expect(warningsFor("normal scan finding")).toEqual([]);
     expect(warningsFor("ultrasound was normal")).toEqual([]);
     expect(warningsFor("the scan looks normal")).toEqual([]);
