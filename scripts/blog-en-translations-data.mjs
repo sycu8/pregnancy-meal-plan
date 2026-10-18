@@ -1054,9 +1054,9 @@ Facial swelling, fever, or severe tooth pain with infection risk — seek urgent
   },
   {
     slug: "tang-can-hop-ly-theo-bmi-khi-mang-thai",
-    title: "BMI in pregnancy",
-    excerpt: "What BMI means in pregnancy, IOM/ACOG reference gain ranges, and when to personalize with your clinician.",
-    metaTitle: "BMI in pregnancy | Bầu Ăn Gì? Blog",
+    title: "Pregnancy weight gain by pre-pregnancy BMI",
+    excerpt: "Why tracking weight matters, BMI basics, IOM/ACOG reference ranges, trimester patterns, and when to personalize with your clinician.",
+    metaTitle: "Pregnancy weight gain by BMI | Bầu Ăn Gì? Blog",
     metaDescription: "Recommended pregnancy weight gain ranges by pre-pregnancy BMI — ACOG and IOM references.",
     author: "Bầu Ăn Gì? Team",
     reviewer: "References ACOG, IOM",
