@@ -106,7 +106,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ plan });
   } catch (error) {
     if (error instanceof AiProviderError) {
-      console.error("[meal-plan] AI provider failed");
+      console.error(
+        JSON.stringify({
+          event: "meal-plan-ai-fallback",
+          reason: "provider_error",
+          provider: error.provider,
+          errorName: error.name
+        })
+      );
       return NextResponse.json(
         { error: aiUnavailableMessage(locale), code: AI_UNAVAILABLE_CODE },
         { status: 502 }
