@@ -330,8 +330,8 @@ describe("static weight-control copy", () => {
         const rendered = getConditionSpecificWarnings(profile, locale);
         const joined = rendered.join(" ");
         expect(joined, locale).not.toMatch(/chia nhỏ bữa|nhỏ bữa|bữa nhỏ|smaller meals|small meals/i);
-        if (locale === "vi") expect(joined).toContain("Chia bữa đều trong ngày");
-        else expect(joined).toContain("Spread meals across the day");
+        if (locale === "vi") expect(joined).toMatch(/chia bữa đều trong ngày/i);
+        else expect(joined).toMatch(/spread meals across the day/i);
       }
     }
     const morningRefluxVi = getConditionSpecificWarnings(morningRefluxWeight, "vi");
@@ -348,27 +348,34 @@ describe("static weight-control copy", () => {
       goals: ["blood_sugar_control"]
     };
     const gdmNausea = getConditionSpecificWarnings(gdmNauseaProfile, "vi").join(" ");
-    expect(gdmNausea).toContain("bánh nguyên cám hoặc bánh quy nguyên cám, cháo yến mạch");
-    expect(gdmNausea).toContain("Chia nhỏ bữa, ăn đều trong ngày");
+    expect(gdmNausea).toContain("bánh mì nguyên cám hoặc bánh quy nguyên cám, cháo yến mạch");
+    expect(gdmNausea).not.toContain("bánh nguyên cám");
+    expect(gdmNausea).toContain("Nghén: chia nhỏ bữa, ăn đều trong ngày");
     expect(gdmNausea).not.toMatch(/chia bữa đều trong ngày/);
-    expect(gdmNausea).not.toMatch(/bánh mì|cháo(?! yến mạch)/);
+    expect(gdmNausea).not.toMatch(/bánh mì(?! nguyên cám)|cháo(?! yến mạch)/);
     const gdmNauseaEn = getConditionSpecificWarnings(gdmNauseaProfile, "en").join(" ");
     expect(gdmNauseaEn).toContain("whole-grain bread or crackers, oat porridge");
-    expect(gdmNauseaEn).toContain("Eat smaller meals spread through the day");
+    expect(gdmNauseaEn).toContain("Morning sickness: eat smaller meals spread through the day");
     expect(gdmNauseaEn).not.toMatch(/split meals across the day|Spread meals across the day/);
     expect(gdmNauseaEn).not.toMatch(/white bread|(?<!whole-grain )bread|(?<!oat )porridge/i);
     const gdmNauseaWeight = getConditionSpecificWarnings(
       { ...sampleProfile, healthConditions: ["gestational_diabetes", "morning_sickness"], goals: ["weight_control"] },
       "vi"
     ).join(" ");
-    expect(gdmNauseaWeight).toContain("Chia bữa đều trong ngày");
-    expect(gdmNauseaWeight).not.toContain("Chia nhỏ bữa, ăn đều trong ngày");
+    expect(gdmNauseaWeight).toContain("Nghén: chia bữa đều trong ngày");
+    expect(gdmNauseaWeight).not.toContain("chia nhỏ bữa, ăn đều trong ngày");
+    expect(
+      getConditionSpecificWarnings(
+        { ...sampleProfile, healthConditions: ["gestational_diabetes", "morning_sickness"], goals: ["weight_control"] },
+        "en"
+      ).join(" ")
+    ).toContain("Morning sickness: spread meals across the day");
     const gdmNauseaReflux = getConditionSpecificWarnings(
       { ...sampleProfile, healthConditions: ["gestational_diabetes", "morning_sickness", "reflux"], goals: ["blood_sugar_control"] },
       "vi"
     );
     expect(gdmNauseaReflux.filter((note) => /chia bữa|nhỏ bữa|bữa nhỏ|ăn đều trong ngày/i.test(note))).toEqual([
-      "Chia nhỏ bữa, ăn đều trong ngày, ăn chậm, không nằm ngay sau ăn. Chọn món ít mùi, mềm, dễ tiêu; có thể thử bánh nguyên cám hoặc bánh quy nguyên cám, cháo yến mạch, khoai hoặc trái cây ít chua."
+      "Chia nhỏ bữa, ăn đều trong ngày, ăn chậm, không nằm ngay sau ăn. Chọn món ít mùi, mềm, dễ tiêu; có thể thử bánh mì nguyên cám hoặc bánh quy nguyên cám, cháo yến mạch, khoai hoặc trái cây ít chua."
     ]);
     const gdm = getConditionSpecificWarnings({ ...sampleProfile, healthConditions: ["gestational_diabetes"] }, "vi");
     expect(gdm.join(" ")).toContain("chia bữa đều trong ngày");
@@ -386,7 +393,8 @@ describe("static weight-control copy", () => {
       expect(note.en.toLowerCase()).toContain("well cooked");
     }
     const leftovers = NOTE_LIBRARY.find((note) => note.id === "safety-leftovers");
-    expect(leftovers?.vi).toContain("Cất tủ lạnh trong vòng 2 giờ, dùng trong 24 giờ, hâm nóng kỹ đến khi bốc hơi");
+    expect(leftovers?.vi).toBe("Thịt hoặc cá đã nấu chín: cất tủ lạnh trong vòng 2 giờ, dùng trong 24 giờ, hâm nóng kỹ đến khi bốc hơi.");
+    expect(leftovers?.en).toBe("Cooked meat or fish: refrigerate within 2 hours, eat within 24 hours, and reheat until steaming hot.");
     expect(leftovers?.vi.toLowerCase()).not.toContain("ăn trong ngày");
     expect(leftovers?.en.toLowerCase()).toContain("refrigerate within 2 hours");
     expect(leftovers?.en.toLowerCase()).toContain("within 24 hours");

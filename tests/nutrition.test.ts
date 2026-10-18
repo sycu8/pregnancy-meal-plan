@@ -229,7 +229,7 @@ describe("special notes", () => {
         const localized = localizeMealPlanForLocale(plan, locale);
         for (const rendered of [plan.safetyWarnings.join(" "), plan.specialNotes.join(" "), localized.specialNotes.join(" ")]) {
           expect(rendered, locale).not.toMatch(/chia nhỏ bữa|smaller meals|small meals/i);
-          expect(rendered).toMatch(locale === "vi" ? /Chia bữa đều trong ngày/ : /Spread meals across the day/);
+          expect(rendered).toMatch(locale === "vi" ? /chia bữa đều trong ngày/i : /spread meals across the day/i);
         }
       }
     }
@@ -253,19 +253,25 @@ describe("special notes", () => {
     const vietnamese = ruleBasedMealPlanner(profile, "vi").specialNotes.join(" ");
     const english = ruleBasedMealPlanner(profile, "en").specialNotes.join(" ");
     expect(vietnamese).toContain("cháo yến mạch");
-    expect(vietnamese).toContain("bánh nguyên cám");
-    expect(vietnamese).toContain("Chia nhỏ bữa, ăn đều trong ngày");
+    expect(vietnamese).toContain("bánh mì nguyên cám hoặc bánh quy nguyên cám");
+    expect(vietnamese).not.toContain("bánh nguyên cám");
+    expect(vietnamese).toContain("Nghén: chia nhỏ bữa, ăn đều trong ngày");
     expect(vietnamese).not.toMatch(/chia bữa đều trong ngày/);
-    expect(vietnamese).not.toMatch(/bánh mì|white bread|cháo(?! yến mạch)/);
+    expect(vietnamese).not.toMatch(/bánh mì(?! nguyên cám)|white bread|cháo(?! yến mạch)/);
     expect(english).toContain("whole-grain bread or crackers, oat porridge");
-    expect(english).toContain("Eat smaller meals spread through the day");
+    expect(english).toContain("Morning sickness: eat smaller meals spread through the day");
     expect(english).not.toMatch(/split meals across the day|Spread meals across the day/);
     expect(english).not.toMatch(/white bread|(?<!whole-grain )bread|(?<!oat )porridge/i);
     const withWeight = ruleBasedMealPlanner(
       { ...profile, goals: ["weight_control", "blood_sugar_control"] },
       "vi"
     ).specialNotes.join(" ");
-    expect(withWeight).toContain("Chia bữa đều trong ngày");
-    expect(withWeight).not.toContain("Chia nhỏ bữa, ăn đều trong ngày");
+    const withWeightEn = ruleBasedMealPlanner(
+      { ...profile, goals: ["weight_control", "blood_sugar_control"] },
+      "en"
+    ).specialNotes.join(" ");
+    expect(withWeight).toContain("Nghén: chia bữa đều trong ngày");
+    expect(withWeight).not.toContain("chia nhỏ bữa, ăn đều trong ngày");
+    expect(withWeightEn).toContain("Morning sickness: spread meals across the day");
   });
 });

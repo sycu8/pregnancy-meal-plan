@@ -136,7 +136,7 @@ export function detectUrgentWarnings(profile: PregnancyProfile, locale: Locale =
 function nauseaFoods(locale: Locale, glucose: boolean): string {
   if (glucose) {
     return locale === "vi"
-      ? "bánh nguyên cám hoặc bánh quy nguyên cám, cháo yến mạch, khoai hoặc trái cây ít chua"
+      ? "bánh mì nguyên cám hoặc bánh quy nguyên cám, cháo yến mạch, khoai hoặc trái cây ít chua"
       : "whole-grain bread or crackers, oat porridge, potatoes or less acidic fruit";
   }
   return locale === "vi"
@@ -164,13 +164,13 @@ function nauseaLine(locale: Locale, weightControl: boolean, glucose: boolean): s
   }
   if (!weightControl && glucose) {
     return locale === "vi"
-      ? `Nghén: Chia nhỏ bữa, ăn đều trong ngày, chọn món ít mùi, mềm, dễ tiêu; có thể thử ${foods}.`
-      : `Morning sickness: Eat smaller meals spread through the day, and choose mild-smelling, soft, easy-to-digest foods such as ${foods}.`;
+      ? `Nghén: chia nhỏ bữa, ăn đều trong ngày, chọn món ít mùi, mềm, dễ tiêu; có thể thử ${foods}.`
+      : `Morning sickness: eat smaller meals spread through the day, and choose mild-smelling, soft, easy-to-digest foods such as ${foods}.`;
   }
   if (locale === "vi") {
-    return `Nghén: Chia bữa đều trong ngày, chọn món ít mùi, mềm, dễ tiêu; có thể thử ${foods}.`;
+    return `Nghén: chia bữa đều trong ngày, chọn món ít mùi, mềm, dễ tiêu; có thể thử ${foods}.`;
   }
-  return `Morning sickness: Spread meals across the day and choose mild-smelling, soft, easy-to-digest foods such as ${foods}.`;
+  return `Morning sickness: spread meals across the day and choose mild-smelling, soft, easy-to-digest foods such as ${foods}.`;
 }
 
 /** One meal-spacing line when nausea and reflux are both set. */
