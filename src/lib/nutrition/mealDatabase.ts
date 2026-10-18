@@ -60,7 +60,8 @@ export const breakfastMeals: MealRecord[] = [
 ];
 
 export const mainMeals: MealRecord[] = [
-  meal("Cơm gạo lứt cá thu sốt cà", ["omega-3", "đạm", "tinh bột chậm"], ["gestational_diabetes", "budget_high", "no_beef_safe"], ["cá thu", "cà chua", "gạo lứt"], "Cân bằng đạm và tinh bột chậm.", "cá thu (tối đa 1 bữa/tuần), nấu chín kỹ. Loài cá thu nào là cá thu vua cần rà soát chuyên môn."),
+  // Loài cá thu nào là cá thu vua cần rà soát chuyên môn. Not shown to users.
+  meal("Cơm gạo lứt cá thu sốt cà", ["omega-3", "đạm", "tinh bột chậm"], ["gestational_diabetes", "budget_high", "no_beef_safe"], ["cá thu", "cà chua", "gạo lứt"], "Cân bằng đạm và tinh bột chậm.", "Chọn cá thu nhỏ, tối đa 1 bữa/tuần, nấu chín kỹ."),
   meal("Thịt bò xào bông cải", ["sắt", "đạm", "folate"], ["anemia", "budget_medium", "no_fish_safe", "no_seafood_safe"], ["thịt bò", "bông cải xanh", "cơm"], "Hỗ trợ bổ sung sắt, ăn cùng trái cây giàu vitamin C."),
   meal("Canh rau dền thịt bằm", ["sắt", "chất xơ", "đạm"], ["anemia", "constipation", "budget_low", "no_fish_safe", "no_beef_safe", "no_seafood_safe"], ["thịt heo nạc", "rau dền", "gạo"], "Món Việt dễ nấu, có rau xanh và đạm."),
   meal("Đậu hũ sốt cà chua", ["đạm thực vật", "canxi"], ["vegetarian", "budget_low", "no_fish_safe", "no_beef_safe", "no_seafood_safe"], ["đậu hũ", "cà chua", "cơm"], "Phù hợp ngày muốn ăn nhẹ hoặc ăn chay."),

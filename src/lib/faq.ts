@@ -24,7 +24,7 @@ export const faqContent: Record<Locale, FaqItem[]> = {
     },
     {
       question: "Nếu có dấu hiệu nguy hiểm thì làm gì?",
-      answer: "Nếu có dấu hiệu nguy hiểm, hãy gọi 115 hoặc đến bệnh viện gần nhất — không gửi email hỗ trợ."
+      answer: "Nếu có dấu hiệu nguy hiểm, hãy gọi 115 hoặc đến bệnh viện gần nhất ngay. Đừng chờ phản hồi qua email hỗ trợ."
     },
     {
       question: "Làm sao xóa dữ liệu trên trình duyệt?",

@@ -3,7 +3,7 @@ import fs from "node:fs";
 import { keywordLabel, buildBlogListKeywords } from "@/lib/blog/keywords";
 import { titleForDocument } from "@/lib/blog/titles";
 import { clampMetaDescription } from "@/lib/blog/synthesis/synthesizePost";
-import { pregnancyProfileSchema } from "@/lib/nutrition/validation";
+import { PAST_DUE_WEEK_HINT, pregnancyProfileSchema } from "@/lib/nutrition/validation";
 import { getPostBySlug } from "@/lib/blog/posts";
 
 function post(slug: string) {
@@ -42,6 +42,7 @@ describe("P2/P3 Vietnamese wording", () => {
     expect(text.length).toBeGreaterThanOrEqual(100);
     expect(text.length).toBeLessThanOrEqual(155);
     expect(text).not.toContain("tham khảo giáo");
+    expect(text).toContain("không thay thế tư vấn của bác sĩ");
   });
 
   it("accepts gestational weeks 41 and 42", () => {
@@ -61,15 +62,22 @@ describe("P2/P3 Vietnamese wording", () => {
     const rejected = pregnancyProfileSchema.safeParse({ ...base, pregnancyWeek: 43 });
     expect(rejected.success).toBe(false);
     if (!rejected.success) {
-      expect(rejected.error.issues[0]?.message).toContain("Tuần thai cần từ 1 đến 42");
+      expect(rejected.error.issues[0]?.message).toBe("Tuần thai cần từ 1 đến 42.");
     }
+    expect(PAST_DUE_WEEK_HINT).toBe("Đã quá ngày dự sinh, hãy liên hệ bác sĩ để được theo dõi.");
   });
 
   it("uses the review wording on the named articles", () => {
     expect(post("pica-khi-mang-thai").content).toContain("bột (bột bắp, bột năng) ăn sống");
     expect(post("pica-khi-mang-thai").content).not.toContain("bột sắn");
-    expect(post("ruou-va-thuoc-la-khi-mang-thai").content).toContain("1800 6606");
-    expect(post("ruou-va-thuoc-la-khi-mang-thai").content).toContain("cần xác minh số hiện hành");
+    expect(post("ruou-va-thuoc-la-khi-mang-thai").content).toContain(
+      "Hỏi bác sĩ hoặc cơ sở y tế về chương trình cai thuốc lá."
+    );
+    expect(post("ruou-va-thuoc-la-khi-mang-thai").content).not.toContain("1800 6606");
+    expect(post("ruou-va-thuoc-la-khi-mang-thai").content).not.toContain("cần xác minh số hiện hành");
+    expect(post("caffeine-khi-mang-thai").metaDescription).toBe(
+      "Uống cà phê, trà khi mang thai: giới hạn caffeine tham khảo theo NHS, ACOG. Trà, trà sữa, nước tăng lực và chocolate cũng chứa caffeine."
+    );
     expect(post("caffeine-khi-mang-thai").content).toContain("Một ly cà phê phin (robusta)");
     expect(post("theo-doi-duong-huyet-tieu-duong-thai-ky").content).toContain("khoảng 15 g đường");
     expect(post("thuc-pham-nen-tranh-khi-mang-thai").content).toContain("cá thu vua (king mackerel)");

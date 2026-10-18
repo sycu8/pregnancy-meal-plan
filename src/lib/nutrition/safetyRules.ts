@@ -5,7 +5,7 @@ export const MEDICAL_DISCLAIMER =
   "Thực đơn được tạo tự động dựa trên thông tin bạn cung cấp và chỉ mang tính tham khảo. Ứng dụng không chẩn đoán, điều trị hoặc thay thế tư vấn từ bác sĩ sản khoa/chuyên gia dinh dưỡng. Nếu bạn có tiểu đường thai kỳ, tăng huyết áp, tiền sản giật, thiếu máu nặng, thai chậm tăng trưởng hoặc bất kỳ vấn đề y khoa nào, hãy hỏi bác sĩ trước khi áp dụng.";
 
 export const LOCAL_PRIVACY_NOTICE =
-  "Mặc định, thông tin của bạn được lưu ngay trên trình duyệt của bạn (chỉ khi bạn đồng ý). Đồng bộ lên máy chủ chỉ diễn ra khi bạn đăng nhập và bật đồng bộ (opt-in).";
+  "Mặc định, thông tin của bạn chỉ được lưu trên trình duyệt của thiết bị này. Đồng bộ lên máy chủ chỉ diễn ra khi bạn đăng nhập và bật đồng bộ.";
 
 export const ENGLISH_MEDICAL_DISCLAIMER =
   "This meal plan is generated automatically from the information you provide and is for reference only. The app does not diagnose, treat or replace advice from an obstetrician or registered dietitian. If you have gestational diabetes, hypertension, preeclampsia risk, severe anemia, fetal growth concerns or any medical issue, ask your clinician before following the plan.";

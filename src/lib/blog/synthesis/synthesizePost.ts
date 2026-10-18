@@ -489,7 +489,7 @@ export function clampMetaDescription(input: string, title: string, locale: "en" 
     const suffix =
       locale === "en"
         ? " Practical notes for pregnancy and early parenting. Educational reference only."
-        : " Ghi chú dinh dưỡng thai kỳ và chăm con nhỏ. Chỉ để tham khảo, không thay thế bác sĩ.";
+        : " Ghi chú dinh dưỡng thai kỳ và chăm con nhỏ. Chỉ để tham khảo, không thay thế tư vấn của bác sĩ.";
     text = `${text.replace(/[.!?…]$/, "")}.${suffix}`.replace(/\s+/g, " ").trim();
   }
 

@@ -341,10 +341,10 @@ function buildSummaryMessage(status: MealPlan["summary"]["weightGainStatus"], lo
     return "There is not enough data to assess weight gain. The meal plan is still generated from the information you entered.";
   }
 
-  if (status === "low") return "Mức tăng cân đang thấp hơn khoảng tham khảo. Ứng dụng sẽ ưu tiên bữa giàu đạm, năng lượng lành mạnh và dễ ăn.";
-  if (status === "high") return "Mức tăng cân đang cao hơn khoảng tham khảo. Ứng dụng sẽ ưu tiên rau, đạm nạc và tinh bột chậm, vẫn giữ bữa ăn đủ chất.";
-  if (status === "normal") return "Các chỉ số đang nằm trong khoảng tham khảo. Ứng dụng sẽ gợi ý thực đơn cân bằng, dễ nấu và phù hợp tuần thai.";
-  return "Ứng dụng chưa có đủ dữ liệu để đánh giá tăng cân. Thực đơn vẫn được tạo theo thông tin bạn đã nhập.";
+  if (status === "low") return "Mức tăng cân đang thấp hơn khoảng tham khảo. Thực đơn sẽ ưu tiên bữa giàu đạm, năng lượng lành mạnh và dễ ăn.";
+  if (status === "high") return "Mức tăng cân đang cao hơn khoảng tham khảo. Thực đơn sẽ ưu tiên rau, đạm nạc và tinh bột chậm, vẫn giữ bữa ăn đủ chất.";
+  if (status === "normal") return "Các chỉ số đang nằm trong khoảng tham khảo. Thực đơn sẽ gợi ý thực đơn cân bằng, dễ nấu và phù hợp tuần thai.";
+  return "Chưa đủ dữ liệu để đánh giá tăng cân.";
 }
 
 export type MealSlot = keyof Pick<MealPlanDay, "breakfast" | "morningSnack" | "lunch" | "afternoonSnack" | "dinner">;
