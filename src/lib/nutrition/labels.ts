@@ -46,7 +46,7 @@ export const budgetLabels = {
 export const cookingTimeLabels = {
   under_15: "Dưới 15 phút",
   around_30: "Khoảng 30 phút",
-  meal_prep: "Meal prep cuối tuần"
+  meal_prep: "Nấu sẵn cuối tuần"
 } as const;
 
 export const activityLabels = {

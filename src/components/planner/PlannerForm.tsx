@@ -75,12 +75,12 @@ const copy = {
     tryAgain: "Thử lại",
     recheck: "Kiểm tra lại",
     useBasicPlan: "Dùng thực đơn cơ bản",
-    planLimit: "Đã hết lượt tạo thực đơn AI hôm nay. Đang dùng thực đơn rule-based (miễn phí).",
+    planLimit: "Đã hết lượt tạo thực đơn AI hôm nay. Đang dùng thực đơn cơ bản (tự động theo quy tắc).",
     lifeStage: "Giai đoạn",
     pregnancyStage: "Đang mang thai",
     postpartumStage: "Sau sinh (0–24 tháng)",
     babyAgeMonths: "Tuổi bé (tháng)",
-    strictGd: "Chế độ tiểu đường thai kỳ nghiêm ngặt (chỉ món low-GI)"
+    strictGd: "Chế độ tiểu đường thai kỳ nghiêm ngặt (chỉ món có chỉ số đường huyết thấp (GI thấp))"
   },
   en: {
     steps: ["Pregnancy", "About you", "Health", "Taste", "Budget"],
@@ -300,7 +300,7 @@ export function PlannerForm({ mode = "planner", locale = "vi" }: { mode?: "plann
             )}
             {(profile.lifeStage ?? "pregnancy") === "pregnancy" && (
               <>
-                <NumberField label={t.pregnancyWeek} value={profile.pregnancyWeek} min={1} max={40} onChange={(event) => updateNumber("pregnancyWeek", event)} />
+                <NumberField label={t.pregnancyWeek} value={profile.pregnancyWeek} min={1} max={42} onChange={(event) => updateNumber("pregnancyWeek", event)} />
                 <SelectField
                   label={t.pregnancyType}
                   value={profile.pregnancyType}

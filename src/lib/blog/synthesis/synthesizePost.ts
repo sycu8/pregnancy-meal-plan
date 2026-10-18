@@ -11,6 +11,7 @@ import {
 } from "@/lib/blog/synthesis/contentStandards";
 import { EMERGENCY_NOW_EN, EMERGENCY_NOW_VI, SEEK_CARE_SOON_EN, SEEK_CARE_SOON_VI } from "@/lib/blog/emergencyCopy";
 import { ensureInternalLinks, internalLinkPromptRules } from "@/lib/blog/internalLinks";
+import { titleForDocument } from "@/lib/blog/titles";
 import type { BlogCategorySlug } from "@/types/blog";
 
 export type SynthesisInput = {
@@ -159,7 +160,7 @@ export function synthesizePost(input: SynthesisInput): SynthesisOutput {
     content: contentViLinked,
     category,
     tags,
-    metaTitle: `${topicVi} | Pregnancy Meal Planner`.slice(0, 70),
+    metaTitle: titleForDocument(`${topicVi} | Pregnancy Meal Planner`),
     metaDescription: clampMetaDescription(snippetVi, topicVi, "vi"),
     imagePrompt: buildImagePrompt(topicEn, category),
     faqs: faqsVi,
@@ -167,7 +168,7 @@ export function synthesizePost(input: SynthesisInput): SynthesisOutput {
       title: topicEn,
       excerpt: snippetEn,
       content: contentEnLinked,
-      metaTitle: `${topicEn} | Pregnancy Meal Planner`.slice(0, 70),
+      metaTitle: titleForDocument(`${topicEn} | Pregnancy Meal Planner`),
       metaDescription: clampMetaDescription(snippetEn, topicEn, "en"),
       faqs: faqsEn
     },
@@ -312,7 +313,7 @@ Length check: aim for VI ${TARGET_VI_WORDS.min}-${TARGET_VI_WORDS.max} words and
         content: contentWithLinks,
         category,
         tags: finalTags,
-        metaTitle: String(parsed.metaTitle || `${title} | Pregnancy Meal Planner`).slice(0, 70),
+        metaTitle: titleForDocument(String(parsed.metaTitle || `${title} | Pregnancy Meal Planner`)),
         metaDescription: clampMetaDescription(String(parsed.metaDescription || excerpt), title, "vi"),
         imagePrompt: String(parsed.imagePrompt || buildImagePrompt(enParsed.title, category)).slice(0, 500),
         faqs,
@@ -469,7 +470,7 @@ function normalizeEn(value: unknown): SynthesisLocaleBlock | undefined {
     title,
     excerpt: excerpt.slice(0, 220),
     content,
-    metaTitle: String(row.metaTitle || `${title} | Pregnancy Meal Planner`).slice(0, 70),
+    metaTitle: titleForDocument(String(row.metaTitle || `${title} | Pregnancy Meal Planner`)),
     metaDescription: clampMetaDescription(String(row.metaDescription || excerpt), title, "en"),
     faqs
   };
@@ -484,10 +485,11 @@ export function clampMetaDescription(input: string, title: string, locale: "en" 
   if (!/[.!?…]$/.test(text)) text += ".";
 
   if (text.length < MIN) {
+    // Keep the pad a complete sentence. The old longer boilerplate was sliced mid-word ("tham khảo giáo.").
     const suffix =
       locale === "en"
-        ? " Practical tips for pregnancy and early parenting — educational reference only."
-        : " Gợi ý thực tế cho mẹ bầu và chăm con nhỏ — chỉ mang tính tham khảo giáo dục.";
+        ? " Practical notes for pregnancy and early parenting. Educational reference only."
+        : " Ghi chú dinh dưỡng thai kỳ và chăm con nhỏ. Chỉ để tham khảo, không thay thế bác sĩ.";
     text = `${text.replace(/[.!?…]$/, "")}.${suffix}`.replace(/\s+/g, " ").trim();
   }
 

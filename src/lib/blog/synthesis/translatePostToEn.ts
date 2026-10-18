@@ -6,6 +6,7 @@ import {
 } from "@/lib/cloudflare/aiGateway";
 import { isUsableEnglishTranslation, looksVietnamese, looksVietnameseTitle } from "@/lib/blog/localize";
 import { clampMetaDescription } from "@/lib/blog/synthesis/synthesizePost";
+import { titleForDocument } from "@/lib/blog/titles";
 import type { BlogFaq, BlogPost, BlogPostTranslation } from "@/types/blog";
 
 export type TranslatePostToEnResult = {
@@ -107,7 +108,7 @@ function toTranslation(slug: string, parsed: Record<string, unknown>): BlogPostT
     title,
     excerpt: excerpt.slice(0, 220) || content.replace(/[#>*`\[\]]/g, " ").replace(/\s+/g, " ").trim().slice(0, 220),
     content,
-    metaTitle: String(parsed.metaTitle || `${title} | Pregnancy Meal Planner`).trim().slice(0, 70),
+    metaTitle: titleForDocument(String(parsed.metaTitle || `${title} | Pregnancy Meal Planner`).trim()),
     metaDescription: clampMetaDescription(String(parsed.metaDescription || excerpt), title, "en"),
     author: "Pregnancy Meal Planner Team",
     reviewer: "Pregnancy Meal Planner Editorial",

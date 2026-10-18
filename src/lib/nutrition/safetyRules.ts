@@ -5,7 +5,7 @@ export const MEDICAL_DISCLAIMER =
   "Thực đơn được tạo tự động dựa trên thông tin bạn cung cấp và chỉ mang tính tham khảo. Ứng dụng không chẩn đoán, điều trị hoặc thay thế tư vấn từ bác sĩ sản khoa/chuyên gia dinh dưỡng. Nếu bạn có tiểu đường thai kỳ, tăng huyết áp, tiền sản giật, thiếu máu nặng, thai chậm tăng trưởng hoặc bất kỳ vấn đề y khoa nào, hãy hỏi bác sĩ trước khi áp dụng.";
 
 export const LOCAL_PRIVACY_NOTICE =
-  "Mặc định, thông tin của bạn được lưu trên trình duyệt bằng localStorage. Đồng bộ lên cloud chỉ diễn ra khi bạn đăng nhập và bật đồng bộ (opt-in).";
+  "Mặc định, thông tin của bạn được lưu ngay trên trình duyệt của bạn (chỉ khi bạn đồng ý). Đồng bộ lên máy chủ chỉ diễn ra khi bạn đăng nhập và bật đồng bộ (opt-in).";
 
 export const ENGLISH_MEDICAL_DISCLAIMER =
   "This meal plan is generated automatically from the information you provide and is for reference only. The app does not diagnose, treat or replace advice from an obstetrician or registered dietitian. If you have gestational diabetes, hypertension, preeclampsia risk, severe anemia, fetal growth concerns or any medical issue, ask your clinician before following the plan.";
@@ -28,7 +28,7 @@ export function getGeneralPregnancyFoodWarnings(locale: Locale = "vi"): string[]
   return [
     "Không ăn đồ sống/tái; nấu chín kỹ thịt, cá, trứng và hải sản.",
     "Tránh cá thủy ngân cao như cá kiếm, cá mập, cá thu vua; ưu tiên cá ít thủy ngân và dùng lượng vừa phải.",
-    "Tránh sữa hoặc phô mai chưa thanh trùng.",
+    "Tránh sữa chưa qua thanh trùng (sữa tươi nguyên liệu, sữa vắt trực tiếp) hoặc phô mai làm từ sữa chưa thanh trùng. Trên nhãn, tìm «thanh trùng», «tiệt trùng», «pasteurized» hoặc «UHT».",
     "Tránh pate lạnh, thịt nguội hoặc xúc xích chưa làm nóng kỹ.",
     "Không dùng rượu bia.",
     "Hạn chế caffeine; hỏi bác sĩ nếu bạn đang uống cà phê, trà đặc hoặc nước tăng lực hằng ngày.",
@@ -80,7 +80,7 @@ export function getConditionSpecificWarnings(profile: PregnancyProfile, locale: 
   if (conditions.has("slow_weight_gain") || conditions.has("small_fetus") || profile.goals.includes("healthy_weight_gain")) {
     notes.push(
       locale === "vi"
-        ? "Tăng cân chậm/thai nhỏ: tăng năng lượng lành mạnh từ đạm, sữa tiệt trùng, đậu, hạt và chất béo tốt."
+        ? "Tăng cân chậm/thai nhỏ: tăng năng lượng lành mạnh từ đạm, sữa đã thanh trùng hoặc tiệt trùng, đậu, hạt và chất béo tốt."
         : "Slow weight gain or smaller fetal growth: add healthy energy from protein, pasteurized dairy, beans, nuts and healthy fats."
     );
   }

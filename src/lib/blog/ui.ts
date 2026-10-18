@@ -45,7 +45,7 @@ export const blogUi = {
     referencesPrefix: "Tham chiếu",
     postListAria: "Danh sách bài viết",
     featuredTitle: "Bài nổi bật",
-    featuredIntro: "Chọn lọc bài cuốn hút — an toàn thực phẩm, thực đơn và dinh dưỡng mẹ bầu.",
+    featuredIntro: "Bài viết được quan tâm — an toàn thực phẩm, thực đơn và dinh dưỡng mẹ bầu.",
     featuredBadge: "Nổi bật",
     featuredReadMore: "Đọc bài",
     moreArticles: "Bài viết mới nhất",

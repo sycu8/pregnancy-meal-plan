@@ -41,7 +41,7 @@ const groupLabels: Record<ShoppingGroupKey, string> = {
   proteins: "Thịt / cá / trứng / đậu",
   vegetables: "Rau củ",
   fruits: "Trái cây",
-  dairy: "Sữa / sữa chua / phô mai tiệt trùng",
+  dairy: "Sữa / sữa chua / phô mai làm từ sữa đã thanh trùng",
   grains: "Ngũ cốc / tinh bột",
   others: "Gia vị / khác"
 } as const;

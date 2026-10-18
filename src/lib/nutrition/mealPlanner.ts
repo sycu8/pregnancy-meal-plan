@@ -107,7 +107,7 @@ function buildShoppingBatches(
     locale === "vi"
       ? [
           { label: "Ngày 1-2", days: [1, 2], freshnessNote: "Ưu tiên mua rau lá, trái cây mềm, thịt/cá dùng trong 1-2 ngày đầu." },
-          { label: "Ngày 3-4", days: [3, 4], freshnessNote: "Mua bổ sung đồ tươi giữa tuần; kiểm tra hạn dùng sữa chua, sữa tiệt trùng và đậu hũ." },
+          { label: "Ngày 3-4", days: [3, 4], freshnessNote: "Mua bổ sung đồ tươi giữa tuần; kiểm tra hạn dùng sữa chua, sữa đã thanh trùng hoặc tiệt trùng và đậu hũ." },
           { label: "Ngày 5-7", days: [5, 6, 7], freshnessNote: "Mua đợt cuối cho 3 ngày; thịt/cá nên chia phần nhỏ, bảo quản lạnh đúng cách nếu chưa nấu ngay." }
         ]
       : [
@@ -341,10 +341,10 @@ function buildSummaryMessage(status: MealPlan["summary"]["weightGainStatus"], lo
     return "There is not enough data to assess weight gain. The meal plan is still generated from the information you entered.";
   }
 
-  if (status === "low") return "Mức tăng cân đang thấp hơn khoảng tham khảo. Mình sẽ ưu tiên bữa giàu đạm, năng lượng lành mạnh và dễ ăn.";
-  if (status === "high") return "Mức tăng cân đang cao hơn khoảng tham khảo. Mình sẽ ưu tiên rau, đạm nạc và tinh bột chậm, vẫn giữ bữa ăn đủ chất.";
-  if (status === "normal") return "Các chỉ số đang nằm trong khoảng tham khảo. Mình sẽ gợi ý thực đơn cân bằng, dễ nấu và phù hợp tuần thai.";
-  return "Mình chưa có đủ dữ liệu để đánh giá tăng cân. Thực đơn vẫn được tạo theo thông tin bạn đã nhập.";
+  if (status === "low") return "Mức tăng cân đang thấp hơn khoảng tham khảo. Ứng dụng sẽ ưu tiên bữa giàu đạm, năng lượng lành mạnh và dễ ăn.";
+  if (status === "high") return "Mức tăng cân đang cao hơn khoảng tham khảo. Ứng dụng sẽ ưu tiên rau, đạm nạc và tinh bột chậm, vẫn giữ bữa ăn đủ chất.";
+  if (status === "normal") return "Các chỉ số đang nằm trong khoảng tham khảo. Ứng dụng sẽ gợi ý thực đơn cân bằng, dễ nấu và phù hợp tuần thai.";
+  return "Ứng dụng chưa có đủ dữ liệu để đánh giá tăng cân. Thực đơn vẫn được tạo theo thông tin bạn đã nhập.";
 }
 
 export type MealSlot = keyof Pick<MealPlanDay, "breakfast" | "morningSnack" | "lunch" | "afternoonSnack" | "dinner">;

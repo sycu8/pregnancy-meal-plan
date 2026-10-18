@@ -43,7 +43,7 @@ export const breakfastMeals: MealRecord[] = [
   meal("Phở gà ít béo", ["đạm", "tinh bột"], ["budget_medium", "no_fish_safe", "no_beef_safe", "no_seafood_safe"], ["gà", "bánh phở", "hành"], "Dễ ăn, ít mùi hơn nhiều món thịt đỏ."),
   meal("Miến gà nấm", ["đạm", "chất xơ", "tinh bột"], ["morning_sickness", "budget_medium", "no_fish_safe", "no_beef_safe", "no_seafood_safe"], ["gà", "nấm", "miến"], "Nước dùng ấm, mềm và dễ tiêu."),
   meal("Bánh mì trứng chín kỹ", ["đạm", "tinh bột"], ["quick", "budget_low", "no_fish_safe", "no_beef_safe", "no_seafood_safe"], ["trứng", "bánh mì", "dưa leo"], "Nhanh, tiện và có đạm.", "Trứng cần chín hoàn toàn."),
-  meal("Yến mạch sữa tươi tiệt trùng", ["canxi", "chất xơ", "tinh bột chậm"], ["quick", "constipation", "gestational_diabetes", "vegetarian", "no_fish_safe", "no_beef_safe", "no_seafood_safe"], ["yến mạch", "sữa tươi tiệt trùng", "chuối"], "Giúp no lâu và hỗ trợ tiêu hóa."),
+  meal("Yến mạch sữa tươi đã thanh trùng", ["canxi", "chất xơ", "tinh bột chậm"], ["quick", "constipation", "gestational_diabetes", "vegetarian", "no_fish_safe", "no_beef_safe", "no_seafood_safe"], ["yến mạch", "sữa tươi đã thanh trùng hoặc tiệt trùng", "chuối"], "Giúp no lâu và hỗ trợ tiêu hóa."),
   meal("Xôi đậu xanh ít dầu", ["đạm thực vật", "tinh bột"], ["budget_low", "vegetarian", "no_fish_safe", "no_beef_safe", "no_seafood_safe"], ["đậu xanh", "gạo nếp"], "Có năng lượng tốt, nên ăn phần vừa phải."),
   meal("Cơm nắm muối vừng trứng", ["đạm", "canxi", "tinh bột"], ["quick", "budget_low", "no_fish_safe", "no_beef_safe", "no_seafood_safe"], ["trứng", "gạo", "vừng"], "Dễ chuẩn bị, phù hợp ngày bận."),
   meal("Bún riêu chay đậu hũ", ["đạm thực vật", "canxi", "rau"], ["vegetarian", "budget_medium", "no_fish_safe", "no_beef_safe", "no_seafood_safe"], ["đậu hũ", "cà chua", "bún"], "Vị thanh, thêm đậu hũ để tăng đạm."),
@@ -60,7 +60,7 @@ export const breakfastMeals: MealRecord[] = [
 ];
 
 export const mainMeals: MealRecord[] = [
-  meal("Cơm gạo lứt cá thu sốt cà", ["omega-3", "đạm", "tinh bột chậm"], ["gestational_diabetes", "budget_high", "no_beef_safe"], ["cá thu", "cà chua", "gạo lứt"], "Cân bằng đạm và tinh bột chậm.", "Chọn cá thu nhỏ/nguồn an toàn, nấu chín kỹ."),
+  meal("Cơm gạo lứt cá thu sốt cà", ["omega-3", "đạm", "tinh bột chậm"], ["gestational_diabetes", "budget_high", "no_beef_safe"], ["cá thu", "cà chua", "gạo lứt"], "Cân bằng đạm và tinh bột chậm.", "cá thu (tối đa 1 bữa/tuần), nấu chín kỹ. Loài cá thu nào là cá thu vua cần rà soát chuyên môn."),
   meal("Thịt bò xào bông cải", ["sắt", "đạm", "folate"], ["anemia", "budget_medium", "no_fish_safe", "no_seafood_safe"], ["thịt bò", "bông cải xanh", "cơm"], "Hỗ trợ bổ sung sắt, ăn cùng trái cây giàu vitamin C."),
   meal("Canh rau dền thịt bằm", ["sắt", "chất xơ", "đạm"], ["anemia", "constipation", "budget_low", "no_fish_safe", "no_beef_safe", "no_seafood_safe"], ["thịt heo nạc", "rau dền", "gạo"], "Món Việt dễ nấu, có rau xanh và đạm."),
   meal("Đậu hũ sốt cà chua", ["đạm thực vật", "canxi"], ["vegetarian", "budget_low", "no_fish_safe", "no_beef_safe", "no_seafood_safe"], ["đậu hũ", "cà chua", "cơm"], "Phù hợp ngày muốn ăn nhẹ hoặc ăn chay."),
@@ -88,21 +88,21 @@ export const mainMeals: MealRecord[] = [
 
 export const snackMeals: MealRecord[] = [
   meal("Khoai lang luộc", ["chất xơ", "tinh bột chậm"], ["constipation", "gestational_diabetes", "budget_low", "vegetarian", "quick", "no_fish_safe", "no_beef_safe", "no_seafood_safe"], ["khoai lang"], "No nhẹ và hỗ trợ tiêu hóa."),
-  meal("Sữa chua không đường", ["canxi", "probiotic"], ["constipation", "gestational_diabetes", "budget_medium", "vegetarian", "quick", "no_fish_safe", "no_beef_safe", "no_seafood_safe"], ["sữa chua tiệt trùng"], "Tốt cho bữa phụ, chọn loại tiệt trùng."),
+  meal("Sữa chua không đường", ["canxi", "probiotic"], ["constipation", "gestational_diabetes", "budget_medium", "vegetarian", "quick", "no_fish_safe", "no_beef_safe", "no_seafood_safe"], ["sữa chua làm từ sữa đã thanh trùng"], "Tốt cho bữa phụ, chọn loại làm từ sữa đã thanh trùng."),
   meal("Chuối", ["kali", "năng lượng"], ["morning_sickness", "budget_low", "vegetarian", "quick", "no_fish_safe", "no_beef_safe", "no_seafood_safe"], ["chuối"], "Dễ ăn, tiện khi buồn nôn nhẹ."),
   meal("Cam", ["vitamin C", "nước"], ["anemia", "budget_low", "vegetarian", "quick", "no_fish_safe", "no_beef_safe", "no_seafood_safe"], ["cam"], "Vitamin C hỗ trợ hấp thu sắt."),
   meal("Ổi", ["vitamin C", "chất xơ"], ["anemia", "constipation", "budget_low", "vegetarian", "quick", "no_fish_safe", "no_beef_safe", "no_seafood_safe"], ["ổi"], "Giàu vitamin C và chất xơ."),
   meal("Hạt óc chó / hạnh nhân", ["chất béo tốt", "đạm"], ["budget_high", "vegetarian", "quick", "no_fish_safe", "no_beef_safe", "no_seafood_safe"], ["hạt óc chó", "hạnh nhân"], "Bữa phụ nhỏ giàu năng lượng lành mạnh."),
-  meal("Sữa tươi tiệt trùng", ["canxi", "đạm"], ["budget_medium", "vegetarian", "quick", "no_fish_safe", "no_beef_safe", "no_seafood_safe"], ["sữa tươi tiệt trùng"], "Bổ sung canxi, chọn loại tiệt trùng."),
-  meal("Bánh mì nguyên cám phô mai tiệt trùng", ["canxi", "tinh bột chậm"], ["budget_medium", "vegetarian", "quick", "no_fish_safe", "no_beef_safe", "no_seafood_safe"], ["bánh mì nguyên cám", "phô mai tiệt trùng"], "No lâu hơn bánh ngọt."),
+  meal("Sữa tươi đã thanh trùng hoặc tiệt trùng", ["canxi", "đạm"], ["budget_medium", "vegetarian", "quick", "no_fish_safe", "no_beef_safe", "no_seafood_safe"], ["sữa tươi đã thanh trùng hoặc tiệt trùng"], "Bổ sung canxi, chọn loại đã thanh trùng hoặc tiệt trùng."),
+  meal("Bánh mì nguyên cám phô mai từ sữa đã thanh trùng", ["canxi", "tinh bột chậm"], ["budget_medium", "vegetarian", "quick", "no_fish_safe", "no_beef_safe", "no_seafood_safe"], ["bánh mì nguyên cám", "phô mai làm từ sữa đã thanh trùng"], "No lâu hơn bánh ngọt."),
   meal("Đậu nành luộc", ["đạm thực vật", "chất xơ"], ["vegetarian", "budget_low", "no_fish_safe", "no_beef_safe", "no_seafood_safe"], ["đậu nành"], "Tăng đạm thực vật trong ngày."),
   meal("Trứng luộc chín kỹ", ["đạm", "choline"], ["quick", "budget_low", "no_fish_safe", "no_beef_safe", "no_seafood_safe"], ["trứng"], "Gọn, dễ chuẩn bị.", "Luộc chín hoàn toàn."),
-  meal("Sinh tố bơ sữa tiệt trùng không đường", ["chất béo tốt", "canxi"], ["budget_medium", "vegetarian", "no_fish_safe", "no_beef_safe", "no_seafood_safe"], ["bơ", "sữa tươi tiệt trùng"], "Tăng năng lượng lành mạnh, không thêm đường."),
+  meal("Sinh tố bơ sữa đã thanh trùng không đường", ["chất béo tốt", "canxi"], ["budget_medium", "vegetarian", "no_fish_safe", "no_beef_safe", "no_seafood_safe"], ["bơ", "sữa tươi đã thanh trùng hoặc tiệt trùng"], "Tăng năng lượng lành mạnh, không thêm đường."),
   meal("Thanh long", ["nước", "chất xơ"], ["constipation", "budget_low", "vegetarian", "quick", "no_fish_safe", "no_beef_safe", "no_seafood_safe"], ["thanh long"], "Dễ ăn, hỗ trợ thêm chất xơ."),
   meal("Táo và bơ đậu phộng mỏng", ["chất xơ", "chất béo tốt"], ["gestational_diabetes", "budget_medium", "vegetarian", "quick", "no_fish_safe", "no_beef_safe", "no_seafood_safe"], ["táo", "bơ đậu phộng"], "Bữa phụ cân bằng hơn so với ăn trái cây đơn thuần."),
   meal("Bắp luộc", ["tinh bột", "chất xơ"], ["budget_low", "vegetarian", "no_fish_safe", "no_beef_safe", "no_seafood_safe"], ["bắp"], "Đổi vị, ăn phần vừa phải."),
   meal("Chè đậu đỏ ít đường", ["đạm thực vật", "sắt"], ["anemia", "budget_low", "vegetarian", "no_fish_safe", "no_beef_safe", "no_seafood_safe"], ["đậu đỏ"], "Có đạm thực vật, nên nấu ít đường."),
-  meal("Rau câu sữa chua trái cây", ["canxi", "nước"], ["budget_medium", "vegetarian", "no_fish_safe", "no_beef_safe", "no_seafood_safe"], ["sữa chua tiệt trùng", "trái cây"], "Mát, dễ ăn; tránh quá ngọt.")
+  meal("Rau câu sữa chua trái cây", ["canxi", "nước"], ["budget_medium", "vegetarian", "no_fish_safe", "no_beef_safe", "no_seafood_safe"], ["sữa chua làm từ sữa đã thanh trùng", "trái cây"], "Mát, dễ ăn; tránh quá ngọt.")
 ];
 
 function meal(

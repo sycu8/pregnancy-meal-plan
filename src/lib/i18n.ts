@@ -170,7 +170,7 @@ export const landingContent = {
       "Tạo thực đơn 7 ngày theo tuần thai, cân nặng, khẩu vị, ngân sách và triệu chứng khi mang bầu, kèm danh sách đi chợ và lưu ý an toàn thực phẩm.",
     primaryCta: "Tạo thực đơn miễn phí",
     secondaryCta: "Đọc kiến thức dinh dưỡng mẹ bầu",
-    highlights: ["Miễn phí giai đầu", "Không cần đăng nhập", "Món dễ nấu", "Có danh sách đi chợ"],
+    highlights: ["Miễn phí giai đoạn đầu", "Không cần đăng nhập", "Món dễ nấu", "Có danh sách đi chợ"],
     countryPricingLabel: "Đi chợ theo từng quốc gia",
     countryPricingTitle: "Ước tính chi phí đi chợ theo nơi bạn đang sống",
     countryPricingIntro:

@@ -377,7 +377,7 @@ export const openApiSpec = {
           "goals"
         ],
         properties: {
-          pregnancyWeek: { type: "integer", minimum: 1, maximum: 40 },
+          pregnancyWeek: { type: "integer", minimum: 1, maximum: 42 },
           pregnancyType: { type: "string", enum: ["singleton", "twins"] },
           heightCm: { type: "number", minimum: 120, maximum: 220 },
           prePregnancyWeightKg: { type: "number", minimum: 30, maximum: 200 },

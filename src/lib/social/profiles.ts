@@ -59,7 +59,7 @@ export function withUtm(url: string, source: SocialPlatform | "social", campaign
 export const socialPageCopy = {
   en: {
     title: `${BRAND_NAME} on social`,
-    metaTitle: `Social | ${BRAND_NAME}`,
+    metaTitle: "Social",
     metaDescription:
       "Follow Pregnancy Meal Planner on Facebook, X, and TikTok — then create a free 7-day prenatal meal plan at pregnancymeal.tips.",
     headline: BRAND_NAME,
@@ -74,7 +74,7 @@ export const socialPageCopy = {
   },
   vi: {
     title: `${BRAND_NAME} trên mạng xã hội`,
-    metaTitle: `Social | ${BRAND_NAME}`,
+    metaTitle: "Mạng xã hội",
     metaDescription:
       "Theo dõi Pregnancy Meal Planner trên Facebook, X và TikTok — rồi tạo thực đơn mẹ bầu 7 ngày miễn phí tại pregnancymeal.tips.",
     headline: BRAND_NAME,

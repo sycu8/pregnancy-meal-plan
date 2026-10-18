@@ -23,7 +23,7 @@ export const nutrientGuidance: NutrientGuidanceItem[] = [
   },
   {
     title: "Canxi + vitamin D",
-    foods: "sữa tiệt trùng, sữa chua không đường, phô mai tiệt trùng, đậu hũ, rau xanh đậm",
+    foods: "sữa đã thanh trùng hoặc tiệt trùng, sữa chua không đường, phô mai làm từ sữa đã thanh trùng, đậu hũ, rau xanh đậm",
     tip: "Canxi và vitamin D hỗ trợ xương răng; hỏi bác sĩ nếu bạn cần bổ sung thêm."
   },
   {
@@ -33,7 +33,7 @@ export const nutrientGuidance: NutrientGuidanceItem[] = [
   },
   {
     title: "Omega-3, choline, iodine",
-    foods: "cá ít thủy ngân nấu chín, trứng chín kỹ, sữa tiệt trùng, rong biển dùng vừa phải",
+    foods: "cá ít thủy ngân nấu chín, trứng chín kỹ, sữa đã thanh trùng hoặc tiệt trùng, rong biển dùng vừa phải",
     tip: "Ưu tiên nguồn an toàn, nấu chín kỹ; tránh cá thủy ngân cao."
   },
   {

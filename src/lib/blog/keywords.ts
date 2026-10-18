@@ -131,24 +131,66 @@ export function englishKeywordLabel(tag: string): string {
   return TAG_KEYWORDS_EN[key] ?? key.replace(/-/g, " ");
 }
 
+/**
+ * Visible Vietnamese chip labels. Stored tags are often ASCII slugs
+ * ("an-toan-thuc-pham", "sat"), which read as ambiguous undiacritized text.
+ */
+const TAG_KEYWORDS_VI: Record<string, string> = {
+  "an-toan": "an toàn thực phẩm",
+  "an-toan-thuc-pham": "an toàn thực phẩm",
+  "food-safety": "an toàn thực phẩm",
+  "me-bau": "mẹ bầu",
+  sat: "sắt",
+  iron: "sắt",
+  ca: "cá",
+  fish: "cá",
+  "phong-tranh": "phòng tránh",
+  "say-nang": "say nắng",
+  "tieu-duong-thai-ky": "tiểu đường thai kỳ",
+  "tieu-duong": "tiểu đường thai kỳ",
+  "gestational-diabetes": "tiểu đường thai kỳ",
+  "dinh-duong": "dinh dưỡng thai kỳ",
+  "thuc-don": "thực đơn mẹ bầu",
+  "sau-sinh": "sau sinh",
+  "an-dam": "ăn dặm",
+  nghen: "nghén",
+  nausea: "nghén",
+  "tao-bon": "táo bón",
+  "thieu-mau": "thiếu máu",
+  "tien-san-giat": "tiền sản giật",
+  folate: "folate",
+  canxi: "canxi",
+  "omega-3": "omega-3",
+  dha: "DHA"
+};
+
+export function vietnameseKeywordLabel(tag: string): string {
+  const key = foldKey(tag);
+  return TAG_KEYWORDS_VI[key] ?? tag.replace(/-/g, " ");
+}
+
 /** Locale-aware tag label — English phrases on EN pages, readable local labels on VI. */
 export function keywordLabel(tag: string, locale: BlogLocale = "en"): string {
   if (locale === "en") return englishKeywordLabel(tag);
-  return tag.replace(/-/g, " ");
+  return vietnameseKeywordLabel(tag);
 }
 
 /** English keywords for the main blog listing page. */
 export function buildBlogListKeywords(locale: BlogLocale = "en"): string[] {
   if (locale === "en") return [...BLOG_CORE_KEYWORDS_EN];
-  // Keep a few English brand terms on VI pages for bilingual SEO.
   return [
     "thực đơn mẹ bầu",
     "dinh dưỡng thai kỳ",
+    "an toàn thực phẩm",
+    "mẹ bầu",
+    "sắt",
+    "cá",
+    "phòng tránh",
+    "say nắng",
+    "tiểu đường thai kỳ",
     "thực đơn bà bầu 7 ngày",
     "sau sinh",
-    "ăn dặm",
-    "pregnancy meal planner",
-    "prenatal nutrition"
+    "ăn dặm"
   ];
 }
 
@@ -158,7 +200,7 @@ export function buildCategoryKeywords(category: BlogCategorySlug, locale: BlogLo
   if (locale === "en") {
     return uniqueKeywords([...categoryKeywords, ...BLOG_CORE_KEYWORDS_EN.slice(0, 6)]);
   }
-  return uniqueKeywords([...categoryKeywords, ...buildBlogListKeywords("vi")]);
+  return buildBlogListKeywords("vi");
 }
 
 /**
@@ -199,8 +241,8 @@ export function buildPostKeywords(post: BlogPost, locale: BlogLocale = "en"): st
 
   if (locale === "en") return english;
 
-  // VI pages still expose English SEO keywords plus a few Vietnamese phrases.
-  return uniqueKeywords([...english.slice(0, 8), "thực đơn mẹ bầu", "dinh dưỡng thai kỳ", "mẹ bầu"], 12);
+  const fromTagsVi = post.tags.map((tag) => vietnameseKeywordLabel(tag));
+  return uniqueKeywords([...fromTagsVi, "thực đơn mẹ bầu", "dinh dưỡng thai kỳ", "mẹ bầu", "an toàn thực phẩm"], 12);
 }
 
 export function keywordsMetaValue(keywords: string[]): string {

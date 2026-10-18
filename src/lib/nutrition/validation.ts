@@ -5,7 +5,11 @@ export const pregnancyProfileSchema = z.object({
   lifeStage: z.enum(["pregnancy", "postpartum"]).optional().default("pregnancy"),
   babyAgeMonths: z.number().int().min(0).max(24).optional(),
   strictGestationalDiabetes: z.boolean().optional().default(false),
-  pregnancyWeek: z.number().int().min(1, "Tuần thai phải từ 1 đến 40.").max(40, "Tuần thai phải từ 1 đến 40."),
+  pregnancyWeek: z
+    .number()
+    .int()
+    .min(1, "Tuần thai cần từ 1 đến 42. Nếu đã quá 40 tuần, hãy theo dõi sát với bác sĩ.")
+    .max(42, "Tuần thai cần từ 1 đến 42. Nếu đã quá 40 tuần, hãy theo dõi sát với bác sĩ."),
   pregnancyType: z.enum(["singleton", "twins"]),
   fetalWeightGram: z.number().positive().optional(),
   doctorNote: z.string().optional(),
@@ -72,7 +76,7 @@ export function validationErrorToLocale(error: unknown, locale: Locale) {
     return error.errors
       .map((item) => {
         const field = item.path.join(".");
-        if (field === "pregnancyWeek") return "Pregnancy week must be between 1 and 40.";
+        if (field === "pregnancyWeek") return "Pregnancy week must be between 1 and 42. If you are past 40 weeks, stay in close touch with your clinician.";
         if (field === "heightCm") return "Height must be between 120 and 220 cm.";
         if (field === "prePregnancyWeightKg") return "Pre-pregnancy weight must be between 30 and 200 kg.";
         if (field === "currentWeightKg") return "Current weight must be between 30 and 220 kg.";

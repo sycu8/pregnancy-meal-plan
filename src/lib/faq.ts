@@ -12,15 +12,19 @@ export const faqContent: Record<Locale, FaqItem[]> = {
     {
       question: "Dữ liệu được lưu ở đâu?",
       answer:
-        "Phiên bản miễn phí lưu hồ sơ và thực đơn trên thiết bị. Bạn có thể đăng ký email để đồng bộ tùy chọn lên Cloudflare D1."
+        "Phiên bản miễn phí lưu hồ sơ và thực đơn trên thiết bị. Bạn có thể đăng ký email để đồng bộ tùy chọn lên máy chủ."
     },
     {
       question: "Giới hạn miễn phí là gì?",
-      answer: "1 lượt tạo thực đơn AI/ngày, 2 lượt đổi món/ngày, 5 thực đơn lưu gần nhất. Rule-based vẫn dùng được khi hết lượt AI. Premium Lifetime bỏ giới hạn."
+      answer: "1 lượt tạo thực đơn AI/ngày, 2 lượt đổi món/ngày, 5 thực đơn lưu gần nhất. Thực đơn cơ bản (tự động theo quy tắc) vẫn dùng được khi hết lượt AI. Premium Lifetime bỏ giới hạn."
     },
     {
       question: "Có hỗ trợ sau sinh không?",
-      answer: "Có chế độ sau sinh (0–24 tháng) trong form tạo thực đơn để gợi ý bữa ăn gia đình phù hợp hơn."
+      answer: "Có chế độ sau sinh (0–24 tháng) trong mẫu tạo thực đơn để gợi ý bữa ăn gia đình phù hợp hơn."
+    },
+    {
+      question: "Nếu có dấu hiệu nguy hiểm thì làm gì?",
+      answer: "Nếu có dấu hiệu nguy hiểm, hãy gọi 115 hoặc đến bệnh viện gần nhất — không gửi email hỗ trợ."
     },
     {
       question: "Làm sao xóa dữ liệu trên trình duyệt?",
