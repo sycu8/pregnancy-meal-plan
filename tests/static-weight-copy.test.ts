@@ -243,6 +243,10 @@ describe("static weight-control copy", () => {
     expect(findWeightLexiconHits("ấm thèm ăn táo").map((hit) => hit.name)).toContain("thèm ăn");
     expect(findWeightLexiconHits("I can eat an apple")).toEqual([]);
     expect(findWeightLexiconHits("I can eat them an apple")).toEqual([]);
+    expect(findWeightLexiconHits("plants them an apple")).toEqual([]);
+    for (const probe of ["mệt thêm ăn", "gọt thêm ăn", "lết thêm ăn", "sét thêm ăn", "típ thêm ăn", "đỏ thêm ăn", "mệt  thêm ăn"]) {
+      expect(findWeightLexiconHits(probe).map((hit) => hit.name), probe).toContain("thèm ăn");
+    }
     expect(findWeightLexiconHits("Thèm ăn táo").map((hit) => hit.name)).toContain("thèm ăn");
     expect(findWeightLexiconHits("Kiểm soát đường huyết")).toEqual([]);
     expect(findWeightLexiconHits("kiem soat duong huyet")).toEqual([]);
@@ -263,8 +267,12 @@ describe("static weight-control copy", () => {
       "kiem soat vong eo",
       "kiểm soát lượng ăn",
       "kiem soat luong an",
+      "kiểm soát lượng thức ăn",
+      "kiem soat luong thuc an",
       "kiểm soát cơn đói",
       "kiem soat con doi",
+      "kiểm soát cơn thèm",
+      "kiem soat con them",
       "kiểm soát mỡ",
       "kiem soat mo",
       "kiểm soát mỡ bụng",
@@ -277,6 +285,10 @@ describe("static weight-control copy", () => {
     expect(findWeightLexiconHits("kiểm soát mỡ máu")).toEqual([]);
     expect(findWeightLexiconHits("kiem soat mo mau")).toEqual([]);
     expect(findWeightLexiconHits("Kiểm soát mỡ máu khi mang thai")).toEqual([]);
+    expect(findWeightLexiconHits("kiểm soát  mỡ máu")).toEqual([]);
+    for (const phrase of ["kiểm soát mỡ mau chóng", "kiem soat mo mau chong", "kiểm soát  mỡ mau chóng", "kiem soat  mo"]) {
+      expect(findWeightLexiconHits(phrase).map((hit) => hit.name), phrase).toContain("kiểm soát mỡ");
+    }
   });
 
   it("scans static Vietnamese and English strings for weight-control phrasing", () => {
@@ -377,6 +389,23 @@ describe("static weight-control copy", () => {
     expect(gdmNauseaReflux.filter((note) => /chia bữa|nhỏ bữa|bữa nhỏ|ăn đều trong ngày/i.test(note))).toEqual([
       "Chia nhỏ bữa, ăn đều trong ngày, ăn chậm, không nằm ngay sau ăn. Chọn món ít mùi, mềm, dễ tiêu; có thể thử bánh mì nguyên cám hoặc bánh quy nguyên cám, cháo yến mạch, khoai hoặc trái cây ít chua."
     ]);
+    const gdmReflux: PregnancyProfile = {
+      ...sampleProfile,
+      healthConditions: ["gestational_diabetes", "reflux"],
+      goals: ["blood_sugar_control"]
+    };
+    expect(getConditionSpecificWarnings(gdmReflux, "vi")).toContain("Chia nhỏ bữa, ăn đều trong ngày.");
+    expect(getConditionSpecificWarnings(gdmReflux, "en")).toContain("Split meals into smaller ones, eaten evenly through the day.");
+    const gdmRefluxWeight: PregnancyProfile = {
+      ...gdmReflux,
+      healthConditions: ["gestational_diabetes", "reflux", "fast_weight_gain"],
+      goals: ["weight_control"]
+    };
+    expect(getConditionSpecificWarnings(gdmRefluxWeight, "vi").join(" ")).toContain("Chia bữa đều trong ngày, ăn chậm, không nằm ngay sau ăn.");
+    expect(getConditionSpecificWarnings(gdmRefluxWeight, "vi").join(" ")).not.toContain("Chia nhỏ bữa, ăn đều trong ngày.");
+    expect(getConditionSpecificWarnings(gdmRefluxWeight, "en").join(" ")).toContain(
+      "Spread meals across the day, eat slowly, and don't lie down right after eating."
+    );
     const gdm = getConditionSpecificWarnings({ ...sampleProfile, healthConditions: ["gestational_diabetes"] }, "vi");
     expect(gdm.join(" ")).toContain("chia bữa đều trong ngày");
     expect(gdm.join(" ")).not.toMatch(/chia nhỏ bữa/);

@@ -88,13 +88,17 @@ export function getConditionSpecificWarnings(profile: PregnancyProfile, locale: 
   }
   if (conditions.has("reflux") && !nausea) {
     notes.push(
-      weightControl
+      glucose && !weightControl
         ? locale === "vi"
-          ? "Chia bữa đều trong ngày, ăn chậm, không nằm ngay sau ăn."
-          : "Spread meals across the day, eat slowly, and don't lie down right after eating."
-        : locale === "vi"
-          ? "Chia nhỏ bữa ăn, ăn chậm, không nằm ngay sau ăn."
-          : "Eat smaller meals slowly, and don't lie down right after."
+          ? "Chia nhỏ bữa, ăn đều trong ngày."
+          : "Split meals into smaller ones, eaten evenly through the day."
+        : weightControl
+          ? locale === "vi"
+            ? "Chia bữa đều trong ngày, ăn chậm, không nằm ngay sau ăn."
+            : "Spread meals across the day, eat slowly, and don't lie down right after eating."
+          : locale === "vi"
+            ? "Chia nhỏ bữa ăn, ăn chậm, không nằm ngay sau ăn."
+            : "Eat smaller meals slowly, and don't lie down right after."
     );
   }
   if (conditions.has("large_fetus")) {

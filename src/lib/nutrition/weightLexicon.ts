@@ -26,11 +26,13 @@ export const WEIGHT_LEXICON: readonly WeightLexiconPhrase[] = [
   { name: "kiểm soát calo", source: "kiem soat calo" },
   { name: "kiểm soát lượng calo", source: "kiem soat luong calo" },
   { name: "kiểm soát lượng ăn", source: "kiem soat luong an" },
+  { name: "kiểm soát lượng thức ăn", source: "kiem soat luong thuc an" },
   { name: "kiểm soát khẩu phần", source: "kiem soat khau phan" },
   { name: "kiểm soát vòng eo", source: "kiem soat vong eo" },
   { name: "kiểm soát cơn đói", source: "kiem soat con doi" },
-  // Weight-sense fat only. "mỡ máu" is a blood-lipid phrase and stays allowed.
-  { name: "kiểm soát mỡ", source: "kiem soat mo(?!\\s+mau)" },
+  { name: "kiểm soát cơn thèm", source: "kiem soat con them" },
+  // Weight-sense fat. "mỡ máu" stays allowed. "mỡ mau chóng" is still weight wording.
+  { name: "kiểm soát mỡ", source: "kiem soat mo(?!\\s+mau(?!\\s+chong))" },
   { name: "khẩu phần", source: "khau phan" },
   { name: "no lâu", source: "no lau" },
   { name: "no ăn lâu", source: "no an lau" },
@@ -110,9 +112,11 @@ const BLOG_PHRASE_NAMES = new Set([
   "kiểm soát calo",
   "kiểm soát lượng calo",
   "kiểm soát lượng ăn",
+  "kiểm soát lượng thức ăn",
   "kiểm soát khẩu phần",
   "kiểm soát vòng eo",
   "kiểm soát cơn đói",
+  "kiểm soát cơn thèm",
   "kiểm soát mỡ",
   "no lâu",
   "chắc bụng",
@@ -146,9 +150,15 @@ const BLOG_PHRASE_NAMES = new Set([
 
 export const BLOG_WEIGHT_LEXICON: readonly WeightLexiconPhrase[] = WEIGHT_LEXICON.filter((phrase) => BLOG_PHRASE_NAMES.has(phrase.name));
 
-/** NFC, then strip marks. đ/Đ fold to d so unaccented text matches. */
+/** NFC, then strip marks. đ/Đ fold to d so unaccented text matches. Runs of spaces collapse first. */
 export function foldLexiconText(value: string): string {
-  return value.normalize("NFC").normalize("NFD").replace(/\p{M}/gu, "").replace(/đ/gi, "d").toLowerCase();
+  return value
+    .replace(/ {2,}/g, " ")
+    .normalize("NFC")
+    .normalize("NFD")
+    .replace(/\p{M}/gu, "")
+    .replace(/đ/gi, "d")
+    .toLowerCase();
 }
 
 function phrasePattern(source: string): RegExp {
@@ -204,13 +214,21 @@ const ENGLISH_VERBS = new Set<string>([
   ...ENGLISH_VERB_IRREGULARS
 ]);
 // These fold from common unaccented Vietnamese words (đó, cân, máy, ấm), so they never skip a craving.
-for (const foldedVietnamese of ["do", "can", "may", "am", "is"]) ENGLISH_VERBS.delete(foldedVietnamese);
+for (const foldedVietnamese of ["do", "can", "may", "am", "is", "buy", "get", "got", "let", "met", "pay", "put", "set", "tip", "try"]) {
+  ENGLISH_VERBS.delete(foldedVietnamese);
+}
+ENGLISH_VERBS.add("plants");
+
+/** A diacritic or đ is checked on the raw token, before accent-folding. */
+function hasDiacriticOrD(token: string): boolean {
+  return /đ/i.test(token) || /\p{M}/u.test(token.normalize("NFD"));
+}
 
 /**
- * "thèm ăn" is the craving phrase. Accented and NFD forms always match.
+ * "thèm ăn" / "thêm ăn" is the craving phrase. Accented and NFD forms always match.
  * Unaccented "them an" matches too, including "them an" plus a following word.
- * Skip that unaccented phrase only when the preceding token has no Vietnamese
- * letters, or when that token is an English verb ("give them an apple").
+ * A preceding word with a diacritic or đ never skips the phrase.
+ * Otherwise skip only when that token has no Vietnamese letters, or is an English verb.
  * Folding starts from NFC, and these letters stay one-to-one, so indexes align.
  */
 function isCravingThemAn(text: string, index: number, length: number): boolean {
@@ -218,8 +236,10 @@ function isCravingThemAn(text: string, index: number, length: number): boolean {
   const slice = nfc.slice(index, index + length);
   if (/thèm/i.test(slice)) return true;
   const previous = nfc.slice(0, index).match(/(\S+)\s*$/)?.[1] ?? "";
-  const token = foldLexiconText(previous.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, ""));
-  if (!token) return true;
+  const raw = previous.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, "");
+  if (!raw) return true;
+  if (hasDiacriticOrD(raw)) return true;
+  const token = foldLexiconText(raw);
   if (!VIETNAMESE_LETTER.test(token) || ENGLISH_VERBS.has(token)) return false;
   return true;
 }
@@ -247,7 +267,8 @@ export function findWeightLexiconHits(
   phrases: readonly WeightLexiconPhrase[] = WEIGHT_LEXICON,
   allowedContexts: readonly string[] = []
 ): WeightLexiconHit[] {
-  const folded = foldLexiconText(text);
+  const normalized = text.replace(/ {2,}/g, " ");
+  const folded = foldLexiconText(normalized);
   const hits: WeightLexiconHit[] = [];
   for (const phrase of phrases) {
     const pattern = phrasePattern(phrase.source);
@@ -257,7 +278,7 @@ export function findWeightLexiconHits(
         pattern.lastIndex += 1;
         continue;
       }
-      if (phrase.name === "thèm ăn" && !isCravingThemAn(text, match.index, match[0].length)) continue;
+      if (phrase.name === "thèm ăn" && !isCravingThemAn(normalized, match.index, match[0].length)) continue;
       if (!insideAllowed(folded, match.index, match[0].length, allowedContexts)) {
         hits.push({ name: phrase.name, index: match.index, length: match[0].length });
       }

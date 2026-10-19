@@ -274,4 +274,23 @@ describe("special notes", () => {
     expect(withWeight).not.toContain("chia nhỏ bữa, ăn đều trong ngày");
     expect(withWeightEn).toContain("Morning sickness: spread meals across the day");
   });
+
+  it("restores the spacing line for gestational diabetes with reflux and no nausea", () => {
+    const profile: PregnancyProfile = {
+      ...baseProfile,
+      healthConditions: ["gestational_diabetes", "reflux"],
+      goals: ["blood_sugar_control"]
+    };
+    const spacing = /chia nhỏ bữa|chia bữa đều|nhỏ bữa|ăn đều trong ngày|smaller meals|small meals|spread meals|split meals/i;
+    for (const locale of ["vi", "en"] as const) {
+      const plan = ruleBasedMealPlanner(profile, locale);
+      const notes = plan.specialNotes.filter((note) => spacing.test(note));
+      expect(notes, locale).toHaveLength(1);
+      expect(notes[0], locale).toBe(
+        locale === "vi"
+          ? "Chia nhỏ bữa, ăn đều trong ngày."
+          : "Split meals into smaller ones, eaten evenly through the day."
+      );
+    }
+  });
 });

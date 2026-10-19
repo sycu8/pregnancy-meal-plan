@@ -219,14 +219,33 @@ function isWholeGrainStarch(text: string): boolean {
 
 /**
  * Refined wheat names for glucose: white bread, flour, pasta, packaged noodles,
- * ramen, bánh bao, and crackers. Bare mì/mi, Mỹ, and My stay. Whole-wheat,
- * buckwheat, rye, and whole-grain stay.
+ * ramen, bánh bao, and crackers. Accented bare mì/mỳ are noodles. Unaccented
+ * bare mi/my and Mỹ/My stay. Whole-wheat, buckwheat, rye, and whole-grain stay.
  */
 function mentionsRefinedFlour(text: string): boolean {
   if (isWholeGrainStarch(text)) return false;
   const nfc = text.normalize("NFC").toLowerCase();
   const folded = foldNote(text);
-  const accented = ["bánh mì trắng", "bánh mì", "bột mì", "mì ống", "mì gói", "mì ý", "mì tôm", "mì ăn liền", "bánh bao", "bánh quy", "nui"];
+  const accented = [
+    "bánh mì trắng",
+    "bánh mì",
+    "bột mì",
+    "mì ống",
+    "mỳ ống",
+    "mì gói",
+    "mỳ gói",
+    "mì ý",
+    "mỳ ý",
+    "mì tôm",
+    "mỳ tôm",
+    "mì ăn liền",
+    "mỳ ăn liền",
+    "bánh bao",
+    "bánh quy",
+    "mì",
+    "mỳ",
+    "nui"
+  ];
   if (accented.some((item) => phrase(nfc, escapePhrase(item)))) return true;
   const plain = [
     "banh mi trang",
@@ -238,12 +257,18 @@ function mentionsRefinedFlour(text: string): boolean {
     "pasta",
     "spaghetti",
     "mi ong",
+    "my ong",
     "mi goi",
+    "my goi",
     "mi y",
     "mi tom",
+    "my tom",
     "mi an lien",
+    "my an lien",
     "instant noodle",
     "instant noodles",
+    "instant-noodle",
+    "instant-noodles",
     "ramen",
     "banh bao",
     "banh quy",

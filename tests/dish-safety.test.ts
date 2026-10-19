@@ -76,17 +76,40 @@ describe("dish and swap safety", () => {
     expect(mealBlocked({ name: "Mì gói", ingredients: { grains: ["mì gói"] } }, gdm)).toBe(true);
     expect(mealBlocked({ name: "Mì Ý", ingredients: { grains: ["mì Ý"] } }, gdm)).toBe(true);
     expect(mealBlocked({ name: "Mi y", ingredients: { grains: ["mi y"] } }, gdm)).toBe(true);
-    expect(mealBlocked({ name: "Mì", ingredients: { grains: ["mì"] } }, gdm)).toBe(false);
-    expect(mealBlocked({ name: "Mỳ", ingredients: { grains: ["mỳ"] } }, gdm)).toBe(false);
+    expect(mealBlocked({ name: "Mì", ingredients: { grains: ["mì"] } }, gdm)).toBe(true);
+    expect(mealBlocked({ name: "Mỳ", ingredients: { grains: ["mỳ"] } }, gdm)).toBe(true);
     expect(mealBlocked({ name: "Mỹ", ingredients: { grains: ["Mỹ"] } }, gdm)).toBe(false);
     expect(mealBlocked({ name: "My", ingredients: { grains: ["My"] } }, gdm)).toBe(false);
     expect(mealBlocked({ name: "mi", ingredients: { grains: ["mi"] } }, gdm)).toBe(false);
+    expect(mealBlocked({ name: "my", ingredients: { grains: ["my"] } }, gdm)).toBe(false);
     expect(mealBlocked({ name: "Mi goi", ingredients: { grains: ["mi goi"] } }, gdm)).toBe(true);
     expect(mealBlocked({ name: "Mi tom", ingredients: { grains: ["mi tom"] } }, gdm)).toBe(true);
     expect(mealBlocked({ name: "Mì tôm", ingredients: { grains: ["mì tôm"] } }, gdm)).toBe(true);
     expect(mealBlocked({ name: "Mì ăn liền", ingredients: { grains: ["mì ăn liền"] } }, gdm)).toBe(true);
     expect(mealBlocked({ name: "Instant noodle", ingredients: { grains: ["instant noodle"] } }, gdm)).toBe(true);
     expect(mealBlocked({ name: "Instant noodles", ingredients: { grains: ["instant noodles"] } }, gdm)).toBe(true);
+    expect(mealBlocked({ name: "instant-noodle", ingredients: { grains: ["instant-noodle"] } }, gdm)).toBe(true);
+    expect(mealBlocked({ name: "instant-noodles", ingredients: { grains: ["instant-noodles"] } }, gdm)).toBe(true);
+    const noodleCompounds = [
+      "mì gói",
+      "mỳ gói",
+      "mì tôm",
+      "mỳ tôm",
+      "mì Ý",
+      "mỳ Ý",
+      "mì ăn liền",
+      "mỳ ăn liền",
+      "mì ống",
+      "mỳ ống",
+      "my goi",
+      "my tom",
+      "my an lien",
+      "my ong"
+    ];
+    expect(noodleCompounds).toHaveLength(14);
+    for (const name of noodleCompounds) {
+      expect(mealBlocked({ name, ingredients: { grains: [name] } }, gdm), name).toBe(true);
+    }
     expect(mealBlocked({ name: "Ramen", ingredients: { grains: ["ramen"] } }, gdm)).toBe(true);
     expect(mealBlocked({ name: "Bánh bao", ingredients: { grains: ["bánh bao"] } }, gdm)).toBe(true);
     expect(mealBlocked({ name: "Bánh quy", ingredients: { grains: ["bánh quy"] } }, gdm)).toBe(true);
