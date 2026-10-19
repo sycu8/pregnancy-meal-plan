@@ -42,9 +42,9 @@ export const EDITORIAL_TOPICS: EditorialTopic[] = [
     id: "nausea-friendly-meals",
     title: "Nausea-friendly pregnancy meals that still cover key nutrients",
     snippet:
-      "Smaller meals, gentler textures, and nutrient-dense snacks when morning sickness makes eating hard.",
+      "Split meals into smaller ones, eaten evenly through the day. Gentler textures, and nutrient-dense snacks when morning sickness makes eating hard.",
     titleVi: "Thực đơn khi nghén: món dễ ăn vẫn đủ chất",
-    snippetVi: "Chia nhỏ bữa, chọn món dễ tiêu và bữa phụ giàu dinh dưỡng khi nghén nặng.",
+    snippetVi: "Chia nhỏ bữa, ăn đều trong ngày. Chọn món dễ tiêu và bữa phụ giàu dinh dưỡng khi nghén nặng.",
     category: "thuc-don-ba-bau",
     tags: ["nausea", "meal-plan"]
   },

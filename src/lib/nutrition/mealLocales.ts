@@ -46,12 +46,12 @@ const mealTextByViName: Record<string, LocalizedMealText> = {
   },
   "Yến mạch sữa tươi tiệt trùng": {
     name: "Oats with pasteurized milk",
-    reason: "Keeps you fuller longer and supports digestion.",
+    reason: "Adds fiber and supports digestion.",
     nutrients: ["calcium", "fiber", "slow carbs"]
   },
   "Xôi đậu xanh ít dầu": {
     name: "Low-oil mung bean sticky rice",
-    reason: "Good energy; keep the portion moderate.",
+    reason: "Good energy from the beans and rice.",
     nutrients: ["plant protein", "starch"]
   },
   "Cơm nắm muối vừng trứng": {
@@ -86,7 +86,7 @@ const mealTextByViName: Record<string, LocalizedMealText> = {
   },
   "Cháo yến mạch thịt bằm": {
     name: "Oat porridge with minced pork",
-    reason: "More filling than plain rice porridge.",
+    reason: "More fiber and protein than plain rice porridge.",
     nutrients: ["protein", "fiber", "slow carbs"]
   },
   "Bánh mì gà xé rau": {
@@ -106,7 +106,7 @@ const mealTextByViName: Record<string, LocalizedMealText> = {
   },
   "Cơm gạo lứt trứng rau luộc": {
     name: "Brown rice with egg and boiled greens",
-    reason: "Keeps you fuller longer; helpful for blood-sugar goals.",
+    reason: "Combines protein with slow carbs; helpful for blood-sugar goals.",
     nutrients: ["protein", "slow carbs", "fiber"]
   },
   "Bánh đa cua chay đậu hũ": {
@@ -160,7 +160,7 @@ const mealTextByViName: Record<string, LocalizedMealText> = {
   },
   "Ức gà áp chảo rau củ": {
     name: "Pan-seared chicken breast with vegetables",
-    reason: "Low oil; helpful for weight-gain control.",
+    reason: "Low oil, with vegetables and lean protein.",
     nutrients: ["lean protein", "fiber"]
   },
   "Cá hồi kho thơm": {
@@ -176,7 +176,7 @@ const mealTextByViName: Record<string, LocalizedMealText> = {
   },
   "Thịt heo nạc rim gừng": {
     name: "Ginger-braised lean pork",
-    reason: "Easy to cook and portion.",
+    reason: "Easy to cook ahead.",
     nutrients: ["protein", "iron"]
   },
   "Canh cải bó xôi thịt bằm": {
@@ -186,12 +186,12 @@ const mealTextByViName: Record<string, LocalizedMealText> = {
   },
   "Đậu hũ nấm kho tiêu nhẹ": {
     name: "Light pepper braised tofu and mushrooms",
-    reason: "Filling vegetarian option; use pepper moderately.",
+    reason: "Vegetarian option with plant protein; use pepper moderately.",
     nutrients: ["plant protein", "fiber"]
   },
   "Gà luộc cơm rau luộc": {
     name: "Boiled chicken with rice and greens",
-    reason: "Simple, low oil, easy portion control.",
+    reason: "Simple and low in oil, with greens and lean protein.",
     nutrients: ["lean protein", "fiber"]
   },
   "Bò hầm khoai tây cà rốt": {
@@ -228,7 +228,7 @@ const mealTextByViName: Record<string, LocalizedMealText> = {
   },
   "Cơm đậu lăng rau củ": {
     name: "Lentil rice with vegetables",
-    reason: "Filling, high-fiber vegetarian option.",
+    reason: "High-fiber vegetarian option.",
     nutrients: ["plant protein", "iron", "fiber"]
   },
   "Gà xào nấm bông cải": {
@@ -243,7 +243,7 @@ const mealTextByViName: Record<string, LocalizedMealText> = {
   },
   "Khoai lang luộc": {
     name: "Boiled sweet potato",
-    reason: "Lightly filling and digestion-friendly.",
+    reason: "Digestion-friendly and a source of fiber.",
     nutrients: ["fiber", "slow carbs"]
   },
   "Sữa chua không đường": {
@@ -278,7 +278,7 @@ const mealTextByViName: Record<string, LocalizedMealText> = {
   },
   "Bánh mì nguyên cám phô mai tiệt trùng": {
     name: "Whole-grain bread with pasteurized cheese",
-    reason: "More filling than sweet bakery snacks.",
+    reason: "Offers slow carbs instead of a sweet bakery snack.",
     nutrients: ["calcium", "slow carbs"]
   },
   "Đậu nành luộc": {
@@ -309,7 +309,7 @@ const mealTextByViName: Record<string, LocalizedMealText> = {
   },
   "Bắp luộc": {
     name: "Boiled corn",
-    reason: "A simple change of pace; keep portions moderate.",
+    reason: "A simple change of pace.",
     nutrients: ["starch", "fiber"]
   },
   "Chè đậu đỏ ít đường": {

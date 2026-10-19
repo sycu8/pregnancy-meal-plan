@@ -14,7 +14,7 @@ export const nutrientGuidance: NutrientGuidanceItem[] = [
   {
     title: "Đạm mỗi bữa",
     foods: "trứng chín kỹ, gà, thịt nạc, cá ít thủy ngân, đậu hũ, đậu lăng, sữa chua",
-    tip: "Mỗi bữa chính nên có một nguồn đạm để hỗ trợ tăng trưởng thai và giúp mẹ no lâu hơn."
+    tip: "Mỗi bữa chính nên có một nguồn đạm để hỗ trợ tăng trưởng thai và giúp bữa ăn đủ chất."
   },
   {
     title: "Sắt + vitamin C",
