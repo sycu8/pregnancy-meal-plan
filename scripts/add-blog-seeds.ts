@@ -41,7 +41,7 @@ const seeds: BlogPost[] = [
       ref("ACOG — Nutrition During Pregnancy", "https://www.acog.org/womens-health/faqs/nutrition-during-pregnancy", "ACOG"),
       ref("NHS — Have a healthy diet in pregnancy", "https://www.nhs.uk/pregnancy/keeping-well/have-a-healthy-diet/", "NHS")
     ],
-    content: `## Đặc điểm tam cá nguyệt cuối\n\nTừ khoảng tuần 28–40, thai nhi tăng cân mạnh; mẹ có thể cảm thấy no nhanh, ợ nóng, khó thở khi nằm. ACOG nhắc rằng nhu cầu năng lượng tăng nhưng không cần “ăn gấp đôi”.\n\n## Nên ưu tiên\n\n- **Protein:** cá nấu chín, thịt nạc, trứng, đậu — hỗ trợ tăng trưởng thai nhi.\n- **Sắt & folate:** tiếp tục theo chỉ định khám thai.\n- **Canxi & vitamin D:** sữa tiệt trùng, sữa chua, cá có xương mềm.\n- **Chất xơ & nước:** giảm táo bón, hỗ trợ tiêu hóa khi dạ dày chậm.\n\n## Mẹo thực tế\n\n1. Chia nhỏ bữa, ăn đều trong ngày\n2. Hạn chế muối nếu bác sĩ lo phù hoặc tăng huyết áp.\n3. Ngủ nghiêng trái (nếu thoải mái) theo khuyến cáo chung về an toàn thai kỳ.\n4. Theo dõi cử động thai mỗi ngày theo hướng dẫn bác sĩ.\n\n## Khi cần khám gấp\n\nĐau đầu dữ dội, nhìn mờ, phù mặt tay bất thường, giảm cử động thai — liên hệ cơ sở y tế ngay.`
+    content: `## Đặc điểm tam cá nguyệt cuối\n\nTừ khoảng tuần 28–40, thai nhi tăng cân mạnh; mẹ có thể cảm thấy no nhanh, ợ nóng, khó thở khi nằm. ACOG nhắc rằng nhu cầu năng lượng tăng nhưng không cần “ăn gấp đôi”.\n\n## Nên ưu tiên\n\n- **Protein:** cá nấu chín, thịt nạc, trứng, đậu — hỗ trợ tăng trưởng thai nhi.\n- **Sắt & folate:** tiếp tục theo chỉ định khám thai.\n- **Canxi & vitamin D:** sữa tiệt trùng, sữa chua, cá có xương mềm.\n- **Chất xơ & nước:** giảm táo bón, hỗ trợ tiêu hóa khi dạ dày chậm.\n\n## Mẹo thực tế\n\n1. Chia nhỏ bữa, ăn đều trong ngày.\n2. Hạn chế muối nếu bác sĩ lo phù hoặc tăng huyết áp.\n3. Ngủ nghiêng trái (nếu thoải mái) theo khuyến cáo chung về an toàn thai kỳ.\n4. Theo dõi cử động thai mỗi ngày theo hướng dẫn bác sĩ.\n\n## Khi cần khám gấp\n\nĐau đầu dữ dội, nhìn mờ, phù mặt tay bất thường, giảm cử động thai — liên hệ cơ sở y tế ngay.`
   }),
   post({
     title: "Canxi và vitamin D khi mang thai: vai trò và nguồn thực phẩm",
@@ -214,7 +214,7 @@ const seeds: BlogPost[] = [
       ref("NHS — Recovering from a caesarean", "https://www.nhs.uk/conditions/caesarean-section/recovery/", "NHS"),
       ref("ACOG — Cesarean Birth", "https://www.acog.org/womens-health/faqs/cesarean-birth", "ACOG")
     ],
-    content: `## Ngày đầu tại bệnh viện\n\nTheo chỉ định nhịn ăn/uống và thuốc của bác sĩ. Khi được phép: súp loãng, cháo, nước lọc.\n\n## Tuần đầu ở nhà\n\n- **Protein:** trứng, cá, thịt nạc, đậu — hỗ trợ lành vết mổ.\n- **Chất xơ + nước:** giảm táo bón do thuốc giảm đau.\n- Chia nhỏ bữa, ăn đều trong ngày\n\n## Vận động\n\nĐi lại nhẹ trong nhà theo hướng dẫn; tránh nâng vật nặng. Không tự gỡ băng hay chạy bộ sớm.\n\n## Báo bác sĩ nếu\n\nSốt, vết mổ đỏ/sưng/chảy dịch, đau bụng tăng, thở khó.`
+    content: `## Ngày đầu tại bệnh viện\n\nTheo chỉ định nhịn ăn/uống và thuốc của bác sĩ. Khi được phép: súp loãng, cháo, nước lọc.\n\n## Tuần đầu ở nhà\n\n- **Protein:** trứng, cá, thịt nạc, đậu — hỗ trợ lành vết mổ.\n- **Chất xơ + nước:** giảm táo bón do thuốc giảm đau.\n- Chia nhỏ bữa, ăn đều trong ngày.\n\n## Vận động\n\nĐi lại nhẹ trong nhà theo hướng dẫn; tránh nâng vật nặng. Không tự gỡ băng hay chạy bộ sớm.\n\n## Báo bác sĩ nếu\n\nSốt, vết mổ đỏ/sưng/chảy dịch, đau bụng tăng, thở khó.`
   }),
   post({
     title: "Dinh dưỡng trẻ 12–24 tháng: chuyển sang bữa gia đình",
@@ -395,7 +395,7 @@ const seeds: BlogPost[] = [
   post({
     title: "Thực đơn giảm nghén: món dễ ăn cho tam cá nguyệt 1",
     slug: "thuc-don-giam-nghen-tam-ca-nguyet-1",
-    excerpt: "Gợi ý món mềm, ít mùi, Chia nhỏ bữa, ăn đều trong ngày. Không thay thế điều trị nghén nặng — NHS, ACOG.",
+    excerpt: "Gợi ý món mềm, ít mùi, chia nhỏ bữa, ăn đều trong ngày. Không thay thế điều trị nghén nặng — NHS, ACOG.",
     category: "thuc-don-ba-bau",
     tags: ["nghen", "thuc-don", "3-thang-dau"],
     trimester: "3-thang-dau",
@@ -460,7 +460,7 @@ const seeds: BlogPost[] = [
       ref("NHS — Indigestion and heartburn in pregnancy", "https://www.nhs.uk/pregnancy/related-conditions/common-symptoms/indigestion-and-heartburn/", "NHS"),
       ref("ACOG — Problems of the Digestive System", "https://www.acog.org/womens-health/faqs/problems-of-the-digestive-system", "ACOG")
     ],
-    content: `## Vì sao hay ợ nóng?\n\nProgesterone làm nhu động ruột chậm; thai lớn đẩy dạ dày. Tam cá nguyệt cuối thường nặng hơn.\n\n## Mẹo ăn uống\n\n- Chia nhỏ bữa, ăn đều trong ngày\n- Hạn chế cay, chiên nhiều dầu, cà phê, socola, nước ngọt có ga.\n- Ăn chậm, ngồi thẳng sau bữa 30–60 phút.\n- Gối cao khi ngủ.\n\n## Thực phẩm dễ chịu\n\nCháo, cơm mềm, cá hấp, rau luộc, chuối, sữa chua tiệt trùng (nếu không làm nặng triệu chứng).\n\n## Khi nào gặp bác sĩ?\n\nNôn ra máu, sụt cân, đau bụng dữ dội — khám ngay. Thuốc kháng acid chỉ dùng khi được kê.`
+    content: `## Vì sao hay ợ nóng?\n\nProgesterone làm nhu động ruột chậm; thai lớn đẩy dạ dày. Tam cá nguyệt cuối thường nặng hơn.\n\n## Mẹo ăn uống\n\n- Chia nhỏ bữa, ăn đều trong ngày.\n- Hạn chế cay, chiên nhiều dầu, cà phê, socola, nước ngọt có ga.\n- Ăn chậm, ngồi thẳng sau bữa 30–60 phút.\n- Gối cao khi ngủ.\n\n## Thực phẩm dễ chịu\n\nCháo, cơm mềm, cá hấp, rau luộc, chuối, sữa chua tiệt trùng (nếu không làm nặng triệu chứng).\n\n## Khi nào gặp bác sĩ?\n\nNôn ra máu, sụt cân, đau bụng dữ dội — khám ngay. Thuốc kháng acid chỉ dùng khi được kê.`
   }),
   post({
     title: "Chuột rút chân khi mang thai: magie, vận động và nghỉ ngơi",

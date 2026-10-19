@@ -72,7 +72,14 @@ const KIEM_SOAT_FLAGGED = [
   "kiểm soát cơn đói",
   "kiểm soát mỡ",
   "lượng ăn",
-  "cơn đói"
+  "cơn đói",
+  // Diacritic-folded forms. The two regexes cover calories / lượng calories and chế độ ăn / việc ăn.
+  "kiem soat luong thuc an",
+  "kiem soat con them",
+  "kiem soat (?:luong )?calories?",
+  "kiem soat muc tang can",
+  "kiem soat trong luong",
+  "kiem soat (?:che do|viec) an"
 ];
 
 const KIEM_SOAT_ALLOWED = [
@@ -155,6 +162,13 @@ describe("blog weight-loss lexicon", () => {
     expect(findLexiconHits("thêm an toàn khi rửa rau").length).toBe(0);
     expect(findLexiconHits("give them an apple").length).toBe(0);
     expect(findLexiconHits("please give them an orange").length).toBe(0);
+    expect(findLexiconHits("for them an apple").length).toBe(0);
+    expect(findLexiconHits("feed them an apple").length).toBe(0);
+    expect(findLexiconHits("mổ bụng").length).toBe(0);
+    expect(findLexiconHits("chống đối").length).toBe(0);
+    expect(findLexiconHits("con đòi").length).toBe(0);
+    expect(findLexiconHits("còn đói").length).toBe(0);
+    expect(findLexiconHits("liều lượng an toàn").length).toBe(0);
     expect(findLexiconHits("healthy weight gain in pregnancy").length).toBe(0);
     expect(findLexiconHits("a cooked protein portion of 100 g").length).toBe(0);
     expect(findLexiconHits("một lượng nhỏ omega-3").length).toBe(0);
@@ -207,12 +221,45 @@ describe("blog weight-loss lexicon", () => {
   });
 
   it("flags each explicit kiểm soát phrase and lượng ăn / cơn đói", () => {
+    const sources = new Set(WEIGHT_LEXICON.map((phrase) => phrase.source));
     for (const phrase of KIEM_SOAT_FLAGGED) {
+      if (phrase.includes("(?:")) {
+        expect(sources.has(phrase), phrase).toBe(true);
+        continue;
+      }
       const hits = findLexiconHits(`Advice: ${phrase} now.`);
-      expect(hits.some((hit) => hit.name === phrase), phrase).toBe(true);
+      expect(hits.length, phrase).toBeGreaterThan(0);
+      if (WEIGHT_LEXICON.some((item) => item.name === phrase)) {
+        expect(hits.some((hit) => hit.name === phrase), phrase).toBe(true);
+      }
     }
     expect(findLexiconHits("Advice: kiểm soát mỡ thừa now.").some((hit) => hit.name === "kiểm soát mỡ")).toBe(true);
     expect(findLexiconHits("Advice: kiểm soát mỡ bụng now.").some((hit) => hit.name === "mỡ bụng")).toBe(true);
+    expect(findLexiconHits("mỡ bụng").some((hit) => hit.name === "mỡ bụng")).toBe(true);
+    expect(findLexiconHits("chống đói").some((hit) => hit.name === "chống đói")).toBe(true);
+    expect(findLexiconHits("cơn đói").some((hit) => hit.name === "cơn đói")).toBe(true);
+    expect(findLexiconHits("mo bung").some((hit) => hit.name === "mỡ bụng")).toBe(true);
+    expect(findLexiconHits("chong doi").some((hit) => hit.name === "chống đói")).toBe(true);
+    expect(findLexiconHits("con doi").some((hit) => hit.name === "cơn đói")).toBe(true);
+  });
+
+  it("flags each restored kiểm soát phrase in accented and folded form", () => {
+    const phrases = [
+      ["kiểm soát lượng thức ăn", "kiem soat luong thuc an"],
+      ["kiểm soát cơn thèm", "kiem soat con them"],
+      ["kiểm soát calories", "kiem soat calories"],
+      ["kiểm soát lượng calories", "kiem soat luong calories"],
+      ["kiểm soát calorie", "kiem soat calorie"],
+      ["kiểm soát lượng calorie", "kiem soat luong calorie"],
+      ["kiểm soát mức tăng cân", "kiem soat muc tang can"],
+      ["kiểm soát trọng lượng", "kiem soat trong luong"],
+      ["kiểm soát chế độ ăn", "kiem soat che do an"],
+      ["kiểm soát việc ăn", "kiem soat viec an"]
+    ] as const;
+    for (const [accented, folded] of phrases) {
+      expect(findLexiconHits(`Advice: ${accented} now.`).length, accented).toBeGreaterThan(0);
+      expect(findLexiconHits(`Advice: ${folded} now.`).length, folded).toBeGreaterThan(0);
+    }
   });
 
   it("allows clinical kiểm soát phrases and thêm an toàn", () => {

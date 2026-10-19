@@ -348,7 +348,7 @@ The baby gains weight rapidly; you may feel full quickly. Quality over empty cal
 
 ## Practical tips
 
-- Split meals into smaller ones, eaten evenly through the day
+- Split meals into smaller ones, eaten evenly through the day.
 - Continue safe, cooked seafood 2–3 times per week where advised.
 - Limit sugary drinks.
 
@@ -664,7 +664,7 @@ Mild nausea often improves after weeks 12–14. **Hyperemesis gravidarum** invol
 - Sip fluids slowly: water, coconut water, thin soup.
 - Dry foods before getting up: crackers, toast.
 - Avoid strong greasy smells; cool or warm foods may sit better than steaming hot dishes.
-- Split meals into smaller ones, eaten evenly through the day
+- Split meals into smaller ones, eaten evenly through the day.
 
 ## Go to the hospital if
 
@@ -1149,7 +1149,7 @@ Too much iron is harmful — follow prescribed dose. Severe symptoms or chest pa
     excerpt: "Small bland meals and snacks when morning sickness hits — not a substitute for treatment of severe hyperemesis.",
     content: `## Principles
 
-- Split meals into smaller ones, eaten evenly through the day
+- Split meals into smaller ones, eaten evenly through the day.
 - Prefer **cool or warm** foods with mild odor.
 - Keep dry crackers by the bed before standing up.
 

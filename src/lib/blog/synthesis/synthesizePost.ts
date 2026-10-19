@@ -10,6 +10,7 @@ import {
   meetsMinWordCount
 } from "@/lib/blog/synthesis/contentStandards";
 import { ensureInternalLinks, internalLinkPromptRules } from "@/lib/blog/internalLinks";
+import { HYDRATION_EN, HYDRATION_VI, RULING_EN, RULING_VI } from "@/lib/blog/synthesis/smallMealCopy";
 import type { BlogCategorySlug } from "@/types/blog";
 
 export type SynthesisInput = {
@@ -81,7 +82,7 @@ export function synthesizePost(input: SynthesisInput): SynthesisOutput {
     `## Gợi ý thực hành`,
     ``,
     `- Ưu tiên thực phẩm nấu chín kỹ, rửa sạch rau củ và bảo quản đúng cách.`,
-    `- Chia nhỏ bữa, ăn đều trong ngày`,
+    `- ${RULING_VI}. ${HYDRATION_VI}`,
     `- Theo dõi phản ứng cơ thể và hỏi bác sĩ sản khoa trước khi thay đổi lớn về dinh dưỡng hoặc thuốc bổ.`,
     ``,
     `## Khi nào cần gặp bác sĩ`,
@@ -99,7 +100,7 @@ export function synthesizePost(input: SynthesisInput): SynthesisOutput {
     `## Practical tips`,
     ``,
     `- Prefer thoroughly cooked foods, wash produce well, and store leftovers safely.`,
-    `- Split meals into smaller ones, eaten evenly through the day`,
+    `- ${RULING_EN}. ${HYDRATION_EN}`,
     `- Track how you feel and ask your obstetrician or midwife before major diet or supplement changes.`,
     ``,
     `## Seek care urgently if`,

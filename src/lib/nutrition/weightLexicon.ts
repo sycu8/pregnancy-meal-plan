@@ -24,13 +24,29 @@ export const WEIGHT_LEXICON: readonly WeightLexiconPhrase[] = [
   { name: "giảm béo", source: "giam beo" },
   { name: "đốt mỡ", source: "dot mo" },
   { name: "thon gọn", source: "thon gon" },
-  { name: "chống đói", source: "chong doi" },
+  {
+    name: "chống đói",
+    source: "chong doi",
+    // Never fold-match: `chống đối` folds to `chong doi`.
+    nfcSource: "chống đói|chong doi"
+  },
   { name: "giảm khẩu phần", source: "giam khau phan" },
   { name: "giảm mỡ bụng", source: "giam mo bung" },
-  { name: "mỡ bụng", source: "mo bung" },
+  {
+    name: "mỡ bụng",
+    source: "mo bung",
+    // Never fold-match: `mổ bụng` folds to `mo bung`.
+    nfcSource: "mỡ bụng|mo bung"
+  },
   { name: "pre-baby body", source: "pre-baby body" },
-  { name: "lượng ăn", source: "luong an" },
-  { name: "cơn đói", source: "con doi" },
+  // "liều lượng an toàn" is a dose phrase, not an intake limit.
+  { name: "lượng ăn", source: "luong an(?!\\s+toan)" },
+  {
+    name: "cơn đói",
+    source: "con doi",
+    // Never fold-match: `con đòi` and `còn đói` fold to `con doi`.
+    nfcSource: "cơn đói|con doi"
+  },
   // Explicit weight-control phrases. Bare "kiểm soát" is not a hit.
   { name: "kiểm soát cân nặng", source: "kiem soat can nang" },
   { name: "kiểm soát tăng cân", source: "kiem soat tang can" },
@@ -41,7 +57,18 @@ export const WEIGHT_LEXICON: readonly WeightLexiconPhrase[] = [
   { name: "kiểm soát calo", source: "kiem soat calo" },
   { name: "kiểm soát khẩu phần", source: "kiem soat khau phan" },
   { name: "kiểm soát vòng eo", source: "kiem soat vong eo" },
-  { name: "kiểm soát cơn đói", source: "kiem soat con doi" },
+  {
+    name: "kiểm soát cơn đói",
+    source: "kiem soat con doi",
+    // Same accent boundary as `cơn đói`: `còn đói` / `con đòi` must not fold-match.
+    nfcSource: "kiểm soát cơn đói|kiem soat con doi"
+  },
+  { name: "kiểm soát lượng thức ăn", source: "kiem soat luong thuc an" },
+  { name: "kiểm soát cơn thèm", source: "kiem soat con them" },
+  { name: "kiểm soát calories", source: "kiem soat (?:luong )?calories?" },
+  { name: "kiểm soát mức tăng cân", source: "kiem soat muc tang can" },
+  { name: "kiểm soát trọng lượng", source: "kiem soat trong luong" },
+  { name: "kiểm soát chế độ ăn", source: "kiem soat (?:che do|viec) an" },
   // Weight-sense fat only. "mỡ máu" is a blood-lipid phrase and stays allowed.
   { name: "kiểm soát mỡ", source: "kiem soat mo(?!\\s+mau)" },
   {
@@ -156,7 +183,7 @@ function neutralWeightUse(folded: string, index: number, length: number): boolea
  */
 function englishThemAn(folded: string, index: number): boolean {
   const before = folded.slice(Math.max(0, index - 24), index);
-  return /(?:give|eat|ask|tell|show|offer|hand|pass|bring|get)\s+$/.test(before);
+  return /(?:give|eat|ask|tell|show|offer|hand|pass|bring|get|for|feed)\s+$/.test(before);
 }
 
 /** Symptom and pica wording shares a lexicon stem without giving diet advice. */
