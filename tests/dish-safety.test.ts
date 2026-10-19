@@ -83,8 +83,8 @@ describe("dish and swap safety", () => {
     expect(mealBlocked({ name: "mi", ingredients: { grains: ["mi"] } }, gdm)).toBe(false);
     expect(mealBlocked({ name: "my", ingredients: { grains: ["my"] } }, gdm)).toBe(false);
     expect(mealBlocked({ name: "my y", ingredients: { grains: ["my y"] } }, gdm)).toBe(true);
-    expect(mealBlocked({ name: "Mì căn", ingredients: { grains: ["mì căn"] } }, gdm)).toBe(false);
-    expect(mealBlocked({ name: "Mỳ căn", ingredients: { grains: ["mỳ căn"] } }, gdm)).toBe(false);
+    expect(mealBlocked({ name: "Mì căn", ingredients: { grains: ["mì căn"] } }, gdm)).toBe(true);
+    expect(mealBlocked({ name: "Mỳ căn", ingredients: { grains: ["mỳ căn"] } }, gdm)).toBe(true);
     expect(mealBlocked({ name: "Mi goi", ingredients: { grains: ["mi goi"] } }, gdm)).toBe(true);
     expect(mealBlocked({ name: "Mi tom", ingredients: { grains: ["mi tom"] } }, gdm)).toBe(true);
     expect(mealBlocked({ name: "Mì tôm", ingredients: { grains: ["mì tôm"] } }, gdm)).toBe(true);

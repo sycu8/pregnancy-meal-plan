@@ -219,23 +219,14 @@ function isWholeGrainStarch(text: string): boolean {
 
 /**
  * Refined wheat names for glucose: white bread, flour, pasta, packaged noodles,
- * ramen, bánh bao, and crackers. Accented bare mì/mỳ are noodles. Unaccented
- * bare mi/my, Mỹ/My, and wheat gluten (mì căn / mỳ căn) stay. Whole-wheat,
- * buckwheat, rye, and whole-grain stay.
+ * ramen, bánh bao, and crackers. Accented bare mì/mỳ are noodles, so mì căn
+ * and mỳ căn stay blocked with them. Unaccented bare mi/my and Mỹ/My stay.
+ * Whole-wheat, buckwheat, rye, and whole-grain stay.
  */
-/** Wheat gluten (mì căn / mỳ căn) is not a noodle. */
-function withoutWheatGluten(nfc: string, folded: string): { nfc: string; folded: string } {
-  return {
-    nfc: nfc.replace(/(?<![\p{L}\p{N}])m[ìỳ]\s+căn(?![\p{L}\p{N}])/giu, " "),
-    folded: folded.replace(/(?<![\p{L}\p{N}])m[iy]\s+can(?![\p{L}\p{N}])/giu, " ")
-  };
-}
-
 function mentionsRefinedFlour(text: string): boolean {
   if (isWholeGrainStarch(text)) return false;
-  const stripped = withoutWheatGluten(text.normalize("NFC").toLowerCase(), foldNote(text));
-  const nfc = stripped.nfc;
-  const folded = stripped.folded;
+  const nfc = text.normalize("NFC").toLowerCase();
+  const folded = foldNote(text);
   const accented = [
     "bánh mì trắng",
     "bánh mì",

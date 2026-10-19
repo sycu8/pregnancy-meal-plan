@@ -324,8 +324,12 @@ describe("static weight-control copy", () => {
   });
 
   it("keeps the reflux note as comfort copy and keeps several small meals out of the library", () => {
-    expect(getConditionSpecificWarnings({ ...sampleProfile, healthConditions: ["morning_sickness"] }, "vi").join(" ")).toContain("chia nhỏ bữa");
-    expect(getConditionSpecificWarnings({ ...sampleProfile, healthConditions: ["morning_sickness"] }, "en").join(" ")).toContain("eat smaller meals");
+    expect(getConditionSpecificWarnings({ ...sampleProfile, healthConditions: ["morning_sickness"] }, "vi").join(" ")).toContain(
+      "Nghén: Chia nhỏ bữa, ăn đều trong ngày."
+    );
+    expect(getConditionSpecificWarnings({ ...sampleProfile, healthConditions: ["morning_sickness"] }, "en").join(" ")).toContain(
+      "Morning sickness: Split meals into smaller ones, eaten evenly through the day."
+    );
     expect(getConditionSpecificWarnings({ ...sampleProfile, healthConditions: ["reflux"] }, "vi")).toEqual([
       "Chia nhỏ bữa ăn, ăn chậm, không nằm ngay sau ăn."
     ]);
@@ -443,10 +447,11 @@ describe("static weight-control copy", () => {
       "Spread meals across the day, eat slowly, and don't lie down right after eating."
     );
     const gdm = getConditionSpecificWarnings({ ...sampleProfile, healthConditions: ["gestational_diabetes"] }, "vi");
-    expect(gdm.join(" ")).toContain("chia bữa đều trong ngày");
-    expect(gdm.join(" ")).not.toMatch(/chia nhỏ bữa/);
+    expect(gdm.join(" ")).toContain(
+      "Tiểu đường thai kỳ: ưu tiên tinh bột chậm. Chia nhỏ bữa, ăn đều trong ngày. Tránh nước ép/nước ngọt và hỏi bác sĩ về lượng tinh bột phù hợp."
+    );
     expect(getConditionSpecificWarnings({ ...sampleProfile, healthConditions: ["gestational_diabetes"] }, "en").join(" ")).toContain(
-      "split meals across the day"
+      "Gestational diabetes: prioritize slow-digesting carbohydrates. Split meals into smaller ones, eaten evenly through the day. Avoid juice and sugary drinks, and ask your clinician about the right carbohydrate amount."
     );
     expect(NOTE_LIBRARY.map((note) => note.id)).not.toContain("safety-same-day");
     for (const note of NOTE_LIBRARY) {
@@ -491,6 +496,15 @@ describe("static weight-control copy", () => {
               expect(spacingNotes, `${locale} ${healthConditions.join("+")}`).toHaveLength(Math.min(spacingNotes.length, 1));
               if (!weightControl || (!gdm && !morningSickness && !reflux)) continue;
               const joined = notes.join(" ");
+              // Gestational diabetes keeps its own spacing sentence. Other weight-control combos use their spread-meals line.
+              if (gdm && !morningSickness && !reflux) {
+                expect(joined, locale).toMatch(
+                  locale === "vi"
+                    ? /Chia nhỏ bữa, ăn đều trong ngày/
+                    : /Split meals into smaller ones, eaten evenly through the day/
+                );
+                continue;
+              }
               expect(joined, locale).not.toMatch(/chia nhỏ bữa|smaller meals|small meals/i);
               expect(joined, locale).toMatch(locale === "vi" ? /chia bữa đều trong ngày/i : /spread meals across the day|split meals across the day/i);
             }

@@ -151,11 +151,11 @@ function nauseaFoods(locale: Locale, glucose: boolean): string {
 function glucoseLine(locale: Locale, includeSpacing: boolean): string {
   if (locale === "vi") {
     return includeSpacing
-      ? "Tiểu đường thai kỳ: ưu tiên tinh bột chậm, chia bữa đều trong ngày, tránh nước ép/nước ngọt và hỏi bác sĩ về lượng tinh bột phù hợp."
+      ? "Tiểu đường thai kỳ: ưu tiên tinh bột chậm. Chia nhỏ bữa, ăn đều trong ngày. Tránh nước ép/nước ngọt và hỏi bác sĩ về lượng tinh bột phù hợp."
       : "Tiểu đường thai kỳ: ưu tiên tinh bột chậm, tránh nước ép/nước ngọt và hỏi bác sĩ về lượng tinh bột phù hợp.";
   }
   return includeSpacing
-    ? "Gestational diabetes: prioritize slow-digesting carbohydrates, split meals across the day, avoid juice and sugary drinks, and ask your clinician about the right carbohydrate amount."
+    ? "Gestational diabetes: prioritize slow-digesting carbohydrates. Split meals into smaller ones, eaten evenly through the day. Avoid juice and sugary drinks, and ask your clinician about the right carbohydrate amount."
     : "Gestational diabetes: prioritize slow-digesting carbohydrates, avoid juice and sugary drinks, and ask your clinician about the right carbohydrate amount.";
 }
 
@@ -163,8 +163,8 @@ function nauseaLine(locale: Locale, weightControl: boolean, glucose: boolean): s
   const foods = nauseaFoods(locale, glucose);
   if (!weightControl && !glucose) {
     return locale === "vi"
-      ? "Nghén: chia nhỏ bữa, chọn món ít mùi, mềm, dễ tiêu; có thể thử bánh mì, cháo, khoai hoặc trái cây ít chua."
-      : "Morning sickness: eat smaller meals and choose mild-smelling, soft, easy-to-digest foods such as bread, porridge, potatoes or less acidic fruit.";
+      ? "Nghén: Chia nhỏ bữa, ăn đều trong ngày. Chọn món ít mùi, mềm, dễ tiêu; có thể thử bánh mì, cháo, khoai hoặc trái cây ít chua."
+      : "Morning sickness: Split meals into smaller ones, eaten evenly through the day. Choose mild-smelling, soft, easy-to-digest foods such as bread, porridge, potatoes or less acidic fruit.";
   }
   if (!weightControl && glucose) {
     return locale === "vi"
