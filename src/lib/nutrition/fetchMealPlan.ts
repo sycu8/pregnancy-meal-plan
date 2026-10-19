@@ -10,6 +10,8 @@ import {
   AI_UNAVAILABLE_CODE,
   classifyMealPlanStatus,
   isAbortError,
+  isNetworkError,
+  isTimeoutError,
   leaksProviderDetail,
   looksLikeHtmlError,
   mealPlanErrorAction,
@@ -59,6 +61,25 @@ export class MealPlanAiError extends MealPlanRequestError {
 
 function failureFor(locale: Locale, kind: MealPlanErrorKind) {
   return kind === "ai" ? new MealPlanAiError(locale) : new MealPlanRequestError(locale, kind);
+}
+
+export function mealSwapErrorMessage(locale: Locale): string {
+  return locale === "vi" ? "Không đổi được món. Hãy thử lại." : "Could not swap meal";
+}
+
+export class MealSwapError extends Error {
+  /** Client errors are shown as-is. Transport failures may still use a local swap. */
+  readonly allowLocalFallback: boolean;
+
+  constructor(locale: Locale, allowLocalFallback = false) {
+    super(mealSwapErrorMessage(locale));
+    this.name = "MealSwapError";
+    this.allowLocalFallback = allowLocalFallback;
+  }
+}
+
+function swapFailure(locale: Locale, allowLocalFallback = false) {
+  return new MealSwapError(locale, allowLocalFallback);
 }
 
 function usageHeaders() {
@@ -173,27 +194,31 @@ export async function fetchMealPlan(
       const kind =
         ("code" in data ? mealPlanKindFromCode(data.code) : null) ?? classifyMealPlanStatus(status);
       const retryable = kind === "server" || kind === "ai";
-      if (!options?.regenerate && (!retryable || attempt === 1)) {
+      const swapFailFast = kind === "invalid" || kind === "turnstile" || kind === "rate_limit";
+      if (options?.regenerate) {
+        if (swapFailFast) throw swapFailure(locale);
+        if (attempt === 1) throw swapFailure(locale, true);
+      } else if (!retryable || attempt === 1) {
         throw failureFor(locale, kind);
       }
-      if (options?.regenerate && attempt === 1) {
-        throw new Error(locale === "vi" ? "Không đổi được món. Hãy thử lại." : "Could not swap meal");
-      }
     } catch (error) {
-      if (error instanceof PremiumLimitError || error instanceof MealPlanRequestError) {
+      if (error instanceof PremiumLimitError || error instanceof MealPlanRequestError || error instanceof MealSwapError) {
         throw error;
       }
-      if (isAbortError(error)) {
-        throw failureFor(locale, "aborted");
-      }
-      if (attempt === 1) {
-        throw failureFor(locale, "server");
+      if (isTimeoutError(error) || isNetworkError(error)) {
+        if (attempt === 1) {
+          throw options?.regenerate ? swapFailure(locale, true) : failureFor(locale, "ai");
+        }
+      } else if (isAbortError(error)) {
+        throw options?.regenerate ? swapFailure(locale) : failureFor(locale, "aborted");
+      } else if (attempt === 1) {
+        throw options?.regenerate ? swapFailure(locale, true) : failureFor(locale, "server");
       }
     }
   }
 
   if (options?.regenerate) {
-    throw new Error(locale === "vi" ? "Không đổi được món. Hãy thử lại." : "Could not swap meal");
+    throw swapFailure(locale, true);
   }
 
   return localizeMealPlanForLocale(ruleBasedMealPlanner(profile, locale), locale);

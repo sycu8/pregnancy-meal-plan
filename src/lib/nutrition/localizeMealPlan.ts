@@ -20,19 +20,25 @@ function textOfNote(note: unknown): string | null {
   return typeof text === "string" ? text : null;
 }
 
-/** Keep only short strings so a model payload cannot crash the result page. */
-export function sanitizeSpecialNotes(notes: unknown): string[] {
+function cleanNoteStrings(notes: unknown, limit = Number.POSITIVE_INFINITY): string[] {
   if (!Array.isArray(notes)) return [];
   const clean: string[] = [];
+  const seen = new Set<string>();
   for (const note of notes) {
     const raw = textOfNote(note);
     if (!raw) continue;
     const text = raw.trim().replace(/\s+/g, " ").slice(0, MAX_SPECIAL_NOTE_CHARS);
-    if (!text) continue;
+    if (!text || seen.has(text)) continue;
+    seen.add(text);
     clean.push(text);
-    if (clean.length >= MAX_SPECIAL_NOTES) break;
+    if (clean.length >= limit) break;
   }
   return clean;
+}
+
+/** Keep only short strings so a model payload cannot crash the result page. */
+export function sanitizeSpecialNotes(notes: unknown, limit = MAX_SPECIAL_NOTES): string[] {
+  return cleanNoteStrings(notes, limit);
 }
 
 /**
@@ -238,18 +244,19 @@ function uniqueSorted(values: string[]) {
   return Array.from(new Set(values)).sort();
 }
 
-/** Notes that can be shown for this locale. English notes are dropped from a Vietnamese plan, and the reverse. */
+/** Notes that can be shown for this locale. The 8-note cap is applied after the language filter. */
 export function filterNotesForLocale(notes: readonly string[], locale: Locale): string[] {
-  const safe = sanitizeSpecialNotes([...notes]);
-  if (locale === "vi") return safe.filter((note) => looksVietnamese(note));
-  return safe.filter((note) => !looksVietnamese(note));
+  const clean = sanitizeSpecialNotes([...notes], Number.POSITIVE_INFINITY);
+  const localized = locale === "vi" ? clean.filter((note) => looksVietnamese(note)) : clean.filter((note) => !looksVietnamese(note));
+  return localized.slice(0, MAX_SPECIAL_NOTES);
 }
 
 function localizeSpecialNotes(notes: unknown, profile: MealPlan["profileSnapshot"], locale: Locale): string[] {
-  const safe = sanitizeSpecialNotes(notes);
-  const localized = sanitizeSpecialNotes(getConditionSpecificWarnings(profile, locale));
-  const kept = filterNotesForLocale(safe, locale);
-  return sanitizeSpecialNotes([...new Set([...localized, ...kept])]);
+  const warnings = cleanNoteStrings(getConditionSpecificWarnings(profile, locale));
+  const warningSet = new Set(warnings);
+  const incoming = cleanNoteStrings(notes).filter((note) => !warningSet.has(note));
+  const kept = filterNotesForLocale(incoming, locale);
+  return [...new Set([...warnings, ...kept])];
 }
 
 function looksVietnamese(text: string): boolean {

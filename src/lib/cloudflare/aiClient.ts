@@ -4,7 +4,7 @@ import { getOptionalAiEnv } from "@/lib/cloudflare/env";
 import { ingredientsFromPlan, selectLibraryNotes } from "@/lib/nutrition/noteLibrary";
 import { buildMealPlanPrompt } from "@/lib/nutrition/aiPromptBuilder";
 import { ruleBasedMealPlanner } from "@/lib/nutrition/mealPlanner";
-import { filterNotesForLocale, localizeMealPlanForLocale, sanitizeSpecialNotes } from "@/lib/nutrition/localizeMealPlan";
+import { filterNotesForLocale, localizeMealPlanForLocale } from "@/lib/nutrition/localizeMealPlan";
 import type { MealPlan } from "@/types/mealPlan";
 import type { PregnancyProfile } from "@/types/pregnancy";
 
@@ -551,11 +551,8 @@ export function mealPlanServedAi(plan: MealPlan): boolean {
 
 function planWithAiNotes(baseline: MealPlan, notes: string[], locale: Locale): { plan: MealPlan; shown: number } {
   const kept = filterNotesForLocale(notes, locale);
-  const withNotes = {
-    ...baseline,
-    specialNotes: sanitizeSpecialNotes([...baseline.specialNotes, ...kept])
-  };
-  const plan = localizeMealPlanForLocale(withNotes, locale);
+  // Condition warnings are added during localization and must not use the 8 note slots.
+  const plan = localizeMealPlanForLocale({ ...baseline, specialNotes: kept }, locale);
   const visible = new Set(plan.specialNotes);
   const shown = kept.filter((note) => visible.has(note)).length;
   if (shown > 0) aiServedPlans.set(plan, true);

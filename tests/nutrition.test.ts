@@ -200,6 +200,10 @@ describe("special notes", () => {
     expect(notes.every((note) => note.length <= MAX_SPECIAL_NOTE_CHARS)).toBe(true);
     expect(notes[0]).toBe("Uống đủ nước.");
     expect(notes[1]).toHaveLength(MAX_SPECIAL_NOTE_CHARS);
+
+    const unique = ["Uống đủ nước.", ...Array.from({ length: 7 }, (_, index) => `Ghi chú riêng ${index}.`)];
+    const withDuplicates = ["Uống đủ nước.", "Uống đủ nước.", "  Uống   đủ nước.  ", ...unique.slice(1)];
+    expect(sanitizeSpecialNotes(withDuplicates)).toEqual(unique);
     expect(notes.join(" ")).not.toContain("[object Object]");
 
     const plan = ruleBasedMealPlanner(baseProfile, "vi");
@@ -292,5 +296,55 @@ describe("special notes", () => {
           : "Split meals into smaller ones, eaten evenly through the day; eat slowly, and don't lie down right after eating."
       );
     }
+  });
+
+  it("keeps condition warnings without spending special-note slots", () => {
+    const profile: PregnancyProfile = {
+      ...baseProfile,
+      goals: ["balanced"],
+      healthConditions: [
+        "morning_sickness",
+        "constipation",
+        "anemia",
+        "gestational_diabetes",
+        "hypertension",
+        "reflux",
+        "fast_weight_gain",
+        "slow_weight_gain",
+        "large_fetus"
+      ]
+    };
+    const warnings = getConditionSpecificWarnings(profile, "vi");
+    expect(warnings.length).toBe(MAX_SPECIAL_NOTES);
+
+    const modelNotes = Array.from({ length: MAX_SPECIAL_NOTES }, (_, index) => `Ghi chú AI số ${index} cho mẹ bầu.`);
+    const plan = ruleBasedMealPlanner(profile, "vi");
+    const localized = localizeMealPlanForLocale({ ...plan, specialNotes: [...warnings, ...modelNotes, "Ghi chú AI bị loại."] }, "vi");
+
+    for (const warning of warnings) {
+      expect(localized.specialNotes).toContain(warning);
+    }
+    for (const note of modelNotes) {
+      expect(localized.specialNotes).toContain(note);
+    }
+    expect(localized.specialNotes).not.toContain("Ghi chú AI bị loại.");
+    expect(localized.specialNotes.length).toBe(warnings.length + modelNotes.length);
+  });
+
+  it("drops the wrong language before the 8-note cap", () => {
+    const profile: PregnancyProfile = { ...baseProfile, goals: ["balanced"], healthConditions: ["none"] };
+    const plan = ruleBasedMealPlanner(profile, "vi");
+    const english = Array.from({ length: MAX_SPECIAL_NOTES }, (_, index) => `English note ${index} for the saved plan.`);
+    const vietnamese = Array.from({ length: MAX_SPECIAL_NOTES }, (_, index) => `Ghi chú tiếng Việt số ${index}.`);
+    const localized = localizeMealPlanForLocale(
+      { ...plan, specialNotes: [...english, ...vietnamese, "Ghi chú thứ chín bị loại."] },
+      "vi"
+    );
+
+    for (const note of vietnamese) {
+      expect(localized.specialNotes).toContain(note);
+    }
+    expect(localized.specialNotes.join(" ")).not.toMatch(/English note/);
+    expect(localized.specialNotes).not.toContain("Ghi chú thứ chín bị loại.");
   });
 });

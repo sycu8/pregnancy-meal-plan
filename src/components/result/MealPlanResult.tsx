@@ -22,7 +22,7 @@ import { getCurrentMealPlan, getMealPlanById, saveMealPlan, setCurrentMealPlan }
 import { cacheOfflineSnapshot, shouldShowReviewPrompt } from "@/lib/storage/offlineCache";
 import { authHeaders } from "@/lib/storage/authSession";
 import { buildPlanExportText } from "@/lib/export/planExport";
-import { fetchMealPlan, PremiumLimitError } from "@/lib/nutrition/fetchMealPlan";
+import { fetchMealPlan, MealSwapError, PremiumLimitError } from "@/lib/nutrition/fetchMealPlan";
 import { regenerateMealInPlan, type MealSlot } from "@/lib/nutrition/mealPlanner";
 import { localizeMealPlanForLocale } from "@/lib/nutrition/localizeMealPlan";
 import { notesPanelKind } from "@/lib/nutrition/notesPanel";
@@ -124,7 +124,7 @@ const copy = {
     export: "Xuất file",
     exported: "Đã xuất",
     exportError: "Không thể xuất thực đơn",
-    swapLimit: "Đã hết lượt đổi món hôm nay",
+    swapLimit: "Đã hết lượt đổi món hôm nay. Hãy thử lại vào ngày mai hoặc mở Premium Lifetime.",
     planNotFound: "Không tìm thấy thực đơn trên thiết bị này. Hãy tạo thực đơn mới.",
     loadingPlan: "Đang tải thực đơn...",
     dailyShoppingTitle: "Danh sách nguyên liệu riêng cho ngày này",
@@ -176,6 +176,7 @@ const copy = {
     caution: "Note",
     estimate: "Estimate",
     swapMeal: "Swap meal",
+    tryAgain: "Try again",
     swapping: "Swapping...",
     share: "Share",
     shared: "Shared",
@@ -185,7 +186,7 @@ const copy = {
     export: "Export",
     exported: "Exported",
     exportError: "Could not export meal plan",
-    swapLimit: "Daily meal-swap limit reached",
+    swapLimit: "Daily meal-swap limit reached. Try again tomorrow, or unlock Premium Lifetime.",
     planNotFound: "This meal plan was not found on this device. Create a new plan.",
     loadingPlan: "Loading meal plan...",
     dailyShoppingTitle: "Ingredients for this day",
@@ -198,7 +199,16 @@ const copy = {
 type ResultCopy = (typeof copy)[Locale];
 type ShoppingGroupLabels = Record<ShoppingGroupKey, string>;
 
-export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; planId?: string }) {
+export function MealPlanResult({
+  locale = "vi",
+  planId,
+  onReturnToForm
+}: {
+  locale?: Locale;
+  planId?: string;
+  /** When the plan is shown on the planner page, these actions return to the form instead of navigating. */
+  onReturnToForm?: () => void;
+}) {
   const t = copy[locale];
   const groups = locale === "vi" ? groupLabels : englishGroupLabels;
   const bmiLabels = locale === "vi" ? bmiCategoryLabels : englishBmiCategoryLabels;
@@ -207,6 +217,8 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
   const [saved, setSaved] = useState(false);
   const [shareState, setShareState] = useState<"idle" | "shared" | "copied" | "shared_local" | "copied_local">("idle");
   const [swapError, setSwapError] = useState("");
+  const [swapLimited, setSwapLimited] = useState(false);
+  const [swapErrorSlot, setSwapErrorSlot] = useState<MealSlot | null>(null);
   const [shareError, setShareError] = useState("");
   const [exportError, setExportError] = useState("");
   const [exported, setExported] = useState(false);
@@ -296,10 +308,14 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
     if (!plan) return;
     if (!canSwapMeal(getPremiumTier())) {
       setSwapError(t.swapLimit);
+      setSwapErrorSlot(mealSlot);
+      setSwapLimited(true);
       setShowSwapUpsell(true);
       return;
     }
     setSwapError("");
+    setSwapLimited(false);
+    setSwapErrorSlot(mealSlot);
     setShowSwapUpsell(false);
     const day = plan.days[activeDayIndex]?.day ?? 1;
     setSwappingSlot(mealSlot);
@@ -313,8 +329,12 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
       setUsageRefresh((value) => value + 1);
     } catch (error) {
       if (error instanceof PremiumLimitError) {
-        setSwapError(error.message);
+        setSwapError(error.message.trim() || t.swapLimit);
+        setSwapLimited(true);
         setShowSwapUpsell(true);
+      } else if (error instanceof MealSwapError && !error.allowLocalFallback) {
+        setSwapLimited(false);
+        setSwapError(error.message);
       } else {
         try {
           const next = regenerateMealInPlan(plan, plan.profileSnapshot, day, mealSlot, locale);
@@ -323,7 +343,6 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
           setSaved(true);
         } catch {
           setSwapError(error instanceof Error ? error.message : t.swapLimit);
-          setShowSwapUpsell(true);
         }
       }
     } finally {
@@ -465,16 +484,41 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
             <Button variant="secondary" onClick={() => window.print()}>
               <Printer className="h-4 w-4" /> {t.print}
             </Button>
-            <Button asChild>
-              <Link href={localizedPath(locale, "/planner")}>
+            {onReturnToForm ? (
+              <Button type="button" onClick={onReturnToForm}>
                 <RefreshCcw className="h-4 w-4" /> {t.regenerate}
-              </Link>
-            </Button>
+              </Button>
+            ) : (
+              <Button asChild>
+                <Link href={localizedPath(locale, "/planner")}>
+                  <RefreshCcw className="h-4 w-4" /> {t.regenerate}
+                </Link>
+              </Button>
+            )}
           </div>
         </div>
         <div className="no-print mt-3 space-y-3">
           <PremiumUsageHint locale={locale} mode="swap" refreshKey={usageRefresh} />
-          {swapError && <p className="text-sm text-red-700">{swapError}</p>}
+          {swapError && locale === "en" ? (
+            <div className="space-y-2">
+              <p id="swap-error-note" className="text-sm text-red-700">
+                {swapError}
+              </p>
+              <Button
+                type="button"
+                variant="secondary"
+                aria-describedby="swap-error-note"
+                disabled={swapLimited || !swapErrorSlot || swappingSlot !== null}
+                onClick={() => {
+                  if (!swapLimited && swapErrorSlot) void handleSwapMeal(swapErrorSlot);
+                }}
+              >
+                {copy.en.tryAgain}
+              </Button>
+            </div>
+          ) : swapError ? (
+            <p className="text-sm text-red-700">{swapError}</p>
+          ) : null}
           {shareError && <p className="text-sm text-red-700">{shareError}</p>}
           {exportError && <p className="text-sm text-red-700">{exportError}</p>}
           {showSwapUpsell && isFreeTier ? <PremiumUpsell locale={locale} reason="swap-limit" /> : null}
@@ -608,9 +652,15 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
       )}
       <Disclaimer locale={locale} />
       <div className="no-print">
-        <Button asChild variant="secondary">
-          <Link href={localizedPath(locale, "/planner")}>{t.edit}</Link>
-        </Button>
+        {onReturnToForm ? (
+          <Button type="button" variant="secondary" onClick={onReturnToForm}>
+            {t.edit}
+          </Button>
+        ) : (
+          <Button asChild variant="secondary">
+            <Link href={localizedPath(locale, "/planner")}>{t.edit}</Link>
+          </Button>
+        )}
       </div>
     </div>
   );

@@ -1,6 +1,14 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { aiUnavailableMessage, mealPlanErrorMessage, type MealPlanErrorKind } from "@/lib/nutrition/aiUnavailable";
-import { MealPlanAiError, MealPlanRequestError, PremiumLimitError, fetchMealPlan } from "@/lib/nutrition/fetchMealPlan";
+import { aiUnavailableMessage, isTimeoutError, mealPlanErrorMessage, type MealPlanErrorKind } from "@/lib/nutrition/aiUnavailable";
+import {
+  MealPlanAiError,
+  MealPlanRequestError,
+  MealSwapError,
+  PremiumLimitError,
+  fetchMealPlan,
+  mealSwapErrorMessage
+} from "@/lib/nutrition/fetchMealPlan";
+import { ruleBasedMealPlanner } from "@/lib/nutrition/mealPlanner";
 import type { PregnancyProfile } from "@/types/pregnancy";
 
 const profile: PregnancyProfile = {
@@ -187,5 +195,120 @@ describe("meal plan error UX", () => {
     expect((error as PremiumLimitError).scope).toBe("ip");
     expect((error as PremiumLimitError).message).toMatch(/Mạng này/);
     expect((error as PremiumLimitError).message).not.toMatch(/3 thực đơn/);
+  });
+
+  it("treats a network failure or timeout like an AI outage, with the basic-plan action", async () => {
+    const serverMessage = mealPlanErrorMessage("vi", "server");
+
+    const network = vi.fn(async () => {
+      throw new TypeError("Failed to fetch");
+    });
+    vi.stubGlobal("fetch", network);
+    const networkError = await fetchMealPlan(profile, "vi").then(
+      () => {
+        throw new Error("expected a network failure");
+      },
+      (caught: unknown) => caught
+    );
+    expect(networkError).toBeInstanceOf(MealPlanAiError);
+    const offline = networkError as MealPlanAiError;
+    expect(offline.kind).toBe("ai");
+    expect(offline.action).toBe("ai");
+    expect(offline.message).toBe(aiUnavailableMessage("vi"));
+    expect(offline.message).not.toBe(serverMessage);
+    expect(network).toHaveBeenCalledTimes(2);
+
+    const timeout = vi.fn(async () => {
+      const timedOut = new Error("The operation timed out");
+      timedOut.name = "TimeoutError";
+      throw timedOut;
+    });
+    vi.stubGlobal("fetch", timeout);
+    const timeoutError = await fetchMealPlan(profile, "en").then(
+      () => {
+        throw new Error("expected a timeout");
+      },
+      (caught: unknown) => caught
+    );
+    expect(timeoutError).toBeInstanceOf(MealPlanAiError);
+    expect((timeoutError as MealPlanAiError).action).toBe("ai");
+    expect((timeoutError as MealPlanAiError).message).toBe(aiUnavailableMessage("en"));
+    expect(timeout).toHaveBeenCalledTimes(2);
+
+    const mentioned = new Error("Invalid timeout configuration");
+    expect(isTimeoutError(mentioned)).toBe(false);
+    expect(isTimeoutError(Object.assign(new Error("The user aborted a request."), { name: "AbortError" }))).toBe(false);
+    expect(
+      isTimeoutError(Object.assign(new Error("The operation was aborted due to timeout"), { name: "AbortError" }))
+    ).toBe(true);
+
+    const mentionFetch = vi.fn(async () => {
+      throw mentioned;
+    });
+    vi.stubGlobal("fetch", mentionFetch);
+    const notATimeout = await fetchMealPlan(profile, "vi").then(
+      () => {
+        throw new Error("expected a non-timeout failure");
+      },
+      (caught: unknown) => caught
+    );
+    expect(notATimeout).toBeInstanceOf(MealPlanRequestError);
+    expect((notATimeout as MealPlanRequestError).kind).toBe("server");
+    expect((notATimeout as MealPlanRequestError).action).toBe("retry");
+    expect((notATimeout as MealPlanRequestError).message).toBe(serverMessage);
+  });
+
+  it("shows the swap error immediately for 400, 403, and 429 and does not retry", async () => {
+    const existingPlan = ruleBasedMealPlanner(profile, "vi");
+    const leak = /@cf\/|<html|workers ai|llama-3|too many requests|turnstile|máy chủ/i;
+
+    for (const status of [400, 403, 429]) {
+      const fetchMock = vi.fn(
+        async () =>
+          new Response(JSON.stringify({ error: "<html>@cf/meta/llama-3 Too many requests Turnstile</html>" }), {
+            status
+          })
+      );
+      vi.stubGlobal("fetch", fetchMock);
+
+      const error = await fetchMealPlan(profile, "vi", {
+        regenerate: { day: 1, mealSlot: "breakfast", existingPlan }
+      }).then(
+        () => {
+          throw new Error(`expected swap status ${status} to fail`);
+        },
+        (caught: unknown) => caught
+      );
+
+      expect(error).toBeInstanceOf(MealSwapError);
+      const swap = error as MealSwapError;
+      expect(swap.allowLocalFallback).toBe(false);
+      expect(swap.message).toBe(mealSwapErrorMessage("vi"));
+      expect(swap.message).not.toMatch(leak);
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+    }
+
+    expect(mealSwapErrorMessage("en")).toBe("Could not swap meal");
+  });
+
+  it("retries a swap on a 500, then throws the swap error string", async () => {
+    const existingPlan = ruleBasedMealPlanner(profile, "vi");
+    const fetchMock = vi.fn(async () => new Response("upstream failed", { status: 500 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const error = await fetchMealPlan(profile, "vi", {
+      regenerate: { day: 1, mealSlot: "breakfast", existingPlan }
+    }).then(
+      () => {
+        throw new Error("expected the swap to fail");
+      },
+      (caught: unknown) => caught
+    );
+
+    expect(error).toBeInstanceOf(MealSwapError);
+    expect((error as MealSwapError).message).toBe(mealSwapErrorMessage("vi"));
+    expect((error as MealSwapError).allowLocalFallback).toBe(true);
+    expect((error as MealSwapError).message).not.toBe(mealPlanErrorMessage("vi", "server"));
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 });
