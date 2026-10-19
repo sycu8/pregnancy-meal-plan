@@ -288,8 +288,8 @@ describe("special notes", () => {
       expect(notes, locale).toHaveLength(1);
       expect(notes[0], locale).toBe(
         locale === "vi"
-          ? "Chia nhỏ bữa, ăn đều trong ngày."
-          : "Split meals into smaller ones, eaten evenly through the day."
+          ? "Chia nhỏ bữa, ăn đều trong ngày, ăn chậm, không nằm ngay sau ăn."
+          : "Split meals into smaller ones, eaten evenly through the day; eat slowly, and don't lie down right after eating."
       );
     }
   });

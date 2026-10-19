@@ -975,9 +975,9 @@ Facial swelling, fever, or severe tooth pain with infection risk — seek urgent
     reviewer: "References ACOG, ADA",
   },
   "tang-can-hop-ly-theo-bmi-khi-mang-thai": {
-    title: "Pregnancy weight gain by pre-pregnancy BMI",
-    excerpt: "Why tracking weight matters, BMI basics, IOM/ACOG reference ranges, trimester patterns, and when to personalize with your clinician.",
-    content: `## Why track weight?
+    title: "BMI in pregnancy",
+    excerpt: "What BMI means in pregnancy, IOM/ACOG reference gain ranges, and when to personalize with your clinician.",
+    content: `## Why BMI is part of prenatal care
 
 Gaining too little or too much can relate to risks such as preterm birth, macrosomia, gestational diabetes, and hypertension. The U.S. Institute of Medicine (IOM), cited by ACOG, gives reference ranges by **pre-pregnancy BMI**.
 

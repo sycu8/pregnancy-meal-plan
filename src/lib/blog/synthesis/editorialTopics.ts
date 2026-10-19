@@ -136,7 +136,7 @@ export const EDITORIAL_TOPICS: EditorialTopic[] = [
     snippet:
       "How to transition toward family meals, limit added sugar/salt, and keep amounts age-appropriate.",
     titleVi: "Dinh dưỡng trẻ 12–24 tháng: chuyển sang ăn cùng gia đình",
-    snippetVi: "Chuyển dần sang món gia đình, hạn chế đường muối và giữ lượng ăn phù hợp tuổi.",
+    snippetVi: "Chuyển dần sang món gia đình, hạn chế đường muối và giữ lượng phù hợp tuổi.",
     category: "cham-con-0-24-thang",
     tags: ["toddler", "nutrition"]
   },

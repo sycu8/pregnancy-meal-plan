@@ -1,13 +1,13 @@
 import fs from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { BLOG_WEIGHT_LEXICON, findWeightLexiconHits, foldLexiconText } from "@/lib/nutrition/weightLexicon";
+import { WEIGHT_LEXICON, findWeightLexiconHits, foldLexiconText } from "@/lib/nutrition/weightLexicon";
 
 /**
  * PMP-WL-02: published blog prose must not promote weight loss, weight control, or satiety.
  * Matching lives in the shared lexicon (NFC plus an accent-folded copy).
  * Clinical red-flag wording that is not advice is allowlisted by exact context.
- * Blog posts use the blog phrase list, not the planner stems for fetal weight or appetite.
+ * The scan uses the full shared list, including the stems the earlier subset skipped.
  */
 
 /** Exact contexts that are symptoms or care warnings, not weight or satiety advice. */
@@ -22,7 +22,73 @@ const ALLOWED_CONTEXTS = [
 ];
 
 const CONTENT_DIRS = ["content/blog/posts", "content/blog/posts-en"];
-const PLANNER_FILES = ["src/lib/nutrition/mealLocales.ts", "src/lib/nutrition/nutrientGuidance.ts"];
+const PLANNER_FILES = [
+  "src/lib/nutrition/mealLocales.ts",
+  "src/lib/nutrition/nutrientGuidance.ts",
+  "src/lib/nutrition/mealDatabase.ts"
+];
+const GENERATOR_FILES = [
+  "scripts/build-blog-en.mjs",
+  "scripts/blog-en-bodies.mjs",
+  "scripts/blog-en-translations-data.mjs",
+  "scripts/fix-new-blog-accuracy.ts",
+  "scripts/add-blog-seeds.ts"
+];
+
+/**
+ * Complete #43 list. The earlier full-list test named 11 stems the #43 scan missed.
+ * WL2R2-01 adds the five phrases that list still left out. Every name must hit (16/16).
+ */
+const FULL_LIST_PHRASES = [
+  "hearty",
+  "satisfying",
+  "satisfied",
+  "satiated",
+  "no ăn lâu",
+  "smaller plate",
+  "bữa nhỏ",
+  "lượng nhỏ",
+  "ăn ít",
+  "eat less",
+  "thèm ăn",
+  "chống đói",
+  "giảm khẩu phần",
+  "giảm mỡ bụng",
+  "mỡ bụng",
+  "pre-baby body"
+];
+
+/** Explicit weight-control phrases. Bare "kiểm soát" is not on this list. */
+const KIEM_SOAT_FLAGGED = [
+  "kiểm soát lượng calo",
+  "kiểm soát lượng ăn",
+  "kiểm soát cân nặng",
+  "kiểm soát cân",
+  "kiểm soát tăng cân",
+  "kiểm soát ăn uống",
+  "kiểm soát calo",
+  "kiểm soát khẩu phần",
+  "kiểm soát vòng eo",
+  "kiểm soát cơn đói",
+  "kiểm soát mỡ",
+  "lượng ăn",
+  "cơn đói",
+  // Diacritic-folded forms. The two regexes cover calories / lượng calories and chế độ ăn / việc ăn.
+  "kiem soat luong thuc an",
+  "kiem soat con them",
+  "kiem soat (?:luong )?calories?",
+  "kiem soat muc tang can",
+  "kiem soat trong luong",
+  "kiem soat (?:che do|viec) an"
+];
+
+const KIEM_SOAT_ALLOWED = [
+  "kiểm soát mỡ máu",
+  "kiểm soát huyết áp",
+  "kiểm soát cơn nghén",
+  "kiểm soát stress",
+  "kiểm soát đường huyết"
+];
 
 const UNACCENTED_PHRASES = ["giam can", "lay lai voc dang", "eo thon", "no lau", "chac bung", "do doi"];
 const NFD_PHRASES = ["giảm cân", "lấy lại vóc dáng", "eo thon", "no lâu", "chắc bụng", "đỡ đói"];
@@ -41,7 +107,7 @@ type Hit = { file: string; field: string; name: string; snippet: string };
 
 export function findLexiconHits(text: string, field = "text"): Hit[] {
   const folded = foldLexiconText(text);
-  return findWeightLexiconHits(text, BLOG_WEIGHT_LEXICON, ALLOWED_CONTEXTS).map((hit) => {
+  return findWeightLexiconHits(text, WEIGHT_LEXICON, ALLOWED_CONTEXTS).map((hit) => {
     const start = Math.max(0, hit.index - 40);
     const end = Math.min(folded.length, hit.index + hit.length + 40);
     return {
@@ -140,6 +206,71 @@ describe("blog weight-loss lexicon", () => {
     expect(findLexiconHits("an uong can bang, du dam, rau, va tinh bot.").length).toBe(0);
   });
 
+  it("scans the complete #43 list and catches every phrase", () => {
+    const names = WEIGHT_LEXICON.map((phrase) => phrase.name);
+    expect(FULL_LIST_PHRASES).toHaveLength(16);
+    let caught = 0;
+    for (const name of FULL_LIST_PHRASES) {
+      expect(names, name).toContain(name);
+      expect(findLexiconHits(`Advice: ${name} now.`).some((hit) => hit.name === name), name).toBe(true);
+      caught += 1;
+    }
+    expect(caught).toBe(FULL_LIST_PHRASES.length);
+    expect(findLexiconHits("Advice: keeps you full now.").some((hit) => hit.name === "full(er)")).toBe(true);
+    expect(findLexiconHits("pre-pregnancy BMI").length).toBe(0);
+  });
+
+  it("flags each explicit kiểm soát phrase and lượng ăn / cơn đói", () => {
+    const sources = new Set(WEIGHT_LEXICON.map((phrase) => phrase.source));
+    for (const phrase of KIEM_SOAT_FLAGGED) {
+      if (phrase.includes("(?:")) {
+        expect(sources.has(phrase), phrase).toBe(true);
+        continue;
+      }
+      const hits = findLexiconHits(`Advice: ${phrase} now.`);
+      expect(hits.length, phrase).toBeGreaterThan(0);
+      if (WEIGHT_LEXICON.some((item) => item.name === phrase)) {
+        expect(hits.some((hit) => hit.name === phrase), phrase).toBe(true);
+      }
+    }
+    expect(findLexiconHits("Advice: kiểm soát mỡ thừa now.").some((hit) => hit.name === "kiểm soát mỡ")).toBe(true);
+    expect(findLexiconHits("Advice: kiểm soát mỡ bụng now.").some((hit) => hit.name === "mỡ bụng")).toBe(true);
+    expect(findLexiconHits("mỡ bụng").some((hit) => hit.name === "mỡ bụng")).toBe(true);
+    expect(findLexiconHits("chống đói").some((hit) => hit.name === "chống đói")).toBe(true);
+    expect(findLexiconHits("cơn đói").some((hit) => hit.name === "cơn đói")).toBe(true);
+    expect(findLexiconHits("mo bung").some((hit) => hit.name === "mỡ bụng")).toBe(true);
+    expect(findLexiconHits("chong doi").some((hit) => hit.name === "chống đói")).toBe(true);
+    expect(findLexiconHits("con doi").some((hit) => hit.name === "cơn đói")).toBe(true);
+  });
+
+  it("flags each restored kiểm soát phrase in accented and folded form", () => {
+    const phrases = [
+      ["kiểm soát lượng thức ăn", "kiem soat luong thuc an"],
+      ["kiểm soát cơn thèm", "kiem soat con them"],
+      ["kiểm soát calories", "kiem soat calories"],
+      ["kiểm soát lượng calories", "kiem soat luong calories"],
+      ["kiểm soát calorie", "kiem soat calorie"],
+      ["kiểm soát lượng calorie", "kiem soat luong calorie"],
+      ["kiểm soát mức tăng cân", "kiem soat muc tang can"],
+      ["kiểm soát trọng lượng", "kiem soat trong luong"],
+      ["kiểm soát chế độ ăn", "kiem soat che do an"],
+      ["kiểm soát việc ăn", "kiem soat viec an"]
+    ] as const;
+    for (const [accented, folded] of phrases) {
+      expect(findLexiconHits(`Advice: ${accented} now.`).length, accented).toBeGreaterThan(0);
+      expect(findLexiconHits(`Advice: ${folded} now.`).length, folded).toBeGreaterThan(0);
+    }
+  });
+
+  it("allows clinical kiểm soát phrases and thêm an toàn", () => {
+    for (const phrase of KIEM_SOAT_ALLOWED) {
+      expect(findLexiconHits(`Advice: ${phrase} theo bác sĩ.`).length, phrase).toBe(0);
+    }
+    expect(findLexiconHits("thêm an toàn").length).toBe(0);
+    expect(findLexiconHits("give them an apple at snack time").length).toBe(0);
+    expect(findLexiconHits("Kiểm soát mỡ máu khi mang thai").length).toBe(0);
+  });
+
   it("keeps weight-loss and satiety wording out of blog posts", () => {
     const hits: Hit[] = [];
     for (const file of blogJsonFiles()) {
@@ -156,9 +287,21 @@ describe("blog weight-loss lexicon", () => {
     expect(hits, hits.map((hit) => `${hit.file} [${hit.name}] ${hit.snippet}`).join("\n")).toEqual([]);
   });
 
-  it("keeps the lexicon out of planner locale copy", () => {
+  it("keeps the lexicon out of planner locale copy and meal reasons", () => {
     const hits: Hit[] = [];
     for (const file of PLANNER_FILES) {
+      const text = fs.readFileSync(file, "utf8");
+      for (const hit of findLexiconHits(text, "source")) {
+        hits.push({ ...hit, file });
+      }
+    }
+
+    expect(hits, hits.map((hit) => `${hit.file} [${hit.name}] ${hit.snippet}`).join("\n")).toEqual([]);
+  });
+
+  it("keeps a regenerate from restoring removed promoting lines", () => {
+    const hits: Hit[] = [];
+    for (const file of GENERATOR_FILES) {
       const text = fs.readFileSync(file, "utf8");
       for (const hit of findLexiconHits(text, "source")) {
         hits.push({ ...hit, file });

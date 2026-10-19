@@ -90,8 +90,8 @@ export function getConditionSpecificWarnings(profile: PregnancyProfile, locale: 
     notes.push(
       glucose && !weightControl
         ? locale === "vi"
-          ? "Chia nhỏ bữa, ăn đều trong ngày."
-          : "Split meals into smaller ones, eaten evenly through the day."
+          ? "Chia nhỏ bữa, ăn đều trong ngày, ăn chậm, không nằm ngay sau ăn."
+          : "Split meals into smaller ones, eaten evenly through the day; eat slowly, and don't lie down right after eating."
         : weightControl
           ? locale === "vi"
             ? "Chia bữa đều trong ngày, ăn chậm, không nằm ngay sau ăn."

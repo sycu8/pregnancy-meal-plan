@@ -244,6 +244,27 @@ describe("static weight-control copy", () => {
     expect(findWeightLexiconHits("I can eat an apple")).toEqual([]);
     expect(findWeightLexiconHits("I can eat them an apple")).toEqual([]);
     expect(findWeightLexiconHits("plants them an apple")).toEqual([]);
+    for (const sentence of [
+      "give them an apple",
+      "please give them an orange",
+      "for them an apple",
+      "feed them an apple",
+      "ask them an apple",
+      "tell them an apple",
+      "show them an apple",
+      "offer them an apple",
+      "hand them an apple",
+      "pass them an apple",
+      "bring them an apple",
+      "get them an apple",
+      "I can eat them an apple"
+    ]) {
+      expect(findWeightLexiconHits(sentence), sentence).toEqual([]);
+    }
+    expect(findWeightLexiconHits("kiểm soát\tmỡ").map((hit) => hit.name)).toContain("kiểm soát mỡ");
+    expect(findWeightLexiconHits("kiểm soát\u00A0mỡ").map((hit) => hit.name)).toContain("kiểm soát mỡ");
+    expect(findWeightLexiconHits("kiểm soát\tmỡ máu")).toEqual([]);
+    expect(findWeightLexiconHits("mệt\tthêm ăn").map((hit) => hit.name)).toContain("thèm ăn");
     for (const probe of ["mệt thêm ăn", "gọt thêm ăn", "lết thêm ăn", "sét thêm ăn", "típ thêm ăn", "đỏ thêm ăn", "mệt  thêm ăn"]) {
       expect(findWeightLexiconHits(probe).map((hit) => hit.name), probe).toContain("thèm ăn");
     }
@@ -394,8 +415,23 @@ describe("static weight-control copy", () => {
       healthConditions: ["gestational_diabetes", "reflux"],
       goals: ["blood_sugar_control"]
     };
-    expect(getConditionSpecificWarnings(gdmReflux, "vi")).toContain("Chia nhỏ bữa, ăn đều trong ngày.");
-    expect(getConditionSpecificWarnings(gdmReflux, "en")).toContain("Split meals into smaller ones, eaten evenly through the day.");
+    expect(getConditionSpecificWarnings(gdmReflux, "vi")).toContain(
+      "Chia nhỏ bữa, ăn đều trong ngày, ăn chậm, không nằm ngay sau ăn."
+    );
+    expect(getConditionSpecificWarnings(gdmReflux, "en")).toContain(
+      "Split meals into smaller ones, eaten evenly through the day; eat slowly, and don't lie down right after eating."
+    );
+    const bloodSugarReflux: PregnancyProfile = {
+      ...sampleProfile,
+      healthConditions: ["reflux"],
+      goals: ["blood_sugar_control"]
+    };
+    expect(getConditionSpecificWarnings(bloodSugarReflux, "vi")).toContain(
+      "Chia nhỏ bữa, ăn đều trong ngày, ăn chậm, không nằm ngay sau ăn."
+    );
+    expect(getConditionSpecificWarnings(bloodSugarReflux, "en")).toContain(
+      "Split meals into smaller ones, eaten evenly through the day; eat slowly, and don't lie down right after eating."
+    );
     const gdmRefluxWeight: PregnancyProfile = {
       ...gdmReflux,
       healthConditions: ["gestational_diabetes", "reflux", "fast_weight_gain"],

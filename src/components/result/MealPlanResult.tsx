@@ -99,7 +99,7 @@ const copy = {
     meals: ["Bữa sáng", "Bữa phụ sáng", "Bữa trưa", "Bữa phụ chiều", "Bữa tối"],
     hydration: "Nước uống / trái cây",
     estimateNote:
-      "Ước tính phần ăn và năng lượng chỉ để tham khảo, có thể thay đổi theo cách nấu và lượng ăn thực tế.",
+      "Ước tính phần ăn và năng lượng chỉ để tham khảo, có thể thay đổi theo cách nấu và lượng thực tế.",
     freshShopping: "Lịch đi chợ tươi ngon",
     shoppingTitle: "Ưu tiên mua theo 2-3 ngày/lần",
     shoppingIntro:
