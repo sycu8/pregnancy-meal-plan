@@ -33,7 +33,7 @@ const tagHints: Record<string, { health?: string; goal?: string; vi: string; en:
   "tieu-duong": {
     health: "gestational_diabetes",
     goal: "blood_sugar_control",
-    vi: "Thực đơn kiểm soát đường huyết",
+    vi: "Thực đơn cho đường huyết",
     en: "Blood sugar friendly meal plan"
   },
   "thieu-mau": { health: "anemia", goal: "increase_iron_calcium_protein", vi: "Thực đơn bổ sung sắt", en: "Iron-rich meal plan" },

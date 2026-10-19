@@ -29,10 +29,10 @@ export const cuisinePreferenceLabels: Record<CuisinePreference, string> = {
 
 export const nutritionGoalLabels: Record<NutritionGoal, string> = {
   balanced: "Ăn đủ chất",
-  weight_control: "Theo dõi mức tăng",
+  weight_control: "Bữa nhiều rau và đạm nạc",
   healthy_weight_gain: "Tăng cân lành mạnh",
   reduce_nausea: "Giảm nghén",
-  blood_sugar_control: "Kiểm soát đường huyết",
+  blood_sugar_control: "Đường huyết ổn định",
   relieve_constipation: "Cải thiện táo bón",
   increase_iron_calcium_protein: "Tăng sắt / canxi / đạm"
 };
@@ -63,8 +63,8 @@ export const englishHealthConditionLabels: Record<HealthCondition, string> = {
   hypertension: "High blood pressure",
   edema: "Swelling",
   reflux: "Acid reflux",
-  fast_weight_gain: "Fast weight gain",
-  slow_weight_gain: "Slow weight gain",
+  fast_weight_gain: "Gain ahead of the reference",
+  slow_weight_gain: "Gain behind the reference",
   small_fetus: "Baby measuring smaller",
   large_fetus: "Baby measuring larger",
   none: "No special concern"
@@ -83,8 +83,8 @@ export const englishCuisinePreferenceLabels: Record<CuisinePreference, string> =
 
 export const englishNutritionGoalLabels: Record<NutritionGoal, string> = {
   balanced: "Balanced nutrition",
-  weight_control: "Track pregnancy gain",
-  healthy_weight_gain: "Healthy weight gain",
+  weight_control: "Plates with vegetables and lean protein",
+  healthy_weight_gain: "Steady pregnancy gain",
   reduce_nausea: "Reduce nausea",
   blood_sugar_control: "Blood sugar control",
   relieve_constipation: "Relieve constipation",

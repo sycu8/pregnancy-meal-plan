@@ -25,11 +25,14 @@ export type GenerateMealPlanRequest = {
   turnstileToken?: string;
 };
 
+export type AiQuotaScope = "device" | "ip" | "account";
+
 export type GenerateMealPlanResponse =
   | { plan: MealPlan; usage?: { aiPlansUsed?: number; aiPlansLimit?: number; mealSwapsUsed?: number; mealSwapsLimit?: number } }
   | {
       error: string;
       code?: string;
+      scope?: AiQuotaScope;
       usage?: { aiPlansUsed?: number; aiPlansLimit?: number; mealSwapsUsed?: number; mealSwapsLimit?: number };
     };
 
@@ -94,6 +97,7 @@ async function postGenerateMealPlan(body: GenerateMealPlanRequest): Promise<{ st
       (looksLikeHtmlError(raw) && status >= 500 && status !== 502 ? "server" : classifyMealPlanStatus(status));
     const usage = data && "usage" in data ? data.usage : undefined;
     const original = data && "error" in data && typeof data.error === "string" ? data.error : undefined;
+    const scope = data && "scope" in data && (data.scope === "device" || data.scope === "ip" || data.scope === "account") ? data.scope : undefined;
     const keepUsageMessage =
       status === 429 && Boolean(usage) && Boolean(original) && !looksLikeHtmlError(original) && !leaksProviderDetail(original);
     return {
@@ -101,6 +105,7 @@ async function postGenerateMealPlan(body: GenerateMealPlanRequest): Promise<{ st
       data: {
         error: keepUsageMessage && original ? original : mealPlanErrorMessage(locale, kind),
         code: kind === "ai" ? AI_UNAVAILABLE_CODE : kind,
+        ...(scope ? { scope } : {}),
         usage
       }
     };
@@ -121,13 +126,16 @@ function applyUsageFromResponse(data: GenerateMealPlanResponse) {
 }
 
 export class PremiumLimitError extends Error {
-  constructor(message: string) {
+  readonly scope?: AiQuotaScope;
+
+  constructor(message: string, scope?: AiQuotaScope) {
     super(message);
     this.name = "PremiumLimitError";
+    this.scope = scope;
   }
 }
 
-/** Client helper: API first with one retry, then local rule-based fallback for full plans only. */
+/** Client helper: API first with one retry, then local rule-based fallback for a complete plan only. */
 export async function fetchMealPlan(
   profile: PregnancyProfile,
   locale: Locale = "vi",
@@ -157,10 +165,9 @@ export async function fetchMealPlan(
       applyUsageFromResponse(data);
 
       if (isPremiumLimitResponse(status, data)) {
-        if (options?.regenerate) {
-          throw new PremiumLimitError("error" in data ? data.error : "Daily limit reached");
-        }
-        return localizeMealPlanForLocale(ruleBasedMealPlanner(profile, locale), locale);
+        const message = "error" in data && typeof data.error === "string" && data.error.trim() ? data.error : "Daily limit reached";
+        const scope = "scope" in data && (data.scope === "device" || data.scope === "ip" || data.scope === "account") ? data.scope : undefined;
+        throw new PremiumLimitError(message, scope);
       }
 
       const kind =
@@ -192,7 +199,7 @@ export async function fetchMealPlan(
   return localizeMealPlanForLocale(ruleBasedMealPlanner(profile, locale), locale);
 }
 
-/** Full plan without calling the API (does not consume daily API quota). */
+/** Local plan without calling the API (does not consume daily API quota). */
 export function createLocalMealPlan(profile: PregnancyProfile, locale: Locale = "vi") {
   return localizeMealPlanForLocale(ruleBasedMealPlanner(profile, locale), locale);
 }

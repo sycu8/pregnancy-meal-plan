@@ -134,9 +134,9 @@ export const EDITORIAL_TOPICS: EditorialTopic[] = [
     id: "toddler-12-24-month-nutrition",
     title: "Toddler nutrition 12–24 months: joining family meals safely",
     snippet:
-      "How to transition toward family meals, limit added sugar/salt, and keep portions age-appropriate.",
+      "How to transition toward family meals, limit added sugar/salt, and keep amounts age-appropriate.",
     titleVi: "Dinh dưỡng trẻ 12–24 tháng: chuyển sang ăn cùng gia đình",
-    snippetVi: "Chuyển dần khẩu phần gia đình, hạn chế đường muối và giữ khẩu phần phù hợp tuổi.",
+    snippetVi: "Chuyển dần sang món gia đình, hạn chế đường muối và giữ lượng phù hợp tuổi.",
     category: "cham-con-0-24-thang",
     tags: ["toddler", "nutrition"]
   },
@@ -191,10 +191,10 @@ export const EDITORIAL_TOPICS: EditorialTopic[] = [
     id: "pregnancy-recipe-iron-folate-bowls",
     title: "Pregnancy recipes: iron-and-folate bowls you can cook in 30 minutes",
     snippet:
-      "Three tasty recipes pairing heme/non-heme iron with vitamin C — Vietnamese-inspired bowls with clear portions and food-safety notes.",
+      "Three tasty recipes pairing heme/non-heme iron with vitamin C — Vietnamese-inspired bowls with clear amounts and food-safety notes.",
     titleVi: "Công thức ngon cho mẹ bầu: tô cơm giàu sắt và folate trong 30 phút",
     snippetVi:
-      "Ba công thức kết hợp sắt với vitamin C — tô cơm kiểu Việt, khẩu phần rõ ràng và lưu ý an toàn thực phẩm.",
+      "Ba công thức kết hợp sắt với vitamin C — tô cơm kiểu Việt, lượng đạm rõ và lưu ý an toàn thực phẩm.",
     category: "thuc-don-ba-bau",
     tags: ["recipes", "iron", "meal-plan"]
   },

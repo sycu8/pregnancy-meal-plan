@@ -216,4 +216,81 @@ describe("special notes", () => {
     expect(localized.specialNotes.join(" ")).not.toContain("[object Object]");
     expect(localized.specialNotes.join(" ")).toContain("Uống đủ nước.");
   });
+
+  it("renders morning sickness with weight control as one consistent meal line", () => {
+    const cases: PregnancyProfile[] = [
+      { ...baseProfile, healthConditions: ["morning_sickness"], goals: ["weight_control"] },
+      { ...baseProfile, healthConditions: ["morning_sickness", "fast_weight_gain"], goals: ["balanced"] },
+      { ...baseProfile, healthConditions: ["morning_sickness", "reflux", "fast_weight_gain"], goals: ["weight_control"] }
+    ];
+    for (const profile of cases) {
+      for (const locale of ["vi", "en"] as const) {
+        const plan = ruleBasedMealPlanner(profile, locale);
+        const localized = localizeMealPlanForLocale(plan, locale);
+        for (const rendered of [plan.safetyWarnings.join(" "), plan.specialNotes.join(" "), localized.specialNotes.join(" ")]) {
+          expect(rendered, locale).not.toMatch(/chia nhỏ bữa|smaller meals|small meals/i);
+          expect(rendered).toMatch(locale === "vi" ? /chia bữa đều trong ngày/i : /spread meals across the day/i);
+        }
+      }
+    }
+
+    const combined = ruleBasedMealPlanner(
+      { ...baseProfile, healthConditions: ["morning_sickness", "reflux"], goals: ["weight_control"] },
+      "vi"
+    );
+    const spacing = combined.specialNotes.filter((note) => /chia bữa|nhỏ bữa|bữa nhỏ/i.test(note));
+    expect(spacing).toHaveLength(1);
+    expect(spacing[0]).toContain("Chia bữa đều trong ngày, ăn chậm, không nằm ngay sau ăn.");
+    expect(spacing[0]).not.toMatch(/chia nhỏ bữa/);
+  });
+
+  it("renders whole-grain options for morning sickness with gestational diabetes", () => {
+    const profile: PregnancyProfile = {
+      ...baseProfile,
+      healthConditions: ["gestational_diabetes", "morning_sickness"],
+      goals: ["blood_sugar_control"]
+    };
+    const vietnamese = ruleBasedMealPlanner(profile, "vi").specialNotes.join(" ");
+    const english = ruleBasedMealPlanner(profile, "en").specialNotes.join(" ");
+    expect(vietnamese).toContain("cháo yến mạch");
+    expect(vietnamese).toContain("bánh mì nguyên cám hoặc bánh quy nguyên cám");
+    expect(vietnamese).not.toContain("bánh nguyên cám");
+    expect(vietnamese).toContain("Nghén: chia nhỏ bữa, ăn đều trong ngày");
+    expect(vietnamese).not.toMatch(/chia bữa đều trong ngày/);
+    expect(vietnamese).not.toMatch(/bánh mì(?! nguyên cám)|white bread|cháo(?! yến mạch)/);
+    expect(english).toContain("whole-grain bread or crackers, oat porridge");
+    expect(english).toContain("Morning sickness: eat smaller meals spread through the day");
+    expect(english).not.toMatch(/split meals across the day|Spread meals across the day/);
+    expect(english).not.toMatch(/white bread|(?<!whole-grain )bread|(?<!oat )porridge/i);
+    const withWeight = ruleBasedMealPlanner(
+      { ...profile, goals: ["weight_control", "blood_sugar_control"] },
+      "vi"
+    ).specialNotes.join(" ");
+    const withWeightEn = ruleBasedMealPlanner(
+      { ...profile, goals: ["weight_control", "blood_sugar_control"] },
+      "en"
+    ).specialNotes.join(" ");
+    expect(withWeight).toContain("Nghén: chia bữa đều trong ngày");
+    expect(withWeight).not.toContain("chia nhỏ bữa, ăn đều trong ngày");
+    expect(withWeightEn).toContain("Morning sickness: spread meals across the day");
+  });
+
+  it("restores the spacing line for gestational diabetes with reflux and no nausea", () => {
+    const profile: PregnancyProfile = {
+      ...baseProfile,
+      healthConditions: ["gestational_diabetes", "reflux"],
+      goals: ["blood_sugar_control"]
+    };
+    const spacing = /chia nhỏ bữa|chia bữa đều|nhỏ bữa|ăn đều trong ngày|smaller meals|small meals|spread meals|split meals/i;
+    for (const locale of ["vi", "en"] as const) {
+      const plan = ruleBasedMealPlanner(profile, locale);
+      const notes = plan.specialNotes.filter((note) => spacing.test(note));
+      expect(notes, locale).toHaveLength(1);
+      expect(notes[0], locale).toBe(
+        locale === "vi"
+          ? "Chia nhỏ bữa, ăn đều trong ngày, ăn chậm, không nằm ngay sau ăn."
+          : "Split meals into smaller ones, eaten evenly through the day; eat slowly, and don't lie down right after eating."
+      );
+    }
+  });
 });

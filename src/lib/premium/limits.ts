@@ -2,8 +2,11 @@ export type PremiumTier = "free" | "premium";
 
 export const premiumLimits = {
   free: {
-    /** Enough to try the product once per day. */
-    aiPlansPerDay: 1,
+    /**
+     * Free AI plans per device per day. A separate per-IP abuse ceiling
+     * (30/day) is enforced in server usage so carrier NAT does not share one slot.
+     */
+    aiPlansPerDay: 3,
     historyPlans: 5,
     mealSwapsPerDay: 2,
     cloudExport: false

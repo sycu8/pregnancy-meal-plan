@@ -37,11 +37,11 @@ const privacyEn: LegalDocument = {
         "What we collect depends on how you use the Service:"
       ],
       bullets: [
-        "Profile and preference data you enter for meal planning (for example gestational week or postpartum stage, weight, height, cuisine preferences, budget, cooking time, allergies, disliked foods, and selected health concerns).",
+        "Profile and preference data you enter for meal planning (for example gestational week or postpartum stage, kilograms, height, cuisine preferences, budget, cooking time, allergies, disliked foods, and selected health concerns).",
         "Generated meal plans and history you choose to keep.",
         "Account data if you register (email address, locale preference, premium status, and session tokens).",
         "Optional cloud-sync data if you sign in and opt in (profile JSON, meal plans, and favorites linked to your account).",
-        "Billing-related status if you purchase Premium (we receive confirmation from Stripe that a payment succeeded; we do not store full card numbers on our servers).",
+        "Billing-related status if you purchase Premium (we receive confirmation from Stripe that a payment succeeded; we do not store complete card numbers on our servers).",
         "Technical and security signals such as Turnstile challenge results when enabled, and standard request logs needed to operate the Service.",
         "Optional analytics signals from Cloudflare Web Analytics when that beacon is enabled, and Google Analytics (GA4) when the site measurement tag is enabled (aggregated traffic metrics)."
       ]
@@ -188,7 +188,7 @@ const privacyVi: LegalDocument = {
       heading: "7. Cookie và công nghệ tương tự",
       paragraphs: [
         "Chúng tôi không dùng cookie phía first-party để đăng nhập tài khoản. Xác thực web dùng token do Dịch vụ quản lý.",
-        "Cloudflare và hạ tầng liên quan có thể đặt cookie hoặc công nghệ tương tự cho bảo mật, chống bot (gồm Turnstile khi bật), hiệu năng và Web Analytics tùy chọn. Google Analytics (GA4) cũng có thể đặt cookie hoặc định danh tương tự để đo lưu lượng tổng hợp khi được bật. Trình duyệt của bạn kiểm soát nhiều công nghệ trong số này."
+        "Cloudflare và hạ tầng liên quan có thể đặt cookie hoặc công nghệ tương tự cho bảo mật, chống bot (gồm Turnstile khi bật), hiệu năng và Web Analytics tùy chọn. Google Analytics (GA4) cũng có thể đặt cookie hoặc định danh tương tự để đo lưu lượng tổng hợp khi được bật. Trình duyệt của bạn quyết định nhiều công nghệ trong số này."
       ]
     },
     {

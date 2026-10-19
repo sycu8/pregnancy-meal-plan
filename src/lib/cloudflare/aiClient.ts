@@ -1,9 +1,10 @@
 import type { Locale } from "@/lib/i18n";
 import { getBindings, readFeatureFlag } from "@/lib/cloudflare/bindings";
 import { getOptionalAiEnv } from "@/lib/cloudflare/env";
+import { ingredientsFromPlan, selectLibraryNotes } from "@/lib/nutrition/noteLibrary";
 import { buildMealPlanPrompt } from "@/lib/nutrition/aiPromptBuilder";
 import { ruleBasedMealPlanner } from "@/lib/nutrition/mealPlanner";
-import { localizeMealPlanForLocale, sanitizeSpecialNotes } from "@/lib/nutrition/localizeMealPlan";
+import { filterNotesForLocale, localizeMealPlanForLocale, sanitizeSpecialNotes } from "@/lib/nutrition/localizeMealPlan";
 import type { MealPlan } from "@/types/mealPlan";
 import type { PregnancyProfile } from "@/types/pregnancy";
 
@@ -23,21 +24,18 @@ export type AIClient = {
 export const WORKERS_AI_MODEL = "@cf/meta/llama-3.1-8b-instruct-fp8";
 
 /**
- * The call only asks for `{ specialNotes: string[] }`. Size the budget to that
- * JSON. Workers AI otherwise defaults max_tokens to 256 and cuts the notes off.
- * Vietnamese text is estimated at 2 characters per token.
+ * Ceiling for 2 or 3 short notes, not a 7-day plan. 192 cut the last note off;
+ * the prompt tells the model to stop well before this budget.
  */
-const MEAL_PLAN_AI_OUTPUT = {
-  specialNotes: [
-    "Uống đủ nước trong ngày và chia nhỏ bữa nếu buồn nôn.",
-    "Ưu tiên thực phẩm giàu sắt, ăn kèm trái cây giàu vitamin C.",
-    "Hạn chế đồ ngọt, đồ chiên và nước ngọt; chọn tinh bột chậm.",
-    "Ăn đủ đạm nạc, sữa tiệt trùng và rau xanh luộc chín.",
-    "Đổi món dị ứng hoặc món không thích bằng nguyên liệu tương đương, nấu chín kỹ."
-  ]
-};
+export const WORKERS_AI_MAX_TOKENS = 256;
 
-export const WORKERS_AI_MAX_TOKENS = Math.max(512, Math.ceil(JSON.stringify(MEAL_PLAN_AI_OUTPUT).length / 2));
+/**
+ * FP8 accepts response_format type json_object and rejects json_schema.
+ * JSON mode keeps the model on one object instead of a long plan.
+ */
+export const MEAL_PLAN_RESPONSE_FORMAT = {
+  type: "json_object"
+} as const;
 
 /**
  * Model ids Cloudflare retired on 2026-05-30, plus later catalog removals
@@ -76,6 +74,60 @@ export class AiProviderError extends Error {
   }
 }
 
+/**
+ * Bound a Workers AI or OpenAI call so a hung model returns the basic plan
+ * well before Cloudflare's ~100s 524. Tests may shorten it via AI_CALL_TIMEOUT_MS.
+ */
+export const AI_CALL_TIMEOUT_MS = 28_000;
+
+export class AiCallTimeoutError extends Error {
+  constructor() {
+    super("ai_timeout");
+    this.name = "AiCallTimeoutError";
+  }
+}
+
+function aiCallTimeoutMs(): number {
+  if (process.env.NODE_ENV === "test") {
+    const raw = Number(process.env.AI_CALL_TIMEOUT_MS);
+    if (Number.isFinite(raw) && raw >= 1 && raw <= 30_000) return raw;
+  }
+  return AI_CALL_TIMEOUT_MS;
+}
+
+function isAbortLike(error: unknown): boolean {
+  return error instanceof Error && error.name === "AbortError";
+}
+
+/** Race the model call against a shared deadline and abort the underlying request. */
+function withDeadline<T>(start: (signal: AbortSignal) => Promise<T>, deadlineAt: number): Promise<T> {
+  const remaining = deadlineAt - Date.now();
+  const controller = new AbortController();
+  if (remaining <= 0) {
+    controller.abort();
+    return Promise.reject(new AiCallTimeoutError());
+  }
+
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => {
+      controller.abort();
+      reject(new AiCallTimeoutError());
+    }, remaining);
+  });
+  const work = start(controller.signal).catch((error: unknown) => {
+    if (controller.signal.aborted || isAbortLike(error)) throw new AiCallTimeoutError();
+    throw error;
+  });
+  void work.then(
+    () => undefined,
+    () => undefined
+  );
+  return Promise.race([work, timeout]).finally(() => {
+    if (timer) clearTimeout(timer);
+  });
+}
+
 export function assertSupportedWorkersAiModel(model: string): void {
   if ((RETIRED_WORKERS_AI_MODEL_IDS as readonly string[]).includes(model)) {
     throw new AiProviderError(
@@ -95,23 +147,327 @@ function clipDetail(value: string): string {
   return value.replace(/\s+/g, " ").trim().slice(0, 240);
 }
 
+const MAX_AI_TEXT_CHARS = 20_000;
+
+type MealPlanProvider = "workers-ai" | "openai" | "none";
+
+type FallbackReason =
+  | "ai_disabled"
+  | "no_provider"
+  | "empty_output"
+  | "bad_output"
+  | "thrown"
+  | "provider_error"
+  | "timeout"
+  | "locale_filtered";
+
+const LOG_DETAIL_MAX = 80;
+
+/**
+ * Log an error class plus a short message. Strip markup, secrets, emails, IPs,
+ * and long free-text tokens so profile fields and model text cannot land in logs.
+ */
+function sanitiseLogMessage(value: string): string {
+  return value
+    .replace(/<[^>]*>/g, " ")
+    .replace(/sk-[A-Za-z0-9_-]{6,}/g, "[redacted]")
+    .replace(/bearer\s+\S+/gi, "bearer [redacted]")
+    .replace(/\b(api[_-]?key|token|secret|password|authorization)\b\s*[:=]\s*\S+/gi, "$1 [redacted]")
+    .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, "[email]")
+    .replace(/\b(?:\d{1,3}\.){3}\d{1,3}\b/g, "[ip]")
+    .replace(/\S{25,}/g, (token) => (/@(?:cf|hf)\/[A-Za-z0-9._/-]+/.test(token) ? token : "[redacted]"))
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, LOG_DETAIL_MAX);
+}
+
+/**
+ * Prefer a parenthesized provider code, then a 4-digit code, over an earlier
+ * HTTP status. "upstream 504 … (code 3043)" must log 3043, not 504.
+ * IP octets are removed first so they are not treated as codes.
+ */
+function providerErrorCode(message: string): string | undefined {
+  const withoutNetwork = message.replace(/\b(?:\d{1,3}\.){3}\d{1,3}\b/g, " ");
+  const parenthesized = withoutNetwork.match(/\(\s*(?:code\s*)?(\d{3,5})\s*\)/i);
+  if (parenthesized) return parenthesized[1];
+  const codes = [...withoutNetwork.matchAll(/\b(\d{3,5})\b/g)].map((match) => match[1]);
+  return codes.find((code) => code.length >= 4) ?? codes[0];
+}
+
+function fallbackDetail(error: unknown): string {
+  const name = error instanceof Error && error.name.trim() ? error.name.trim() : "Error";
+  if (!(error instanceof Error) || !error.message.trim()) return name.slice(0, LOG_DETAIL_MAX);
+  const code = providerErrorCode(error.message);
+  const model = error.message.match(/@(?:cf|hf)\/[A-Za-z0-9._/-]+/)?.[0];
+  const prefix = [name, code, model].filter((part): part is string => Boolean(part && part.trim())).join(": ");
+  if (prefix.length >= LOG_DETAIL_MAX) return prefix.slice(0, LOG_DETAIL_MAX);
+
+  let remainder = error.message;
+  if (model) remainder = remainder.replace(model, " ");
+  if (code) remainder = remainder.replace(new RegExp(`\\b${code}\\b`), " ");
+  const safe = sanitiseLogMessage(remainder);
+  const room = LOG_DETAIL_MAX - prefix.length - 2;
+  if (room <= 8 || !safe) return prefix;
+  return `${prefix}: ${safe}`.slice(0, LOG_DETAIL_MAX);
+}
+
+function logMealPlanOk(details: { provider: MealPlanProvider; locale: Locale; noteCount: number; durationMs: number }): void {
+  console.log(
+    JSON.stringify({
+      event: "meal-plan-ai-ok",
+      provider: details.provider,
+      locale: details.locale,
+      noteCount: details.noteCount,
+      durationMs: details.durationMs
+    })
+  );
+}
+
+function logMealPlanFallback(details: {
+  reason: FallbackReason;
+  provider: MealPlanProvider;
+  errorName?: string;
+  detail?: string;
+}): void {
+  const detail = details.detail ? sanitiseLogMessage(details.detail) : "";
+  console.error(
+    JSON.stringify({
+      event: "meal-plan-ai-fallback",
+      reason: details.reason,
+      provider: details.provider,
+      ...(details.errorName ? { errorName: details.errorName } : {}),
+      ...(detail ? { detail } : {})
+    })
+  );
+}
+
+function isReadableStream(value: unknown): value is ReadableStream<Uint8Array | string> {
+  return typeof ReadableStream !== "undefined" && value instanceof ReadableStream;
+}
+
+function isAsyncIterable(value: unknown): value is AsyncIterable<unknown> {
+  return Boolean(value) && typeof value === "object" && typeof (value as AsyncIterable<unknown>)[Symbol.asyncIterator] === "function";
+}
+
+/**
+ * Workers AI SSE lines look like `data: {"response":"..."}` and `data: [DONE]`.
+ * Token deltas are concatenated. A normal JSON string is returned unchanged.
+ */
+function unwrapSse(text: string): string {
+  const trimmed = text.trim();
+  if (!trimmed) return "";
+  const dataLines = trimmed.split(/\r?\n/).filter((line) => line.trim().startsWith("data:"));
+  if (dataLines.length === 0) return trimmed;
+
+  const pieces: string[] = [];
+  for (const line of dataLines) {
+    const data = line.trim().slice(5).trim();
+    if (!data || data === "[DONE]") continue;
+    try {
+      const parsed = JSON.parse(data) as unknown;
+      const extracted = textFromUnknown(parsed);
+      pieces.push(extracted || (typeof parsed === "string" ? parsed : ""));
+    } catch {
+      pieces.push(data);
+    }
+  }
+  return pieces.join("").trim();
+}
+
+/** Read a string, a `{ response }` / `{ result }` wrapper, or a notes object. Never calls `.trim()` on a non-string. */
+function textFromUnknown(value: unknown, depth = 0): string {
+  if (depth > 4 || value == null) return "";
+  if (typeof value === "string") return unwrapSse(value);
+  if (typeof value !== "object") return "";
+  if (value instanceof Uint8Array) return unwrapSse(new TextDecoder().decode(value));
+  if (isReadableStream(value) || isAsyncIterable(value)) return "";
+
+  const row = value as Record<string, unknown>;
+  for (const key of ["response", "result", "output_text", "text", "content"]) {
+    if (!(key in row)) continue;
+    const inner = row[key];
+    if (typeof inner === "string" && inner.trim()) return unwrapSse(inner);
+    if (inner && typeof inner === "object") {
+      const nested = textFromUnknown(inner, depth + 1);
+      if (nested.trim()) return nested;
+    }
+  }
+  if ("specialNotes" in row || "notes" in row) return JSON.stringify(row);
+  return "";
+}
+
+async function readLimitedStream(stream: ReadableStream<Uint8Array | string>): Promise<string> {
+  const reader = stream.getReader();
+  const decoder = new TextDecoder();
+  let text = "";
+  try {
+    while (text.length < MAX_AI_TEXT_CHARS) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      text += typeof value === "string" ? value : decoder.decode(value, { stream: true });
+    }
+    text += decoder.decode();
+  } finally {
+    try {
+      reader.releaseLock();
+    } catch {
+      // The lock is already released when the stream closed.
+    }
+  }
+  return text.slice(0, MAX_AI_TEXT_CHARS);
+}
+
+async function readLimitedIterable(source: AsyncIterable<unknown>): Promise<string> {
+  let text = "";
+  for await (const chunk of source) {
+    if (text.length >= MAX_AI_TEXT_CHARS) break;
+    if (typeof chunk === "string") text += chunk;
+    else if (chunk instanceof Uint8Array) text += new TextDecoder().decode(chunk);
+    else text += textFromUnknown(chunk);
+  }
+  return text.slice(0, MAX_AI_TEXT_CHARS);
+}
+
+async function coerceWorkersAiText(result: unknown): Promise<string> {
+  const nested = result && typeof result === "object" ? (result as Record<string, unknown>).response ?? (result as Record<string, unknown>).result : undefined;
+  const body = isReadableStream(result) || isAsyncIterable(result) ? result : nested;
+  if (isReadableStream(body)) return unwrapSse(await readLimitedStream(body));
+  if (isAsyncIterable(body)) return unwrapSse(await readLimitedIterable(body));
+  return textFromUnknown(result);
+}
+
+function stripJsonFence(text: string): string {
+  const fenced = text.trim().match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
+  return (fenced ? fenced[1] : text).trim();
+}
+
+/**
+ * Close a truncated specialNotes object. Handles a missing final `}`, a
+ * missing `]}`, and a last string that was cut off before its quote.
+ */
+function repairTruncatedSpecialNotes(text: string): string | null {
+  const start = text.indexOf("{");
+  if (start < 0) return null;
+  let body = text.slice(start).trim();
+  if (!/"specialNotes"\s*:/.test(body) && !/"notes"\s*:/.test(body)) return null;
+
+  let inString = false;
+  let escape = false;
+  const stack: Array<"{" | "["> = [];
+  for (const char of body) {
+    if (inString) {
+      if (escape) {
+        escape = false;
+        continue;
+      }
+      if (char === "\\") {
+        escape = true;
+        continue;
+      }
+      if (char === '"') inString = false;
+      continue;
+    }
+    if (char === '"') {
+      inString = true;
+      continue;
+    }
+    if (char === "{" || char === "[") stack.push(char);
+    else if ((char === "}" || char === "]") && stack.length > 0) stack.pop();
+  }
+
+  if (!inString && stack.length === 0) return null;
+  if (inString) body += '"';
+  body = body.replace(/,\s*$/, "");
+  for (let index = stack.length - 1; index >= 0; index -= 1) {
+    body += stack[index] === "{" ? "}" : "]";
+  }
+  return body;
+}
+
+export function parseModelPayload(raw: string): { specialNotes?: unknown; notes?: unknown; food?: unknown } {
+  const stripped = stripJsonFence(raw);
+  const read = (text: string) => {
+    const parsed = JSON.parse(text) as unknown;
+    if (!parsed || typeof parsed !== "object") throw new SyntaxError("unparseable_json");
+    return parsed as { specialNotes?: unknown; notes?: unknown; food?: unknown };
+  };
+  try {
+    return read(stripped);
+  } catch {
+    // Try a complete object embedded in extra text, then a missing final brace.
+  }
+
+  const start = stripped.indexOf("{");
+  const end = stripped.lastIndexOf("}");
+  if (start >= 0 && end > start) {
+    try {
+      return read(stripped.slice(start, end + 1));
+    } catch {
+      // The slice was not valid JSON. Repair a truncated notes object next.
+    }
+  }
+
+  const repaired = repairTruncatedSpecialNotes(stripped);
+  if (repaired) {
+    try {
+      return read(repaired);
+    } catch {
+      // Still not JSON.
+    }
+  }
+  throw new SyntaxError("unparseable_json");
+}
+
+/**
+ * Production has the Workers AI binding and no provider secret.
+ * An explicit AI_PROVIDER still wins. Otherwise use that binding, then an OpenAI key.
+ */
+async function resolveMealPlanProvider(env: ReturnType<typeof getOptionalAiEnv>): Promise<MealPlanProvider> {
+  if (env.AI_PROVIDER === "mock") return "none";
+  if (env.AI_PROVIDER === "openai") return env.OPENAI_API_KEY ? "openai" : "none";
+  if (env.AI_PROVIDER === "workers-ai") return "workers-ai";
+
+  const { AI } = await getBindings();
+  if (AI) return "workers-ai";
+  if (env.OPENAI_API_KEY) return "openai";
+  return "none";
+}
+
+const WORKERS_AI_RATE_LIMIT_CODE = "3021";
+const WORKERS_AI_RATE_LIMIT_BACKOFF_MS = [300, 900];
+
+function workersAiErrorText(item: { message?: unknown; code?: unknown }): string {
+  const code = typeof item.code === "number" || (typeof item.code === "string" && item.code.trim()) ? String(item.code).trim() : "";
+  const message = typeof item.message === "string" ? item.message.trim() : "";
+  return [code, message].filter(Boolean).join(": ");
+}
+
 function workersAiFailureDetail(result: unknown): string | null {
   if (!result || typeof result !== "object") return null;
   const row = result as {
     error?: unknown;
-    errors?: { message?: unknown }[];
+    errors?: { message?: unknown; code?: unknown }[];
     success?: boolean;
   };
   if (typeof row.error === "string" && row.error.trim()) return clipDetail(row.error);
-  const messages = (row.errors ?? [])
-    .map((item) => (typeof item?.message === "string" ? item.message.trim() : ""))
-    .filter(Boolean);
+  const messages = (row.errors ?? []).map((item) => workersAiErrorText(item)).filter(Boolean);
   if (messages.length > 0) return clipDetail(messages.join("; "));
   if (row.success === false) return "Workers AI reported an unsuccessful response.";
   return null;
 }
 
-async function callOpenAi(prompt: string, apiKey: string, gatewayUrl?: string): Promise<string> {
+function isWorkersAiRateLimit(error: unknown): boolean {
+  return error instanceof AiProviderError && error.provider === "workers-ai" && providerErrorCode(error.message) === WORKERS_AI_RATE_LIMIT_CODE;
+}
+
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+const NOTES_SYSTEM_PROMPT =
+  'Return exactly one JSON object {"notes":[{"id":"..."}]} with 2 or 3 ids from the user message. At most one object may include "food", copied from the ingredient list. Do not write sentences. Do not write a meal plan.';
+
+async function callOpenAi(prompt: string, apiKey: string, gatewayUrl: string | undefined, signal: AbortSignal): Promise<string> {
   const url = gatewayUrl ? `${gatewayUrl.replace(/\/$/, "")}/chat/completions` : "https://api.openai.com/v1/chat/completions";
   let response: Response;
   try {
@@ -121,20 +477,19 @@ async function callOpenAi(prompt: string, apiKey: string, gatewayUrl?: string): 
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json"
       },
+      signal,
       body: JSON.stringify({
         model: "gpt-4o-mini",
         messages: [
-          {
-            role: "system",
-            content:
-              "Author meal-plan guidance in English first, then translate to the requested locale. Return only valid JSON with a specialNotes string array."
-          },
+          { role: "system", content: NOTES_SYSTEM_PROMPT },
           { role: "user", content: prompt }
         ],
-        temperature: 0.4
+        temperature: 0.2,
+        response_format: MEAL_PLAN_RESPONSE_FORMAT
       })
     });
   } catch (error) {
+    if (isAbortLike(error)) throw error;
     throw new AiProviderError("openai", `OpenAI request failed: ${describeFailure(error)}`);
   }
 
@@ -144,15 +499,11 @@ async function callOpenAi(prompt: string, apiKey: string, gatewayUrl?: string): 
     throw new AiProviderError("openai", `OpenAI request failed (${status})${detail ? `: ${detail}` : ""}.`);
   }
 
-  const data = (await response.json()) as { choices?: { message?: { content?: string } }[] };
-  const content = data.choices?.[0]?.message?.content?.trim() ?? "";
-  if (!content) {
-    throw new AiProviderError("openai", "OpenAI returned an empty response.");
-  }
-  return content;
+  const data = (await response.json()) as { choices?: { message?: { content?: unknown } }[] };
+  return textFromUnknown(data.choices?.[0]?.message?.content).trim();
 }
 
-async function callWorkersAi(prompt: string): Promise<string> {
+async function callWorkersAi(prompt: string, signal: AbortSignal): Promise<string> {
   assertSupportedWorkersAiModel(WORKERS_AI_MODEL);
 
   const { AI } = await getBindings();
@@ -162,18 +513,21 @@ async function callWorkersAi(prompt: string): Promise<string> {
 
   let result: unknown;
   try {
-    result = await AI.run(WORKERS_AI_MODEL, {
-      messages: [
-        {
-          role: "system",
-          content:
-            "You assist with pregnancy meal planning. Draft English first, then adapt to the requested locale. Respond concisely as JSON."
-        },
-        { role: "user", content: prompt }
-      ],
-      max_tokens: WORKERS_AI_MAX_TOKENS
-    });
+    result = await AI.run(
+      WORKERS_AI_MODEL,
+      {
+        messages: [
+          { role: "system", content: NOTES_SYSTEM_PROMPT },
+          { role: "user", content: prompt }
+        ],
+        max_tokens: WORKERS_AI_MAX_TOKENS,
+        temperature: 0.2,
+        response_format: MEAL_PLAN_RESPONSE_FORMAT
+      },
+      { signal }
+    );
   } catch (error) {
+    if (isAbortLike(error)) throw error;
     throw new AiProviderError(
       "workers-ai",
       `Workers AI request failed for ${WORKERS_AI_MODEL}: ${describeFailure(error)}`
@@ -185,11 +539,31 @@ async function callWorkersAi(prompt: string): Promise<string> {
     throw new AiProviderError("workers-ai", `Workers AI request failed for ${WORKERS_AI_MODEL}: ${failure}`);
   }
 
-  const response = (result as { response?: string }).response?.trim() ?? "";
-  if (!response) {
-    throw new AiProviderError("workers-ai", `Workers AI returned an empty response for ${WORKERS_AI_MODEL}.`);
-  }
-  return response;
+  return (await coerceWorkersAiText(result)).trim();
+}
+
+const aiServedPlans = new WeakMap<MealPlan, true>();
+
+/** True only when this plan object includes model notes that survived the locale filter. */
+export function mealPlanServedAi(plan: MealPlan): boolean {
+  return aiServedPlans.has(plan);
+}
+
+function planWithAiNotes(baseline: MealPlan, notes: string[], locale: Locale): { plan: MealPlan; shown: number } {
+  const kept = filterNotesForLocale(notes, locale);
+  const withNotes = {
+    ...baseline,
+    specialNotes: sanitizeSpecialNotes([...baseline.specialNotes, ...kept])
+  };
+  const plan = localizeMealPlanForLocale(withNotes, locale);
+  const visible = new Set(plan.specialNotes);
+  const shown = kept.filter((note) => visible.has(note)).length;
+  if (shown > 0) aiServedPlans.set(plan, true);
+  return { plan, shown };
+}
+
+function mealPlanPrompt(input: PregnancyProfile, locale: Locale, ingredients: readonly string[]): string {
+  return buildMealPlanPrompt(input, locale, ingredients);
 }
 
 export function createAIClient(): AIClient {
@@ -198,39 +572,117 @@ export function createAIClient(): AIClient {
   return {
     async generateMealPlan(input, locale = "vi") {
       const baseline = localizeMealPlanForLocale(ruleBasedMealPlanner(input, locale), locale);
-      const aiEnabled = await readFeatureFlag("ai_planner_enabled", Boolean(env.OPENAI_API_KEY || env.AI_PROVIDER === "workers-ai"));
+      const provider = await resolveMealPlanProvider(env);
+      // The flag defaults on whenever a provider is configured. KV `ai_planner_enabled=false`
+      // or FEATURE_AI_PLANNER_ENABLED=false still turns it off. An env true overrides KV.
+      // Prod has the AI binding and no flag.
+      const aiEnabled = await readFeatureFlag("ai_planner_enabled", provider !== "none");
 
-      if (!aiEnabled) return baseline;
-
-      const hasProvider = Boolean(env.OPENAI_API_KEY || env.AI_PROVIDER === "workers-ai" || env.AI_GATEWAY_URL);
-      if (!hasProvider) return baseline;
-
-      try {
-        const prompt = `${buildMealPlanPrompt(input)}\nLocale: ${locale}\nReturn JSON with field "specialNotes" as string array customizing the baseline plan. For locale=vi write specialNotes in Vietnamese only.`;
-        const raw =
-          env.AI_PROVIDER === "workers-ai"
-            ? await callWorkersAi(prompt)
-            : env.OPENAI_API_KEY
-              ? await callOpenAi(prompt, env.OPENAI_API_KEY, env.AI_GATEWAY_URL)
-              : null;
-
-        if (!raw) return baseline;
-
-        const parsed = JSON.parse(raw) as { specialNotes?: unknown };
-        const notes = sanitizeSpecialNotes(parsed.specialNotes);
-        if (notes.length > 0) {
-          const withNotes = {
-            ...baseline,
-            specialNotes: sanitizeSpecialNotes([...baseline.specialNotes, ...notes])
-          };
-          return localizeMealPlanForLocale(withNotes, locale);
-        }
-      } catch (error) {
-        if (error instanceof AiProviderError) throw error;
-        // Malformed model JSON still falls back to the rule-based plan.
+      if (provider === "none") {
+        logMealPlanFallback({ reason: "no_provider", provider: "none" });
+        return baseline;
+      }
+      if (!aiEnabled) {
+        logMealPlanFallback({ reason: "ai_disabled", provider });
+        return baseline;
       }
 
-      return baseline;
+      const startedAt = Date.now();
+      const deadlineAt = startedAt + aiCallTimeoutMs();
+
+      const callModel = (prompt: string) =>
+        withDeadline(
+          (signal) =>
+            provider === "workers-ai"
+              ? callWorkersAi(prompt, signal)
+              : callOpenAi(prompt, env.OPENAI_API_KEY ?? "", env.AI_GATEWAY_URL, signal),
+          deadlineAt
+        );
+
+      try {
+        const ingredients = ingredientsFromPlan(baseline, locale);
+        const prompt = mealPlanPrompt(input, locale, ingredients);
+        let raw = "";
+        for (let attempt = 0; ; attempt += 1) {
+          try {
+            raw = await callModel(prompt);
+            break;
+          } catch (error) {
+            const wait = WORKERS_AI_RATE_LIMIT_BACKOFF_MS[attempt];
+            if (!isWorkersAiRateLimit(error) || wait == null) throw error;
+            await delay(wait);
+          }
+        }
+        if (!raw.trim()) {
+          logMealPlanFallback({ reason: "empty_output", provider });
+          return baseline;
+        }
+
+        let payload: ReturnType<typeof parseModelPayload>;
+        try {
+          payload = parseModelPayload(raw);
+        } catch {
+          logMealPlanFallback({
+            reason: "bad_output",
+            provider,
+            errorName: "SyntaxError",
+            detail: "unparseable_json"
+          });
+          return baseline;
+        }
+
+        const selected = selectLibraryNotes(payload, ingredients, locale);
+        if (!selected.ok) {
+          logMealPlanFallback({
+            reason: selected.detail === "no_valid_notes" ? "empty_output" : "bad_output",
+            provider,
+            ...(selected.detail === "invalid_notes" ? { errorName: "SyntaxError" } : {}),
+            detail: selected.detail
+          });
+          return baseline;
+        }
+
+        const served = planWithAiNotes(baseline, selected.notes, locale);
+        if (served.shown > 0) {
+          logMealPlanOk({
+            provider,
+            locale,
+            noteCount: served.shown,
+            durationMs: Date.now() - startedAt
+          });
+        } else {
+          logMealPlanFallback({ reason: "empty_output", provider, detail: "no_visible_notes" });
+        }
+        return served.plan;
+      } catch (error) {
+        if (error instanceof AiCallTimeoutError) {
+          logMealPlanFallback({
+            reason: "timeout",
+            provider,
+            errorName: error.name,
+            detail: "ai_timeout"
+          });
+          return baseline;
+        }
+        if (error instanceof AiProviderError) {
+          logMealPlanFallback({
+            reason: "provider_error",
+            provider: error.provider,
+            errorName: error.name,
+            detail: fallbackDetail(error)
+          });
+          if (isWorkersAiRateLimit(error)) return baseline;
+          throw error;
+        }
+        const errorName = error instanceof Error && error.name.trim() ? error.name.trim() : "Error";
+        logMealPlanFallback({
+          reason: "thrown",
+          provider,
+          errorName,
+          detail: errorName
+        });
+        return baseline;
+      }
     }
   };
 }

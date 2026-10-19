@@ -13,7 +13,8 @@
     "head_sampling_rate": 1
   },
   "vars": {
-    "STRIPE_CHECKOUT_URL": "https://buy.stripe.com/7sYbJ1eoCeDA0f462McZa00"
+    "STRIPE_CHECKOUT_URL": "https://buy.stripe.com/7sYbJ1eoCeDA0f462McZa00",
+    "AI_PROVIDER": "workers-ai"
   },
   "services": [
     {

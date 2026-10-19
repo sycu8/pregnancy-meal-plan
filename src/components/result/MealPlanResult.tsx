@@ -13,7 +13,7 @@ import { ReviewPrompt } from "@/components/shared/ReviewPrompt";
 import { bmiCategoryLabels } from "@/lib/nutrition/bmi";
 import { weightGainStatusLabels } from "@/lib/nutrition/weightGain";
 import { PremiumUsageHint } from "@/components/shared/PremiumUsageHint";
-import { PremiumUpsell } from "@/components/premium/PremiumUpsell";
+import { PremiumUpsell, type PremiumUpsellReason } from "@/components/premium/PremiumUpsell";
 import { canSwapMeal } from "@/lib/premium/usage";
 import { getPremiumTier } from "@/lib/premium/tier";
 import { getPremiumLimits } from "@/lib/premium/limits";
@@ -25,12 +25,13 @@ import { buildPlanExportText } from "@/lib/export/planExport";
 import { fetchMealPlan, PremiumLimitError } from "@/lib/nutrition/fetchMealPlan";
 import { regenerateMealInPlan, type MealSlot } from "@/lib/nutrition/mealPlanner";
 import { localizeMealPlanForLocale } from "@/lib/nutrition/localizeMealPlan";
+import { notesPanelKind } from "@/lib/nutrition/notesPanel";
 import { batchEstimatedCost, mealEstimatedCost } from "@/lib/nutrition/costHelpers";
 import { formatMoney, getCountryPricing } from "@/lib/nutrition/countries";
 import { localizedPath, type Locale } from "@/lib/i18n";
 import type { MealItem, MealPlan } from "@/types/mealPlan";
 
-/** Thực đơn dinh dưỡng là khẩu phần 1 người; khi quy đổi đi chợ cho trẻ, mỗi trẻ ~ phần nhỏ hơn người lớn. */
+/** Thực đơn dinh dưỡng là phần ăn 1 người; khi quy đổi đi chợ cho trẻ, mỗi trẻ ~ phần nhỏ hơn người lớn. */
 const CHILD_PORTION_FACTOR = 0.55;
 const ADULTS_IN_COUPLE = 2;
 
@@ -98,7 +99,7 @@ const copy = {
     meals: ["Bữa sáng", "Bữa phụ sáng", "Bữa trưa", "Bữa phụ chiều", "Bữa tối"],
     hydration: "Nước uống / trái cây",
     estimateNote:
-      "Ước tính khẩu phần và calorie chỉ để tham khảo, có thể thay đổi theo cách nấu và phần ăn thực tế.",
+      "Ước tính phần ăn và năng lượng chỉ để tham khảo, có thể thay đổi theo cách nấu và lượng thực tế.",
     freshShopping: "Lịch đi chợ tươi ngon",
     shoppingTitle: "Ưu tiên mua theo 2-3 ngày/lần",
     shoppingIntro:
@@ -106,6 +107,7 @@ const copy = {
     sourcePrefix: "Nguồn giá tham khảo",
     safety: "Cảnh báo an toàn",
     specialNotes: "Ghi chú theo tình trạng đặc biệt",
+    nutritionNotes: "Ghi chú dinh dưỡng",
     noSpecial: "Chưa có tình trạng đặc biệt được chọn.",
     edit: "Quay lại chỉnh thông tin",
     mainGroup: "Nhóm chính",
@@ -143,7 +145,7 @@ const copy = {
     regenerate: "Create again",
     bmi: "Pre-pregnancy BMI",
     bmiGroup: "BMI group",
-    gained: "Weight gained",
+    gained: "Kilograms gained",
     status: "Assessment",
     noData: "Not enough data",
     medicalAttention: "Medical notes to watch",
@@ -158,7 +160,7 @@ const copy = {
     meals: ["Breakfast", "Morning snack", "Lunch", "Afternoon snack", "Dinner"],
     hydration: "Water / fruit",
     estimateNote:
-      "Portion and calorie estimates are references only and may vary by recipe and actual serving size.",
+      "Serving size and energy figures are references only and may vary by recipe and the amount prepared.",
     freshShopping: "Fresh grocery schedule",
     shoppingTitle: "Shop every 2-3 days when possible",
     shoppingIntro:
@@ -166,6 +168,7 @@ const copy = {
     sourcePrefix: "Reference price sources",
     safety: "Food-safety warnings",
     specialNotes: "Notes for selected conditions",
+    nutritionNotes: "Nutrition notes",
     noSpecial: "No special condition was selected.",
     edit: "Edit information",
     mainGroup: "Main nutrients",
@@ -218,6 +221,7 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
   const [showSwapUpsell, setShowSwapUpsell] = useState(false);
   const [showExportUpsell, setShowExportUpsell] = useState(false);
   const [showPlanUpsell, setShowPlanUpsell] = useState(false);
+  const [planUpsellReason, setPlanUpsellReason] = useState<PremiumUpsellReason>("ai-limit");
   const isFreeTier = getPremiumTier() === "free";
   const canCloudExport = getPremiumLimits(getPremiumTier()).cloudExport;
   const displayPlan = useMemo(() => (plan ? localizeMealPlanForLocale(plan, locale) : null), [plan, locale]);
@@ -225,10 +229,13 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
   useEffect(() => {
     if (typeof window === "undefined") return;
     const notice = window.sessionStorage.getItem("bau-an-gi:plan-notice");
+    const scope = window.sessionStorage.getItem("bau-an-gi:plan-notice-scope");
     if (notice) {
       setPlanNotice(notice);
+      setPlanUpsellReason(scope === "ip" ? "network-limit" : scope === "account" ? "account-limit" : "ai-limit");
       setShowPlanUpsell(true);
       window.sessionStorage.removeItem("bau-an-gi:plan-notice");
+      window.sessionStorage.removeItem("bau-an-gi:plan-notice-scope");
     }
   }, []);
 
@@ -424,7 +431,7 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
       {planNotice && (
         <p className="rounded-md bg-amber-50 px-4 py-3 text-sm text-amber-900">{planNotice}</p>
       )}
-      {showPlanUpsell && isFreeTier ? <PremiumUpsell locale={locale} reason="ai-limit" /> : null}
+      {showPlanUpsell && isFreeTier ? <PremiumUpsell locale={locale} reason={planUpsellReason} /> : null}
       <section className="rounded-lg border border-border bg-white p-5 shadow-soft">
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div>
@@ -587,7 +594,10 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
 
       <section className="grid gap-5 md:grid-cols-2">
         <ListPanel title={t.safety} items={displayPlan.safetyWarnings} />
-        <ListPanel title={t.specialNotes} items={displayPlan.specialNotes.length ? displayPlan.specialNotes : [t.noSpecial]} />
+        <ListPanel
+          title={notesPanelKind(displayPlan.profileSnapshot, displayPlan.specialNotes.length) === "general" ? t.nutritionNotes : t.specialNotes}
+          items={displayPlan.specialNotes.length ? displayPlan.specialNotes : [t.noSpecial]}
+        />
       </section>
 
       <TrustedSources locale={locale} />
@@ -744,11 +754,11 @@ function HouseholdCostSection({
   const household = {
     vi: {
       title: "Ước tính chi phí theo số người ăn",
-      introStart: "Khẩu phần dinh dưỡng trong thực đơn là cho",
+      introStart: "Phần ăn trong thực đơn là cho",
       mother: "một người (mẹ)",
       introMiddle: "Các mức chi phí dưới đây giúp quy đổi khi nấu chung:",
       couple: "Hai vợ chồng",
-      introEnd: `tính ×2 so với một người; phần trẻ em tách riêng theo số con bạn nhập (mỗi trẻ ~${Math.round(CHILD_PORTION_FACTOR * 100)}% khẩu phần đi chợ ước lượng so với một người lớn).`,
+      introEnd: `tính ×2 so với một người; phần trẻ em tách riêng theo số con bạn nhập (mỗi trẻ ~${Math.round(CHILD_PORTION_FACTOR * 100)}% lượng đi chợ ước lượng so với một người lớn).`,
       childrenLabel: "Số trẻ ăn cùng (cùng món gia đình)",
       weekTitle: "Đi chợ cả tuần (cộng các đợt)",
       dayTitle: `Ngày ${activeDayNumber} - chi phí món ước tính`,
@@ -764,13 +774,13 @@ function HouseholdCostSection({
     },
     en: {
       title: "Estimated cost by number of eaters",
-      introStart: "The nutrition portion in this meal plan is for",
+      introStart: "The meals in this plan are written for",
       mother: "one person (the mother)",
       introMiddle: "Use the estimates below when cooking for the household:",
       couple: "two adults",
-      introEnd: `is calculated at x2; children's portions are estimated separately from the number you enter (each child is about ${Math.round(CHILD_PORTION_FACTOR * 100)}% of one adult grocery portion).`,
+      introEnd: `is calculated at x2; children's amounts are estimated separately from the number you enter (each child is about ${Math.round(CHILD_PORTION_FACTOR * 100)}% of one adult grocery amount).`,
       childrenLabel: "Children eating the same family meals",
-      weekTitle: "Full-week groceries (all batches)",
+      weekTitle: "Week-long groceries (all batches)",
       dayTitle: `Day ${activeDayNumber} - estimated meal cost`,
       one: "1 person (mother)",
       coupleRow: "Two adults (x2)",

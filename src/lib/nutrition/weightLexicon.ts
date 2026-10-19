@@ -48,13 +48,14 @@ export const WEIGHT_LEXICON: readonly WeightLexiconPhrase[] = [
     nfcSource: "cơn đói|con doi"
   },
   // Explicit weight-control phrases. Bare "kiểm soát" is not a hit.
-  { name: "kiểm soát cân nặng", source: "kiem soat can nang" },
-  { name: "kiểm soát tăng cân", source: "kiem soat tang can" },
   { name: "kiểm soát cân", source: "kiem soat can" },
+  { name: "kiểm soát tăng cân", source: "kiem soat tang can" },
+  { name: "kiểm soát cân nặng", source: "kiem soat can nang" },
   { name: "kiểm soát ăn uống", source: "kiem soat an uong" },
+  { name: "kiểm soát calo", source: "kiem soat calo" },
   { name: "kiểm soát lượng calo", source: "kiem soat luong calo" },
   { name: "kiểm soát lượng ăn", source: "kiem soat luong an" },
-  { name: "kiểm soát calo", source: "kiem soat calo" },
+  { name: "kiểm soát lượng thức ăn", source: "kiem soat luong thuc an" },
   { name: "kiểm soát khẩu phần", source: "kiem soat khau phan" },
   { name: "kiểm soát vòng eo", source: "kiem soat vong eo" },
   {
@@ -63,14 +64,13 @@ export const WEIGHT_LEXICON: readonly WeightLexiconPhrase[] = [
     // Same accent boundary as `cơn đói`: `còn đói` / `con đòi` must not fold-match.
     nfcSource: "kiểm soát cơn đói|kiem soat con doi"
   },
-  { name: "kiểm soát lượng thức ăn", source: "kiem soat luong thuc an" },
   { name: "kiểm soát cơn thèm", source: "kiem soat con them" },
   { name: "kiểm soát calories", source: "kiem soat (?:luong )?calories?" },
   { name: "kiểm soát mức tăng cân", source: "kiem soat muc tang can" },
   { name: "kiểm soát trọng lượng", source: "kiem soat trong luong" },
   { name: "kiểm soát chế độ ăn", source: "kiem soat (?:che do|viec) an" },
-  // Weight-sense fat only. "mỡ máu" is a blood-lipid phrase and stays allowed.
-  { name: "kiểm soát mỡ", source: "kiem soat mo(?!\\s+mau)" },
+  // Weight-sense fat. "mỡ máu" stays allowed. "mỡ mau chóng" is still weight wording.
+  { name: "kiểm soát mỡ", source: "kiem soat mo(?!\\s+mau(?!\\s+chong))" },
   {
     name: "khẩu phần",
     // A serving size in a recipe is not portion-control advice.
@@ -157,14 +157,141 @@ export type WeightLexiconHit = {
   length: number;
 };
 
-/** NFC, then strip marks. đ/Đ fold to d so unaccented text matches. */
+/**
+ * Blog prose uses this subset. Bare weight, portion, full, hunger, and appetite
+ * stay on the planner list because clinical posts use them for fetal growth and symptoms.
+ */
+const BLOG_PHRASE_NAMES = new Set([
+  "giảm cân",
+  "lấy lại vóc dáng",
+  "eo thon",
+  "giảm béo",
+  "đốt mỡ",
+  "thon gọn",
+  "chống đói",
+  "giảm khẩu phần",
+  "giảm mỡ bụng",
+  "mỡ bụng",
+  "pre-baby body",
+  "lượng ăn",
+  "cơn đói",
+  "kiểm soát cân",
+  "kiểm soát tăng cân",
+  "kiểm soát cân nặng",
+  "kiểm soát ăn uống",
+  "kiểm soát calo",
+  "kiểm soát lượng calo",
+  "kiểm soát lượng ăn",
+  "kiểm soát lượng thức ăn",
+  "kiểm soát khẩu phần",
+  "kiểm soát vòng eo",
+  "kiểm soát cơn đói",
+  "kiểm soát cơn thèm",
+  "kiểm soát calories",
+  "kiểm soát mức tăng cân",
+  "kiểm soát trọng lượng",
+  "kiểm soát chế độ ăn",
+  "kiểm soát mỡ",
+  "no lâu",
+  "chắc bụng",
+  "đỡ đói",
+  "cảm giác no",
+  "weight loss",
+  "weight control",
+  "weight management",
+  "lose weight",
+  "losing weight",
+  "lost weight",
+  "healthy weight",
+  "support healthy weight",
+  "shed pounds",
+  "slim down",
+  "slim",
+  "slimming",
+  "slimmer",
+  "burn fat",
+  "fuller",
+  "filling",
+  "fullness",
+  "feel full",
+  "stay full",
+  "satiety",
+  "low calorie",
+  "low in calories",
+  "curb appetite",
+  "prevent hunger"
+]);
+
+export const BLOG_WEIGHT_LEXICON: readonly WeightLexiconPhrase[] = WEIGHT_LEXICON.filter((phrase) => BLOG_PHRASE_NAMES.has(phrase.name));
+
+/** NFC, then strip marks. đ/Đ fold to d so unaccented text matches. Any whitespace run, including tabs and NBSP, collapses first. */
 export function foldLexiconText(value: string): string {
-  return value.normalize("NFC").normalize("NFD").replace(/\p{M}/gu, "").replace(/đ/gi, "d").toLowerCase();
+  return value
+    .replace(/\s+/g, " ")
+    .normalize("NFC")
+    .normalize("NFD")
+    .replace(/\p{M}/gu, "")
+    .replace(/đ/gi, "d")
+    .toLowerCase();
 }
 
 function phrasePattern(source: string): RegExp {
   return new RegExp(`(?<!${EDGE})(?:${source})(?!${EDGE})`, "gu");
 }
+
+/** Vietnamese alphabet after accent-fold. f, j, w, and z are not Vietnamese letters. */
+const VIETNAMESE_LETTER = /[abcdeghiklmnopqrstuvxy]/i;
+
+const ENGLISH_VERB_BASES = [
+  "give", "tell", "ask", "use", "make", "get", "let", "send", "show", "bring", "offer", "hand", "teach", "buy",
+  "call", "help", "leave", "pay", "lend", "promise", "warn", "remind", "allow", "want", "need", "see", "hear",
+  "find", "keep", "take", "write", "read", "have", "put", "set", "serve", "pass", "feed", "save", "spare",
+  "eat",
+  "grant", "throw", "toss", "email", "text", "invite", "thank", "wish", "cause", "watch", "follow", "meet",
+  "join", "sell", "owe", "deny", "refuse", "permit", "forbid", "advise", "recommend", "encourage", "force",
+  "order", "beg", "expect", "prefer", "love", "hate", "like", "know", "believe", "consider", "imagine",
+  "remember", "forget", "notice", "feel", "seem", "look", "sound", "become", "start", "stop", "try", "fail",
+  "manage", "decide", "choose", "pick", "select", "provide", "supply", "assign", "award", "introduce",
+  "present", "suggest", "mention", "describe", "explain", "announce", "declare", "name", "treat", "regard",
+  "view", "observe", "catch", "lose", "miss", "charge", "bill", "tip", "borrow", "mail", "ship", "drop",
+  "push", "pull", "hold", "grab", "fetch", "carry", "deliver", "return", "share", "split", "message"
+];
+
+const ENGLISH_VERB_IRREGULARS = [
+  "gave", "given", "told", "made", "got", "gotten", "sent", "brought", "taught", "bought", "left", "paid",
+  "lent", "saw", "seen", "heard", "found", "kept", "took", "taken", "wrote", "written", "had", "did", "done",
+  "ate", "eaten", "fed", "threw", "thrown", "met", "sold", "chose", "chosen", "felt", "became", "held",
+  "caught", "lost", "are", "was", "were", "been", "being", "could", "will", "would", "shall", "should",
+  "might", "must"
+];
+
+function englishVerbForms(base: string): string[] {
+  const forms = new Set<string>([base]);
+  if (/(?:s|x|z|ch|sh)$/.test(base)) forms.add(`${base}es`);
+  else if (/[^aeiou]y$/.test(base)) forms.add(`${base.slice(0, -1)}ies`);
+  else forms.add(`${base}s`);
+  if (base.endsWith("e")) {
+    forms.add(`${base}d`);
+    forms.add(`${base.slice(0, -1)}ing`);
+  } else if (/[^aeiou]y$/.test(base)) {
+    forms.add(`${base.slice(0, -1)}ied`);
+    forms.add(`${base}ing`);
+  } else {
+    forms.add(`${base}ed`);
+    forms.add(`${base}ing`);
+  }
+  return [...forms];
+}
+
+const ENGLISH_VERBS = new Set<string>([
+  ...ENGLISH_VERB_BASES.flatMap(englishVerbForms),
+  ...ENGLISH_VERB_IRREGULARS
+]);
+// These fold from common unaccented Vietnamese words (đó, cân, máy, ấm), so they never skip a craving.
+for (const foldedVietnamese of ["do", "can", "may", "am", "is", "buy", "get", "got", "let", "met", "pay", "put", "set", "tip", "try"]) {
+  ENGLISH_VERBS.delete(foldedVietnamese);
+}
+ENGLISH_VERBS.add("plants");
 
 /** Pregnancy weight-gain, birth weight, and measurement uses are not weight-loss copy. */
 function neutralWeightUse(folded: string, index: number, length: number): boolean {
@@ -201,6 +328,31 @@ function neutralSymptomUse(name: string, folded: string, index: number, length: 
   return false;
 }
 
+/** A diacritic or đ is checked on the raw token, before accent-folding. */
+function hasDiacriticOrD(token: string): boolean {
+  return /đ/i.test(token) || /\p{M}/u.test(token.normalize("NFD"));
+}
+
+/**
+ * "thèm ăn" / "thêm ăn" is the craving phrase. Accented and NFD forms always match.
+ * Unaccented "them an" matches too, including "them an" plus a following word.
+ * A preceding word with a diacritic or đ never skips the phrase.
+ * Otherwise skip only when that token has no Vietnamese letters, or is an English verb.
+ * Folding starts from NFC, and these letters stay one-to-one, so indexes align.
+ */
+function isCravingThemAn(text: string, index: number, length: number): boolean {
+  const nfc = text.normalize("NFC");
+  const slice = nfc.slice(index, index + length);
+  if (/thèm/i.test(slice)) return true;
+  const previous = nfc.slice(0, index).match(/(\S+)\s*$/)?.[1] ?? "";
+  const raw = previous.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, "");
+  if (!raw) return true;
+  if (hasDiacriticOrD(raw)) return true;
+  const token = foldLexiconText(raw);
+  if (!VIETNAMESE_LETTER.test(token) || ENGLISH_VERBS.has(token)) return false;
+  return true;
+}
+
 function insideAllowed(folded: string, index: number, length: number, allowedContexts: readonly string[]): boolean {
   return allowedContexts.some((context) => {
     const foldedContext = foldLexiconText(context);
@@ -224,8 +376,9 @@ export function findWeightLexiconHits(
   phrases: readonly WeightLexiconPhrase[] = WEIGHT_LEXICON,
   allowedContexts: readonly string[] = []
 ): WeightLexiconHit[] {
-  const nfc = text.normalize("NFC");
-  const folded = foldLexiconText(text);
+  const normalized = text.replace(/\s+/g, " ");
+  const nfc = normalized.normalize("NFC");
+  const folded = foldLexiconText(normalized);
   const hits: WeightLexiconHit[] = [];
   for (const phrase of phrases) {
     const haystack = phrase.nfcSource ? nfc.toLowerCase() : folded;
@@ -240,6 +393,7 @@ export function findWeightLexiconHits(
       const length = phrase.nfcSource ? foldLexiconText(match[0]).length : match[0].length;
       if (phrase.name === "weight" && neutralWeightUse(folded, index, length)) continue;
       if (phrase.name === "thèm ăn" && englishThemAn(folded, index)) continue;
+      if (phrase.name === "thèm ăn" && !isCravingThemAn(nfc, index, length)) continue;
       if (neutralSymptomUse(phrase.name, folded, index, length)) continue;
       if (!insideAllowed(folded, index, length, allowedContexts)) {
         hits.push({ name: phrase.name, index, length });

@@ -111,7 +111,7 @@ VOICE & ACCURACY (professional pregnancy nutrition consultant):
   * Advise AGAINST raw fish/sushi/sashimi, raw shellfish, undercooked meat/eggs, unpasteurized soft cheese, and cold deli meats unless reheated until steaming hot (CDC/NHS themes).
   * Never say raw sushi or sashimi "can be safe" in pregnancy — even low-mercury fish.
   * Hot, thoroughly cooked dishes (e.g. boiling-hot phở with cooked meat) are generally fine; do not claim cooked pork broth is a listeria risk like cold deli meat.
-  * Use realistic cooked protein portions (about 90–120g per serving), never tiny novelty amounts like 30g chicken breast.
+  * Use realistic cooked protein amounts (about 90–120g per serving), never tiny novelty amounts like 30g chicken breast.
 - Distinguish "avoid", "limit", and "cook thoroughly".
 - Practical Vietnamese/international meal context is welcome when accurate.
 - Each article MUST be at least ${MIN_BLOG_WORDS} words in BOTH Vietnamese and English (prefer VI ${TARGET_VI_WORDS.min}-${TARGET_VI_WORDS.max}, EN ${TARGET_EN_WORDS.min}-${TARGET_EN_WORDS.max}).
