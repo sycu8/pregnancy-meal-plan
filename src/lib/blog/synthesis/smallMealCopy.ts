@@ -199,7 +199,7 @@ function editsFor(oldText: string, newText: string): Edit[] {
 }
 
 function applyEdit(text: string, edit: Edit): string {
-  let { index, ruling } = edit;
+  const { index, ruling } = edit;
   if (edit.lower) {
     text = text.slice(0, index) + text[index]!.toLowerCase() + text.slice(index + 1);
   }
