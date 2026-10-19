@@ -377,7 +377,7 @@ The baby gains weight rapidly; you may feel full quickly. Quality over empty cal
 
 ## Practical tips
 
-- Smaller, more frequent meals if heartburn.
+- Split meals into smaller ones, eaten evenly through the day
 - Continue safe, cooked seafood 2–3 times per week where advised.
 - Limit sugary drinks.
 
@@ -406,7 +406,7 @@ Organ development begins early; folate is critical before and during this phase.
 
 ## Eating with nausea
 
-- Small, frequent meals; dry crackers before getting up.
+- Split meals into smaller ones, eaten evenly through the day. Dry crackers before getting up.
 - Cold or room-temperature foods if hot smells trigger vomiting.
 - Ginger tea in moderation if approved.
 
@@ -719,7 +719,7 @@ Mild nausea often improves after weeks 12–14. **Hyperemesis gravidarum** invol
 - Sip fluids slowly: water, coconut water, thin soup.
 - Dry foods before getting up: crackers, toast.
 - Avoid strong greasy smells; cool or warm foods may sit better than steaming hot dishes.
-- Six to eight very small meals.
+- Split meals into smaller ones, eaten evenly through the day
 
 ## Go to the hospital if
 
@@ -743,7 +743,7 @@ Progesterone relaxes the esophageal sphincter; the growing uterus presses upward
 
 ## Eating tips
 
-- Smaller meals; finish dinner 2–3 hours before lying down.
+- Split meals into smaller ones, eaten evenly through the day. Finish dinner 2–3 hours before lying down.
 - Mild flavors; reduce very spicy or fatty triggers if they worsen symptoms.
 - Elevate head of bed slightly.
 
@@ -1082,9 +1082,7 @@ Twins or triplets have separate targets — your clinician will advise.
 - **First trimester:** modest gain (~0.5–2 kg for many).
 - **Second and third:** steadier weekly gain (~0.4–0.5 kg/week depending on BMI).
 
-## When gain is outside the reference range
-
-These ranges are a comparison point at prenatal visits. Swelling, nausea, twins, or gestational diabetes change the pattern. Bring your measurements to your clinician for a personal plan.
+Healthy weight gain differs for each person; track it with your prenatal doctor.
 
 ## Note
 
@@ -1252,7 +1250,7 @@ Too much iron is harmful — follow prescribed dose. Severe symptoms or chest pa
     reviewer: "References NHS, ACOG",
     content: `## Principles
 
-- Very small meals every 2–3 hours.
+- Split meals into smaller ones, eaten evenly through the day
 - Prefer **cool or warm** foods with mild odor.
 - Keep dry crackers by the bed before standing up.
 
@@ -1376,7 +1374,7 @@ Use **Bầu Ăn Gì?** meal planner to filter by gestational week, budget, nause
     reviewer: "References ACOG, NHS",
     content: `## Principles
 
-Smaller meals with adequate **protein, iron, calcium, and fiber**; steady hydration. Adjust for weight trends and medical conditions.
+Split meals into smaller ones, eaten evenly through the day, with adequate **protein, iron, calcium, and fiber**; steady hydration. Adjust for weight trends and medical conditions.
 
 ## 7-day outline (abbreviated)
 

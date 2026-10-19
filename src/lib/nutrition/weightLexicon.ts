@@ -24,12 +24,26 @@ export const WEIGHT_LEXICON: readonly WeightLexiconPhrase[] = [
   { name: "giảm béo", source: "giam beo" },
   { name: "đốt mỡ", source: "dot mo" },
   { name: "thon gọn", source: "thon gon" },
-  {
-    name: "kiểm soát",
-    // Glucose control, the CDC name, and disease control are not weight-control copy.
-    source: "(?<!khong )(?<!kho )(?<!ztna )kiem soat(?!\\s+(?:va\\s+phong|duong|muc\\s+duong|benh|chat\\s+luong|luong|tieu|truc|tinh\\s+trang|hieu\\s+qua|gdm|carbohydrate|carb|phan\\s+an|nhieu))"
-  },
+  { name: "chống đói", source: "chong doi" },
+  { name: "giảm khẩu phần", source: "giam khau phan" },
+  { name: "giảm mỡ bụng", source: "giam mo bung" },
+  { name: "mỡ bụng", source: "mo bung" },
+  { name: "pre-baby body", source: "pre-baby body" },
+  { name: "lượng ăn", source: "luong an" },
+  { name: "cơn đói", source: "con doi" },
+  // Explicit weight-control phrases. Bare "kiểm soát" is not a hit.
+  { name: "kiểm soát cân nặng", source: "kiem soat can nang" },
+  { name: "kiểm soát tăng cân", source: "kiem soat tang can" },
   { name: "kiểm soát cân", source: "kiem soat can" },
+  { name: "kiểm soát ăn uống", source: "kiem soat an uong" },
+  { name: "kiểm soát lượng calo", source: "kiem soat luong calo" },
+  { name: "kiểm soát lượng ăn", source: "kiem soat luong an" },
+  { name: "kiểm soát calo", source: "kiem soat calo" },
+  { name: "kiểm soát khẩu phần", source: "kiem soat khau phan" },
+  { name: "kiểm soát vòng eo", source: "kiem soat vong eo" },
+  { name: "kiểm soát cơn đói", source: "kiem soat con doi" },
+  // Weight-sense fat only. "mỡ máu" is a blood-lipid phrase and stays allowed.
+  { name: "kiểm soát mỡ", source: "kiem soat mo(?!\\s+mau)" },
   {
     name: "khẩu phần",
     // A serving size in a recipe is not portion-control advice.
@@ -60,7 +74,8 @@ export const WEIGHT_LEXICON: readonly WeightLexiconPhrase[] = [
     // "ăn ít nhất" is "at least"; "ăn ít muối" is sodium guidance.
     source: "an it(?!\\s+(?:nhat|muoi|duong|ngot|salt|sugar|sweet))"
   },
-  { name: "thèm ăn", source: "them an(?!\\s+(?:dat|bot))" },
+  // "thèm ăn đất/bột" is pica. "thêm an toàn" is "safer", not a craving.
+  { name: "thèm ăn", source: "them an(?!\\s+(?:dat|bot|toan))" },
   { name: "weight", source: "weight" },
   { name: "weight loss", source: "weight[\\s-]*loss" },
   { name: "weight control", source: "weight control" },
@@ -135,6 +150,15 @@ function neutralWeightUse(folded: string, index: number, length: number): boolea
   return /(?:birth|fetal|body|track|tracking)\s+$/.test(before) || /\.$/.test(before);
 }
 
+/**
+ * English "give them an apple" shares the folded craving stem.
+ * The article "an" is not a hit; the verb in front of "them an" is.
+ */
+function englishThemAn(folded: string, index: number): boolean {
+  const before = folded.slice(Math.max(0, index - 24), index);
+  return /(?:give|eat|ask|tell|show|offer|hand|pass|bring|get)\s+$/.test(before);
+}
+
 /** Symptom and pica wording shares a lexicon stem without giving diet advice. */
 function neutralSymptomUse(name: string, folded: string, index: number, length: number): boolean {
   const window = folded.slice(Math.max(0, index - 48), index + length + 48);
@@ -188,6 +212,7 @@ export function findWeightLexiconHits(
       const index = phrase.nfcSource ? foldLexiconText(nfc.slice(0, match.index)).length : match.index;
       const length = phrase.nfcSource ? foldLexiconText(match[0]).length : match[0].length;
       if (phrase.name === "weight" && neutralWeightUse(folded, index, length)) continue;
+      if (phrase.name === "thèm ăn" && englishThemAn(folded, index)) continue;
       if (neutralSymptomUse(phrase.name, folded, index, length)) continue;
       if (!insideAllowed(folded, index, length, allowedContexts)) {
         hits.push({ name: phrase.name, index, length });

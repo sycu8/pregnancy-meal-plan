@@ -45,8 +45,8 @@ export function getConditionSpecificWarnings(profile: PregnancyProfile, locale: 
   if (conditions.has("gestational_diabetes") || profile.goals.includes("blood_sugar_control")) {
     notes.push(
       locale === "vi"
-        ? "Tiểu đường thai kỳ: ưu tiên tinh bột chậm, chia nhỏ bữa, tránh nước ép/nước ngọt và hỏi bác sĩ về lượng tinh bột phù hợp."
-        : "Gestational diabetes: prioritize slow-digesting carbohydrates, split meals into smaller portions, avoid juice and sugary drinks, and ask your clinician about the right carbohydrate amount."
+        ? "Tiểu đường thai kỳ: ưu tiên tinh bột chậm. Chia nhỏ bữa, ăn đều trong ngày. Tránh nước ép/nước ngọt và hỏi bác sĩ về lượng tinh bột phù hợp."
+        : "Gestational diabetes: prioritize slow-digesting carbohydrates. Split meals into smaller ones, eaten evenly through the day. Avoid juice and sugary drinks, and ask your clinician about the right carbohydrate amount."
     );
   }
   if (conditions.has("anemia") || profile.goals.includes("increase_iron_calcium_protein")) {
@@ -66,8 +66,8 @@ export function getConditionSpecificWarnings(profile: PregnancyProfile, locale: 
   if (conditions.has("morning_sickness") || profile.goals.includes("reduce_nausea")) {
     notes.push(
       locale === "vi"
-        ? "Nghén: chia nhỏ bữa, chọn món ít mùi, mềm, dễ tiêu; có thể thử bánh mì, cháo, khoai hoặc trái cây ít chua."
-        : "Morning sickness: eat smaller meals and choose mild-smelling, soft, easy-to-digest foods such as bread, porridge, potatoes or less acidic fruit."
+        ? "Nghén: Chia nhỏ bữa, ăn đều trong ngày. Chọn món ít mùi, mềm, dễ tiêu; có thể thử bánh mì, cháo, khoai hoặc trái cây ít chua."
+        : "Morning sickness: Split meals into smaller ones, eaten evenly through the day. Choose mild-smelling, soft, easy-to-digest foods such as bread, porridge, potatoes or less acidic fruit."
     );
   }
   if (conditions.has("fast_weight_gain") || profile.goals.includes("weight_control")) {
@@ -95,7 +95,7 @@ export function getConditionSpecificWarnings(profile: PregnancyProfile, locale: 
     notes.push(
       locale === "vi"
         ? "Trào ngược: ăn vừa miệng, tránh nằm ngay sau ăn, hạn chế món nhiều dầu, cay hoặc quá chua nếu làm khó chịu."
-        : "Reflux: eat smaller portions, avoid lying down right after meals, and limit oily, spicy or very sour foods if they trigger discomfort."
+        : "Reflux: eat comfortable amounts, don't overfill, avoid lying down right after meals, and limit oily, spicy or very sour foods if they trigger discomfort."
     );
   }
   if (conditions.has("large_fetus")) {

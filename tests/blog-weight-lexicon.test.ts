@@ -35,7 +35,10 @@ const GENERATOR_FILES = [
   "scripts/add-blog-seeds.ts"
 ];
 
-/** Stems the #43 scan missed and the shared lexicon already names. */
+/**
+ * Complete #43 list. The earlier full-list test named 11 stems the #43 scan missed.
+ * WL2R2-01 adds the five phrases that list still left out. Every name must hit (16/16).
+ */
 const FULL_LIST_PHRASES = [
   "hearty",
   "satisfying",
@@ -47,7 +50,37 @@ const FULL_LIST_PHRASES = [
   "lượng nhỏ",
   "ăn ít",
   "eat less",
-  "thèm ăn"
+  "thèm ăn",
+  "chống đói",
+  "giảm khẩu phần",
+  "giảm mỡ bụng",
+  "mỡ bụng",
+  "pre-baby body"
+];
+
+/** Explicit weight-control phrases. Bare "kiểm soát" is not on this list. */
+const KIEM_SOAT_FLAGGED = [
+  "kiểm soát lượng calo",
+  "kiểm soát lượng ăn",
+  "kiểm soát cân nặng",
+  "kiểm soát cân",
+  "kiểm soát tăng cân",
+  "kiểm soát ăn uống",
+  "kiểm soát calo",
+  "kiểm soát khẩu phần",
+  "kiểm soát vòng eo",
+  "kiểm soát cơn đói",
+  "kiểm soát mỡ",
+  "lượng ăn",
+  "cơn đói"
+];
+
+const KIEM_SOAT_ALLOWED = [
+  "kiểm soát mỡ máu",
+  "kiểm soát huyết áp",
+  "kiểm soát cơn nghén",
+  "kiểm soát stress",
+  "kiểm soát đường huyết"
 ];
 
 const UNACCENTED_PHRASES = ["giam can", "lay lai voc dang", "eo thon", "no lau", "chac bung", "do doi"];
@@ -119,6 +152,9 @@ describe("blog weight-loss lexicon", () => {
     expect(findLexiconHits("ăn ít nhất 2 phần").length).toBe(0);
     expect(findLexiconHits("ăn ít muối khi tăng huyết áp").length).toBe(0);
     expect(findLexiconHits("kiểm soát đường huyết theo bác sĩ").length).toBe(0);
+    expect(findLexiconHits("thêm an toàn khi rửa rau").length).toBe(0);
+    expect(findLexiconHits("give them an apple").length).toBe(0);
+    expect(findLexiconHits("please give them an orange").length).toBe(0);
     expect(findLexiconHits("healthy weight gain in pregnancy").length).toBe(0);
     expect(findLexiconHits("a cooked protein portion of 100 g").length).toBe(0);
     expect(findLexiconHits("một lượng nhỏ omega-3").length).toBe(0);
@@ -156,13 +192,36 @@ describe("blog weight-loss lexicon", () => {
     expect(findLexiconHits("an uong can bang, du dam, rau, va tinh bot.").length).toBe(0);
   });
 
-  it("scans the full shared lexicon, including the stems the subset skipped", () => {
+  it("scans the complete #43 list and catches every phrase", () => {
     const names = WEIGHT_LEXICON.map((phrase) => phrase.name);
+    expect(FULL_LIST_PHRASES).toHaveLength(16);
+    let caught = 0;
     for (const name of FULL_LIST_PHRASES) {
       expect(names, name).toContain(name);
       expect(findLexiconHits(`Advice: ${name} now.`).some((hit) => hit.name === name), name).toBe(true);
+      caught += 1;
     }
+    expect(caught).toBe(FULL_LIST_PHRASES.length);
     expect(findLexiconHits("Advice: keeps you full now.").some((hit) => hit.name === "full(er)")).toBe(true);
+    expect(findLexiconHits("pre-pregnancy BMI").length).toBe(0);
+  });
+
+  it("flags each explicit kiểm soát phrase and lượng ăn / cơn đói", () => {
+    for (const phrase of KIEM_SOAT_FLAGGED) {
+      const hits = findLexiconHits(`Advice: ${phrase} now.`);
+      expect(hits.some((hit) => hit.name === phrase), phrase).toBe(true);
+    }
+    expect(findLexiconHits("Advice: kiểm soát mỡ thừa now.").some((hit) => hit.name === "kiểm soát mỡ")).toBe(true);
+    expect(findLexiconHits("Advice: kiểm soát mỡ bụng now.").some((hit) => hit.name === "mỡ bụng")).toBe(true);
+  });
+
+  it("allows clinical kiểm soát phrases and thêm an toàn", () => {
+    for (const phrase of KIEM_SOAT_ALLOWED) {
+      expect(findLexiconHits(`Advice: ${phrase} theo bác sĩ.`).length, phrase).toBe(0);
+    }
+    expect(findLexiconHits("thêm an toàn").length).toBe(0);
+    expect(findLexiconHits("give them an apple at snack time").length).toBe(0);
+    expect(findLexiconHits("Kiểm soát mỡ máu khi mang thai").length).toBe(0);
   });
 
   it("keeps weight-loss and satiety wording out of blog posts", () => {
