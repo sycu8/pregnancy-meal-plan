@@ -247,7 +247,7 @@ const seeds: BlogPost[] = [
       ),
       ref("CDC — Preconception Health", "https://www.cdc.gov/preconception/index.html", "CDC")
     ],
-    content: `## Vì sao lập kế hoạch?\n\nGiảm nguy cơ dị tật ống thần kinh, thiếu máu, và tối ưu sức khỏe trước khi thai phát triển.\n\n## Trước khi thụ thai\n\n- **Folic acid** 400 mcg/ngày (hoặc liều cao hơn nếu bác sĩ chỉ định).\n- Khám tổng quát, răng miệng, huyết áp, đường huyết.\n- Cập nhật tiêm chủng (rubella, cúm… theo lịch).\n- Bỏ thuốc lá, rượu; duy trì cân nặng hợp lý.\n\n## Dinh dưỡng\n\nĂn đa dạng, hạn chế cá thủy ngân cao; bổ sung iod/sắt nếu vùng thiếu (theo tư vấn).\n\n## Khi đã mang thai\n\nĐăng ký khám thai sớm; không tự dùng thuốc kê sẵn.`
+    content: `## Vì sao lập kế hoạch?\n\nGiảm nguy cơ dị tật ống thần kinh, thiếu máu, và tối ưu sức khỏe trước khi thai phát triển.\n\n## Trước khi thụ thai\n\n- **Folic acid** 400 mcg/ngày (hoặc liều cao hơn nếu bác sĩ chỉ định).\n- Khám tổng quát, răng miệng, huyết áp, đường huyết.\n- Cập nhật tiêm chủng (rubella, cúm… theo lịch).\n- Bỏ thuốc lá, rượu; ăn uống cân bằng.\n\n## Dinh dưỡng\n\nĂn đa dạng, hạn chế cá thủy ngân cao; bổ sung iod/sắt nếu vùng thiếu (theo tư vấn).\n\n## Khi đã mang thai\n\nĐăng ký khám thai sớm; không tự dùng thuốc kê sẵn.`
   })
 ];
 

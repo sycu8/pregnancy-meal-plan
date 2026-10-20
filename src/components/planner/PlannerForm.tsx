@@ -6,20 +6,28 @@ import { ArrowLeft, ArrowRight, Loader2, Save, Sparkles } from "lucide-react";
 import { Button } from "@/components/shared/Button";
 import { Disclaimer } from "@/components/shared/Disclaimer";
 import { PremiumUsageHint } from "@/components/shared/PremiumUsageHint";
-import { PremiumUpsell } from "@/components/premium/PremiumUpsell";
+import { PremiumUpsell, type PremiumUpsellReason } from "@/components/premium/PremiumUpsell";
 import { canCreateAiPlan } from "@/lib/premium/usage";
 import { getPremiumTier } from "@/lib/premium/tier";
 import { getNutritionLabels } from "@/lib/nutrition/labels";
 import { fetchMealPlan, createLocalMealPlan, MealPlanRequestError, PremiumLimitError } from "@/lib/nutrition/fetchMealPlan";
-import { isAbortError, mealPlanErrorMessage, type MealPlanErrorAction } from "@/lib/nutrition/aiUnavailable";
+import { MealPlanResult } from "@/components/result/MealPlanResult";
+import { isAbortError, leaksProviderDetail, mealPlanErrorMessage, type MealPlanErrorAction } from "@/lib/nutrition/aiUnavailable";
 import { pregnancyProfileSchema, validationErrorToLocale } from "@/lib/nutrition/validation";
-import { saveMealPlan, saveProfile, getProfile } from "@/lib/storage/localStorage";
-import { cacheOfflineSnapshot, incrementPlanCount } from "@/lib/storage/offlineCache";
+import { getCurrentMealPlan, getProfile, saveMealPlan, saveProfile } from "@/lib/storage/localStorage";
+import { cacheOfflineSnapshot, getOfflineProfile, incrementPlanCount } from "@/lib/storage/offlineCache";
 import { localizedPath, type Locale } from "@/lib/i18n";
 import type { CuisinePreference, HealthCondition, NutritionGoal, PregnancyProfile, ResidenceCountryCode } from "@/types/pregnancy";
 import { residenceCountries } from "@/lib/nutrition/countries";
 
 const PLAN_NOTICE_KEY = "bau-an-gi:plan-notice";
+const PLAN_NOTICE_SCOPE_KEY = "bau-an-gi:plan-notice-scope";
+
+function upsellReasonForScope(scope: string | undefined): PremiumUpsellReason {
+  if (scope === "ip") return "network-limit";
+  if (scope === "account") return "account-limit";
+  return "ai-limit";
+}
 
 const defaultProfile: PregnancyProfile = {
   lifeStage: "pregnancy",
@@ -86,19 +94,19 @@ const copy = {
     steps: ["Pregnancy", "About you", "Health", "Taste", "Budget"],
     progress: "Step",
     pageTitle: "Create a 7-day pregnancy meal plan",
-    pageDescription: "Enter week, weight, preferences, and health notes to build a 7-day pregnancy meal plan with a shopping list.",
+    pageDescription: "Enter week, kilograms, preferences, and health notes to build a 7-day pregnancy meal plan with a shopping list.",
     pregnancyInfo: "Pregnancy information",
     pregnancyWeek: "Current pregnancy week",
     pregnancyType: "Pregnancy type",
     singleton: "Singleton",
     twins: "Twins",
-    fetalWeight: "Estimated fetal weight (grams, optional)",
+    fetalWeight: "Estimated fetal mass (grams, optional)",
     doctorNote: "Doctor's note, if any",
     motherInfo: "About the mother",
     age: "Age",
     height: "Height (cm)",
-    preWeight: "Pre-pregnancy weight (kg)",
-    currentWeight: "Current weight (kg)",
+    preWeight: "Kilograms before pregnancy",
+    currentWeight: "Current kilograms",
     activity: "Activity level",
     health: "Health concerns",
     taste: "Taste preferences",
@@ -137,13 +145,22 @@ export function PlannerForm({ mode = "planner", locale = "vi" }: { mode?: "plann
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
   const [showPlanUpsell, setShowPlanUpsell] = useState(false);
+  const [planUpsellReason, setPlanUpsellReason] = useState<PremiumUpsellReason>("ai-limit");
   const [errorAction, setErrorAction] = useState<MealPlanErrorAction | "none">("none");
+  const [inlinePlan, setInlinePlan] = useState(false);
+  const [profileHydrated, setProfileHydrated] = useState(false);
   const isProfileMode = mode === "profile";
 
   useEffect(() => {
-    const stored = getProfile();
+    const stored = getProfile() ?? getOfflineProfile() ?? getCurrentMealPlan()?.profileSnapshot ?? null;
     if (stored) setProfile({ ...defaultProfile, ...stored });
+    setProfileHydrated(true);
   }, []);
+
+  useEffect(() => {
+    if (!profileHydrated) return;
+    saveProfile(profile);
+  }, [profile, profileHydrated]);
 
   useEffect(() => {
     if (isProfileMode) return;
@@ -184,15 +201,54 @@ export function PlannerForm({ mode = "planner", locale = "vi" }: { mode?: "plann
     try {
       const validProfile = pregnancyProfileSchema.parse(profile);
       const plan = createLocalMealPlan(validProfile, locale);
+      saveProfile(validProfile);
       saveMealPlan(plan);
       cacheOfflineSnapshot(validProfile, plan);
       incrementPlanCount();
-      router.push(localizedPath(locale, "/result"));
+      setInlinePlan(true);
     } catch (caught) {
       setErrorAction("none");
       setError(validationErrorToLocale(caught, locale));
     }
   }
+
+  function returnToForm() {
+    saveProfile(profile);
+    setError("");
+    setErrorAction("none");
+    setIsLoading(false);
+    setStep(0);
+    setInlinePlan(false);
+  }
+
+  useEffect(() => {
+    if (!inlinePlan) return;
+    const plannerPath = localizedPath(locale, "/planner");
+
+    function onPlannerLinkClick(event: MouseEvent) {
+      if (event.defaultPrevented || event.button !== 0) return;
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      const anchor = target.closest("a");
+      if (!anchor) return;
+      const rawHref = anchor.getAttribute("href");
+      if (!rawHref || rawHref.startsWith("#")) return;
+      let pathname = "";
+      try {
+        pathname = new URL(anchor.href, window.location.href).pathname;
+      } catch {
+        return;
+      }
+      if (pathname !== plannerPath || window.location.pathname !== plannerPath) return;
+      event.preventDefault();
+      event.stopPropagation();
+      returnToForm();
+    }
+
+    document.addEventListener("click", onPlannerLinkClick, true);
+    return () => document.removeEventListener("click", onPlannerLinkClick, true);
+  }, [inlinePlan, locale, profile]);
 
   function recheckForm() {
     setError("");
@@ -218,20 +274,26 @@ export function PlannerForm({ mode = "planner", locale = "vi" }: { mode?: "plann
       let plan;
       try {
         if (!canCreateAiPlan(getPremiumTier())) {
+          setPlanUpsellReason("ai-limit");
           setShowPlanUpsell(true);
           plan = createLocalMealPlan(validProfile, locale);
           if (typeof window !== "undefined") {
             window.sessionStorage.setItem(PLAN_NOTICE_KEY, t.planLimit);
+            window.sessionStorage.setItem(PLAN_NOTICE_SCOPE_KEY, "device");
           }
         } else {
           plan = await fetchMealPlan(validProfile, locale);
         }
       } catch (caught) {
         if (caught instanceof PremiumLimitError) {
+          const reason = upsellReasonForScope(caught.scope);
+          setPlanUpsellReason(reason);
           setShowPlanUpsell(true);
           plan = createLocalMealPlan(validProfile, locale);
           if (typeof window !== "undefined") {
-            window.sessionStorage.setItem(PLAN_NOTICE_KEY, t.planLimit);
+            const notice = caught.message.trim() && !leaksProviderDetail(caught.message) ? caught.message : t.planLimit;
+            window.sessionStorage.setItem(PLAN_NOTICE_KEY, notice);
+            window.sessionStorage.setItem(PLAN_NOTICE_SCOPE_KEY, caught.scope ?? "device");
           }
         } else {
           throw caught;
@@ -256,6 +318,10 @@ export function PlannerForm({ mode = "planner", locale = "vi" }: { mode?: "plann
     } finally {
       setIsLoading(false);
     }
+  }
+
+  if (inlinePlan) {
+    return <MealPlanResult locale={locale} onReturnToForm={returnToForm} />;
   }
 
   return (
@@ -410,7 +476,7 @@ export function PlannerForm({ mode = "planner", locale = "vi" }: { mode?: "plann
         {!isProfileMode && step === t.steps.length - 1 && (
           <div className="mt-4 space-y-3">
             <PremiumUsageHint locale={locale} mode="ai" />
-            {showPlanUpsell ? <PremiumUpsell locale={locale} reason="ai-limit" /> : null}
+            {showPlanUpsell ? <PremiumUpsell locale={locale} reason={planUpsellReason} /> : null}
           </div>
         )}
 

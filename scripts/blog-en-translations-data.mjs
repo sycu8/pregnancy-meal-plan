@@ -377,7 +377,7 @@ The baby gains weight rapidly; you may feel full quickly. Quality over empty cal
 
 ## Practical tips
 
-- Smaller, more frequent meals if heartburn.
+- Split meals into smaller ones, eaten evenly through the day.
 - Continue safe, cooked seafood 2–3 times per week where advised.
 - Limit sugary drinks.
 
@@ -406,7 +406,7 @@ Organ development begins early; folate is critical before and during this phase.
 
 ## Eating with nausea
 
-- Small, frequent meals; dry crackers before getting up.
+- Split meals into smaller ones, eaten evenly through the day. Dry crackers before getting up.
 - Cold or room-temperature foods if hot smells trigger vomiting.
 - Ginger tea in moderation if approved.
 
@@ -487,7 +487,7 @@ Lactation support, adequate rest, and medical review for pain or low output — 
     title: "Second-trimester nutrition",
     excerpt: "Often the most comfortable phase for eating: growth accelerates, weight gain steadies, and activity can increase — ACOG-aligned priorities.",
     metaTitle: "Second-trimester nutrition | Bầu Ăn Gì? Blog",
-    metaDescription: "Mid-pregnancy nutrition priorities: protein, iron, calcium, fiber, and healthy weight gain.",
+    metaDescription: "Mid-pregnancy nutrition priorities: protein, iron, calcium, fiber, and prenatal weight gain.",
     author: "Bầu Ăn Gì? Team",
     reviewer: "References ACOG, NHS",
     content: `## Characteristics
@@ -719,7 +719,7 @@ Mild nausea often improves after weeks 12–14. **Hyperemesis gravidarum** invol
 - Sip fluids slowly: water, coconut water, thin soup.
 - Dry foods before getting up: crackers, toast.
 - Avoid strong greasy smells; cool or warm foods may sit better than steaming hot dishes.
-- Six to eight very small meals.
+- Split meals into smaller ones, eaten evenly through the day.
 
 ## Go to the hospital if
 
@@ -743,7 +743,7 @@ Progesterone relaxes the esophageal sphincter; the growing uterus presses upward
 
 ## Eating tips
 
-- Smaller meals; finish dinner 2–3 hours before lying down.
+- Split meals into smaller ones, eaten evenly through the day. Finish dinner 2–3 hours before lying down.
 - Mild flavors; reduce very spicy or fatty triggers if they worsen symptoms.
 - Elevate head of bed slightly.
 
@@ -1054,13 +1054,13 @@ Facial swelling, fever, or severe tooth pain with infection risk — seek urgent
   },
   {
     slug: "tang-can-hop-ly-theo-bmi-khi-mang-thai",
-    title: "Healthy weight gain in pregnancy by pre-pregnancy BMI",
-    excerpt: "Why tracking weight matters, BMI basics, IOM/ACOG reference ranges, trimester patterns, and when to personalize with your clinician.",
-    metaTitle: "Pregnancy weight gain by BMI | Bầu Ăn Gì? Blog",
+    title: "BMI in pregnancy",
+    excerpt: "What BMI means in pregnancy, IOM/ACOG reference gain ranges, and when to personalize with your clinician.",
+    metaTitle: "BMI in pregnancy | Bầu Ăn Gì? Blog",
     metaDescription: "Recommended pregnancy weight gain ranges by pre-pregnancy BMI — ACOG and IOM references.",
     author: "Bầu Ăn Gì? Team",
     reviewer: "References ACOG, IOM",
-    content: `## Why track weight?
+    content: `## Why BMI is part of prenatal care
 
 Gaining too little or too much can relate to risks such as preterm birth, macrosomia, gestational diabetes, and hypertension. The U.S. Institute of Medicine (IOM), cited by ACOG, gives reference ranges by **pre-pregnancy BMI**.
 
@@ -1082,13 +1082,7 @@ Twins or triplets have separate targets — your clinician will advise.
 - **First trimester:** modest gain (~0.5–2 kg for many).
 - **Second and third:** steadier weekly gain (~0.4–0.5 kg/week depending on BMI).
 
-## If weight rises quickly
-
-Focus on **quality**: more vegetables and lean protein, fewer sugary drinks. Gentle activity if approved (walking, prenatal yoga).
-
-## If weight gain is slow
-
-Do not force excess junk food; check nausea, stress, or medical issues. Prenatal visits screen for fetal growth concerns.
+Healthy weight gain differs for each person; track it with your prenatal doctor.
 
 ## Note
 
@@ -1256,7 +1250,7 @@ Too much iron is harmful — follow prescribed dose. Severe symptoms or chest pa
     reviewer: "References NHS, ACOG",
     content: `## Principles
 
-- Very small meals every 2–3 hours.
+- Split meals into smaller ones, eaten evenly through the day.
 - Prefer **cool or warm** foods with mild odor.
 - Keep dry crackers by the bed before standing up.
 
@@ -1380,7 +1374,7 @@ Use **Bầu Ăn Gì?** meal planner to filter by gestational week, budget, nause
     reviewer: "References ACOG, NHS",
     content: `## Principles
 
-Smaller meals with adequate **protein, iron, calcium, and fiber**; steady hydration. Adjust for weight trends and medical conditions.
+Split meals into smaller ones, eaten evenly through the day, with adequate **protein, iron, calcium, and fiber**; steady hydration. Adjust for weight trends and medical conditions.
 
 ## 7-day outline (abbreviated)
 
@@ -1486,7 +1480,7 @@ Glucose intolerance first recognized in pregnancy, often in the second or third 
 1. **Split meals:** 3 mains + 2–3 snacks to avoid glucose spikes.
 2. **Complex carbs:** brown rice, oats, sweet potato — pair with protein and vegetables in the same meal.
 3. **Limit sweets**, industrial juices, and sugary drinks.
-4. **Vegetables and fiber** for fullness and digestion.
+4. **Vegetables and fiber** to support digestion.
 5. **Do not skip meals** unless medically instructed.
 
 ## Sample plate (illustration)
@@ -1599,7 +1593,7 @@ Excess caffeine, alcohol, unpasteurized beverages of unknown origin.`,
     reviewer: "References ACOG, NHS",
     content: `## Benefits
 
-May reduce back pain, improve mood and sleep, support healthy weight, and prepare for labor — if no contraindications.
+May reduce back pain, improve mood and sleep, and prepare for labor — if no contraindications.
 
 ## Usually suitable
 

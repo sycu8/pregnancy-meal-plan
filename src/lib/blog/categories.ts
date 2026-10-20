@@ -14,7 +14,7 @@ const categoriesVi: BlogCategory[] = [
     slug: "thuc-don-ba-bau",
     name: "Thực đơn bà bầu",
     description:
-      "Gợi ý thực đơn tuần, khẩu phần tham khảo và cách lên thực đơn theo tuần thai, BMI và ngân sách.",
+      "Gợi ý thực đơn tuần và cách lên thực đơn theo tuần thai, BMI và ngân sách.",
     metaTitle: "Thực đơn bà bầu | Pregnancy Meal Planner Blog",
     metaDescription:
       "Thực đơn mẫu và mẹo lên thực đơn 7 ngày cho mẹ bầu Việt Nam, kèm danh sách đi chợ và ước tính chi phí."
@@ -61,10 +61,10 @@ const categoriesEn: BlogCategory[] = [
   {
     slug: "thuc-don-ba-bau",
     name: "Pregnancy meal plans",
-    description: "Sample weekly menus, portion guidance and planning by gestational week, BMI and budget.",
+    description: "Sample weekly menus and planning by gestational week, BMI and budget.",
     metaTitle: "Pregnancy meal plans | Pregnancy Meal Planner Blog",
     metaDescription:
-      "Sample 7-day pregnancy meal plans with shopping lists, portion guidance, and budget-friendly ideas for expectant mothers."
+      "Sample 7-day pregnancy meal plans with shopping lists and budget-friendly ideas for expectant mothers."
   },
   {
     slug: "truoc-sinh",

@@ -14,7 +14,7 @@ import { ReviewPrompt } from "@/components/shared/ReviewPrompt";
 import { bmiCategoryLabels } from "@/lib/nutrition/bmi";
 import { weightGainStatusLabels } from "@/lib/nutrition/weightGain";
 import { PremiumUsageHint } from "@/components/shared/PremiumUsageHint";
-import { PremiumUpsell } from "@/components/premium/PremiumUpsell";
+import { PremiumUpsell, type PremiumUpsellReason } from "@/components/premium/PremiumUpsell";
 import { canSwapMeal } from "@/lib/premium/usage";
 import { getPremiumTier } from "@/lib/premium/tier";
 import { getPremiumLimits } from "@/lib/premium/limits";
@@ -23,15 +23,16 @@ import { getCurrentMealPlan, getMealPlanById, saveMealPlan, setCurrentMealPlan }
 import { cacheOfflineSnapshot, shouldShowReviewPrompt } from "@/lib/storage/offlineCache";
 import { authHeaders } from "@/lib/storage/authSession";
 import { buildPlanExportText } from "@/lib/export/planExport";
-import { fetchMealPlan, PremiumLimitError } from "@/lib/nutrition/fetchMealPlan";
+import { fetchMealPlan, MealSwapError, PremiumLimitError } from "@/lib/nutrition/fetchMealPlan";
 import { regenerateMealInPlan, type MealSlot } from "@/lib/nutrition/mealPlanner";
 import { localizeMealPlanForLocale } from "@/lib/nutrition/localizeMealPlan";
+import { notesPanelKind } from "@/lib/nutrition/notesPanel";
 import { batchEstimatedCost, mealEstimatedCost } from "@/lib/nutrition/costHelpers";
 import { formatMoney, getCountryPricing } from "@/lib/nutrition/countries";
 import { localizedPath, type Locale } from "@/lib/i18n";
 import type { MealItem, MealPlan } from "@/types/mealPlan";
 
-/** Thực đơn dinh dưỡng là khẩu phần 1 người; khi quy đổi đi chợ cho trẻ, mỗi trẻ ~ phần nhỏ hơn người lớn. */
+/** Thực đơn dinh dưỡng là phần ăn 1 người; khi quy đổi đi chợ cho trẻ, mỗi trẻ ~ phần nhỏ hơn người lớn. */
 const CHILD_PORTION_FACTOR = 0.55;
 const ADULTS_IN_COUPLE = 2;
 
@@ -98,7 +99,7 @@ const copy = {
     meals: ["Bữa sáng", "Bữa phụ sáng", "Bữa trưa", "Bữa phụ chiều", "Bữa tối"],
     hydration: "Nước uống / trái cây",
     estimateNote:
-      "Ước tính khẩu phần và calorie chỉ để tham khảo, có thể thay đổi theo cách nấu và lượng ăn thực tế.",
+      "Ước tính phần ăn và năng lượng chỉ để tham khảo, có thể thay đổi theo cách nấu và lượng thực tế.",
     freshShopping: "Lịch đi chợ tươi ngon",
     shoppingTitle: "Ưu tiên mua theo 2-3 ngày/lần",
     shoppingIntro:
@@ -106,6 +107,7 @@ const copy = {
     sourcePrefix: "Nguồn giá tham khảo",
     safety: "Cảnh báo an toàn",
     specialNotes: "Ghi chú theo tình trạng đặc biệt",
+    nutritionNotes: "Ghi chú dinh dưỡng",
     noSpecial: "Chưa có tình trạng đặc biệt được chọn.",
     edit: "Quay lại chỉnh thông tin",
     mainGroup: "Nhóm chính",
@@ -122,7 +124,7 @@ const copy = {
     export: "Xuất file",
     exported: "Đã xuất",
     exportError: "Không thể xuất thực đơn",
-    swapLimit: "Đã hết lượt đổi món hôm nay",
+    swapLimit: "Đã hết lượt đổi món hôm nay. Hãy thử lại vào ngày mai hoặc mở Premium Lifetime.",
     planNotFound: "Không tìm thấy thực đơn trên thiết bị này. Hãy tạo thực đơn mới.",
     loadingPlan: "Đang tải thực đơn...",
     dailyShoppingTitle: "Danh sách nguyên liệu riêng cho ngày này",
@@ -143,7 +145,7 @@ const copy = {
     regenerate: "Create again",
     bmi: "Pre-pregnancy BMI",
     bmiGroup: "BMI group",
-    gained: "Weight gained",
+    gained: "Kilograms gained",
     status: "Assessment",
     noData: "Not enough data",
     sevenDay: "7-day meal plan",
@@ -157,7 +159,7 @@ const copy = {
     meals: ["Breakfast", "Morning snack", "Lunch", "Afternoon snack", "Dinner"],
     hydration: "Water / fruit",
     estimateNote:
-      "Portion and calorie estimates are references only and may vary by recipe and actual serving size.",
+      "Serving size and energy figures are references only and may vary by recipe and the amount prepared.",
     freshShopping: "Fresh grocery schedule",
     shoppingTitle: "Shop every 2-3 days when possible",
     shoppingIntro:
@@ -165,6 +167,7 @@ const copy = {
     sourcePrefix: "Reference price sources",
     safety: "Food-safety warnings",
     specialNotes: "Notes for selected conditions",
+    nutritionNotes: "Nutrition notes",
     noSpecial: "No special condition was selected.",
     edit: "Edit information",
     mainGroup: "Main nutrients",
@@ -172,6 +175,7 @@ const copy = {
     caution: "Note",
     estimate: "Estimate",
     swapMeal: "Swap meal",
+    tryAgain: "Try again",
     swapping: "Swapping...",
     share: "Share",
     shared: "Shared",
@@ -181,7 +185,7 @@ const copy = {
     export: "Export",
     exported: "Exported",
     exportError: "Could not export meal plan",
-    swapLimit: "Daily meal-swap limit reached",
+    swapLimit: "Daily meal-swap limit reached. Try again tomorrow, or unlock Premium Lifetime.",
     planNotFound: "This meal plan was not found on this device. Create a new plan.",
     loadingPlan: "Loading meal plan...",
     dailyShoppingTitle: "Ingredients for this day",
@@ -194,7 +198,16 @@ const copy = {
 type ResultCopy = (typeof copy)[Locale];
 type ShoppingGroupLabels = Record<ShoppingGroupKey, string>;
 
-export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; planId?: string }) {
+export function MealPlanResult({
+  locale = "vi",
+  planId,
+  onReturnToForm
+}: {
+  locale?: Locale;
+  planId?: string;
+  /** When the plan is shown on the planner page, these actions return to the form instead of navigating. */
+  onReturnToForm?: () => void;
+}) {
   const t = copy[locale];
   const groups = locale === "vi" ? groupLabels : englishGroupLabels;
   const bmiLabels = locale === "vi" ? bmiCategoryLabels : englishBmiCategoryLabels;
@@ -203,6 +216,8 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
   const [saved, setSaved] = useState(false);
   const [shareState, setShareState] = useState<"idle" | "shared" | "copied" | "shared_local" | "copied_local">("idle");
   const [swapError, setSwapError] = useState("");
+  const [swapLimited, setSwapLimited] = useState(false);
+  const [swapErrorSlot, setSwapErrorSlot] = useState<MealSlot | null>(null);
   const [shareError, setShareError] = useState("");
   const [exportError, setExportError] = useState("");
   const [exported, setExported] = useState(false);
@@ -217,6 +232,7 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
   const [showSwapUpsell, setShowSwapUpsell] = useState(false);
   const [showExportUpsell, setShowExportUpsell] = useState(false);
   const [showPlanUpsell, setShowPlanUpsell] = useState(false);
+  const [planUpsellReason, setPlanUpsellReason] = useState<PremiumUpsellReason>("ai-limit");
   const isFreeTier = getPremiumTier() === "free";
   const canCloudExport = getPremiumLimits(getPremiumTier()).cloudExport;
   const displayPlan = useMemo(() => (plan ? localizeMealPlanForLocale(plan, locale) : null), [plan, locale]);
@@ -224,10 +240,13 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
   useEffect(() => {
     if (typeof window === "undefined") return;
     const notice = window.sessionStorage.getItem("bau-an-gi:plan-notice");
+    const scope = window.sessionStorage.getItem("bau-an-gi:plan-notice-scope");
     if (notice) {
       setPlanNotice(notice);
+      setPlanUpsellReason(scope === "ip" ? "network-limit" : scope === "account" ? "account-limit" : "ai-limit");
       setShowPlanUpsell(true);
       window.sessionStorage.removeItem("bau-an-gi:plan-notice");
+      window.sessionStorage.removeItem("bau-an-gi:plan-notice-scope");
     }
   }, []);
 
@@ -288,10 +307,14 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
     if (!plan) return;
     if (!canSwapMeal(getPremiumTier())) {
       setSwapError(t.swapLimit);
+      setSwapErrorSlot(mealSlot);
+      setSwapLimited(true);
       setShowSwapUpsell(true);
       return;
     }
     setSwapError("");
+    setSwapLimited(false);
+    setSwapErrorSlot(mealSlot);
     setShowSwapUpsell(false);
     const day = plan.days[activeDayIndex]?.day ?? 1;
     setSwappingSlot(mealSlot);
@@ -305,8 +328,12 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
       setUsageRefresh((value) => value + 1);
     } catch (error) {
       if (error instanceof PremiumLimitError) {
-        setSwapError(error.message);
+        setSwapError(error.message.trim() || t.swapLimit);
+        setSwapLimited(true);
         setShowSwapUpsell(true);
+      } else if (error instanceof MealSwapError && !error.allowLocalFallback) {
+        setSwapLimited(false);
+        setSwapError(error.message);
       } else {
         try {
           const next = regenerateMealInPlan(plan, plan.profileSnapshot, day, mealSlot, locale);
@@ -315,7 +342,6 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
           setSaved(true);
         } catch {
           setSwapError(error instanceof Error ? error.message : t.swapLimit);
-          setShowSwapUpsell(true);
         }
       }
     } finally {
@@ -423,7 +449,7 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
       {planNotice && (
         <p className="rounded-md bg-amber-50 px-4 py-3 text-sm text-amber-900">{planNotice}</p>
       )}
-      {showPlanUpsell && isFreeTier ? <PremiumUpsell locale={locale} reason="ai-limit" /> : null}
+      {showPlanUpsell && isFreeTier ? <PremiumUpsell locale={locale} reason={planUpsellReason} /> : null}
       <section className="rounded-lg border border-border bg-white p-5 shadow-soft">
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div>
@@ -457,16 +483,41 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
             <Button variant="secondary" onClick={() => window.print()}>
               <Printer className="h-4 w-4" /> {t.print}
             </Button>
-            <Button asChild>
-              <Link href={localizedPath(locale, "/planner")}>
+            {onReturnToForm ? (
+              <Button type="button" onClick={onReturnToForm}>
                 <RefreshCcw className="h-4 w-4" /> {t.regenerate}
-              </Link>
-            </Button>
+              </Button>
+            ) : (
+              <Button asChild>
+                <Link href={localizedPath(locale, "/planner")}>
+                  <RefreshCcw className="h-4 w-4" /> {t.regenerate}
+                </Link>
+              </Button>
+            )}
           </div>
         </div>
         <div className="no-print mt-3 space-y-3">
           <PremiumUsageHint locale={locale} mode="swap" refreshKey={usageRefresh} />
-          {swapError && <p className="text-sm text-red-700">{swapError}</p>}
+          {swapError && locale === "en" ? (
+            <div className="space-y-2">
+              <p id="swap-error-note" className="text-sm text-red-700">
+                {swapError}
+              </p>
+              <Button
+                type="button"
+                variant="secondary"
+                aria-describedby="swap-error-note"
+                disabled={swapLimited || !swapErrorSlot || swappingSlot !== null}
+                onClick={() => {
+                  if (!swapLimited && swapErrorSlot) void handleSwapMeal(swapErrorSlot);
+                }}
+              >
+                {copy.en.tryAgain}
+              </Button>
+            </div>
+          ) : swapError ? (
+            <p className="text-sm text-red-700">{swapError}</p>
+          ) : null}
           {shareError && <p className="text-sm text-red-700">{shareError}</p>}
           {exportError && <p className="text-sm text-red-700">{exportError}</p>}
           {showSwapUpsell && isFreeTier ? <PremiumUpsell locale={locale} reason="swap-limit" /> : null}
@@ -577,7 +628,10 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
 
       <section className="grid gap-5 md:grid-cols-2">
         <ListPanel title={t.safety} items={displayPlan.safetyWarnings} />
-        <ListPanel title={t.specialNotes} items={displayPlan.specialNotes.length ? displayPlan.specialNotes : [t.noSpecial]} />
+        <ListPanel
+          title={notesPanelKind(displayPlan.profileSnapshot, displayPlan.specialNotes.length) === "general" ? t.nutritionNotes : t.specialNotes}
+          items={displayPlan.specialNotes.length ? displayPlan.specialNotes : [t.noSpecial]}
+        />
       </section>
 
       <TrustedSources locale={locale} />
@@ -588,9 +642,15 @@ export function MealPlanResult({ locale = "vi", planId }: { locale?: Locale; pla
       )}
       <Disclaimer locale={locale} />
       <div className="no-print">
-        <Button asChild variant="secondary">
-          <Link href={localizedPath(locale, "/planner")}>{t.edit}</Link>
-        </Button>
+        {onReturnToForm ? (
+          <Button type="button" variant="secondary" onClick={onReturnToForm}>
+            {t.edit}
+          </Button>
+        ) : (
+          <Button asChild variant="secondary">
+            <Link href={localizedPath(locale, "/planner")}>{t.edit}</Link>
+          </Button>
+        )}
       </div>
     </div>
   );
@@ -734,11 +794,11 @@ function HouseholdCostSection({
   const household = {
     vi: {
       title: "Ước tính chi phí theo số người ăn",
-      introStart: "Khẩu phần dinh dưỡng trong thực đơn là cho",
+      introStart: "Phần ăn trong thực đơn là cho",
       mother: "một người (mẹ)",
       introMiddle: "Các mức chi phí dưới đây giúp quy đổi khi nấu chung:",
       couple: "Hai vợ chồng",
-      introEnd: `tính ×2 so với một người; phần trẻ em tách riêng theo số con bạn nhập (mỗi trẻ ~${Math.round(CHILD_PORTION_FACTOR * 100)}% khẩu phần đi chợ ước lượng so với một người lớn).`,
+      introEnd: `tính ×2 so với một người; phần trẻ em tách riêng theo số con bạn nhập (mỗi trẻ ~${Math.round(CHILD_PORTION_FACTOR * 100)}% lượng đi chợ ước lượng so với một người lớn).`,
       childrenLabel: "Số trẻ ăn cùng (cùng món gia đình)",
       weekTitle: "Đi chợ cả tuần (cộng các đợt)",
       dayTitle: `Ngày ${activeDayNumber} - chi phí món ước tính`,
@@ -754,13 +814,13 @@ function HouseholdCostSection({
     },
     en: {
       title: "Estimated cost by number of eaters",
-      introStart: "The nutrition portion in this meal plan is for",
+      introStart: "The meals in this plan are written for",
       mother: "one person (the mother)",
       introMiddle: "Use the estimates below when cooking for the household:",
       couple: "two adults",
-      introEnd: `is calculated at x2; children's portions are estimated separately from the number you enter (each child is about ${Math.round(CHILD_PORTION_FACTOR * 100)}% of one adult grocery portion).`,
+      introEnd: `is calculated at x2; children's amounts are estimated separately from the number you enter (each child is about ${Math.round(CHILD_PORTION_FACTOR * 100)}% of one adult grocery amount).`,
       childrenLabel: "Children eating the same family meals",
-      weekTitle: "Full-week groceries (all batches)",
+      weekTitle: "Week-long groceries (all batches)",
       dayTitle: `Day ${activeDayNumber} - estimated meal cost`,
       one: "1 person (mother)",
       coupleRow: "Two adults (x2)",
