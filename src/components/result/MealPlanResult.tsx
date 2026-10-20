@@ -9,6 +9,7 @@ import { Disclaimer } from "@/components/shared/Disclaimer";
 import { TrustedSources } from "@/components/shared/TrustedSources";
 import { NutrientGuidancePanel } from "@/components/result/NutrientGuidancePanel";
 import { FavoriteButton } from "@/components/result/FavoriteButton";
+import { UrgentWarningBanner } from "@/components/result/UrgentWarningBanner";
 import { ReviewPrompt } from "@/components/shared/ReviewPrompt";
 import { bmiCategoryLabels } from "@/lib/nutrition/bmi";
 import { weightGainStatusLabels } from "@/lib/nutrition/weightGain";
@@ -87,7 +88,6 @@ const copy = {
     gained: "Đã tăng",
     status: "Đánh giá",
     noData: "Chưa đủ dữ liệu",
-    medicalAttention: "Cần lưu ý y tế",
     sevenDay: "Thực đơn 7 ngày",
     byDay: "Xem theo từng ngày",
     day: "Ngày",
@@ -148,7 +148,6 @@ const copy = {
     gained: "Kilograms gained",
     status: "Assessment",
     noData: "Not enough data",
-    medicalAttention: "Medical notes to watch",
     sevenDay: "7-day meal plan",
     byDay: "View by day",
     day: "Day",
@@ -533,16 +532,7 @@ export function MealPlanResult({
         </div>
       </section>
 
-      {displayPlan.urgentWarnings && displayPlan.urgentWarnings.length > 0 && (
-        <section className="rounded-lg border border-red-200 bg-red-50 p-5 text-sm text-red-800">
-          <h2 className="font-semibold">{t.medicalAttention}</h2>
-          {displayPlan.urgentWarnings.map((warning) => (
-            <p key={warning} className="mt-2">
-              {warning}
-            </p>
-          ))}
-        </section>
-      )}
+      <UrgentWarningBanner locale={locale} messages={displayPlan.urgentWarnings ?? []} />
 
       <section className="rounded-lg border border-border bg-white p-5">
         <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">

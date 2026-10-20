@@ -76,7 +76,7 @@ const sushiVi = {
   excerpt: "Sushi sống, salad, BBQ và phô mai: món nào mẹ bầu nên tránh, nấu chín kỹ hay chọn bản tiệt trùng — theo CDC, NHS và EPA/FDA.",
   content: `## Tổng quan
 
-Sushi, salad, BBQ và khay phô mai là món quốc tế dễ gặp khi đi ăn ngoài. Ở góc tư vấn dinh dưỡng thai kỳ, ưu tiên là **an toàn thực phẩm trước**, rồi mới tới dinh dưỡng. Theo chủ đề hướng dẫn của CDC và NHS, mẹ bầu nên tránh đồ sống/tái và sữa chưa tiệt trùng; EPA/FDA hướng dẫn chọn cá ít thủy ngân khi ăn cá đã nấu chín.
+Sushi, salad, BBQ và khay phô mai là món quốc tế dễ gặp khi đi ăn ngoài. Ở góc tư vấn dinh dưỡng thai kỳ, ưu tiên là **an toàn thực phẩm trước**, rồi mới tới dinh dưỡng. Theo chủ đề hướng dẫn của CDC và NHS, mẹ bầu nên tránh đồ sống/tái và sữa chưa thanh trùng; EPA/FDA hướng dẫn chọn cá ít thủy ngân khi ăn cá đã nấu chín.
 
 ## Sushi và sashimi: nên tránh dạng sống
 
@@ -99,7 +99,7 @@ Sushi, salad, BBQ và khay phô mai là món quốc tế dễ gặp khi đi ăn 
 
 ## Phô mai và khay cheese: chọn tiệt trùng
 
-- Theo CDC/NHS: tránh phô mai mềm từ sữa **chưa tiệt trùng**; ưu tiên phô mai cứng hoặc sản phẩm ghi rõ pasteurized.
+- Theo CDC/NHS: tránh phô mai mềm từ sữa **chưa thanh trùng**; ưu tiên phô mai cứng hoặc sản phẩm ghi rõ pasteurized.
 - Sữa chua/sữa tiệt trùng vẫn là lựa chọn canxi tiện lợi.
 
 ## Nên kết hợp / nên bỏ
@@ -108,12 +108,14 @@ Sushi, salad, BBQ và khay phô mai là món quốc tế dễ gặp khi đi ăn 
 | --- | --- |
 | Salad rửa sạch + đạm chín | Sushi/sashimi sống |
 | BBQ chín kỹ + rau | Thịt/hải sản tái |
-| Phô mai tiệt trùng | Phô mai mềm chưa tiệt trùng |
+| Phô mai tiệt trùng | Phô mai mềm chưa thanh trùng |
 | Cá nấu chín, ít thủy ngân | Cá thủy ngân cao |
 
 ## Khi nào cần hỏi bác sĩ
 
-Nôn ói kéo dài sau ăn ngoài, sốt, tiêu chảy nặng, đau bụng dữ dội hoặc chảy máu — đi khám sớm. Bài viết mang tính giáo dục, không thay thế chỉ định lâm sàng.
+**Cần cấp cứu ngay (gọi 115 hoặc đến bệnh viện gần nhất):** ra máu nhiều, đau bụng dữ dội, khó thở, ngất, co giật, vỡ ối, thai máy giảm rõ hoặc không thấy thai máy.
+
+**Nên đi khám sớm:** triệu chứng kéo dài hoặc nặng dần, sốt, nôn không giữ được nước. Bài viết mang tính giáo dục, không thay thế chỉ định lâm sàng.
 
 ## Nguồn tham khảo
 
@@ -136,7 +138,7 @@ Nôn ói kéo dài sau ăn ngoài, sốt, tiêu chảy nặng, đau bụng dữ 
     {
       question: "Phô mai mềm mẹ bầu nên chọn thế nào?",
       answer:
-        "Chọn sản phẩm từ sữa tiệt trùng; tránh phô mai mềm chưa tiệt trùng vì nguy cơ Listeria theo CDC/NHS."
+        "Chọn sản phẩm từ sữa tiệt trùng; tránh phô mai mềm chưa thanh trùng vì nguy cơ Listeria theo CDC/NHS."
     }
   ],
   tags: ["food-analysis", "food-safety", "international-food", "pregnancy"]
