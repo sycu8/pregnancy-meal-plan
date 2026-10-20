@@ -1,4 +1,5 @@
 import type { MealItem } from "@/types/mealPlan";
+import { legacyMealIds } from "@/lib/nutrition/mealLocales";
 import { estimateIngredientCostVnd, roundToNearest500 } from "./priceGuide";
 
 export type MealTag =
@@ -204,7 +205,8 @@ export function flattenMealIngredients(meal: MealRecord): string[] {
 }
 
 export function findMealRecordByName(name: string): MealRecord | undefined {
+  const resolved = legacyMealIds[name] ?? name;
   return [...breakfastMeals, ...mainMeals, ...snackMeals].find(
-    (candidate) => candidate.id === name || candidate.name === name
+    (candidate) => candidate.id === resolved || candidate.name === resolved
   );
 }

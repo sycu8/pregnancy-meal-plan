@@ -400,7 +400,7 @@ const ingredientEnByVi: Record<string, string> = {
 };
 
 /** Saved plans and shopping lists may still use the pre-rename pasteurization wording. */
-const legacyMealIds: Record<string, string> = {
+export const legacyMealIds: Record<string, string> = {
   "Yến mạch sữa tươi tiệt trùng": "Yến mạch sữa tươi đã thanh trùng",
   "Sữa tươi tiệt trùng": "Sữa tươi đã thanh trùng hoặc tiệt trùng",
   "Bánh mì nguyên cám phô mai tiệt trùng": "Bánh mì nguyên cám phô mai từ sữa đã thanh trùng",

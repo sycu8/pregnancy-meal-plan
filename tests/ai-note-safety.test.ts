@@ -509,8 +509,7 @@ describe("authored GDM plans", () => {
     { locale: "vi", text: "Quy tắc: không nhắc lại cảnh báo an toàn.", block: true },
     { locale: "vi", text: "Ưu tiên tinh bột chậm và chia nhỏ bữa.", block: true },
     { locale: "vi", text: "Tránh nước ép và nước ngọt.", block: true },
-    // The panel now says «chưa thanh trùng», so this label sentence is no longer an echo.
-    { locale: "vi", text: "Chọn sữa và phô mai đã tiệt trùng.", block: false },
+    { locale: "vi", text: "Chọn sữa và phô mai đã tiệt trùng.", block: true },
     { locale: "vi", text: "Ăn nhãn và vải mỗi ngày.", block: true },
     { locale: "vi", text: "An mit moi ngay.", block: true },
     { locale: "en", text: "Prioritize slow-digesting carbohydrates and split meals into smaller portions.", block: true },
