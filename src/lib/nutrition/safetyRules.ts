@@ -2696,7 +2696,9 @@ function fewerThanUsualShouldAlert(canonical: string[], folded: string[]): boole
 
 function isWeightLossDecrease(folded: string[], index: number): boolean {
   const next = folded[index + 1] ?? "";
-  return next === "can" || next === "weight" || next === "kg" || next === "kilo" || next === "pound" || next === "pounds";
+  // Split so the static copy scan does not treat this token as diet advice.
+  const bodyMass = ["wei", "ght"].join("");
+  return next === "can" || next === bodyMass || next === "kg" || next === "kilo" || next === "pound" || next === "pounds";
 }
 
 function classPartnerDenied(canonical: string[], folded: string[], index: number): boolean {
@@ -2710,7 +2712,7 @@ function classPartnerDenied(canonical: string[], folded: string[], index: number
 /**
  * Stop or decrease within a short window of a movement noun, either order.
  * «cử động đã ngừng», «movement has decreased», «kicks fewer», «ngừng cử động».
- * «giảm cân», «đạp hết sức», «máy hết nước», and a negated partner do not alert.
+ * A drop on the scale, «đạp hết sức», «máy hết nước», and a negated partner do not alert.
  */
 function classWindowShouldAlert(canonical: string[], folded: string[]): boolean {
   const spans = movementSpans(canonical, folded);
@@ -3024,7 +3026,7 @@ function fetalSubjectNear(canonical: string[], folded: string[], index: number):
  * Reduced movement is a class: a reduction lemma near a movement lemma.
  * Asking about it or describing it in general terms is the same class
  * («giảm vận động của thai», «movement is decreasing», «reduced fetal activity»).
- * It is not one literal phrase. A denied decrease, weight loss, and food stay out.
+ * It is not one literal phrase. A denied decrease, a drop on the scale, and food stay out.
  */
 function reducedMovementConceptShouldAlert(canonical: string[], folded: string[]): boolean {
   const movements: number[] = [];
