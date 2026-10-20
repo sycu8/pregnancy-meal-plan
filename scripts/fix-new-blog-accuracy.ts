@@ -88,7 +88,7 @@ Sushi, salad, BBQ và khay phô mai là món quốc tế dễ gặp khi đi ăn 
 ## Salad: giữ được nếu rửa sạch và kết hợp đủ chất
 
 - Rửa kỹ rau lá, loại bỏ lá dập; ưu tiên salad tự làm hoặc quán vệ sinh rõ ràng.
-- Kết hợp **đạm chín** (gà luộc, trứng chín kỹ, đậu phụ) + dầu thực vật + trái cây họ cam để tăng vitamin C và no lâu.
+- Kết hợp **đạm chín** (gà luộc, trứng chín kỹ, đậu phụ) + dầu thực vật + trái cây họ cam để tăng vitamin C.
 - Tránh salad có **thịt nguội/pate**, trứng lòng đào, hoặc sốt mayonnaise nghi ngờ bảo quản.
 
 ## BBQ: được khi nấu chín kỹ
@@ -324,7 +324,7 @@ Vietnamese everyday meals can fit pregnancy nutrition well when **preparation an
 
 - Main risks are often **hygiene and holding time**, not only sugar/fat.
 - Prefer busy stalls serving freshly cooked hot food; avoid long-held cold items and raw/undercooked organ meats.
-- Sweets and sugary drinks: keep portions modest within the day’s overall pattern.
+- Sweets and sugary drinks: keep sweets within the day’s overall pattern.
 
 ## Keep / skip checklist
 

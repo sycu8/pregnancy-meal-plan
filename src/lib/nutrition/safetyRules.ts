@@ -42,13 +42,10 @@ export function getConditionSpecificWarnings(profile: PregnancyProfile, locale: 
   const conditions = new Set(profile.healthConditions.filter((condition) => condition !== "none"));
   const notes: string[] = [];
 
-  if (conditions.has("gestational_diabetes") || profile.goals.includes("blood_sugar_control")) {
-    notes.push(
-      locale === "vi"
-        ? "Tiểu đường thai kỳ: ưu tiên tinh bột chậm, chia nhỏ bữa, tránh nước ép/nước ngọt và hỏi bác sĩ về lượng tinh bột phù hợp."
-        : "Gestational diabetes: prioritize slow-digesting carbohydrates, split meals into smaller portions, avoid juice and sugary drinks, and ask your clinician about the right carbohydrate amount."
-    );
-  }
+  const weightControl = conditions.has("fast_weight_gain") || profile.goals.includes("weight_control");
+  const nausea = conditions.has("morning_sickness") || profile.goals.includes("reduce_nausea");
+  const glucose = conditions.has("gestational_diabetes") || profile.goals.includes("blood_sugar_control");
+  if (glucose) notes.push(glucoseLine(locale, !(nausea || conditions.has("reflux"))));
   if (conditions.has("anemia") || profile.goals.includes("increase_iron_calcium_protein")) {
     notes.push(
       locale === "vi"
@@ -63,25 +60,23 @@ export function getConditionSpecificWarnings(profile: PregnancyProfile, locale: 
         : "Constipation: increase fiber, water, yogurt, leafy greens, beans and sweet potato as tolerated."
     );
   }
-  if (conditions.has("morning_sickness") || profile.goals.includes("reduce_nausea")) {
-    notes.push(
-      locale === "vi"
-        ? "Nghén: chia nhỏ bữa, chọn món ít mùi, mềm, dễ tiêu; có thể thử bánh mì, cháo, khoai hoặc trái cây ít chua."
-        : "Morning sickness: eat smaller meals and choose mild-smelling, soft, easy-to-digest foods such as bread, porridge, potatoes or less acidic fruit."
-    );
+  if (nausea && conditions.has("reflux")) {
+    notes.push(nauseaAndRefluxLine(locale, glucose, weightControl));
+  } else if (nausea) {
+    notes.push(nauseaLine(locale, weightControl, glucose));
   }
   if (conditions.has("fast_weight_gain") || profile.goals.includes("weight_control")) {
     notes.push(
       locale === "vi"
         ? "Tăng cân nhanh: giảm đồ ngọt, nước ngọt, tinh bột tinh chế; tăng rau, đạm nạc và món hấp/luộc."
-        : "Fast weight gain: reduce sweets, sugary drinks and refined starches; add vegetables, lean protein and steamed or boiled dishes."
+        : "Gain ahead of the reference: fewer sweets, sugary drinks and refined starches; add vegetables, lean protein and steamed or boiled dishes."
     );
   }
   if (conditions.has("slow_weight_gain") || conditions.has("small_fetus") || profile.goals.includes("healthy_weight_gain")) {
     notes.push(
       locale === "vi"
         ? "Tăng cân chậm/thai nhỏ: tăng năng lượng lành mạnh từ đạm, sữa tiệt trùng, đậu, hạt và chất béo tốt."
-        : "Slow weight gain or smaller fetal growth: add healthy energy from protein, pasteurized dairy, beans, nuts and healthy fats."
+        : "Gain behind the reference or smaller fetal growth: add healthy energy from protein, pasteurized dairy, beans, nuts and healthy fats."
     );
   }
   if (conditions.has("hypertension") || conditions.has("edema")) {
@@ -91,11 +86,19 @@ export function getConditionSpecificWarnings(profile: PregnancyProfile, locale: 
         : "High blood pressure or swelling: reduce very salty foods and processed foods; follow your clinician's monitoring guidance."
     );
   }
-  if (conditions.has("reflux")) {
+  if (conditions.has("reflux") && !nausea) {
     notes.push(
-      locale === "vi"
-        ? "Trào ngược: ăn lượng nhỏ, tránh nằm ngay sau ăn, hạn chế món nhiều dầu, cay hoặc quá chua nếu làm khó chịu."
-        : "Reflux: eat smaller portions, avoid lying down right after meals, and limit oily, spicy or very sour foods if they trigger discomfort."
+      glucose && !weightControl
+        ? locale === "vi"
+          ? "Chia nhỏ bữa, ăn đều trong ngày, ăn chậm, không nằm ngay sau ăn."
+          : "Split meals into smaller ones, eaten evenly through the day; eat slowly, and don't lie down right after eating."
+        : weightControl
+          ? locale === "vi"
+            ? "Chia bữa đều trong ngày, ăn chậm, không nằm ngay sau ăn."
+            : "Spread meals across the day, eat slowly, and don't lie down right after eating."
+          : locale === "vi"
+            ? "Chia nhỏ bữa ăn, ăn chậm, không nằm ngay sau ăn."
+            : "Eat smaller meals slowly, and don't lie down right after."
     );
   }
   if (conditions.has("large_fetus")) {
@@ -3623,4 +3626,62 @@ export function detectUrgentWarnings(profile: PregnancyProfile, locale: Locale =
   }
 
   return [];
+}
+
+function nauseaFoods(locale: Locale, glucose: boolean): string {
+  if (glucose) {
+    return locale === "vi"
+      ? "bánh mì nguyên cám hoặc bánh quy nguyên cám, cháo yến mạch, khoai hoặc trái cây ít chua"
+      : "whole-grain bread or crackers, oat porridge, potatoes or less acidic fruit";
+  }
+  return locale === "vi"
+    ? "bánh mì, cháo, khoai hoặc trái cây ít chua"
+    : "bread, porridge, potatoes or less acidic fruit";
+}
+
+function glucoseLine(locale: Locale, includeSpacing: boolean): string {
+  if (locale === "vi") {
+    return includeSpacing
+      ? "Tiểu đường thai kỳ: ưu tiên tinh bột chậm. Chia nhỏ bữa, ăn đều trong ngày. Tránh nước ép/nước ngọt và hỏi bác sĩ về lượng tinh bột phù hợp."
+      : "Tiểu đường thai kỳ: ưu tiên tinh bột chậm, tránh nước ép/nước ngọt và hỏi bác sĩ về lượng tinh bột phù hợp.";
+  }
+  return includeSpacing
+    ? "Gestational diabetes: prioritize slow-digesting carbohydrates. Split meals into smaller ones, eaten evenly through the day. Avoid juice and sugary drinks, and ask your clinician about the right carbohydrate amount."
+    : "Gestational diabetes: prioritize slow-digesting carbohydrates, avoid juice and sugary drinks, and ask your clinician about the right carbohydrate amount.";
+}
+
+function nauseaLine(locale: Locale, weightControl: boolean, glucose: boolean): string {
+  const foods = nauseaFoods(locale, glucose);
+  if (!weightControl && !glucose) {
+    return locale === "vi"
+      ? "Nghén: Chia nhỏ bữa, ăn đều trong ngày. Chọn món ít mùi, mềm, dễ tiêu; có thể thử bánh mì, cháo, khoai hoặc trái cây ít chua."
+      : "Morning sickness: Split meals into smaller ones, eaten evenly through the day. Choose mild-smelling, soft, easy-to-digest foods such as bread, porridge, potatoes or less acidic fruit.";
+  }
+  if (!weightControl && glucose) {
+    return locale === "vi"
+      ? `Nghén: chia nhỏ bữa, ăn đều trong ngày, chọn món ít mùi, mềm, dễ tiêu; có thể thử ${foods}.`
+      : `Morning sickness: eat smaller meals spread through the day, and choose mild-smelling, soft, easy-to-digest foods such as ${foods}.`;
+  }
+  if (locale === "vi") {
+    return `Nghén: chia bữa đều trong ngày, chọn món ít mùi, mềm, dễ tiêu; có thể thử ${foods}.`;
+  }
+  return `Morning sickness: spread meals across the day and choose mild-smelling, soft, easy-to-digest foods such as ${foods}.`;
+}
+
+/** One meal-spacing line when nausea and reflux are both set. */
+function nauseaAndRefluxLine(locale: Locale, glucose: boolean, weightControl: boolean): string {
+  const foods = nauseaFoods(locale, glucose);
+  if (!weightControl && glucose) {
+    return locale === "vi"
+      ? `Chia nhỏ bữa, ăn đều trong ngày, ăn chậm, không nằm ngay sau ăn. Chọn món ít mùi, mềm, dễ tiêu; có thể thử ${foods}.`
+      : `Eat smaller meals spread through the day, eat slowly, and don't lie down right after eating. Choose mild-smelling, soft, easy-to-digest foods such as ${foods}.`;
+  }
+  if (!weightControl) {
+    return locale === "vi"
+      ? `Chia nhỏ bữa ăn, ăn chậm, không nằm ngay sau ăn. Chọn món ít mùi, mềm, dễ tiêu; có thể thử ${foods}.`
+      : `Eat smaller meals slowly, and don't lie down right after eating. Choose mild-smelling, soft, easy-to-digest foods such as ${foods}.`;
+  }
+  return locale === "vi"
+    ? `Chia bữa đều trong ngày, ăn chậm, không nằm ngay sau ăn. Chọn món ít mùi, mềm, dễ tiêu; có thể thử ${foods}.`
+    : `Spread meals across the day, eat slowly, and don't lie down right after eating. Choose mild-smelling, soft, easy-to-digest foods such as ${foods}.`;
 }
