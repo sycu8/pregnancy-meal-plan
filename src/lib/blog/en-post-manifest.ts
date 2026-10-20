@@ -133,6 +133,7 @@ import firstTrimesterNutritionChecklistFolateIronAndSaferFoodsD94cef from "../..
 import firstTrimesterNutritionChecklistFolateIronAndSaferFoodsDabff8 from "../../../content/blog/posts-en/first-trimester-nutrition-checklist-folate-iron-and-safer-foods-dabff8.json";
 import firstTrimesterNutritionChecklistFolateIronAndSaferFoodsDcc4aa from "../../../content/blog/posts-en/first-trimester-nutrition-checklist-folate-iron-and-safer-foods-dcc4aa.json";
 import firstTrimesterNutritionChecklistFolateIronAndSaferFoodsDd4b93 from "../../../content/blog/posts-en/first-trimester-nutrition-checklist-folate-iron-and-safer-foods-dd4b93.json";
+import firstTrimesterNutritionChecklistFolateIronAndSaferFoodsEdef07 from "../../../content/blog/posts-en/first-trimester-nutrition-checklist-folate-iron-and-safer-foods-edef07.json";
 import firstTrimesterNutritionChecklistFolateIronAndSaferFoodsFaf998 from "../../../content/blog/posts-en/first-trimester-nutrition-checklist-folate-iron-and-safer-foods-faf998.json";
 import firstTrimesterNutritionChecklistFolateIronAndSaferFoods from "../../../content/blog/posts-en/first-trimester-nutrition-checklist-folate-iron-and-safer-foods.json";
 import foodsToLimitOrCookThoroughlyDuringPregnancy03df7f from "../../../content/blog/posts-en/foods-to-limit-or-cook-thoroughly-during-pregnancy-03df7f.json";
@@ -671,6 +672,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   firstTrimesterNutritionChecklistFolateIronAndSaferFoodsDabff8,
   firstTrimesterNutritionChecklistFolateIronAndSaferFoodsDcc4aa,
   firstTrimesterNutritionChecklistFolateIronAndSaferFoodsDd4b93,
+  firstTrimesterNutritionChecklistFolateIronAndSaferFoodsEdef07,
   firstTrimesterNutritionChecklistFolateIronAndSaferFoodsFaf998,
   firstTrimesterNutritionChecklistFolateIronAndSaferFoods,
   foodsToLimitOrCookThoroughlyDuringPregnancy03df7f,
