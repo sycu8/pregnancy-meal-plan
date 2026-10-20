@@ -37,7 +37,7 @@ const copy = {
   vi: {
     title: "Portal marketing",
     subhead: "Được bảo vệ bởi Cloudflare Access. Xem pipeline social và chạy dry-run / live.",
-    accessNote: "Truy cập trang do Cloudflare ZTNA kiểm soát — không cần API key trong app.",
+    accessNote: "Truy cập trang do Cloudflare ZTNA quản lý — không cần API key trong app.",
     refresh: "Làm mới",
     connections: "Kết nối kênh",
     queue: "Hàng đợi draft",

@@ -12,6 +12,7 @@ import {
 import { EMERGENCY_NOW_EN, EMERGENCY_NOW_VI, SEEK_CARE_SOON_EN, SEEK_CARE_SOON_VI } from "@/lib/blog/emergencyCopy";
 import { ensureInternalLinks, internalLinkPromptRules } from "@/lib/blog/internalLinks";
 import { titleForDocument } from "@/lib/blog/titles";
+import { HYDRATION_EN, HYDRATION_VI, RULING_EN, RULING_VI } from "@/lib/blog/synthesis/smallMealCopy";
 import type { BlogCategorySlug } from "@/types/blog";
 
 export type SynthesisInput = {
@@ -83,7 +84,7 @@ export function synthesizePost(input: SynthesisInput): SynthesisOutput {
     `## Gợi ý thực hành`,
     ``,
     `- Ưu tiên thực phẩm nấu chín kỹ, rửa sạch rau củ và bảo quản đúng cách.`,
-    `- Chia nhỏ bữa ăn nếu nghén hoặc khó ăn no; uống đủ nước trong ngày.`,
+    `- ${RULING_VI}. ${HYDRATION_VI}`,
     `- Theo dõi phản ứng cơ thể và hỏi bác sĩ sản khoa trước khi thay đổi lớn về dinh dưỡng hoặc thuốc bổ.`,
     ``,
     `**${EMERGENCY_NOW_VI}**`,
@@ -101,7 +102,7 @@ export function synthesizePost(input: SynthesisInput): SynthesisOutput {
     `## Practical tips`,
     ``,
     `- Prefer thoroughly cooked foods, wash produce well, and store leftovers safely.`,
-    `- Eat smaller meals if nausea makes large portions hard; stay hydrated through the day.`,
+    `- ${RULING_EN}. ${HYDRATION_EN}`,
     `- Track how you feel and ask your obstetrician or midwife before major diet or supplement changes.`,
     ``,
     `**${EMERGENCY_NOW_EN}**`,

@@ -68,7 +68,7 @@ export const pageSeo: Record<Locale, Record<PageKey, { title: string; descriptio
     home: {
       title: "Pregnancy Meal Planner | 7-Day Prenatal Meal Plans",
       description:
-        "Create a personalized 7-day pregnancy meal plan by week, weight, taste, budget, and common prenatal concerns.",
+        "Create a personalized 7-day pregnancy meal plan by week, kilograms, taste, budget, and common prenatal concerns.",
       keywords: [
         "pregnancy meal planner",
         "prenatal nutrition plan",
@@ -80,7 +80,7 @@ export const pageSeo: Record<Locale, Record<PageKey, { title: string; descriptio
     planner: {
       title: "Create a Free Pregnancy Meal Plan | Pregnancy Meal Planner",
       description:
-        "Enter week, weight, preferences, and health notes to build a 7-day pregnancy meal plan with a shopping list.",
+        "Enter week, kilograms, preferences, and health notes to build a 7-day pregnancy meal plan with a shopping list.",
       keywords: ["create pregnancy meal plan", "prenatal meal planner", "pregnancy shopping list"]
     },
     history: {
@@ -92,13 +92,13 @@ export const pageSeo: Record<Locale, Record<PageKey, { title: string; descriptio
     profile: {
       title: "Pregnancy Nutrition Profile | Pregnancy Meal Planner",
       description:
-        "Save pregnancy week, weight, preferences, and goals in your browser for faster personalized meal plans.",
+        "Save pregnancy week, kilograms, preferences, and goals in your browser for faster personalized meal plans.",
       keywords: ["pregnancy nutrition profile", "prenatal profile", "personalized pregnancy meals"]
     },
     result: {
       title: "7-Day Pregnancy Meal Plan Result | Pregnancy Meal Planner",
       description:
-        "See your 7-day pregnancy meal plan with meal ideas, reference portions, estimated costs, and shopping list.",
+        "See your 7-day pregnancy meal plan with meal ideas, estimated costs, and a detailed shopping list for the week.",
       keywords: ["pregnancy meal plan result", "7 day prenatal meal plan", "pregnancy shopping list"]
     }
   },
@@ -136,7 +136,7 @@ export const pageSeo: Record<Locale, Record<PageKey, { title: string; descriptio
     result: {
       title: "Kết quả thực đơn 7 ngày | Pregnancy Meal Planner",
       description:
-        "Xem thực đơn 7 ngày với món ăn gợi ý, khẩu phần tham khảo, chi phí ước tính và danh sách đi chợ chi tiết.",
+        "Xem thực đơn 7 ngày với món ăn gợi ý, chi phí ước tính và danh sách đi chợ chi tiết theo từng tuần thai.",
       keywords: ["kết quả thực đơn", "thực đơn 7 ngày", "danh sách đi chợ"]
     }
   }
@@ -147,7 +147,7 @@ export const landingContent = {
     headline: "Pregnancy Meal Planner",
     subhead: "Personalized prenatal meals for a healthier pregnancy, week by week.",
     intro:
-      "Create a 7-day pregnancy meal plan based on gestational week, weight, taste, budget and common concerns such as nausea, constipation, anemia or gestational diabetes — with shopping lists and food-safety notes.",
+      "Create a 7-day pregnancy meal plan based on gestational week, kilograms, taste, budget and common concerns such as nausea, constipation, anemia or gestational diabetes — with shopping lists and food-safety notes.",
     primaryCta: "Create a free plan",
     secondaryCta: "Read pregnancy nutrition tips",
     highlights: ["Free to start", "No sign-in required", "Practical everyday meals", "Shopping list included"],
@@ -158,7 +158,7 @@ export const landingContent = {
     cardLabel: "Gentle personalization",
     cardTitle: "From pregnancy basics to specific meals",
     cardPoints: [
-      "Gestational week and weight help estimate BMI and reference weight-gain ranges.",
+      "Gestational week and kilograms help estimate BMI and the reference gain range.",
       "Taste preferences and foods to avoid help filter dishes before the plan is created.",
       "Shopping items are grouped so grocery trips are easier to plan."
     ]
@@ -286,7 +286,7 @@ export type SimpleRouteSeo = {
   index?: boolean;
 };
 
-/** Full metadata for secondary routes (support, premium, privacy, account, topics). */
+/** Complete metadata for secondary routes (support, premium, privacy, account, topics). */
 export function createRouteMetadata(locale: Locale, pathname: string, seo: SimpleRouteSeo): Metadata {
   const canonical = localizedPath(locale, pathname);
   const indexable = seo.index !== false;

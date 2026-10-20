@@ -13,18 +13,32 @@ import {
 export const MAX_SPECIAL_NOTES = 8;
 export const MAX_SPECIAL_NOTE_CHARS = 240;
 
-/** Keep only short strings so a model payload cannot crash the result page. */
-export function sanitizeSpecialNotes(notes: unknown): string[] {
+function textOfNote(note: unknown): string | null {
+  if (typeof note === "string") return note;
+  if (!note || typeof note !== "object") return null;
+  const text = (note as { text?: unknown }).text;
+  return typeof text === "string" ? text : null;
+}
+
+function cleanNoteStrings(notes: unknown, limit = Number.POSITIVE_INFINITY): string[] {
   if (!Array.isArray(notes)) return [];
   const clean: string[] = [];
+  const seen = new Set<string>();
   for (const note of notes) {
-    if (typeof note !== "string") continue;
-    const text = note.trim().replace(/\s+/g, " ").slice(0, MAX_SPECIAL_NOTE_CHARS);
-    if (!text) continue;
+    const raw = textOfNote(note);
+    if (!raw) continue;
+    const text = raw.trim().replace(/\s+/g, " ").slice(0, MAX_SPECIAL_NOTE_CHARS);
+    if (!text || seen.has(text)) continue;
+    seen.add(text);
     clean.push(text);
-    if (clean.length >= MAX_SPECIAL_NOTES) break;
+    if (clean.length >= limit) break;
   }
   return clean;
+}
+
+/** Keep only short strings so a model payload cannot crash the result page. */
+export function sanitizeSpecialNotes(notes: unknown, limit = MAX_SPECIAL_NOTES): string[] {
+  return cleanNoteStrings(notes, limit);
 }
 
 /**
@@ -79,7 +93,7 @@ export function localizeMealPlanForLocale(plan: MealPlan, locale: Locale): MealP
       : [
           { label: "Days 1-2", days: [1, 2], freshnessNote: "Prioritize leafy greens, soft fruit and meat or fish for the first 1-2 days." },
           { label: "Days 3-4", days: [3, 4], freshnessNote: "Refresh midweek groceries and check dates on yogurt, pasteurized milk and tofu." },
-          { label: "Days 5-7", days: [5, 6, 7], freshnessNote: "Buy the final 3-day batch; portion meat or fish and refrigerate properly if not cooking right away." }
+          { label: "Days 5-7", days: [5, 6, 7], freshnessNote: "Buy the final 3-day batch; divide meat or fish into packs and refrigerate properly if not cooking right away." }
         ];
 
   const shoppingBatches = (plan.shoppingBatches?.length ? plan.shoppingBatches : []).map((batch, index) => {
@@ -137,15 +151,15 @@ function localizeSummaryMessage(plan: MealPlan, locale: Locale): string {
 
   if (locale === "en") {
     if (status === "low") {
-      return "Weight gain is below the reference range. The plan will prioritize protein-rich, nutrient-dense and easy-to-eat meals.";
+      return "The gain is below the reference range. The plan will prioritize protein-rich, nutrient-dense and easy-to-eat meals.";
     }
     if (status === "high") {
-      return "Weight gain is above the reference range. The plan will prioritize vegetables, lean protein and slow-digesting carbohydrates while keeping meals balanced.";
+      return "The gain is above the reference range. The plan will prioritize vegetables, lean protein and slow-digesting carbohydrates while keeping meals balanced.";
     }
     if (status === "normal") {
       return "Your indicators are within the reference range. The plan suggests balanced, practical meals for this pregnancy week.";
     }
-    return "There is not enough data to assess weight gain. The meal plan is still generated from the information you entered.";
+    return "There is not enough data to assess the gain. The meal plan is still generated from the information you entered.";
   }
 
   if (status === "low") return "Mức tăng cân đang thấp hơn khoảng tham khảo. Mình sẽ ưu tiên bữa giàu đạm, năng lượng lành mạnh và dễ ăn.";
@@ -234,15 +248,19 @@ function uniqueSorted(values: string[]) {
   return Array.from(new Set(values)).sort();
 }
 
+/** Notes that can be shown for this locale. The 8-note cap is applied after the language filter. */
+export function filterNotesForLocale(notes: readonly string[], locale: Locale): string[] {
+  const clean = sanitizeSpecialNotes([...notes], Number.POSITIVE_INFINITY);
+  const localized = locale === "vi" ? clean.filter((note) => looksVietnamese(note)) : clean.filter((note) => !looksVietnamese(note));
+  return localized.slice(0, MAX_SPECIAL_NOTES);
+}
+
 function localizeSpecialNotes(notes: unknown, profile: MealPlan["profileSnapshot"], locale: Locale): string[] {
-  const safe = sanitizeSpecialNotes(notes);
-  const localized = sanitizeSpecialNotes(getConditionSpecificWarnings(profile, locale));
-  if (locale === "vi") {
-    const kept = safe.filter((note) => looksVietnamese(note));
-    return sanitizeSpecialNotes([...new Set([...localized, ...kept])]);
-  }
-  const kept = safe.filter((note) => !looksVietnamese(note));
-  return sanitizeSpecialNotes([...new Set([...localized, ...kept])]);
+  const warnings = cleanNoteStrings(getConditionSpecificWarnings(profile, locale));
+  const warningSet = new Set(warnings);
+  const incoming = cleanNoteStrings(notes).filter((note) => !warningSet.has(note));
+  const kept = filterNotesForLocale(incoming, locale);
+  return [...new Set([...warnings, ...kept])];
 }
 
 function looksVietnamese(text: string): boolean {

@@ -8,7 +8,7 @@ import { openPremiumCheckout } from "@/lib/premium/checkoutClient";
 import { getPremiumLimits } from "@/lib/premium/limits";
 import { localizedPath, type Locale } from "@/lib/i18n";
 
-export type PremiumUpsellReason = "ai-limit" | "swap-limit" | "history-limit" | "export" | "general";
+export type PremiumUpsellReason = "ai-limit" | "network-limit" | "account-limit" | "swap-limit" | "history-limit" | "export" | "general";
 
 const free = getPremiumLimits("free");
 
@@ -17,6 +17,8 @@ const copy = {
     eyebrow: "Thanh toán một lần",
     titles: {
       "ai-limit": "Đã hết lượt tạo thực đơn AI hôm nay",
+      "network-limit": "Mạng này đã tạo quá nhiều thực đơn AI hôm nay",
+      "account-limit": "Đã hết lượt tạo thực đơn AI của tài khoản hôm nay",
       "swap-limit": "Đã hết lượt đổi món hôm nay",
       "history-limit": `Gói miễn phí chỉ lưu ${free.historyPlans} thực đơn gần nhất`,
       export: "Xuất PDF/cloud dành cho Premium",
@@ -24,6 +26,8 @@ const copy = {
     },
     bodies: {
       "ai-limit": `Gói miễn phí: ${free.aiPlansPerDay} thực đơn AI/ngày. Nâng cấp để tạo không giới hạn trong cả thai kỳ.`,
+      "network-limit": "Bạn vẫn dùng được thực đơn cơ bản. Gói Premium được tính theo tài khoản, không theo mạng dùng chung.",
+      "account-limit": "Bạn vẫn dùng được thực đơn cơ bản. Hãy thử lại ngày mai.",
       "swap-limit": `Gói miễn phí: ${free.mealSwapsPerDay} lần đổi món/ngày. Premium đổi món thoải mái.`,
       "history-limit": "Premium lưu lịch sử không giới hạn và đồng bộ theo tài khoản.",
       export: "Bản miễn phí vẫn tải được bản văn bản. Premium xuất PDF đẹp để đi khám hoặc gửi người nhà.",
@@ -38,6 +42,8 @@ const copy = {
     eyebrow: "One-time payment",
     titles: {
       "ai-limit": "Daily AI meal-plan limit reached",
+      "network-limit": "Too many AI meal plans were created on this network today",
+      "account-limit": "This account's daily AI meal-plan limit is reached",
       "swap-limit": "Daily meal-swap limit reached",
       "history-limit": `Free plan keeps only the latest ${free.historyPlans} plans`,
       export: "PDF/cloud export is a Premium perk",
@@ -45,6 +51,8 @@ const copy = {
     },
     bodies: {
       "ai-limit": `Free: ${free.aiPlansPerDay} AI plan/day. Upgrade for unlimited plans through pregnancy.`,
+      "network-limit": "You can still use the basic plan. Premium is counted per account, not per shared network.",
+      "account-limit": "You can still use the basic plan. Try again tomorrow.",
       "swap-limit": `Free: ${free.mealSwapsPerDay} swaps/day. Premium swaps without daily caps.`,
       "history-limit": "Premium keeps unlimited history and account sync.",
       export: "Free still downloads a basic text file. Premium unlocks polished PDF/cloud export.",
@@ -56,6 +64,11 @@ const copy = {
     opening: "Opening…"
   }
 } as const;
+
+export function premiumUpsellText(locale: Locale, reason: PremiumUpsellReason) {
+  const t = copy[locale];
+  return { title: t.titles[reason], body: t.bodies[reason] };
+}
 
 export function PremiumUpsell({
   locale = "vi",

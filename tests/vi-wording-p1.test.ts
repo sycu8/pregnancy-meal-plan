@@ -129,6 +129,6 @@ describe("P1 Vietnamese wording", () => {
       const found = raw.match(marker);
       if (found) count += found.length;
     }
-    expect(count).toBe(201);
+    expect(count).toBe(204);
   });
 });
