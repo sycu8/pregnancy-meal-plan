@@ -84,5 +84,21 @@ export function leaksProviderDetail(value: string | undefined): boolean {
 }
 
 export function isAbortError(error: unknown): boolean {
-  return error instanceof Error && error.name === "AbortError";
+  return error instanceof Error && error.name === "AbortError" && !isTimeoutError(error);
+}
+
+const REAL_TIMEOUT_MESSAGE = /^(?:the operation was aborted due to timeout|the operation timed out|signal timed out)\.?$/i;
+
+/** Only AbortSignal / TimeoutError failures, not any message that mentions a timeout. */
+export function isTimeoutError(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+  if (error.name === "TimeoutError") return true;
+  return error.name === "AbortError" && REAL_TIMEOUT_MESSAGE.test(error.message.trim());
+}
+
+/** A failed fetch (no HTTP status) is a network failure, not a 5xx response. */
+export function isNetworkError(error: unknown): boolean {
+  if (!(error instanceof Error) || isTimeoutError(error) || isAbortError(error)) return false;
+  if (error instanceof TypeError) return true;
+  return /failed to fetch|networkerror|network request failed|load failed|fetch failed/i.test(error.message);
 }

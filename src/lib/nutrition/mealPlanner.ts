@@ -22,6 +22,7 @@ import { estimateMealCostForCountry, estimateShoppingListCost } from "./priceGui
 import { getCountryPricing, DEFAULT_RESIDENCE_COUNTRY } from "./countries";
 import { localizeIngredientList, localizeMealText } from "./mealLocales";
 import { getWeightGainStatus } from "./weightGain";
+import { mealBlocked } from "./dishSafety";
 
 type PoolName = "breakfast" | "main" | "snack";
 
@@ -113,7 +114,7 @@ function buildShoppingBatches(
       : [
           { label: "Days 1-2", days: [1, 2], freshnessNote: "Prioritize leafy greens, soft fruit and meat or fish for the first 1-2 days." },
           { label: "Days 3-4", days: [3, 4], freshnessNote: "Refresh midweek groceries and check dates on yogurt, pasteurized milk and tofu." },
-          { label: "Days 5-7", days: [5, 6, 7], freshnessNote: "Buy the final 3-day batch; portion meat or fish and refrigerate properly if not cooking right away." }
+          { label: "Days 5-7", days: [5, 6, 7], freshnessNote: "Buy the final 3-day batch; divide meat or fish into packs and refrigerate properly if not cooking right away." }
         ];
 
   return ranges.map((range) => {
@@ -150,10 +151,11 @@ function mergeShoppingLists(lists: MealPlan["shoppingList"][]): MealPlan["shoppi
 function chooseMeal(pool: PoolName, profile: PregnancyProfile, used: Set<string>, offset: number): MealRecord {
   const source = pool === "breakfast" ? breakfastMeals : pool === "snack" ? snackMeals : mainMeals;
   const filtered = source
-    .filter((meal) => isAllowedByPreferences(meal, profile))
+    .filter((meal) => isAllowedByPreferences(meal, profile) && !mealBlocked(meal, profile))
     .sort((a, b) => scoreMeal(b, profile) - scoreMeal(a, profile));
+  const unblocked = source.filter((meal) => !mealBlocked(meal, profile));
 
-  const candidates = filtered.length > 0 ? filtered : source;
+  const candidates = filtered.length > 0 ? filtered : unblocked.length > 0 ? unblocked : source;
   const firstUnused = candidates.find((meal) => !used.has(meal.id));
   const selected = firstUnused ?? candidates[offset % candidates.length];
   used.add(selected.id);
@@ -264,7 +266,7 @@ function toMealItem(
     caution: meal.caution
   });
   const alternatives = source
-    .filter((candidate) => candidate.id !== meal.id && isAllowedByPreferences(candidate, profile))
+    .filter((candidate) => candidate.id !== meal.id && isAllowedByPreferences(candidate, profile) && !mealBlocked(candidate, profile))
     .slice(0, 2)
     .map((candidate) => localizeMealText(candidate.id, locale, { reason: candidate.reason, nutrients: candidate.nutrients }).name);
 
@@ -335,10 +337,10 @@ function buildSummaryMessage(status: MealPlan["summary"]["weightGainStatus"], lo
   }
 
   if (locale === "en") {
-    if (status === "low") return "Weight gain is below the reference range. The plan will prioritize protein-rich, nutrient-dense and easy-to-eat meals.";
-    if (status === "high") return "Weight gain is above the reference range. The plan will prioritize vegetables, lean protein and slow-digesting carbohydrates while keeping meals balanced.";
+    if (status === "low") return "The gain is below the reference range. The plan will prioritize protein-rich, nutrient-dense and easy-to-eat meals.";
+    if (status === "high") return "The gain is above the reference range. The plan will prioritize vegetables, lean protein and slow-digesting carbohydrates while keeping meals balanced.";
     if (status === "normal") return "Your indicators are within the reference range. The plan suggests balanced, practical meals for this pregnancy week.";
-    return "There is not enough data to assess weight gain. The meal plan is still generated from the information you entered.";
+    return "There is not enough data to assess the gain. The meal plan is still generated from the information you entered.";
   }
 
   if (status === "low") return "Mức tăng cân đang thấp hơn khoảng tham khảo. Mình sẽ ưu tiên bữa giàu đạm, năng lượng lành mạnh và dễ ăn.";

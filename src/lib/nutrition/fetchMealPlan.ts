@@ -10,6 +10,8 @@ import {
   AI_UNAVAILABLE_CODE,
   classifyMealPlanStatus,
   isAbortError,
+  isNetworkError,
+  isTimeoutError,
   leaksProviderDetail,
   looksLikeHtmlError,
   mealPlanErrorAction,
@@ -25,11 +27,14 @@ export type GenerateMealPlanRequest = {
   turnstileToken?: string;
 };
 
+export type AiQuotaScope = "device" | "ip" | "account";
+
 export type GenerateMealPlanResponse =
   | { plan: MealPlan; usage?: { aiPlansUsed?: number; aiPlansLimit?: number; mealSwapsUsed?: number; mealSwapsLimit?: number } }
   | {
       error: string;
       code?: string;
+      scope?: AiQuotaScope;
       usage?: { aiPlansUsed?: number; aiPlansLimit?: number; mealSwapsUsed?: number; mealSwapsLimit?: number };
     };
 
@@ -56,6 +61,25 @@ export class MealPlanAiError extends MealPlanRequestError {
 
 function failureFor(locale: Locale, kind: MealPlanErrorKind) {
   return kind === "ai" ? new MealPlanAiError(locale) : new MealPlanRequestError(locale, kind);
+}
+
+export function mealSwapErrorMessage(locale: Locale): string {
+  return locale === "vi" ? "Không đổi được món. Hãy thử lại." : "Could not swap meal";
+}
+
+export class MealSwapError extends Error {
+  /** Client errors are shown as-is. Transport failures may still use a local swap. */
+  readonly allowLocalFallback: boolean;
+
+  constructor(locale: Locale, allowLocalFallback = false) {
+    super(mealSwapErrorMessage(locale));
+    this.name = "MealSwapError";
+    this.allowLocalFallback = allowLocalFallback;
+  }
+}
+
+function swapFailure(locale: Locale, allowLocalFallback = false) {
+  return new MealSwapError(locale, allowLocalFallback);
 }
 
 function usageHeaders() {
@@ -94,6 +118,7 @@ async function postGenerateMealPlan(body: GenerateMealPlanRequest): Promise<{ st
       (looksLikeHtmlError(raw) && status >= 500 && status !== 502 ? "server" : classifyMealPlanStatus(status));
     const usage = data && "usage" in data ? data.usage : undefined;
     const original = data && "error" in data && typeof data.error === "string" ? data.error : undefined;
+    const scope = data && "scope" in data && (data.scope === "device" || data.scope === "ip" || data.scope === "account") ? data.scope : undefined;
     const keepUsageMessage =
       status === 429 && Boolean(usage) && Boolean(original) && !looksLikeHtmlError(original) && !leaksProviderDetail(original);
     return {
@@ -101,6 +126,7 @@ async function postGenerateMealPlan(body: GenerateMealPlanRequest): Promise<{ st
       data: {
         error: keepUsageMessage && original ? original : mealPlanErrorMessage(locale, kind),
         code: kind === "ai" ? AI_UNAVAILABLE_CODE : kind,
+        ...(scope ? { scope } : {}),
         usage
       }
     };
@@ -121,13 +147,16 @@ function applyUsageFromResponse(data: GenerateMealPlanResponse) {
 }
 
 export class PremiumLimitError extends Error {
-  constructor(message: string) {
+  readonly scope?: AiQuotaScope;
+
+  constructor(message: string, scope?: AiQuotaScope) {
     super(message);
     this.name = "PremiumLimitError";
+    this.scope = scope;
   }
 }
 
-/** Client helper: API first with one retry, then local rule-based fallback for full plans only. */
+/** Client helper: API first with one retry, then local rule-based fallback for a complete plan only. */
 export async function fetchMealPlan(
   profile: PregnancyProfile,
   locale: Locale = "vi",
@@ -157,42 +186,45 @@ export async function fetchMealPlan(
       applyUsageFromResponse(data);
 
       if (isPremiumLimitResponse(status, data)) {
-        if (options?.regenerate) {
-          throw new PremiumLimitError("error" in data ? data.error : "Daily limit reached");
-        }
-        return localizeMealPlanForLocale(ruleBasedMealPlanner(profile, locale), locale);
+        const message = "error" in data && typeof data.error === "string" && data.error.trim() ? data.error : "Daily limit reached";
+        const scope = "scope" in data && (data.scope === "device" || data.scope === "ip" || data.scope === "account") ? data.scope : undefined;
+        throw new PremiumLimitError(message, scope);
       }
 
       const kind =
         ("code" in data ? mealPlanKindFromCode(data.code) : null) ?? classifyMealPlanStatus(status);
       const retryable = kind === "server" || kind === "ai";
-      if (!options?.regenerate && (!retryable || attempt === 1)) {
+      const swapFailFast = kind === "invalid" || kind === "turnstile" || kind === "rate_limit";
+      if (options?.regenerate) {
+        if (swapFailFast) throw swapFailure(locale);
+        if (attempt === 1) throw swapFailure(locale, true);
+      } else if (!retryable || attempt === 1) {
         throw failureFor(locale, kind);
       }
-      if (options?.regenerate && attempt === 1) {
-        throw new Error(locale === "vi" ? "Không đổi được món. Hãy thử lại." : "Could not swap meal");
-      }
     } catch (error) {
-      if (error instanceof PremiumLimitError || error instanceof MealPlanRequestError) {
+      if (error instanceof PremiumLimitError || error instanceof MealPlanRequestError || error instanceof MealSwapError) {
         throw error;
       }
-      if (isAbortError(error)) {
-        throw failureFor(locale, "aborted");
-      }
-      if (attempt === 1) {
-        throw failureFor(locale, "server");
+      if (isTimeoutError(error) || isNetworkError(error)) {
+        if (attempt === 1) {
+          throw options?.regenerate ? swapFailure(locale, true) : failureFor(locale, "ai");
+        }
+      } else if (isAbortError(error)) {
+        throw options?.regenerate ? swapFailure(locale) : failureFor(locale, "aborted");
+      } else if (attempt === 1) {
+        throw options?.regenerate ? swapFailure(locale, true) : failureFor(locale, "server");
       }
     }
   }
 
   if (options?.regenerate) {
-    throw new Error(locale === "vi" ? "Không đổi được món. Hãy thử lại." : "Could not swap meal");
+    throw swapFailure(locale, true);
   }
 
   return localizeMealPlanForLocale(ruleBasedMealPlanner(profile, locale), locale);
 }
 
-/** Full plan without calling the API (does not consume daily API quota). */
+/** Local plan without calling the API (does not consume daily API quota). */
 export function createLocalMealPlan(profile: PregnancyProfile, locale: Locale = "vi") {
   return localizeMealPlanForLocale(ruleBasedMealPlanner(profile, locale), locale);
 }
