@@ -24,7 +24,8 @@ export function estimateExpectedWeightGainRange({
   pregnancyWeek: number;
   bmiCategory: BmiCategory;
 }): { min: number; max: number } | null {
-  if (bmiCategory === "unknown" || pregnancyWeek < 1 || pregnancyWeek > 40) return null;
+  // Weeks 41–42 reuse the same linear range as earlier weeks. NEEDS MEDICAL REVIEW — not a new clinical reference.
+  if (bmiCategory === "unknown" || pregnancyWeek < 1 || pregnancyWeek > 42) return null;
   if (pregnancyWeek <= 13) return { min: 0.5, max: 2 };
 
   const weeksAfter13 = pregnancyWeek - 13;

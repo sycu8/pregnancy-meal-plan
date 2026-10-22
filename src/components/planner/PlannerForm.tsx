@@ -13,7 +13,7 @@ import { getNutritionLabels } from "@/lib/nutrition/labels";
 import { fetchMealPlan, createLocalMealPlan, MealPlanRequestError, PremiumLimitError } from "@/lib/nutrition/fetchMealPlan";
 import { MealPlanResult } from "@/components/result/MealPlanResult";
 import { isAbortError, leaksProviderDetail, mealPlanErrorMessage, type MealPlanErrorAction } from "@/lib/nutrition/aiUnavailable";
-import { pregnancyProfileSchema, validationErrorToLocale } from "@/lib/nutrition/validation";
+import { PAST_DUE_WEEK_HINT, pregnancyProfileSchema, validationErrorToLocale } from "@/lib/nutrition/validation";
 import { getCurrentMealPlan, getProfile, saveMealPlan, saveProfile } from "@/lib/storage/localStorage";
 import { cacheOfflineSnapshot, getOfflineProfile, incrementPlanCount } from "@/lib/storage/offlineCache";
 import { localizedPath, type Locale } from "@/lib/i18n";
@@ -83,12 +83,12 @@ const copy = {
     tryAgain: "Thử lại",
     recheck: "Kiểm tra lại",
     useBasicPlan: "Dùng thực đơn cơ bản",
-    planLimit: "Đã hết lượt tạo thực đơn AI hôm nay. Đang dùng thực đơn rule-based (miễn phí).",
+    planLimit: "Đã hết lượt tạo thực đơn AI hôm nay. Đang dùng thực đơn cơ bản (tự động theo quy tắc).",
     lifeStage: "Giai đoạn",
     pregnancyStage: "Đang mang thai",
     postpartumStage: "Sau sinh (0–24 tháng)",
     babyAgeMonths: "Tuổi bé (tháng)",
-    strictGd: "Chế độ tiểu đường thai kỳ nghiêm ngặt (chỉ món low-GI)"
+    strictGd: "Chế độ tiểu đường thai kỳ nghiêm ngặt: chỉ món có chỉ số đường huyết (GI) thấp"
   },
   en: {
     steps: ["Pregnancy", "About you", "Health", "Taste", "Budget"],
@@ -366,7 +366,10 @@ export function PlannerForm({ mode = "planner", locale = "vi" }: { mode?: "plann
             )}
             {(profile.lifeStage ?? "pregnancy") === "pregnancy" && (
               <>
-                <NumberField label={t.pregnancyWeek} value={profile.pregnancyWeek} min={1} max={40} onChange={(event) => updateNumber("pregnancyWeek", event)} />
+                <NumberField label={t.pregnancyWeek} value={profile.pregnancyWeek} min={1} max={42} onChange={(event) => updateNumber("pregnancyWeek", event)} />
+                {profile.pregnancyWeek >= 41 && profile.pregnancyWeek <= 42 ? (
+                  <p className="text-sm text-muted-foreground">{locale === "vi" ? PAST_DUE_WEEK_HINT : "You are past your due date. Contact your clinician for follow-up."}</p>
+                ) : null}
                 <SelectField
                   label={t.pregnancyType}
                   value={profile.pregnancyType}

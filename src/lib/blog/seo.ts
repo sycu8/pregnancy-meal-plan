@@ -9,6 +9,7 @@ import {
 import { blogBasePath } from "@/lib/blog/ui";
 import { siteOrigin } from "@/lib/agentDiscovery";
 import { BRAND_NAME, localizedPath } from "@/lib/i18n";
+import { titleForDocument } from "@/lib/blog/titles";
 
 const DEFAULT_OG_IMAGE = "/og-default.png";
 
@@ -109,9 +110,11 @@ export function blogPostMetadata(post: BlogPost, locale: BlogLocale = "en"): Met
   const ogLocale = locale === "en" ? "en_US" : "vi_VN";
   const keywords = buildPostKeywords(post, locale);
 
+  const documentTitle = titleForDocument(post.metaTitle);
+
   return {
     metadataBase: new URL(siteOrigin),
-    title: post.metaTitle,
+    title: documentTitle,
     description: post.metaDescription,
     keywords,
     alternates: {
@@ -123,7 +126,7 @@ export function blogPostMetadata(post: BlogPost, locale: BlogLocale = "en"): Met
       }
     },
     openGraph: {
-      title: post.metaTitle,
+      title: documentTitle,
       description: post.metaDescription,
       url,
       siteName: BRAND_NAME,
@@ -135,7 +138,7 @@ export function blogPostMetadata(post: BlogPost, locale: BlogLocale = "en"): Met
     },
     twitter: {
       card: "summary_large_image",
-      title: post.metaTitle,
+      title: documentTitle,
       description: post.metaDescription,
       images: [post.ogImage || DEFAULT_OG_IMAGE]
     },

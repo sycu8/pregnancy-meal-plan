@@ -30,7 +30,7 @@ const copy = {
       "account-limit": "Bạn vẫn dùng được thực đơn cơ bản. Hãy thử lại ngày mai.",
       "swap-limit": `Gói miễn phí: ${free.mealSwapsPerDay} lần đổi món/ngày. Premium đổi món thoải mái.`,
       "history-limit": "Premium lưu lịch sử không giới hạn và đồng bộ theo tài khoản.",
-      export: "Free vẫn tải bản text tạm. Premium xuất PDF đẹp để đi khám hoặc gửi người nhà.",
+      export: "Bản miễn phí vẫn tải được bản văn bản. Premium xuất PDF đẹp để đi khám hoặc gửi người nhà.",
       general: "Không giới hạn AI, đổi món, lịch sử, xuất PDF và chế độ chuyên sâu (tiểu đường thai kỳ, sau sinh)."
     },
     cta: "Đăng ký gói Premium",

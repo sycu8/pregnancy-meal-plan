@@ -35,8 +35,10 @@ describe("page bug regressions", () => {
     expect(DEFAULT_STRIPE_CHECKOUT_URL).toContain("buy.stripe.com/");
   });
 
-  it("updates privacy copy to mention opt-in sync", () => {
-    expect(LOCAL_PRIVACY_NOTICE.toLowerCase()).toContain("opt-in");
+  it("says local data stays on this device until sync is turned on", () => {
+    expect(LOCAL_PRIVACY_NOTICE).toBe(
+      "Mặc định, thông tin của bạn chỉ được lưu trên trình duyệt của thiết bị này. Đồng bộ lên máy chủ chỉ diễn ra khi bạn đăng nhập và bật đồng bộ."
+    );
     expect(LOCAL_PRIVACY_NOTICE).not.toMatch(/chưa đồng bộ dữ liệu lên server/i);
   });
 

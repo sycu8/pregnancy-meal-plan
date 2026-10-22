@@ -48,7 +48,7 @@ export function PremiumPage({ locale = "vi" }: { locale?: Locale }) {
             `${free.aiPlansPerDay} thực đơn AI / ngày`,
             `${free.mealSwapsPerDay} lần đổi món / ngày`,
             `${free.historyPlans} thực đơn gần nhất trong lịch sử`,
-            "Xuất text tạm",
+            "Xuất văn bản đơn giản",
             "Lưu trên trình duyệt"
           ],
           premiumItems: [

@@ -66,7 +66,7 @@ export const EDITORIAL_TOPICS: EditorialTopic[] = [
       "Food-safety guidance inspired by CDC/NHS/FDA themes: deli meats, unpasteurized dairy, high-mercury fish, and undercooked foods.",
     titleVi: "Thực phẩm mẹ bầu nên hạn chế hoặc nấu chín kỹ",
     snippetVi:
-      "Gợi ý an toàn thực phẩm: thịt nguội, sữa chưa tiệt trùng, cá thủy ngân cao và đồ sống/tái.",
+      "Gợi ý an toàn thực phẩm: thịt nguội, sữa chưa thanh trùng, cá thủy ngân cao và đồ sống/tái.",
     category: "dinh-duong-ba-bau",
     tags: ["food-safety", "pregnancy"]
   },
@@ -168,10 +168,10 @@ export const EDITORIAL_TOPICS: EditorialTopic[] = [
     id: "vietnamese-foods-good-for-pregnancy",
     title: "Vietnamese foods that support a healthy pregnancy plate",
     snippet:
-      "Rau muống, cá đồng nấu chín, đậu phụ, trứng, sữa chua tiệt trùng và trái cây nhiệt đới — how to use them safely and often.",
+      "Rau muống, cá đồng nấu chín, đậu phụ, trứng, sữa chua làm từ sữa đã thanh trùng và trái cây nhiệt đới — how to use them safely and often.",
     titleVi: "Thực phẩm Việt Nam tốt và phù hợp cho bà bầu",
     snippetVi:
-      "Rau xanh, cá nấu chín, đậu phụ, trứng, sữa chua tiệt trùng và trái cây — cách dùng an toàn, đủ chất theo hướng dẫn WHO/CDC/NHS.",
+      "Rau xanh, cá nấu chín, đậu phụ, trứng, sữa chua làm từ sữa đã thanh trùng và trái cây — cách dùng an toàn, đủ chất theo hướng dẫn WHO/CDC/NHS.",
     category: "dinh-duong-ba-bau",
     tags: ["vietnamese-food", "prenatal-nutrition", "pregnancy"]
   },

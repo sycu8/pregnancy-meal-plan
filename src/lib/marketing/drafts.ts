@@ -46,7 +46,7 @@ export function draftsFromBlogPost(post: BlogPost, locales: Locale[] = ["en"]): 
         const body =
           locale === "en"
             ? `${title}\n\n${tip}\n\nEducational tip only — not medical advice.\nRead more:`
-            : `${title}\n\n${tip}\n\nChỉ mang tính tham khảo giáo dục — không thay thế bác sĩ.\nĐọc thêm:`;
+            : `${title}\n\n${tip}\n\nChỉ mang tính tham khảo giáo dục — không thay thế tư vấn của bác sĩ.\nĐọc thêm:`;
         text = `${body}\n${link}`;
       } else {
         // Keep the full URL intact — truncate caption only, then append link.

@@ -498,7 +498,7 @@ const seeds: BlogPost[] = [
     content: `## Vai trò\n\nB12 tham gia tạo máu và phát triển thần kinh thai nhi. Thiếu có thể liên quan thiếu máu mẹ.\n\n## Nguồn\n\n- Động vật: thịt, cá, trứng, sữa.\n- Chay: ngũ cốc bổ sung, nấm shiitake, men bia (đọc nhãn).\n\n## Điều quan trọng\n\nMẹ **thuần chay** thường cần bổ sung B12 suốt thai kỳ và cho con bú — theo xét nghiệm và bác sĩ. Không thay thế folate bằng B12 một cách tùy tiện.`
   }),
   post({
-    title: "Phô mai mềm và sữa chưa tiệt trùng: mẹ bầu cần tránh gì?",
+    title: "Phô mai mềm và sữa chưa thanh trùng: mẹ bầu cần tránh gì?",
     slug: "pho-mem-va-sua-chua-tiet-trung-khi-mang-thai",
     excerpt: "Listeria có thể có trong phô mai mềm, sữa thô. Cách chọn sữa an toàn — NHS, CDC.",
     category: "dinh-duong-ba-bau",
@@ -512,7 +512,7 @@ const seeds: BlogPost[] = [
       ref("NHS — Foods to avoid in pregnancy", "https://www.nhs.uk/pregnancy/keeping-well/foods-to-avoid/", "NHS"),
       ref("CDC — Listeria and pregnancy", "https://www.cdc.gov/listeria/risk-groups/pregnant-women.html", "CDC")
     ],
-    content: `## Rủi ro\n\nListeria hiếm nhưng nguy hiểm với thai kỳ. Thường liên quan thực phẩm lạnh, chưa nấu chín kỹ.\n\n## Nên tránh\n\n- Phô mai mềm có vỏ trắng (brie, camembert) trừ khi **nấu chín**.\n- Phô mai xanh chưa nấu.\n- Sữa tươi chưa tiệt trùng.\n\n## An toàn\n\n- Sữa, sữa chua, phô mai cứng đã **tiệt trùng/pasteurized**.\n- Nấu chín phô mai mềm trước khi ăn.\n\n## Mẹo Việt Nam\n\nMua sữa có dán nhãn tiệt trùng; hạn chế phô mai nhập khẩu mềm chưa rõ nguồn.`
+    content: `## Rủi ro\n\nListeria hiếm nhưng nguy hiểm với thai kỳ. Thường liên quan thực phẩm lạnh, chưa nấu chín kỹ.\n\n## Nên tránh\n\n- Phô mai mềm có vỏ trắng (brie, camembert) trừ khi **nấu chín**.\n- Phô mai xanh chưa nấu.\n- Sữa tươi chưa thanh trùng.\n\n## An toàn\n\n- Sữa, sữa chua, phô mai cứng đã **tiệt trùng/pasteurized**.\n- Nấu chín phô mai mềm trước khi ăn.\n\n## Mẹo Việt Nam\n\nMua sữa có dán nhãn tiệt trùng; hạn chế phô mai nhập khẩu mềm chưa rõ nguồn.`
   }),
   post({
     title: "Phở tái, gỏi và đồ sống: hướng dẫn an toàn thực phẩm cho mẹ bầu",

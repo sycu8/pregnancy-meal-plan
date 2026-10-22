@@ -69,7 +69,9 @@ export function renderBlogMarkdown(markdown: string): string {
       html.push(`<h2 class="mt-8 text-xl font-semibold text-foreground">${inline(trimmed.slice(3))}</h2>`);
       continue;
     }
-    if (trimmed.startsWith("- ")) {
+    // "-", "*", or "+" plus one or more spaces. A line that opens with "**" is bold, not a bullet.
+    const ulMatch = /^([-*+])\s+(.*)$/.exec(trimmed);
+    if (ulMatch && !trimmed.startsWith("**")) {
       if (inOl) {
         html.push("</ol>");
         inOl = false;
@@ -78,7 +80,7 @@ export function renderBlogMarkdown(markdown: string): string {
         html.push('<ul class="mt-3 list-disc space-y-2 pl-5 text-muted-foreground">');
         inUl = true;
       }
-      html.push(`<li class="leading-7">${inline(trimmed.slice(2))}</li>`);
+      html.push(`<li class="leading-7">${inline(ulMatch[2])}</li>`);
       continue;
     }
     const olMatch = trimmed.match(/^(\d+)\.\s+(.*)$/);

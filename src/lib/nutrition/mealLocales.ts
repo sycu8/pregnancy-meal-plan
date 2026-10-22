@@ -44,7 +44,7 @@ const mealTextByViName: Record<string, LocalizedMealText> = {
     nutrients: ["protein", "starch"],
     caution: "Eggs must be fully cooked."
   },
-  "Yến mạch sữa tươi tiệt trùng": {
+  "Yến mạch sữa tươi đã thanh trùng": {
     name: "Oats with pasteurized milk",
     reason: "Adds fiber and supports digestion.",
     nutrients: ["calcium", "fiber", "slow carbs"]
@@ -271,12 +271,12 @@ const mealTextByViName: Record<string, LocalizedMealText> = {
     reason: "Small snack with healthy fats and protein.",
     nutrients: ["healthy fats", "protein"]
   },
-  "Sữa tươi tiệt trùng": {
+  "Sữa tươi đã thanh trùng hoặc tiệt trùng": {
     name: "Pasteurized milk",
     reason: "Calcium boost; choose pasteurized milk.",
     nutrients: ["calcium", "protein"]
   },
-  "Bánh mì nguyên cám phô mai tiệt trùng": {
+  "Bánh mì nguyên cám phô mai từ sữa đã thanh trùng": {
     name: "Whole-grain bread with pasteurized cheese",
     reason: "Offers slow carbs instead of a sweet bakery snack.",
     nutrients: ["calcium", "slow carbs"]
@@ -292,7 +292,7 @@ const mealTextByViName: Record<string, LocalizedMealText> = {
     nutrients: ["protein", "choline"],
     caution: "Boil until fully cooked."
   },
-  "Sinh tố bơ sữa tiệt trùng không đường": {
+  "Sinh tố bơ sữa đã thanh trùng không đường": {
     name: "Unsweetened avocado milk smoothie",
     reason: "Healthy energy boost without added sugar.",
     nutrients: ["healthy fats", "calcium"]
@@ -342,7 +342,7 @@ const ingredientEnByVi: Record<string, string> = {
   "bánh mì": "bread",
   "dưa leo": "cucumber",
   "yến mạch": "oats",
-  "sữa tươi tiệt trùng": "pasteurized milk",
+  "sữa tươi đã thanh trùng hoặc tiệt trùng": "pasteurized or UHT milk",
   chuối: "banana",
   "đậu xanh": "mung beans",
   "gạo nếp": "sticky rice",
@@ -382,13 +382,13 @@ const ingredientEnByVi: Record<string, string> = {
   "rau xà lách": "lettuce",
   "đậu lăng": "lentils",
   "khoai lang": "sweet potato",
-  "sữa chua tiệt trùng": "pasteurized yogurt",
+  "sữa chua làm từ sữa đã thanh trùng": "yogurt made from pasteurized milk",
   cam: "orange",
   ổi: "guava",
   "hạt óc chó": "walnuts",
   "hạnh nhân": "almonds",
   "bánh mì nguyên cám": "whole-grain bread",
-  "phô mai tiệt trùng": "pasteurized cheese",
+  "phô mai làm từ sữa đã thanh trùng": "cheese made from pasteurized milk",
   "đậu nành": "soybeans",
   bơ: "avocado",
   "thanh long": "dragon fruit",
@@ -397,6 +397,20 @@ const ingredientEnByVi: Record<string, string> = {
   bắp: "corn",
   "đậu đỏ": "red beans",
   "trái cây": "fruit"
+};
+
+/** Saved plans and shopping lists may still use the pre-rename pasteurization wording. */
+export const legacyMealIds: Record<string, string> = {
+  "Yến mạch sữa tươi tiệt trùng": "Yến mạch sữa tươi đã thanh trùng",
+  "Sữa tươi tiệt trùng": "Sữa tươi đã thanh trùng hoặc tiệt trùng",
+  "Bánh mì nguyên cám phô mai tiệt trùng": "Bánh mì nguyên cám phô mai từ sữa đã thanh trùng",
+  "Sinh tố bơ sữa tiệt trùng không đường": "Sinh tố bơ sữa đã thanh trùng không đường"
+};
+
+const legacyIngredientAliases: Record<string, string> = {
+  "sữa tươi tiệt trùng": "sữa tươi đã thanh trùng hoặc tiệt trùng",
+  "sữa chua tiệt trùng": "sữa chua làm từ sữa đã thanh trùng",
+  "phô mai tiệt trùng": "phô mai làm từ sữa đã thanh trùng"
 };
 
 const defaultCautionEn = "Eat while hot; refrigerate leftovers properly if prepping ahead.";
@@ -412,8 +426,9 @@ const ingredientViByEn = new Map(
 /** Resolve the stable Vietnamese meal id from a mealId or localized display name. */
 export function resolveMealId(nameOrId: string | undefined | null): string | undefined {
   if (!nameOrId) return undefined;
-  if (mealTextByViName[nameOrId]) return nameOrId;
-  return enNameToViName.get(nameOrId.toLowerCase()) ?? nameOrId;
+  const aliased = legacyMealIds[nameOrId] ?? nameOrId;
+  if (mealTextByViName[aliased]) return aliased;
+  return enNameToViName.get(aliased.toLowerCase()) ?? aliased;
 }
 
 export function localizeMealText(
@@ -440,15 +455,16 @@ export function localizeMealText(
 }
 
 export function localizeIngredient(ingredient: string, locale: Locale): string {
+  const canonical = legacyIngredientAliases[ingredient] ?? legacyIngredientAliases[ingredient.toLowerCase()] ?? ingredient;
   if (locale === "en") {
-    const key = ingredient.toLowerCase();
-    return ingredientEnByVi[key] ?? ingredientEnByVi[ingredient] ?? ingredient;
+    const key = canonical.toLowerCase();
+    return ingredientEnByVi[key] ?? ingredientEnByVi[canonical] ?? canonical;
   }
 
-  const fromEn = ingredientViByEn.get(ingredient.toLowerCase());
+  const fromEn = ingredientViByEn.get(canonical.toLowerCase());
   if (fromEn) return fromEn;
-  // Already Vietnamese (or unknown) — keep as-is for vi locale.
-  return ingredient;
+  // Already Vietnamese (or unknown) — keep the current wording for vi locale.
+  return canonical;
 }
 
 export function localizeIngredientList(items: string[], locale: Locale): string[] {

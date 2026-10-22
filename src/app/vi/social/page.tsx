@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     }
   },
   openGraph: {
-    title: copy.metaTitle,
+    title: `${copy.metaTitle} | ${BRAND_NAME}`,
     description: copy.metaDescription,
     url: canonical,
     siteName: BRAND_NAME,
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: copy.metaTitle,
+    title: `${copy.metaTitle} | ${BRAND_NAME}`,
     description: copy.metaDescription,
     images: ["/brand/social/x-header.png"]
   }
