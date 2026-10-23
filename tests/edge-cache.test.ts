@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
+import nextConfig from "../next.config";
 import { handleWithDocumentCache, isPersonalizedPath, type DocumentCache } from "@/lib/edgeCache";
-import { PUBLIC_DOCUMENT_CACHE_CONTROL } from "@/lib/publicCache";
+import { PUBLIC_CACHE_HEADER_SOURCES, PUBLIC_DOCUMENT_CACHE_CONTROL } from "@/lib/publicCache";
 
 class MemoryCache implements DocumentCache {
   private store = new Map<string, Response>();
@@ -33,6 +34,21 @@ function html(cacheControl = "private, no-cache, no-store, max-age=0, must-reval
     headers: { "content-type": "text/html; charset=utf-8", "cache-control": cacheControl }
   });
 }
+
+const PRIVATE_SHELLS = ["/account", "/history", "/profile", "/vi/account", "/vi/history", "/vi/profile"] as const;
+
+describe("private document headers", () => {
+  it("sets Cache-Control private, no-store on account, history, and profile in both locales", async () => {
+    const rules = await nextConfig.headers?.();
+    expect(rules).toBeDefined();
+
+    for (const source of PRIVATE_SHELLS) {
+      const rule = rules?.find((entry) => entry.source === source);
+      expect(rule?.headers).toEqual([{ key: "Cache-Control", value: "private, no-store" }]);
+      expect(PUBLIC_CACHE_HEADER_SOURCES).not.toContain(source);
+    }
+  });
+});
 
 describe("document edge cache", () => {
   it("serves the second public response from cache after a slow origin", async () => {
