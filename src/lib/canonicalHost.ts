@@ -14,6 +14,15 @@ export function normalizeHost(hostHeader: string | null | undefined) {
   return (hostHeader ?? "").split(":")[0]?.toLowerCase() ?? "";
 }
 
+const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1", "[::1]", "::1"]);
+
+/** Hosts other than the canonical apex should not be indexed. Local dev is left alone. */
+export function shouldNoindexHost(hostHeader: string | null | undefined) {
+  const host = normalizeHost(hostHeader);
+  if (!host || LOCAL_HOSTS.has(host)) return false;
+  return host !== CANONICAL_HOST;
+}
+
 /** True when this Host should permanently redirect to pregnancymeal.tips. */
 export function shouldRedirectHost(hostHeader: string | null | undefined) {
   const host = normalizeHost(hostHeader);

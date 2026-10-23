@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { PUBLIC_CACHE_HEADER_SOURCES, PUBLIC_DOCUMENT_CACHE_CONTROL } from "./src/lib/publicCache";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
@@ -67,7 +68,11 @@ const nextConfig: NextConfig = {
       {
         source: "/vi/blog",
         headers: [{ key: "Link", value: discoveryLinks }]
-      }
+      },
+      ...PUBLIC_CACHE_HEADER_SOURCES.map((source) => ({
+        source,
+        headers: [{ key: "Cache-Control", value: PUBLIC_DOCUMENT_CACHE_CONTROL }]
+      }))
     ];
   }
 };

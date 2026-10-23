@@ -3,6 +3,7 @@ import { Button } from "@/components/shared/Button";
 import { Disclaimer } from "@/components/shared/Disclaimer";
 import { TrustedSources } from "@/components/shared/TrustedSources";
 import { PartnerBadges } from "@/components/shared/PartnerBadges";
+import { HomeAeo } from "@/components/home/HomeAeo";
 import { ReferralCapture } from "@/components/home/ReferralCapture";
 import { ReferralShare } from "@/components/home/ReferralShare";
 import { residenceCountries } from "@/lib/nutrition/countries";
@@ -75,6 +76,7 @@ export function LandingPage({ locale }: { locale: Locale }) {
           </div>
         </div>
       </section>
+      <HomeAeo locale={locale} />
       <section className="mx-auto max-w-6xl space-y-6 px-4 pb-12">
         <ReferralShare locale={locale} />
         <PartnerBadges locale={locale} />

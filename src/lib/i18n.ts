@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { faqContent } from "@/lib/faq";
+import { ORANGE_CLOUD_HUB, ORANGE_CLOUD_PERSON_ID, ORANGE_CLOUD_PERSON_NAME } from "@/lib/orangeCloud";
 import { SUPPORT_EMAIL } from "@/lib/site";
 import { socialSameAs } from "@/lib/social/links";
 
@@ -361,16 +362,25 @@ export function structuredData(locale: Locale) {
   const pageUrl = `${siteUrl}${homeUrl}`;
   const language = locale === "vi" ? "vi-VN" : "en-US";
 
-  // Homepage markup only — FAQPage belongs on /support where FAQ content is visible.
+  // Graph stays free of FAQPage. The short Q&A and HowTo on the homepage
+  // are separate scripts next to that visible copy. Support keeps the longer FAQ.
   return {
     "@context": "https://schema.org",
     "@graph": [
+      {
+        "@type": "Person",
+        "@id": ORANGE_CLOUD_PERSON_ID,
+        name: ORANGE_CLOUD_PERSON_NAME,
+        url: `${ORANGE_CLOUD_HUB}/`,
+        sameAs: ["https://github.com/sycu8", ORANGE_CLOUD_HUB]
+      },
       {
         "@type": "WebSite",
         "@id": `${siteUrl}/#website`,
         name: BRAND_NAME,
         url: siteUrl,
         inLanguage: ["en-US", "vi-VN"],
+        creator: { "@id": ORANGE_CLOUD_PERSON_ID },
         publisher: { "@id": `${siteUrl}/#organization` }
       },
       {

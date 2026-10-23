@@ -6,6 +6,7 @@ import { MobileNav } from "@/components/shared/MobileNav";
 import { WebMcpRegistration } from "@/components/shared/WebMcpRegistration";
 import { CloudflareAnalytics } from "@/components/shared/CloudflareAnalytics";
 import { GoogleAnalytics } from "@/components/shared/GoogleAnalytics";
+import { SiteFooter } from "@/components/shared/SiteFooter";
 
 export function SiteChrome({ children, locale }: { children: React.ReactNode; locale: Locale }) {
   const copy = siteCopy[locale];
@@ -80,6 +81,7 @@ export function SiteChrome({ children, locale }: { children: React.ReactNode; lo
         </div>
       </nav>
       {children}
+      <SiteFooter locale={locale} />
     </body>
   );
 }

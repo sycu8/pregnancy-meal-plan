@@ -1,7 +1,9 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "bau-an-gi",
-  "main": ".open-next/worker.js",
+  "workers_dev": false,
+  // Loads `.open-next/worker.js` after `opennextjs-cloudflare build` and caches public documents.
+  "main": "src/cloudflare/worker.ts",
   "compatibility_date": "2026-05-11",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "assets": {

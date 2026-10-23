@@ -41,7 +41,8 @@ describe("i18n routing", () => {
   it("emits homepage structured data without FAQPage or MobileApplication", () => {
     const data = structuredData("en");
     const types = data["@graph"].map((node) => node["@type"]);
-    expect(types).toEqual(["WebSite", "Organization", "WebApplication"]);
+    expect(types).toEqual(["Person", "WebSite", "Organization", "WebApplication"]);
+    expect(JSON.stringify(data)).toContain("https://orangecloud.vn/#person");
     expect(JSON.stringify(data)).not.toContain("FAQPage");
     expect(JSON.stringify(data)).not.toContain("MobileApplication");
     expect(JSON.stringify(data)).not.toContain("suggestedGender");
