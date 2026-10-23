@@ -5,6 +5,7 @@ import {
   buildCanonicalRedirectUrl,
   CANONICAL_HOST,
   normalizeHost,
+  shouldNoindexHost,
   shouldRedirectHost
 } from "@/lib/canonicalHost";
 import { DEFAULT_SITE_URL } from "@/lib/site";
@@ -15,6 +16,14 @@ describe("URL canonicalization", () => {
     expect(CANONICAL_HOST).toBe("pregnancymeal.tips");
     expect(shouldRedirectHost("pregnancymeal.tips")).toBe(false);
     expect(shouldRedirectHost("PregnancyMeal.tips:443")).toBe(false);
+  });
+
+  it("noindexes workers.dev and other non-canonical hosts", () => {
+    expect(shouldNoindexHost("bau-an-gi.sycu-lee.workers.dev")).toBe(true);
+    expect(shouldNoindexHost("www.pregnancymeal.tips")).toBe(true);
+    expect(shouldNoindexHost("pregnancymeal.tips")).toBe(false);
+    expect(shouldNoindexHost("localhost:3000")).toBe(false);
+    expect(shouldNoindexHost("127.0.0.1:3000")).toBe(false);
   });
 
   it("redirects legacy and www hosts to the apex domain", () => {

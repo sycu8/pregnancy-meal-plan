@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { markdownForPath } from "@/lib/agentDiscovery";
-import { buildCanonicalRedirectUrl, shouldRedirectHost } from "@/lib/canonicalHost";
+import { buildCanonicalRedirectUrl, shouldNoindexHost, shouldRedirectHost } from "@/lib/canonicalHost";
+import { NOINDEX_ROBOTS_TAG } from "@/lib/publicCache";
+
+function applyNoindex(host: string | null, response: NextResponse) {
+  if (shouldNoindexHost(host)) {
+    response.headers.set("X-Robots-Tag", NOINDEX_ROBOTS_TAG);
+  }
+  return response;
+}
 
 function wantsMarkdown(accept: string) {
   return accept.toLowerCase().includes("text/markdown");
@@ -19,7 +27,7 @@ export function middleware(request: NextRequest) {
   // Prefer a single public origin so crawlers do not index duplicate hosts.
   if (shouldRedirectHost(host)) {
     const target = buildCanonicalRedirectUrl(request.nextUrl.pathname, request.nextUrl.search);
-    return NextResponse.redirect(target, 301);
+    return applyNoindex(host, NextResponse.redirect(target, 301));
   }
 
   const pathname = request.nextUrl.pathname;
@@ -28,27 +36,33 @@ export function middleware(request: NextRequest) {
   if (isMarkdownPath(pathname) && wantsMarkdown(accept)) {
     const markdown = markdownForPath(pathname);
     if (!markdown) {
-      return new Response("# Not found\n", {
-        status: 404,
-        headers: { "Content-Type": "text/markdown; charset=utf-8" }
-      });
+      return applyNoindex(
+        host,
+        new NextResponse("# Not found\n", {
+          status: 404,
+          headers: { "Content-Type": "text/markdown; charset=utf-8" }
+        })
+      );
     }
-    return new Response(markdown, {
-      headers: {
-        "Content-Type": "text/markdown; charset=utf-8",
-        "x-markdown-tokens": estimateTokens(markdown).toString(),
-        Link: [
-          `</.well-known/api-catalog>; rel="api-catalog"`,
-          `</openapi.json>; rel="service-desc"; type="application/openapi+json"`,
-          `</api-docs>; rel="service-doc"; type="text/markdown"`,
-          `</llms.txt>; rel="alternate"; type="text/plain"`,
-          `</.well-known/agent-skills/index.json>; rel="describedby"; type="application/json"`
-        ].join(", ")
-      }
-    });
+    return applyNoindex(
+      host,
+      new NextResponse(markdown, {
+        headers: {
+          "Content-Type": "text/markdown; charset=utf-8",
+          "x-markdown-tokens": estimateTokens(markdown).toString(),
+          Link: [
+            `</.well-known/api-catalog>; rel="api-catalog"`,
+            `</openapi.json>; rel="service-desc"; type="application/openapi+json"`,
+            `</api-docs>; rel="service-doc"; type="text/markdown"`,
+            `</llms.txt>; rel="alternate"; type="text/plain"`,
+            `</.well-known/agent-skills/index.json>; rel="describedby"; type="application/json"`
+          ].join(", ")
+        }
+      })
+    );
   }
 
-  return NextResponse.next();
+  return applyNoindex(host, NextResponse.next());
 }
 
 export const config = {

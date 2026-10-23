@@ -1,4 +1,16 @@
 import type { NextConfig } from "next";
+import { PUBLIC_CACHE_HEADER_SOURCES, PUBLIC_DOCUMENT_CACHE_CONTROL } from "./src/lib/publicCache";
+
+/** Personal shells. Same private policy as the dynamic /result and /marketing routes. */
+const PRIVATE_NO_STORE = "private, no-store";
+const PRIVATE_NO_STORE_PATHS = [
+  "/account",
+  "/history",
+  "/profile",
+  "/vi/account",
+  "/vi/history",
+  "/vi/profile"
+] as const;
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
@@ -67,7 +79,15 @@ const nextConfig: NextConfig = {
       {
         source: "/vi/blog",
         headers: [{ key: "Link", value: discoveryLinks }]
-      }
+      },
+      ...PUBLIC_CACHE_HEADER_SOURCES.map((source) => ({
+        source,
+        headers: [{ key: "Cache-Control", value: PUBLIC_DOCUMENT_CACHE_CONTROL }]
+      })),
+      ...PRIVATE_NO_STORE_PATHS.map((source) => ({
+        source,
+        headers: [{ key: "Cache-Control", value: PRIVATE_NO_STORE }]
+      }))
     ];
   }
 };

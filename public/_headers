@@ -1,0 +1,9 @@
+# Cloudflare Static Assets. The Worker does not run in front of these files.
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/brand/*
+  Cache-Control: public, max-age=86400
+
+/og-default.png
+  Cache-Control: public, max-age=86400
