@@ -113,7 +113,9 @@ Sushi, salad, BBQ và khay phô mai là món quốc tế dễ gặp khi đi ăn 
 
 ## Khi nào cần hỏi bác sĩ
 
-Nôn ói kéo dài sau ăn ngoài, sốt, tiêu chảy nặng, đau bụng dữ dội hoặc chảy máu — đi khám sớm. Bài viết mang tính giáo dục, không thay thế chỉ định lâm sàng.
+**Cần cấp cứu ngay (gọi 115 hoặc đến bệnh viện gần nhất):** ra máu nhiều, đau bụng dữ dội, khó thở, ngất, co giật, vỡ ối, thai máy giảm rõ hoặc không thấy thai máy.
+
+**Nên đi khám sớm:** triệu chứng kéo dài hoặc nặng dần, sốt, nôn không giữ được nước. Bài viết mang tính giáo dục, không thay thế chỉ định lâm sàng.
 
 ## Nguồn tham khảo
 
