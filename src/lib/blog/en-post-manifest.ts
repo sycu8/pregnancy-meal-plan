@@ -251,6 +251,7 @@ import internationalPantryStaplesForPregnancyNutritionF79eca from "../../../cont
 import internationalPantryStaplesForPregnancyNutritionF95264 from "../../../content/blog/posts-en/international-pantry-staples-for-pregnancy-nutrition-f95264.json";
 import internationalPantryStaplesForPregnancyNutrition from "../../../content/blog/posts-en/international-pantry-staples-for-pregnancy-nutrition.json";
 import iotVaMuoiIOtKhiMangThai from "../../../content/blog/posts-en/iot-va-muoi-i-ot-khi-mang-thai.json";
+import ironRichPregnancyMealsWithVitaminCPairingTips12607d from "../../../content/blog/posts-en/iron-rich-pregnancy-meals-with-vitamin-c-pairing-tips-12607d.json";
 import ironRichPregnancyMealsWithVitaminCPairingTips15b2a9 from "../../../content/blog/posts-en/iron-rich-pregnancy-meals-with-vitamin-c-pairing-tips-15b2a9.json";
 import ironRichPregnancyMealsWithVitaminCPairingTips26818d from "../../../content/blog/posts-en/iron-rich-pregnancy-meals-with-vitamin-c-pairing-tips-26818d.json";
 import ironRichPregnancyMealsWithVitaminCPairingTips551c2b from "../../../content/blog/posts-en/iron-rich-pregnancy-meals-with-vitamin-c-pairing-tips-551c2b.json";
@@ -805,6 +806,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   internationalPantryStaplesForPregnancyNutritionF95264,
   internationalPantryStaplesForPregnancyNutrition,
   iotVaMuoiIOtKhiMangThai,
+  ironRichPregnancyMealsWithVitaminCPairingTips12607d,
   ironRichPregnancyMealsWithVitaminCPairingTips15b2a9,
   ironRichPregnancyMealsWithVitaminCPairingTips26818d,
   ironRichPregnancyMealsWithVitaminCPairingTips551c2b,
