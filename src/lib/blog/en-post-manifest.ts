@@ -246,6 +246,7 @@ import internationalPantryStaplesForPregnancyNutrition8db038 from "../../../cont
 import internationalPantryStaplesForPregnancyNutritionA7e51d from "../../../content/blog/posts-en/international-pantry-staples-for-pregnancy-nutrition-a7e51d.json";
 import internationalPantryStaplesForPregnancyNutritionC3776b from "../../../content/blog/posts-en/international-pantry-staples-for-pregnancy-nutrition-c3776b.json";
 import internationalPantryStaplesForPregnancyNutritionCb1bbe from "../../../content/blog/posts-en/international-pantry-staples-for-pregnancy-nutrition-cb1bbe.json";
+import internationalPantryStaplesForPregnancyNutritionD125e7 from "../../../content/blog/posts-en/international-pantry-staples-for-pregnancy-nutrition-d125e7.json";
 import internationalPantryStaplesForPregnancyNutritionD53818 from "../../../content/blog/posts-en/international-pantry-staples-for-pregnancy-nutrition-d53818.json";
 import internationalPantryStaplesForPregnancyNutritionD7153d from "../../../content/blog/posts-en/international-pantry-staples-for-pregnancy-nutrition-d7153d.json";
 import internationalPantryStaplesForPregnancyNutritionE2f8c0 from "../../../content/blog/posts-en/international-pantry-staples-for-pregnancy-nutrition-e2f8c0.json";
@@ -473,6 +474,7 @@ import pregnancyRecipesIronAndFolateBowlsYouCanCookIn30Minutes9de9f2 from "../..
 import pregnancyRecipesIronAndFolateBowlsYouCanCookIn30MinutesA19c08 from "../../../content/blog/posts-en/pregnancy-recipes-iron-and-folate-bowls-you-can-cook-in-30-minutes-a19c08.json";
 import pregnancyRecipesIronAndFolateBowlsYouCanCookIn30MinutesA70db8 from "../../../content/blog/posts-en/pregnancy-recipes-iron-and-folate-bowls-you-can-cook-in-30-minutes-a70db8.json";
 import pregnancyRecipesIronAndFolateBowlsYouCanCookIn30MinutesAbc97b from "../../../content/blog/posts-en/pregnancy-recipes-iron-and-folate-bowls-you-can-cook-in-30-minutes-abc97b.json";
+import pregnancyRecipesIronAndFolateBowlsYouCanCookIn30MinutesB39104 from "../../../content/blog/posts-en/pregnancy-recipes-iron-and-folate-bowls-you-can-cook-in-30-minutes-b39104.json";
 import pregnancyRecipesIronAndFolateBowlsYouCanCookIn30MinutesB782bb from "../../../content/blog/posts-en/pregnancy-recipes-iron-and-folate-bowls-you-can-cook-in-30-minutes-b782bb.json";
 import pregnancyRecipesIronAndFolateBowlsYouCanCookIn30MinutesC1b8f4 from "../../../content/blog/posts-en/pregnancy-recipes-iron-and-folate-bowls-you-can-cook-in-30-minutes-c1b8f4.json";
 import pregnancyRecipesIronAndFolateBowlsYouCanCookIn30MinutesD5fd10 from "../../../content/blog/posts-en/pregnancy-recipes-iron-and-folate-bowls-you-can-cook-in-30-minutes-d5fd10.json";
@@ -808,6 +810,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   internationalPantryStaplesForPregnancyNutritionA7e51d,
   internationalPantryStaplesForPregnancyNutritionC3776b,
   internationalPantryStaplesForPregnancyNutritionCb1bbe,
+  internationalPantryStaplesForPregnancyNutritionD125e7,
   internationalPantryStaplesForPregnancyNutritionD53818,
   internationalPantryStaplesForPregnancyNutritionD7153d,
   internationalPantryStaplesForPregnancyNutritionE2f8c0,
@@ -1035,6 +1038,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   pregnancyRecipesIronAndFolateBowlsYouCanCookIn30MinutesA19c08,
   pregnancyRecipesIronAndFolateBowlsYouCanCookIn30MinutesA70db8,
   pregnancyRecipesIronAndFolateBowlsYouCanCookIn30MinutesAbc97b,
+  pregnancyRecipesIronAndFolateBowlsYouCanCookIn30MinutesB39104,
   pregnancyRecipesIronAndFolateBowlsYouCanCookIn30MinutesB782bb,
   pregnancyRecipesIronAndFolateBowlsYouCanCookIn30MinutesC1b8f4,
   pregnancyRecipesIronAndFolateBowlsYouCanCookIn30MinutesD5fd10,
