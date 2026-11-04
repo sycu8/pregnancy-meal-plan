@@ -61,6 +61,7 @@ import daiThaoDuongThaiKyMoiBanTamCuaMeBauVi from "../../../content/blog/posts-e
 import dauHieuSayThaiCanLamGi from "../../../content/blog/posts-en/dau-hieu-say-thai-can-lam-gi.json";
 import dauHieuTienSanGiatSom from "../../../content/blog/posts-en/dau-hieu-tien-san-giat-som.json";
 import dauLungSauSinh from "../../../content/blog/posts-en/dau-lung-sau-sinh.json";
+import deliciousPregnancyRecipesIronAndFolateBowlsIn30Minutes from "../../../content/blog/posts-en/delicious-pregnancy-recipes-iron-and-folate-bowls-in-30-minutes.json";
 import deliciousWeeknightPregnancyMenus5CookOnceRecipes091d89 from "../../../content/blog/posts-en/delicious-weeknight-pregnancy-menus-5-cook-once-recipes-091d89.json";
 import deliciousWeeknightPregnancyMenus5CookOnceRecipes1b2ad7 from "../../../content/blog/posts-en/delicious-weeknight-pregnancy-menus-5-cook-once-recipes-1b2ad7.json";
 import deliciousWeeknightPregnancyMenus5CookOnceRecipes1f6097 from "../../../content/blog/posts-en/delicious-weeknight-pregnancy-menus-5-cook-once-recipes-1f6097.json";
@@ -70,6 +71,7 @@ import deliciousWeeknightPregnancyMenus5CookOnceRecipes2aca69 from "../../../con
 import deliciousWeeknightPregnancyMenus5CookOnceRecipes4cdc70 from "../../../content/blog/posts-en/delicious-weeknight-pregnancy-menus-5-cook-once-recipes-4cdc70.json";
 import deliciousWeeknightPregnancyMenus5CookOnceRecipes520654 from "../../../content/blog/posts-en/delicious-weeknight-pregnancy-menus-5-cook-once-recipes-520654.json";
 import deliciousWeeknightPregnancyMenus5CookOnceRecipes684b5b from "../../../content/blog/posts-en/delicious-weeknight-pregnancy-menus-5-cook-once-recipes-684b5b.json";
+import deliciousWeeknightPregnancyMenus5CookOnceRecipes6e3799 from "../../../content/blog/posts-en/delicious-weeknight-pregnancy-menus-5-cook-once-recipes-6e3799.json";
 import deliciousWeeknightPregnancyMenus5CookOnceRecipes76f768 from "../../../content/blog/posts-en/delicious-weeknight-pregnancy-menus-5-cook-once-recipes-76f768.json";
 import deliciousWeeknightPregnancyMenus5CookOnceRecipes8adaae from "../../../content/blog/posts-en/delicious-weeknight-pregnancy-menus-5-cook-once-recipes-8adaae.json";
 import deliciousWeeknightPregnancyMenus5CookOnceRecipesB39da9 from "../../../content/blog/posts-en/delicious-weeknight-pregnancy-menus-5-cook-once-recipes-b39da9.json";
@@ -645,6 +647,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   dauHieuSayThaiCanLamGi,
   dauHieuTienSanGiatSom,
   dauLungSauSinh,
+  deliciousPregnancyRecipesIronAndFolateBowlsIn30Minutes,
   deliciousWeeknightPregnancyMenus5CookOnceRecipes091d89,
   deliciousWeeknightPregnancyMenus5CookOnceRecipes1b2ad7,
   deliciousWeeknightPregnancyMenus5CookOnceRecipes1f6097,
@@ -654,6 +657,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   deliciousWeeknightPregnancyMenus5CookOnceRecipes4cdc70,
   deliciousWeeknightPregnancyMenus5CookOnceRecipes520654,
   deliciousWeeknightPregnancyMenus5CookOnceRecipes684b5b,
+  deliciousWeeknightPregnancyMenus5CookOnceRecipes6e3799,
   deliciousWeeknightPregnancyMenus5CookOnceRecipes76f768,
   deliciousWeeknightPregnancyMenus5CookOnceRecipes8adaae,
   deliciousWeeknightPregnancyMenus5CookOnceRecipesB39da9,
