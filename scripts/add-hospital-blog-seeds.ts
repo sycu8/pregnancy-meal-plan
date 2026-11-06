@@ -111,7 +111,7 @@ const seeds: BlogPost[] = [
       ),
       ref("NHS — Miscarriage", "https://www.nhs.uk/conditions/miscarriage/", "NHS")
     ],
-    content: `## Sảy thai là gì?\n\nMất thai trước khoảng **20 tuần** (định nghĩa có thể khác nhẹ theo hướng dẫn). Khá phổ biến ở tam cá nguyệt đầu; không phải lúc nào cũng do lỗi của mẹ.\n\n## Dấu hiệu cần đánh giá\n\n- Ra máu âm đạo (đỏ hoặc nâu).\n- Đau bụng dưới, cramp.\n- Chảy máu nhiều, chóng mặt, ngất.\n\n## Việc nên làm\n\n1. **Liên hệ cơ sở y tế** — không tự chẩn đoán.\n2. Nghỉ ngơi, tránh quan hệ tình dục nếu đang ra máu.\n3. Không tự dùng thuốc cầm máu/giảm đau mạnh.\n\n## Hỗ trợ tâm lý\n\nSảy thai có thể gây buồn bã sâu sắc; hỏi bác sĩ về tư vấn hoặc nhóm hỗ trợ nếu cần.`
+    content: `## Sảy thai là gì?\n\nMất thai trước khoảng **20 tuần** (định nghĩa có thể khác nhẹ theo hướng dẫn). Khá phổ biến ở tam cá nguyệt đầu; không phải lúc nào cũng do lỗi của mẹ.\n\n**Gọi 115 / đến cấp cứu ngay** nếu: chảy máu nhiều (thấm ướt 1 băng vệ sinh/giờ trong 2 giờ liền), chóng mặt, ngất, đau bụng dữ dội, sốt.\n\n**Đi khám trong ngày** nếu: ra ít máu đỏ hoặc nâu, đau bụng dưới âm ỉ, chuột rút bụng.\n\n## Việc nên làm\n\n1. Không tự chẩn đoán.\n2. Nghỉ ngơi, tránh quan hệ tình dục nếu đang ra máu.\n3. Không tự dùng thuốc cầm máu/giảm đau mạnh.\n\n## Hỗ trợ tâm lý\n\nSảy thai có thể gây buồn bã sâu sắc; hỏi bác sĩ về tư vấn hoặc nhóm hỗ trợ nếu cần.`
   }),
   post({
     title: "Thai lưu: dấu hiệu nhận biết và tầm quan trọng của khám thai",
