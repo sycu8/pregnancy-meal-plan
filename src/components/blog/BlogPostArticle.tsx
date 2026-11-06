@@ -6,6 +6,7 @@ import { renderBlogMarkdown } from "@/lib/blog/markdown";
 import { buildBlogListHref } from "@/lib/blog/query";
 import { BlogBreadcrumbs } from "@/components/blog/BlogCard";
 import { BlogPlannerCta } from "@/components/blog/BlogPlannerCta";
+import { emergencyNow, seekCareSoon } from "@/lib/blog/emergencyCopy";
 import { blogBasePath, getBlogUi } from "@/lib/blog/ui";
 
 export function BlogPostArticle({ post, locale = "vi" }: { post: BlogPost; locale?: BlogLocale }) {
@@ -104,6 +105,14 @@ export function BlogPostArticle({ post, locale = "vi" }: { post: BlogPost; local
       <aside className="mt-10 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950">
         <p className="font-medium">{ui.medicalNote}</p>
         <p className="mt-1">{medicalDisclaimer[locale]}</p>
+        <p className="mt-2">
+          <strong>{emergencyNow[locale].slice(0, emergencyNow[locale].indexOf(":") + 1)}</strong>
+          {emergencyNow[locale].slice(emergencyNow[locale].indexOf(":") + 1)}
+        </p>
+        <p className="mt-1">
+          <strong>{seekCareSoon[locale].slice(0, seekCareSoon[locale].indexOf(":") + 1)}</strong>
+          {seekCareSoon[locale].slice(seekCareSoon[locale].indexOf(":") + 1)}
+        </p>
       </aside>
 
       <footer className="mt-10 border-t border-border pt-8">
