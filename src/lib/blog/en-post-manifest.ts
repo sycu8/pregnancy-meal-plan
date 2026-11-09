@@ -179,6 +179,7 @@ import foodsToLimitOrCookThoroughlyDuringPregnancyB6d70e from "../../../content/
 import foodsToLimitOrCookThoroughlyDuringPregnancyB8fd70 from "../../../content/blog/posts-en/foods-to-limit-or-cook-thoroughly-during-pregnancy-b8fd70.json";
 import foodsToLimitOrCookThoroughlyDuringPregnancyCf1d5a from "../../../content/blog/posts-en/foods-to-limit-or-cook-thoroughly-during-pregnancy-cf1d5a.json";
 import foodsToLimitOrCookThoroughlyDuringPregnancyE1dfb5 from "../../../content/blog/posts-en/foods-to-limit-or-cook-thoroughly-during-pregnancy-e1dfb5.json";
+import foodsToLimitOrCookThoroughlyDuringPregnancyE41a56 from "../../../content/blog/posts-en/foods-to-limit-or-cook-thoroughly-during-pregnancy-e41a56.json";
 import foodsToLimitOrCookThoroughlyDuringPregnancyEc2ea4 from "../../../content/blog/posts-en/foods-to-limit-or-cook-thoroughly-during-pregnancy-ec2ea4.json";
 import foodsToLimitOrCookThoroughlyDuringPregnancyEd08c9 from "../../../content/blog/posts-en/foods-to-limit-or-cook-thoroughly-during-pregnancy-ed08c9.json";
 import foodsToLimitOrCookThoroughlyDuringPregnancyF62e0c from "../../../content/blog/posts-en/foods-to-limit-or-cook-thoroughly-during-pregnancy-f62e0c.json";
@@ -225,6 +226,7 @@ import gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiberB67a4b from "../.
 import gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiberBd37fc from "../../../content/blog/posts-en/gestational-diabetes-meal-ideas-balanced-carbs-protein-and-fiber-bd37fc.json";
 import gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiberC37cf1 from "../../../content/blog/posts-en/gestational-diabetes-meal-ideas-balanced-carbs-protein-and-fiber-c37cf1.json";
 import gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiberCa70b1 from "../../../content/blog/posts-en/gestational-diabetes-meal-ideas-balanced-carbs-protein-and-fiber-ca70b1.json";
+import gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiberD03129 from "../../../content/blog/posts-en/gestational-diabetes-meal-ideas-balanced-carbs-protein-and-fiber-d03129.json";
 import gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiberE4c243 from "../../../content/blog/posts-en/gestational-diabetes-meal-ideas-balanced-carbs-protein-and-fiber-e4c243.json";
 import gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiberE5208d from "../../../content/blog/posts-en/gestational-diabetes-meal-ideas-balanced-carbs-protein-and-fiber-e5208d.json";
 import gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiberF87622 from "../../../content/blog/posts-en/gestational-diabetes-meal-ideas-balanced-carbs-protein-and-fiber-f87622.json";
@@ -775,6 +777,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   foodsToLimitOrCookThoroughlyDuringPregnancyB8fd70,
   foodsToLimitOrCookThoroughlyDuringPregnancyCf1d5a,
   foodsToLimitOrCookThoroughlyDuringPregnancyE1dfb5,
+  foodsToLimitOrCookThoroughlyDuringPregnancyE41a56,
   foodsToLimitOrCookThoroughlyDuringPregnancyEc2ea4,
   foodsToLimitOrCookThoroughlyDuringPregnancyEd08c9,
   foodsToLimitOrCookThoroughlyDuringPregnancyF62e0c,
@@ -821,6 +824,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiberBd37fc,
   gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiberC37cf1,
   gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiberCa70b1,
+  gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiberD03129,
   gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiberE4c243,
   gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiberE5208d,
   gestationalDiabetesMealIdeasBalancedCarbsProteinAndFiberF87622,
