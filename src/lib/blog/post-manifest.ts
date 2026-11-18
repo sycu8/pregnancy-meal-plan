@@ -248,6 +248,7 @@ import hoiChungOngCoTayKhiMangThai from "../../../content/blog/posts/hoi-chung-o
 import hoiPhucSauSinhMo from "../../../content/blog/posts/hoi-phuc-sau-sinh-mo.json";
 import howToRelievePostpartumBackPain from "../../../content/blog/posts/how-to-relieve-postpartum-back-pain.json";
 import hutSuaMeDungCach from "../../../content/blog/posts/hut-sua-me-dung-cach.json";
+import internationalPantryStaplesForPregnancyNutrition0eb802 from "../../../content/blog/posts/international-pantry-staples-for-pregnancy-nutrition-0eb802.json";
 import internationalPantryStaplesForPregnancyNutrition10bda5 from "../../../content/blog/posts/international-pantry-staples-for-pregnancy-nutrition-10bda5.json";
 import internationalPantryStaplesForPregnancyNutrition16e463 from "../../../content/blog/posts/international-pantry-staples-for-pregnancy-nutrition-16e463.json";
 import internationalPantryStaplesForPregnancyNutrition177c3a from "../../../content/blog/posts/international-pantry-staples-for-pregnancy-nutrition-177c3a.json";
@@ -497,6 +498,7 @@ import pregnancyRecipesIronAndFolateBowlsYouCanCookIn30Minutes0e5800 from "../..
 import pregnancyRecipesIronAndFolateBowlsYouCanCookIn30Minutes288a00 from "../../../content/blog/posts/pregnancy-recipes-iron-and-folate-bowls-you-can-cook-in-30-minutes-288a00.json";
 import pregnancyRecipesIronAndFolateBowlsYouCanCookIn30Minutes28f238 from "../../../content/blog/posts/pregnancy-recipes-iron-and-folate-bowls-you-can-cook-in-30-minutes-28f238.json";
 import pregnancyRecipesIronAndFolateBowlsYouCanCookIn30Minutes295912 from "../../../content/blog/posts/pregnancy-recipes-iron-and-folate-bowls-you-can-cook-in-30-minutes-295912.json";
+import pregnancyRecipesIronAndFolateBowlsYouCanCookIn30Minutes2ee4cb from "../../../content/blog/posts/pregnancy-recipes-iron-and-folate-bowls-you-can-cook-in-30-minutes-2ee4cb.json";
 import pregnancyRecipesIronAndFolateBowlsYouCanCookIn30Minutes328559 from "../../../content/blog/posts/pregnancy-recipes-iron-and-folate-bowls-you-can-cook-in-30-minutes-328559.json";
 import pregnancyRecipesIronAndFolateBowlsYouCanCookIn30Minutes33d275 from "../../../content/blog/posts/pregnancy-recipes-iron-and-folate-bowls-you-can-cook-in-30-minutes-33d275.json";
 import pregnancyRecipesIronAndFolateBowlsYouCanCookIn30Minutes398912 from "../../../content/blog/posts/pregnancy-recipes-iron-and-folate-bowls-you-can-cook-in-30-minutes-398912.json";
@@ -870,6 +872,7 @@ export const postManifest: BlogPost[] = [
   hoiPhucSauSinhMo,
   howToRelievePostpartumBackPain,
   hutSuaMeDungCach,
+  internationalPantryStaplesForPregnancyNutrition0eb802,
   internationalPantryStaplesForPregnancyNutrition10bda5,
   internationalPantryStaplesForPregnancyNutrition16e463,
   internationalPantryStaplesForPregnancyNutrition177c3a,
@@ -1119,6 +1122,7 @@ export const postManifest: BlogPost[] = [
   pregnancyRecipesIronAndFolateBowlsYouCanCookIn30Minutes288a00,
   pregnancyRecipesIronAndFolateBowlsYouCanCookIn30Minutes28f238,
   pregnancyRecipesIronAndFolateBowlsYouCanCookIn30Minutes295912,
+  pregnancyRecipesIronAndFolateBowlsYouCanCookIn30Minutes2ee4cb,
   pregnancyRecipesIronAndFolateBowlsYouCanCookIn30Minutes328559,
   pregnancyRecipesIronAndFolateBowlsYouCanCookIn30Minutes33d275,
   pregnancyRecipesIronAndFolateBowlsYouCanCookIn30Minutes398912,
