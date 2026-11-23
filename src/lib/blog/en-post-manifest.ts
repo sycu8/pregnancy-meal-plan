@@ -306,6 +306,7 @@ import ironRichPregnancyMealsWithVitaminCPairingTips705210 from "../../../conten
 import ironRichPregnancyMealsWithVitaminCPairingTips7ef85e from "../../../content/blog/posts-en/iron-rich-pregnancy-meals-with-vitamin-c-pairing-tips-7ef85e.json";
 import ironRichPregnancyMealsWithVitaminCPairingTips8613e9 from "../../../content/blog/posts-en/iron-rich-pregnancy-meals-with-vitamin-c-pairing-tips-8613e9.json";
 import ironRichPregnancyMealsWithVitaminCPairingTips8b8d63 from "../../../content/blog/posts-en/iron-rich-pregnancy-meals-with-vitamin-c-pairing-tips-8b8d63.json";
+import ironRichPregnancyMealsWithVitaminCPairingTips8e1992 from "../../../content/blog/posts-en/iron-rich-pregnancy-meals-with-vitamin-c-pairing-tips-8e1992.json";
 import ironRichPregnancyMealsWithVitaminCPairingTips8f70e6 from "../../../content/blog/posts-en/iron-rich-pregnancy-meals-with-vitamin-c-pairing-tips-8f70e6.json";
 import ironRichPregnancyMealsWithVitaminCPairingTips95d02b from "../../../content/blog/posts-en/iron-rich-pregnancy-meals-with-vitamin-c-pairing-tips-95d02b.json";
 import ironRichPregnancyMealsWithVitaminCPairingTips9741d2 from "../../../content/blog/posts-en/iron-rich-pregnancy-meals-with-vitamin-c-pairing-tips-9741d2.json";
@@ -475,6 +476,7 @@ import omega3AndDhaInPregnancyFoodSourcesAndSupplementCautionsD2f8d7 from "../..
 import omega3AndDhaInPregnancyFoodSourcesAndSupplementCautionsD7f799 from "../../../content/blog/posts-en/omega-3-and-dha-in-pregnancy-food-sources-and-supplement-cautions-d7f799.json";
 import omega3AndDhaInPregnancyFoodSourcesAndSupplementCautionsE42060 from "../../../content/blog/posts-en/omega-3-and-dha-in-pregnancy-food-sources-and-supplement-cautions-e42060.json";
 import omega3AndDhaInPregnancyFoodSourcesAndSupplementCautionsE5eec6 from "../../../content/blog/posts-en/omega-3-and-dha-in-pregnancy-food-sources-and-supplement-cautions-e5eec6.json";
+import omega3AndDhaInPregnancyFoodSourcesAndSupplementCautionsEa6cc0 from "../../../content/blog/posts-en/omega-3-and-dha-in-pregnancy-food-sources-and-supplement-cautions-ea6cc0.json";
 import omega3AndDhaInPregnancyFoodSourcesAndSupplementCautionsEba812 from "../../../content/blog/posts-en/omega-3-and-dha-in-pregnancy-food-sources-and-supplement-cautions-eba812.json";
 import omega3AndDhaInPregnancyFoodSourcesAndSupplementCautionsFa0dbc from "../../../content/blog/posts-en/omega-3-and-dha-in-pregnancy-food-sources-and-supplement-cautions-fa0dbc.json";
 import omega3AndDhaInPregnancyFoodSourcesAndSupplementCautions from "../../../content/blog/posts-en/omega-3-and-dha-in-pregnancy-food-sources-and-supplement-cautions.json";
@@ -944,6 +946,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   ironRichPregnancyMealsWithVitaminCPairingTips7ef85e,
   ironRichPregnancyMealsWithVitaminCPairingTips8613e9,
   ironRichPregnancyMealsWithVitaminCPairingTips8b8d63,
+  ironRichPregnancyMealsWithVitaminCPairingTips8e1992,
   ironRichPregnancyMealsWithVitaminCPairingTips8f70e6,
   ironRichPregnancyMealsWithVitaminCPairingTips95d02b,
   ironRichPregnancyMealsWithVitaminCPairingTips9741d2,
@@ -1113,6 +1116,7 @@ export const enTranslationManifest: BlogPostTranslation[] = [
   omega3AndDhaInPregnancyFoodSourcesAndSupplementCautionsD7f799,
   omega3AndDhaInPregnancyFoodSourcesAndSupplementCautionsE42060,
   omega3AndDhaInPregnancyFoodSourcesAndSupplementCautionsE5eec6,
+  omega3AndDhaInPregnancyFoodSourcesAndSupplementCautionsEa6cc0,
   omega3AndDhaInPregnancyFoodSourcesAndSupplementCautionsEba812,
   omega3AndDhaInPregnancyFoodSourcesAndSupplementCautionsFa0dbc,
   omega3AndDhaInPregnancyFoodSourcesAndSupplementCautions,
